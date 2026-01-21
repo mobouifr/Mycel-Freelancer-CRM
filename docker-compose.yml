@@ -1,0 +1,6 @@
+# Docker Compose configuration for Freelancer CRM
+version: '3.8'
+
+services:
+  # Add services here
+  
