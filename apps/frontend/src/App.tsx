@@ -124,6 +124,11 @@ export default function App() {
             <section className="card">
                 <h2>Clients</h2>
 
+                {/* SECURITY FIX: Show which user's data is being displayed */}
+                <div className="user-badge">
+                    Viewing as: <strong>demo@crm.com</strong>
+                </div>
+
                 {clientsLoading && <p className="loading">Loading clients…</p>}
 
                 {clientsError && (

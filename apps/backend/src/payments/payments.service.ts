@@ -25,7 +25,9 @@ import { Decimal } from '@prisma/client/runtime/library';
 // ---------------------------------------------------------------------------
 export interface CreatePaymentDto {
     invoiceId: string;
-    amount: number;
+    /** SECURITY FIX: amount is a string to avoid floating-point precision loss.
+     *  Must match /^\d+\.\d{2}$/ (e.g. "10.23"). */
+    amount: string;
     method: string;
     notes?: string;
 }
@@ -73,7 +75,17 @@ export class PaymentsService {
     //
     // =========================================================================
     async createPayment(dto: CreatePaymentDto): Promise<PaymentWithInvoice> {
-        const { invoiceId, amount, method, notes } = dto;
+        const { invoiceId, amount: amountStr, method, notes } = dto;
+
+        // SECURITY FIX: Validate the string format before converting to Decimal
+        // to prevent floating-point precision loss (e.g. 10.23 → 10.229999…)
+        if (!/^\d+\.\d{2}$/.test(amountStr)) {
+            throw new BadRequestException(
+                'Amount must be a string with exactly 2 decimal places (e.g. "10.23")',
+            );
+        }
+
+        const amount = new Decimal(amountStr);
 
         return this.prisma.$transaction(async (tx) => {
             // ---------------------------------------------------------------
@@ -112,7 +124,7 @@ export class PaymentsService {
             // ---------------------------------------------------------------
             // Step 3: Validate payment amount
             // ---------------------------------------------------------------
-            if (amount <= 0) {
+            if (amount.lessThanOrEqualTo(0)) {
                 throw new BadRequestException(
                     'Payment amount must be greater than 0',
                 );
@@ -133,9 +145,9 @@ export class PaymentsService {
                 : new Decimal(0);
             const remaining = invoiceAmount.minus(totalPaid);
 
-            if (new Decimal(amount).greaterThan(remaining)) {
+            if (amount.greaterThan(remaining)) {
                 throw new BadRequestException(
-                    `Payment amount ($${amount}) exceeds remaining balance ($${remaining.toFixed(2)})`,
+                    `Payment amount ($${amount.toFixed(2)}) exceeds remaining balance ($${remaining.toFixed(2)})`,
                 );
             }
 
@@ -144,7 +156,7 @@ export class PaymentsService {
             // ---------------------------------------------------------------
             const payment = await tx.payment.create({
                 data: {
-                    amount,
+                    amount: amount.toNumber(),
                     method,
                     notes,
                     invoiceId,
@@ -154,7 +166,7 @@ export class PaymentsService {
             // ---------------------------------------------------------------
             // Step 6: Update invoice status
             // ---------------------------------------------------------------
-            const newTotal = totalPaid.plus(new Decimal(amount));
+            const newTotal = totalPaid.plus(amount);
             const fullyPaid = newTotal.greaterThanOrEqualTo(invoiceAmount);
 
             const updatedInvoice = await tx.invoice.update({
