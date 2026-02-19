@@ -11,17 +11,13 @@ jobs:
   backend:
     name: 🔧 Backend (NestJS)
     runs-on: ubuntu-latest
+    
+    # Skip if no backend code exists yet
+    if: hashFiles('apps/backend/package.json') != ''
+    
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
-
-      - name: 🔎 Check for backend package.json
-        id: check-backend
-        working-directory: apps/backend
-        run: |
-          if [ ! -f package.json ]; then
-            echo "skip=true" >> $GITHUB_OUTPUT
-          fi
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
@@ -32,17 +28,14 @@ jobs:
           cache-dependency-path: 'apps/backend/package-lock.json'
 
       - name: 📦 Install dependencies
-        if: steps.check-backend.outputs.skip != 'true'
         working-directory: apps/backend
         run: npm ci || npm install
 
       - name: 🔍 Lint
-        if: steps.check-backend.outputs.skip != 'true'
         working-directory: apps/backend
         run: npm run lint || echo "⚠️ No lint script"
 
       - name: 🏗️ Build
-        if: steps.check-backend.outputs.skip != 'true'
         working-directory: apps/backend
         run: npm run build
 
@@ -53,17 +46,13 @@ jobs:
   frontend:
     name: ⚛️ Frontend (React)
     runs-on: ubuntu-latest
+    
+    # Skip if no frontend code exists yet
+    if: hashFiles('apps/frontend/package.json') != ''
+    
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
-
-      - name: 🔎 Check for frontend package.json
-        id: check-frontend
-        working-directory: apps/frontend
-        run: |
-          if [ ! -f package.json ]; then
-            echo "skip=true" >> $GITHUB_OUTPUT
-          fi
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
@@ -74,17 +63,14 @@ jobs:
           cache-dependency-path: 'apps/frontend/package-lock.json'
 
       - name: 📦 Install dependencies
-        if: steps.check-frontend.outputs.skip != 'true'
         working-directory: apps/frontend
         run: npm ci || npm install
 
       - name: 🔍 Lint
-        if: steps.check-frontend.outputs.skip != 'true'
         working-directory: apps/frontend
         run: npm run lint || echo "⚠️ No lint script"
 
       - name: 🏗️ Build
-        if: steps.check-frontend.outputs.skip != 'true'
         working-directory: apps/frontend
         run: npm run build
 
