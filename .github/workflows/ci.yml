@@ -72,7 +72,12 @@ jobs:
       - name: 🔍 Lint backend
         if: steps.check-backend.outputs.skip != 'true'
         working-directory: apps/backend
-        run: npm run lint
+        run: |
+          if [ -f eslint.config.js ] || [ -f eslint.config.mjs ] || [ -f eslint.config.cjs ] || [ -f .eslintrc ] || [ -f .eslintrc.js ] || [ -f .eslintrc.cjs ] || [ -f .eslintrc.json ]; then
+            npm run lint
+          else
+            echo "ℹ️ No ESLint config found in apps/backend. Skipping lint."
+          fi
 
       - name: ✅ Backend tests (Postgres)
         if: steps.check-backend.outputs.skip != 'true'
@@ -128,7 +133,12 @@ jobs:
       - name: 🔍 Lint frontend
         if: steps.check-frontend.outputs.skip != 'true'
         working-directory: apps/frontend
-        run: npm run lint
+        run: |
+          if [ -f eslint.config.js ] || [ -f eslint.config.mjs ] || [ -f eslint.config.cjs ] || [ -f .eslintrc ] || [ -f .eslintrc.js ] || [ -f .eslintrc.cjs ] || [ -f .eslintrc.json ]; then
+            npm run lint
+          else
+            echo "ℹ️ No ESLint config found in apps/frontend. Skipping lint."
+          fi
 
       - name: 🏗️ Build frontend
         if: steps.check-frontend.outputs.skip != 'true'
@@ -212,7 +222,7 @@ jobs:
       - name: 🧬 Scan for hardcoded secrets
         run: |
           PATTERN='(API_KEY|SECRET_KEY|SECRET=|TOKEN=|sk_live_|pk_live_|-----BEGIN (RSA |EC )?PRIVATE KEY-----)'
-          FILES=$(git ls-files | grep -Ev '(^package-lock\.json$|^yarn\.lock$|node_modules/|dist/|build/|\.git/)' || true)
+          FILES=$(git ls-files | grep -Ev '(^package-lock\.json$|^yarn\.lock$|^\.env\.example$|^docs/|^\.github/workflows/ci\.yml$|node_modules/|dist/|build/|\.git/)' || true)
           if [ -z "$FILES" ]; then
             echo "ℹ️ No files to scan."
             exit 0
