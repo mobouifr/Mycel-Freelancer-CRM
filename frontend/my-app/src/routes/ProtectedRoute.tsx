@@ -1,13 +1,22 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { LoadingSpinner } from '../components';
 
-function isAuthed() {
-  return !!localStorage.getItem('token')
-}
+/* ─────────────────────────────────────────────
+   PROTECTED ROUTE — Auth guard
+   Redirects to /login if not authenticated
+───────────────────────────────────────────── */
 
 export default function ProtectedRoute() {
-  if (!isAuthed()) {
-    return <Navigate to="/login" replace />
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <LoadingSpinner fullPage />;
   }
 
-  return <Outlet />
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Outlet />;
 }
