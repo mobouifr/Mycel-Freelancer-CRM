@@ -10,7 +10,7 @@ import { AuthLeftPanel } from './Login';
 
 export default function Signup() {
   const navigate = useNavigate();
-  const { signup, isLoading, error, clearError } = useAuth();
+  const { register, isLoading, error, clearError } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -19,7 +19,7 @@ export default function Signup() {
   
   const handleSubmit = async () => {
     try {
-      await signup({ firstName, lastName, email, password });
+      await register({ firstName, lastName, email, password });
       navigate('/');
     } catch {
       // error is handled by auth context

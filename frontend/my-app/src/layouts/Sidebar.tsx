@@ -239,8 +239,11 @@ export default function Sidebar() {
             {!expanded && hovered && (
               <span
                 style={{
-                  position: 'fixed',
-                  left: COLLAPSED_W + 6,
+                  position: 'absolute',
+                  left: '100%',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  marginLeft: 12,
                   background: 'var(--surface)',
                   border: '1px solid var(--border)',
                   borderRadius: 6,

@@ -9,15 +9,15 @@ export interface LoginPayload {
   password: string;
 }
 
-export interface SignupPayload {
+export interface RegisterPayload {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
 }
 
+/** Backend sets JWT in HttpOnly cookie — no token in response body */
 export interface AuthResponse {
-  token: string;
   user: User;
 }
 

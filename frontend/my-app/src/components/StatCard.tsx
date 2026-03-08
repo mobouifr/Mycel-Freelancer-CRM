@@ -111,11 +111,11 @@ export default function StatCard({ label, value, sub, trend, accent, href }: Sta
             style={{
               fontSize: 10,
               fontFamily: 'var(--font-m)',
-              color: trend === 'up' ? 'rgba(72,200,100,0.8)' : 'var(--danger)',
+              color: trend === 'up' ? 'rgba(72,200,100,0.8)' : trend === 'down' ? 'var(--danger)' : 'var(--text-dim)',
               letterSpacing: '.04em',
             }}
           >
-            {trend === 'up' ? '↑' : '↓'} {sub}
+            {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '•'} {sub}
           </span>
         </div>
       )}

@@ -94,6 +94,8 @@ export default function Button({
           e.currentTarget.style.boxShadow = '0 0 0 0 rgba(255,255,255,.1)';
         } else if (variant === 'ghost') {
           e.currentTarget.style.color = 'var(--text-dim)';
+        } else if (variant === 'danger') {
+          e.currentTarget.style.borderColor = 'rgba(220,80,80,.2)';
         } else {
           e.currentTarget.style.borderColor = 'var(--border)';
         }

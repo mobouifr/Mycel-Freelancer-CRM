@@ -8,6 +8,7 @@ import AppLayout from './layouts/AppLayout';
 // ── Pages ────────────────────────────────────
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import OAuthCallback from './pages/OAuthCallback';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import Clients from './pages/Clients';
@@ -25,6 +26,7 @@ createRoot(document.getElementById('root')!).render(
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/auth/callback" element={<OAuthCallback />} />
 
         {/* Protected routes — guard disabled until backend is ready */}
         {/* <Route element={<ProtectedRoute />}> */}

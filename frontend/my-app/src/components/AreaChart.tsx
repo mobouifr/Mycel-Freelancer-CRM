@@ -9,9 +9,11 @@ interface AreaChartProps {
 }
 
 export default function AreaChart({ data, label, height = 56 }: AreaChartProps) {
+  if (!data || data.length < 2) return null;
+
   const W = 100;
   const H = 60;
-  const max = Math.max(...data);
+  const max = Math.max(...data) || 1;
   const pts = data.map((v, i) => ({
     x: (i / (data.length - 1)) * W,
     y: H - (v / max) * H * 0.85,
