@@ -29,7 +29,7 @@ export default function Settings() {
   const [error, setError] = useState<string | null>(null);
 
   // ── Profile state ──────────────────────────
-  const [name, setName] = useState(user?.name || '');
+  const [name, setName] = useState(user?.username || '');
   const [email, setEmail] = useState(user?.email || '');
   const [phone, setPhone] = useState(user?.phone || '');
 
@@ -160,7 +160,7 @@ export default function Settings() {
             }}
           >
             <SectionTitle title="Profile Information" sub="Your personal details" />
-            <Input label="Full Name" placeholder="Montassir Bouifrou" value={name} onChange={setName} />
+            <Input label="Username" placeholder="montassir" value={name} onChange={setName} />
             <Input label="Email" type="email" placeholder="you@studio.com" value={email} onChange={setEmail} />
             <Input label="Phone" type="tel" placeholder="+212 600 000 000" value={phone} onChange={setPhone} />
           </div>

@@ -42,8 +42,8 @@ export default function Topbar() {
   const basePath = '/' + (location.pathname.split('/')[1] || '');
   const label = ROUTE_LABELS[basePath] || 'Dashboard';
 
-  const initials = user?.name
-    ? user.name
+  const initials = user?.username
+    ? user.username
         .split(' ')
         .map((n) => n[0])
         .join('')
@@ -312,7 +312,7 @@ export default function Topbar() {
                     marginBottom: 2,
                   }}
                 >
-                  {user?.name || 'User'}
+                  {user?.username || 'User'}
                 </p>
                 <p
                   style={{
