@@ -67,8 +67,7 @@ export class AuthController {
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
-    // Instead of returning JSON, redirect them to the frontend dashboard!
-    // Since we don't have a frontend yet, we'll redirect to our /auth/me to prove it works
-    return res.redirect('http://localhost:3000/auth/me'); 
+    // Redirect to the frontend OAuth callback page so it can handle the session
+    return res.redirect('http://localhost:5173/auth/callback');
   }
 }
