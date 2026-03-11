@@ -26,7 +26,7 @@ export class AuthController {
     // 2. Set the JWT in an HttpOnly cookie
     res.cookie('jwt', access_token, {
       httpOnly: true,     // This prevents XSS attacks (JS cannot read the cookie)
-      secure: false,      // Set to true in production (requires HTTPS)
+      secure: process.env.NODE_ENV === 'production', // true in production (HTTPS), false locally
       sameSite: 'lax',    // Good default for CSRF protection
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days in milliseconds
     });
@@ -34,6 +34,19 @@ export class AuthController {
     // 3. Return the user info (so the frontend dashboard can say "Hello, Othmane!")
     return { message: 'Logged in successfully', user: req.user };
   }
+
+  @UseGuards(JwtAuthGuard) // This ensures only authenticated users can access this route
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('jwt', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+    return { message: 'Logged out successfully' };
+  }
+
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
@@ -62,10 +75,11 @@ export class AuthController {
 
     res.cookie('jwt', access_token, {
       httpOnly: true,
-      secure: false, // Set to true in production
+      secure: process.env.NODE_ENV === 'production', // true in production (HTTPS), false locally
       sameSite: 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
+
 
     // Redirect to the frontend OAuth callback page so it can handle the session
     return res.redirect('http://localhost:5173/auth/callback');
