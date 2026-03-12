@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
 @import "tailwindcss";
 
 /* ─── THEME VARIABLES (defaults: dark mode, emerald palette) ─── */
@@ -66,6 +66,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
 }
+
+/* Ensure form elements inherit the site font */
+button, input, textarea, select { font-family: var(--font-sans); }
+
+/* Brand logo exception — always display font */
+.brand-logo { font-family: var(--font-display) !important; }
 
 /* Make mono explicit where needed */
 code, pre, kbd, .font-mono { font-family: var(--font-m); }
@@ -143,6 +149,15 @@ input:-webkit-autofill:focus {
   --z-panel-backdrop: 1399;
   --z-panel: 1400;
   --z-fab: 50;
+  --z-modal: 1500;
+
+  /* FAB tokens */
+  --fab-bg: rgba(255,255,255,0.04);
+  --fab-border: rgba(255,255,255,0.08);
+}
+[data-theme="light"] {
+  --fab-bg: rgba(0,0,0,0.03);
+  --fab-border: rgba(0,0,0,0.10);
 }
 
 /* ─── WIDGET GRID (react-grid-layout v2) ───

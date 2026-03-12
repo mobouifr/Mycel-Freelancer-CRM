@@ -125,25 +125,29 @@ export default function QuickCreateFAB() {
         onClick={() => setOpen(!open)}
         aria-label={open ? 'Close quick create' : 'Quick create'}
         style={{
-          width: 48, height: 48, borderRadius: 14,
-          background: 'var(--accent)',
-          border: 'none',
+          width: 56, height: 56, borderRadius: 999,
+          background: 'var(--fab-bg)',
+          backdropFilter: 'blur(8px) saturate(120%)',
+          WebkitBackdropFilter: 'blur(8px) saturate(120%)',
+          border: '1px solid var(--fab-border)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer',
-          boxShadow: '0 4px 24px rgba(0,0,0,.3), 0 0 0 0 var(--accent)',
+          boxShadow: '0 4px 24px rgba(0,0,0,.2)',
           transition: 'all .2s var(--ease)',
           transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.boxShadow = '0 6px 28px rgba(0,0,0,.4), 0 0 0 4px var(--accent-bg)';
+          e.currentTarget.style.boxShadow = '0 6px 28px rgba(0,0,0,.3), 0 0 0 4px var(--accent-bg)';
           e.currentTarget.style.transform = open ? 'rotate(45deg) scale(1.08)' : 'scale(1.08)';
+          e.currentTarget.style.borderColor = 'var(--accent-hover)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,.3), 0 0 0 0 var(--accent)';
+          e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,.2)';
           e.currentTarget.style.transform = open ? 'rotate(45deg)' : 'rotate(0deg)';
+          e.currentTarget.style.borderColor = 'var(--fab-border)';
         }}
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--white)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <line x1="12" y1="5" x2="12" y2="19" />
           <line x1="5" y1="12" x2="19" y2="12" />
         </svg>

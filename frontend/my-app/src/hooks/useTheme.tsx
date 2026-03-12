@@ -28,11 +28,22 @@ export type ThemePresetId =
   | 'black-and-white';
 
 export type FontScale = 0.95 | 1 | 1.1;
-export type NumberFont = 'normal' | 'tabular' | 'condensed';
+export type FontFamilyId = 'inter' | 'source-sans' | 'manrope';
+export type SidebarBehavior = 'automatic' | 'manual';
 
 /** Backward-compat re-exports (kept for consumer compatibility) */
 export type ThemeMode = 'dark' | 'light';
 export type PalettePreset = string;
+
+/* ── Font family definitions ── */
+export const FONT_FAMILIES: { id: FontFamilyId; label: string; stack: string; desc: string }[] = [
+  { id: 'inter',       label: 'Inter',        stack: "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif", desc: 'Clean & modern — the default' },
+  { id: 'source-sans', label: 'Source Sans 3', stack: "'Source Sans 3', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",                  desc: 'Warm humanist — great readability' },
+  { id: 'manrope',     label: 'Manrope',       stack: "'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",                        desc: 'Geometric & friendly' },
+];
+
+export const FONT_FAMILY_MAP: Record<FontFamilyId, string> =
+  Object.fromEntries(FONT_FAMILIES.map((f) => [f.id, f.stack])) as Record<FontFamilyId, string>;
 
 // ── Token shape ──────────────────────────────
 /** Every CSS custom property a theme must define */
@@ -326,16 +337,20 @@ export const PALETTE_MAP = {
 // ── Persisted state ──────────────────────────
 interface ThemeState {
   theme: ThemePresetId;
-  numberFont: NumberFont;
   fontScale: FontScale;
+  fontFamily: FontFamilyId;
+  sidebarBehavior: SidebarBehavior;
+  sidebarManualWidth: number;
 }
 
 const STORAGE_KEY = 'mycel-theme';
 
 const DEFAULT_STATE: ThemeState = {
   theme: 'default-dark',
-  numberFont: 'tabular',
   fontScale: 1,
+  fontFamily: 'inter',
+  sidebarBehavior: 'automatic',
+  sidebarManualWidth: 210,
 };
 
 // ── Apply CSS custom properties to :root ─────
@@ -397,6 +412,11 @@ function applyTokens(state: ThemeState) {
   // Font scale
   root.style.setProperty('--ui-font-scale', String(state.fontScale));
 
+  // Font family
+  const fontStack = FONT_FAMILY_MAP[state.fontFamily] || FONT_FAMILY_MAP.inter;
+  root.style.setProperty('--font-sans', fontStack);
+  root.style.setProperty('--font-body', fontStack);
+
   // Data attributes for CSS selectors (scrollbar, autofill, etc.)
   root.dataset.theme = preset.family;           // "dark" | "light"
   root.dataset.palette = state.theme;           // full preset id
@@ -408,12 +428,16 @@ interface ThemeContextType {
   theme: ThemePresetId;
   /** Current preset metadata */
   preset: ThemePresetMeta;
-  numberFont: NumberFont;
   fontScale: FontScale;
+  fontFamily: FontFamilyId;
+  sidebarBehavior: SidebarBehavior;
+  sidebarManualWidth: number;
   /** Set the active theme preset */
   setTheme: (id: ThemePresetId) => void;
-  setNumberFont: (n: NumberFont) => void;
   setFontScale: (s: FontScale) => void;
+  setFontFamily: (f: FontFamilyId) => void;
+  setSidebarBehavior: (b: SidebarBehavior) => void;
+  setSidebarManualWidth: (w: number) => void;
   /** Cycle quick-toggle: Default Dark ↔ Default Light (or snap to dark from custom) */
   cycleQuickTheme: () => void;
   /** Backward compat — returns preset.family */
@@ -468,12 +492,20 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, theme }));
   }, []);
 
-  const setNumberFont = useCallback((numberFont: NumberFont) => {
-    setState((s) => ({ ...s, numberFont }));
-  }, []);
-
   const setFontScale = useCallback((fontScale: FontScale) => {
     setState((s) => ({ ...s, fontScale }));
+  }, []);
+
+  const setFontFamily = useCallback((fontFamily: FontFamilyId) => {
+    setState((s) => ({ ...s, fontFamily }));
+  }, []);
+
+  const setSidebarBehavior = useCallback((sidebarBehavior: SidebarBehavior) => {
+    setState((s) => ({ ...s, sidebarBehavior }));
+  }, []);
+
+  const setSidebarManualWidth = useCallback((sidebarManualWidth: number) => {
+    setState((s) => ({ ...s, sidebarManualWidth }));
   }, []);
 
   /** Quick-toggle: dark ↔ light, snap custom → dark first */
@@ -490,11 +522,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const ctx: ThemeContextType = {
     theme: state.theme,
     preset,
-    numberFont: state.numberFont,
     fontScale: state.fontScale,
+    fontFamily: state.fontFamily,
+    sidebarBehavior: state.sidebarBehavior,
+    sidebarManualWidth: state.sidebarManualWidth,
     setTheme,
-    setNumberFont,
     setFontScale,
+    setFontFamily,
+    setSidebarBehavior,
+    setSidebarManualWidth,
     cycleQuickTheme,
     // Backward compat
     mode: preset.family,

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Input, Select, Button, ErrorMessage } from '../components';
 import { useAuth } from '../hooks/useAuth';
-import { useTheme, type NumberFont, type FontScale, THEME_PRESETS } from '../hooks/useTheme';
+import { useTheme, type FontScale, type SidebarBehavior, THEME_PRESETS, FONT_FAMILIES } from '../hooks/useTheme';
 
 /* ─────────────────────────────────────────────
    SETTINGS PAGE — Profile + Business + Security + Preferences
@@ -286,14 +286,13 @@ const FONT_SCALE_OPTIONS: { value: FontScale; label: string }[] = [
   { value: 1.1,  label: 'Large' },
 ];
 
-const NUMBER_OPTIONS: { value: NumberFont; label: string; desc: string }[] = [
-  { value: 'tabular',   label: 'Tabular',    desc: 'Fixed-width digits, columns align' },
-  { value: 'normal',    label: 'Normal',      desc: 'Default proportional spacing' },
-  { value: 'condensed', label: 'Condensed',   desc: 'Tight spacing for dense layouts' },
+const SIDEBAR_OPTIONS: { value: SidebarBehavior; label: string; desc: string }[] = [
+  { value: 'automatic', label: 'Automatic', desc: 'Collapses on narrow screens' },
+  { value: 'manual',    label: 'Manual',     desc: 'Drag to resize freely' },
 ];
 
 function PreferencesPanel() {
-  const { theme, numberFont, fontScale, setTheme, setNumberFont, setFontScale } = useTheme();
+  const { theme, fontScale, fontFamily, sidebarBehavior, setTheme, setFontScale, setFontFamily, setSidebarBehavior } = useTheme();
 
   return (
     <div
@@ -421,59 +420,106 @@ function PreferencesPanel() {
         </div>
       </div>
 
-      {/* Number Font Behavior */}
+      {/* Font Family */}
       <div>
-        <SectionTitle title="Number Display" sub="Control how numeric values are rendered" />
+        <SectionTitle title="Font Family" sub="Choose the typeface used across the interface" />
         <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-          {NUMBER_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => setNumberFont(opt.value)}
-              style={{
-                flex: 1,
-                padding: '16px 14px',
-                borderRadius: 8,
-                border: `1.5px solid ${numberFont === opt.value ? 'var(--accent)' : 'var(--border)'}`,
-                background: numberFont === opt.value ? 'var(--accent-bg)' : 'transparent',
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'all .2s var(--ease)',
-              }}
-            >
-              <p style={{
-                fontFamily: 'var(--font-d)',
-                fontSize: 20,
-                fontWeight: 700,
-                color: 'var(--white)',
-                marginBottom: 6,
-                fontVariantNumeric: opt.value === 'tabular' ? 'tabular-nums' : 'normal',
-                letterSpacing: opt.value === 'condensed' ? '-.04em' : '-.02em',
-              }}>
-                $24,500
-              </p>
-              <p style={{
-                fontFamily: 'var(--font-m)',
-                fontSize: 11,
-                fontWeight: 500,
-                color: numberFont === opt.value ? 'var(--white)' : 'var(--text-mid)',
-                marginBottom: 3,
-              }}>
-                {opt.label}
-              </p>
-              <p style={{
-                fontFamily: 'var(--font-m)',
-                fontSize: 10,
-                color: 'var(--text-dim)',
-                letterSpacing: '.03em',
-              }}>
-                {opt.desc}
-              </p>
-            </button>
-          ))}
+          {FONT_FAMILIES.map((f) => {
+            const active = fontFamily === f.id;
+            return (
+              <button
+                key={f.id}
+                onClick={() => setFontFamily(f.id)}
+                style={{
+                  flex: 1,
+                  padding: '16px 14px',
+                  borderRadius: 8,
+                  border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                  background: active ? 'var(--accent-bg)' : 'transparent',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all .2s var(--ease)',
+                }}
+              >
+                {/* Live font preview */}
+                <p style={{
+                  fontFamily: f.stack,
+                  fontSize: 20,
+                  fontWeight: 700,
+                  color: 'var(--white)',
+                  marginBottom: 6,
+                  letterSpacing: '-.02em',
+                }}>
+                  Aa 123
+                </p>
+                <p style={{
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 11,
+                  fontWeight: 500,
+                  color: active ? 'var(--white)' : 'var(--text-mid)',
+                  marginBottom: 3,
+                }}>
+                  {f.label}
+                </p>
+                <p style={{
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 10,
+                  color: 'var(--text-dim)',
+                  letterSpacing: '.03em',
+                }}>
+                  {f.desc}
+                </p>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Preview */}
+      {/* Sidebar Behavior */}
+      <div>
+        <SectionTitle title="Sidebar Behavior" sub="How the navigation panel resizes" />
+        <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+          {SIDEBAR_OPTIONS.map((opt) => {
+            const active = sidebarBehavior === opt.value;
+            return (
+              <button
+                key={opt.value}
+                onClick={() => setSidebarBehavior(opt.value)}
+                style={{
+                  flex: 1,
+                  padding: '14px 14px',
+                  borderRadius: 8,
+                  border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                  background: active ? 'var(--accent-bg)' : 'transparent',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all .2s var(--ease)',
+                }}
+              >
+                <p style={{
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 11,
+                  fontWeight: 500,
+                  color: active ? 'var(--white)' : 'var(--text-mid)',
+                  marginBottom: 3,
+                }}>
+                  {opt.label}
+                </p>
+                <p style={{
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 10,
+                  color: 'var(--text-dim)',
+                  letterSpacing: '.03em',
+                }}>
+                  {opt.desc}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* WYSIWYG Preview */}
       <div style={{
         background: 'var(--glass)',
         border: '1px solid var(--border)',
@@ -486,10 +532,35 @@ function PreferencesPanel() {
           color: 'var(--text-dim)',
           letterSpacing: '.1em',
           textTransform: 'uppercase',
-          marginBottom: 12,
+          marginBottom: 14,
         }}>
           Live Preview
         </p>
+
+        {/* Headline */}
+        <p style={{
+          fontFamily: 'var(--font-d)',
+          fontWeight: 700,
+          fontSize: 22,
+          color: 'var(--white)',
+          marginBottom: 6,
+          letterSpacing: '-.01em',
+        }}>
+          The quick brown fox jumps
+        </p>
+
+        {/* Body */}
+        <p style={{
+          fontFamily: 'var(--font-sans)',
+          fontSize: 13,
+          color: 'var(--text-mid)',
+          lineHeight: 1.55,
+          marginBottom: 14,
+        }}>
+          Over the lazy dog — a sentence to preview body text at the chosen font family and scale.
+        </p>
+
+        {/* KPI row */}
         <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 14 }}>
           <div style={{
             width: 10,
@@ -502,10 +573,10 @@ function PreferencesPanel() {
             fontWeight: 700,
             fontSize: 28,
             color: 'var(--white)',
-            fontVariantNumeric: numberFont === 'tabular' ? 'tabular-nums' : 'normal',
-            letterSpacing: numberFont === 'condensed' ? '-.04em' : '-.02em',
+            fontVariantNumeric: 'tabular-nums',
+            letterSpacing: '-.02em',
           }}>
-            $101,400
+            1,234,567.89
           </span>
           <span style={{
             fontFamily: 'var(--font-m)',
@@ -516,8 +587,19 @@ function PreferencesPanel() {
             ↑ +37.8%
           </span>
         </div>
+
+        {/* Small title line */}
+        <p style={{
+          fontFamily: 'var(--font-m)',
+          fontSize: 10,
+          color: 'var(--text-dim)',
+          letterSpacing: '.04em',
+        }}>
+          Upcoming: Call with Sarah — 10:30 AM
+        </p>
+
         {/* Palette preview row */}
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
           {[
             { label: 'Accent',  color: 'var(--accent)' },
             { label: 'Success', color: 'var(--success)' },
