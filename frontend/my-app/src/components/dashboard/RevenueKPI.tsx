@@ -50,6 +50,7 @@ function RevenueKPI() {
           <span style={{
             fontFamily: 'var(--font-m)', fontSize: 10, fontWeight: 600,
             color: isUp ? 'var(--trend-up)' : 'var(--trend-down)',
+            fontVariantNumeric: 'tabular-nums',
           }}>
             {isUp ? '+' : ''}{TREND_PCT}%
           </span>
@@ -74,6 +75,7 @@ function RevenueKPI() {
             <p style={{
               fontFamily: 'var(--font-d)', fontWeight: 600, fontSize: 13,
               color: 'var(--white)', lineHeight: 1.2,
+              fontVariantNumeric: 'tabular-nums',
             }}>
               {s.value}
             </p>

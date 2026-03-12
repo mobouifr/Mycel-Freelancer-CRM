@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Input, Select, Button, ErrorMessage } from '../components';
 import { useAuth } from '../hooks/useAuth';
-import { useTheme, type ThemeMode, type PalettePreset, type NumberFont, PALETTE_MAP } from '../hooks/useTheme';
+import { useTheme, type NumberFont, type FontScale, THEME_PRESETS } from '../hooks/useTheme';
 
 /* ─────────────────────────────────────────────
    SETTINGS PAGE — Profile + Business + Security + Preferences
@@ -280,17 +280,10 @@ function SectionTitle({ title, sub }: { title: string; sub: string }) {
 }
 
 /* ── Preferences Panel ─── */
-const MODE_OPTIONS: { value: ThemeMode; label: string; desc: string }[] = [
-  { value: 'dark',         label: 'Dark',         desc: 'Full dark surfaces' },
-  { value: 'lighter-dark', label: 'Lighter Dark',  desc: 'Softened dark with lighter surfaces' },
-  { value: 'light',        label: 'Light',         desc: 'Bright, clean surfaces' },
-];
-
-const ACCENT_OPTIONS: { value: PalettePreset; label: string; desc: string; colors: string[] }[] = [
-  { value: 'emerald', label: 'Emerald', desc: 'Fresh greens with coral accents', colors: [PALETTE_MAP.emerald.accent, PALETTE_MAP.emerald.success, PALETTE_MAP.emerald.danger, PALETTE_MAP.emerald.warning] },
-  { value: 'ocean',   label: 'Ocean',   desc: 'Cool blues with teal highlights', colors: [PALETTE_MAP.ocean.accent, PALETTE_MAP.ocean.success, PALETTE_MAP.ocean.danger, PALETTE_MAP.ocean.warning] },
-  { value: 'sand',    label: 'Sand',    desc: 'Warm ambers with olive tones',    colors: [PALETTE_MAP.sand.accent, PALETTE_MAP.sand.success, PALETTE_MAP.sand.danger, PALETTE_MAP.sand.warning] },
-  { value: 'rose',    label: 'Rose',    desc: 'Soft pinks with teal balance',    colors: [PALETTE_MAP.rose.accent, PALETTE_MAP.rose.success, PALETTE_MAP.rose.danger, PALETTE_MAP.rose.warning] },
+const FONT_SCALE_OPTIONS: { value: FontScale; label: string }[] = [
+  { value: 0.95, label: 'Compact' },
+  { value: 1,    label: 'Default' },
+  { value: 1.1,  label: 'Large' },
 ];
 
 const NUMBER_OPTIONS: { value: NumberFont; label: string; desc: string }[] = [
@@ -300,7 +293,7 @@ const NUMBER_OPTIONS: { value: NumberFont; label: string; desc: string }[] = [
 ];
 
 function PreferencesPanel() {
-  const { mode, palette, numberFont, setMode, setPalette, setNumberFont } = useTheme();
+  const { theme, numberFont, fontScale, setTheme, setNumberFont, setFontScale } = useTheme();
 
   return (
     <div
@@ -311,110 +304,118 @@ function PreferencesPanel() {
         animation: 'fadeUp .2s var(--ease) both',
       }}
     >
-      {/* Color Mode */}
+      {/* Theme Presets */}
       <div>
-        <SectionTitle title="Color Mode" sub="Choose how the interface appears" />
-        <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-          {MODE_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => setMode(opt.value)}
-              style={{
-                flex: 1,
-                padding: '16px 14px',
-                borderRadius: 8,
-                border: `1.5px solid ${mode === opt.value ? 'var(--accent)' : 'var(--border)'}`,
-                background: mode === opt.value ? 'var(--accent-bg)' : 'transparent',
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'all .2s var(--ease)',
-              }}
-            >
-              <p style={{
-                fontFamily: 'var(--font-m)',
-                fontSize: 12,
-                fontWeight: 500,
-                color: mode === opt.value ? 'var(--white)' : 'var(--text-mid)',
-                marginBottom: 4,
-              }}>
-                {opt.label}
-              </p>
-              <p style={{
-                fontFamily: 'var(--font-m)',
-                fontSize: 10,
-                color: 'var(--text-dim)',
-                letterSpacing: '.03em',
-              }}>
-                {opt.desc}
-              </p>
-            </button>
-          ))}
+        <SectionTitle title="Theme" sub="Choose a unified look — colors, surfaces, and accents" />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 16 }}>
+          {THEME_PRESETS.map((p) => {
+            const active = theme === p.id;
+            return (
+              <button
+                key={p.id}
+                onClick={() => setTheme(p.id)}
+                style={{
+                  padding: '14px 14px 12px',
+                  borderRadius: 8,
+                  border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                  background: active ? 'var(--accent-bg)' : 'transparent',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all .2s var(--ease)',
+                }}
+              >
+                {/* 4-swatch row */}
+                <div style={{ display: 'flex', gap: 5, marginBottom: 10 }}>
+                  {p.swatches.map((c, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        width: i < 2 ? 20 : 16,
+                        height: i < 2 ? 20 : 16,
+                        borderRadius: i < 2 ? 4 : '50%',
+                        background: c,
+                        border: '1px solid var(--border)',
+                        alignSelf: 'center',
+                      }}
+                    />
+                  ))}
+                </div>
+                <p style={{
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 11,
+                  fontWeight: 500,
+                  color: active ? 'var(--white)' : 'var(--text-mid)',
+                  marginBottom: 2,
+                  letterSpacing: '.02em',
+                }}>
+                  {p.label}
+                </p>
+                <p style={{
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 9,
+                  color: 'var(--text-dim)',
+                  letterSpacing: '.03em',
+                  lineHeight: 1.4,
+                }}>
+                  {p.desc}
+                </p>
+                {/* Family badge */}
+                <span style={{
+                  display: 'inline-block',
+                  marginTop: 6,
+                  padding: '2px 6px',
+                  borderRadius: 3,
+                  background: 'var(--glass)',
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 8,
+                  color: 'var(--text-dim)',
+                  letterSpacing: '.08em',
+                  textTransform: 'uppercase',
+                }}>
+                  {p.family}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Color Palette */}
+      {/* Font Size */}
       <div>
-        <SectionTitle title="Color Palette" sub="A coordinated set of colors for the entire interface" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 16 }}>
-          {ACCENT_OPTIONS.map((opt) => (
+        <SectionTitle title="Font Size" sub="Scale the entire interface up or down" />
+        <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+          {FONT_SCALE_OPTIONS.map((opt) => (
             <button
               key={opt.value}
-              onClick={() => setPalette(opt.value)}
+              onClick={() => setFontScale(opt.value)}
               style={{
-                padding: '16px',
+                flex: 1,
+                padding: '14px 14px',
                 borderRadius: 8,
-                border: `1.5px solid ${palette === opt.value ? 'var(--accent)' : 'var(--border)'}`,
-                background: palette === opt.value ? 'var(--accent-bg)' : 'transparent',
+                border: `1.5px solid ${fontScale === opt.value ? 'var(--accent)' : 'var(--border)'}`,
+                background: fontScale === opt.value ? 'var(--accent-bg)' : 'transparent',
                 cursor: 'pointer',
-                textAlign: 'left',
+                textAlign: 'center',
                 transition: 'all .2s var(--ease)',
               }}
             >
-              {/* Color swatch row */}
-              <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-                {opt.colors.map((c, idx) => (
-                  <div key={idx} style={{
-                    width: idx === 0 ? 28 : 18,
-                    height: idx === 0 ? 28 : 18,
-                    borderRadius: idx === 0 ? 6 : '50%',
-                    background: c,
-                    border: '1px solid rgba(255,255,255,.08)',
-                    alignSelf: 'center',
-                  }} />
-                ))}
-              </div>
+              <p style={{
+                fontFamily: 'var(--font-d)',
+                fontSize: 18 * opt.value,
+                fontWeight: 700,
+                color: 'var(--white)',
+                marginBottom: 4,
+              }}>
+                Aa
+              </p>
               <p style={{
                 fontFamily: 'var(--font-m)',
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: 500,
-                color: palette === opt.value ? 'var(--white)' : 'var(--text-mid)',
-                marginBottom: 3,
+                color: fontScale === opt.value ? 'var(--white)' : 'var(--text-mid)',
               }}>
                 {opt.label}
               </p>
-              <p style={{
-                fontFamily: 'var(--font-m)',
-                fontSize: 10,
-                color: 'var(--text-dim)',
-                letterSpacing: '.03em',
-              }}>
-                {opt.desc}
-              </p>
-              {palette === opt.value && (
-                <div style={{
-                  marginTop: 8,
-                  padding: '6px 10px',
-                  borderRadius: 4,
-                  background: 'var(--glass)',
-                  display: 'flex', gap: 10, alignItems: 'center',
-                }}>
-                  <span style={{ fontFamily: 'var(--font-m)', fontSize: 8, color: 'var(--text-dim)', letterSpacing: '.08em', textTransform: 'uppercase' }}>Active</span>
-                  <span style={{ fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--accent)' }}>accent</span>
-                  <span style={{ fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--success)' }}>success</span>
-                  <span style={{ fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--danger)' }}>danger</span>
-                  <span style={{ fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--warning)' }}>warning</span>
-                </div>
-              )}
             </button>
           ))}
         </div>

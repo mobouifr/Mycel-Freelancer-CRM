@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LogoMark } from '../components';
+import { useAuth } from '../hooks/useAuth';
 
 /* ─────────────────────────────────────────────
    SIDEBAR — Expandable navigation panel
@@ -50,6 +51,11 @@ const icons = {
       <path d="M13.73 21a2 2 0 0 1-3.46 0" />
     </svg>
   ),
+  ecosystem: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22V8M12 8C9 8 5 6 5 2M12 8c3 0 7-2 7-6M7 14c-3 0-5 1-5 3M17 14c3 0 5 1 5 3" />
+    </svg>
+  ),
   settings: (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="3" />
@@ -73,6 +79,7 @@ const NAV_ITEMS: NavEntry[] = [
   { icon: 'proposals',  label: 'Proposals',  path: '/proposals' },
   { icon: 'invoices',   label: 'Invoices',   path: '/invoices' },
   { icon: 'reminders',  label: 'Reminders',  path: '/reminders' },
+  { icon: 'ecosystem',  label: 'Ecosystem',  path: '/ecosystem' },
 ];
 
 const COLLAPSED_W = 64;
@@ -83,6 +90,7 @@ const BREAKPOINT = 1200;
 export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [expanded, setExpanded] = useState(() => window.innerWidth >= BREAKPOINT);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
@@ -134,7 +142,7 @@ export default function Sidebar() {
           style={{ cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center' }}
           onClick={() => navigate('/')}
         >
-          <LogoMark size={30} color="rgba(255,255,255,.7)" />
+          <LogoMark size={30} color="var(--text-mid)" />
         </div>
 
         {/* Brand name – only when expanded */}
@@ -194,7 +202,7 @@ export default function Sidebar() {
               background: active
                 ? 'var(--sidebar-active-bg)'
                 : hovered
-                  ? 'rgba(255,255,255,.04)'
+                  ? 'var(--glass)'
                   : 'transparent',
               border: active ? '1px solid var(--sidebar-active-border)' : '1px solid transparent',
               cursor: 'pointer',
@@ -206,7 +214,7 @@ export default function Sidebar() {
               color: active
                 ? 'var(--sidebar-active)'
                 : hovered
-                  ? 'rgba(220,220,220,.8)'
+                  ? 'var(--text)'
                   : 'var(--text-dim)',
               transition: 'all .18s',
               position: 'relative',
@@ -282,8 +290,8 @@ export default function Sidebar() {
         onClick={() => navigate('/settings')}
         onMouseEnter={(e) => {
           if (!isActive('/settings')) {
-            e.currentTarget.style.background = 'rgba(255,255,255,.04)';
-            e.currentTarget.style.color = 'rgba(220,220,220,.8)';
+            e.currentTarget.style.background = 'var(--glass)';
+            e.currentTarget.style.color = 'var(--text)';
           }
         }}
         onMouseLeave={(e) => {
@@ -329,6 +337,59 @@ export default function Sidebar() {
           }}
         >
           Settings
+        </span>
+      </button>
+
+      {/* ── Logout ── */}
+      <button
+        onClick={logout}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(239,68,68,.06)';
+          e.currentTarget.style.color = 'var(--danger)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'transparent';
+          e.currentTarget.style.color = 'var(--text-dim)';
+        }}
+        style={{
+          height: 40,
+          margin: '1px 10px 0',
+          borderRadius: 8,
+          background: 'transparent',
+          border: '1px solid transparent',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: expanded ? 'flex-start' : 'center',
+          gap: expanded ? 12 : 0,
+          padding: expanded ? '0 14px' : '0',
+          color: 'var(--text-dim)',
+          transition: 'all .18s',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+        </span>
+        <span
+          style={{
+            fontFamily: 'var(--font-m)',
+            fontSize: 12,
+            letterSpacing: '.04em',
+            whiteSpace: 'nowrap',
+            opacity: expanded ? 1 : 0,
+            width: expanded ? 'auto' : 0,
+            transform: expanded ? 'translateX(0)' : 'translateX(-6px)',
+            transition: 'opacity .2s, transform .2s, width .2s',
+            overflow: 'hidden',
+          }}
+        >
+          Sign out
         </span>
       </button>
 

@@ -194,6 +194,33 @@ export function useDashboardLayout() {
     });
   }, []);
 
+  /** Export current layout as JSON string */
+  const exportLayout = useCallback(() => {
+    return JSON.stringify(state, null, 2);
+  }, [state]);
+
+  /** Import layout from JSON string. Returns true on success. */
+  const importLayout = useCallback((json: string): boolean => {
+    try {
+      const parsed = JSON.parse(json);
+      // Basic validation
+      if (!parsed || !parsed.layouts || !Array.isArray(parsed.visible)) {
+        return false;
+      }
+      setState((prev) => {
+        setUndoStack((u) => [...u.slice(-4), prev]);
+        return {
+          preset: parsed.preset ?? prev.preset,
+          layouts: parsed.layouts,
+          visible: parsed.visible,
+        };
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
   return {
     ...state,
     onLayoutChange,
@@ -202,5 +229,7 @@ export function useDashboardLayout() {
     clearLayout,
     undo,
     canUndo: undoStack.length > 0,
+    exportLayout,
+    importLayout,
   };
 }

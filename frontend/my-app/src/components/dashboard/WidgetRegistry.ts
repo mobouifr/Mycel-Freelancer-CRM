@@ -31,6 +31,7 @@ const ICON = {
   activity:    'M22 12h-4l-3 9L9 3l-3 9H2',
   projects:    'M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z',
   suggestions: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 12 18.469c-.84 0-1.633.37-2.173 1.025l-.392.506',
+  ecosystem:   'M12 22V8M12 8C9 8 5 6 5 2M12 8c3 0 7-2 7-6M7 14c-3 0-5 1-5 3M17 14c3 0 5 1 5 3',
 };
 
 /* ── Registry: lazy-imported components ── */
@@ -109,6 +110,17 @@ const REGISTRY: WidgetEntry[] = [
     defaultW: 4,
     defaultH: 3,
     minW: 3,
+    minH: 2,
+    component: lazyPlaceholder(),
+  },
+  {
+    id: 'ecosystem',
+    label: 'Living Ecosystem',
+    description: 'A generative plant that grows with your usage',
+    icon: ICON.ecosystem,
+    defaultW: 3,
+    defaultH: 3,
+    minW: 2,
     minH: 2,
     component: lazyPlaceholder(),
   },

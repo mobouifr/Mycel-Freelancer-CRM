@@ -18,6 +18,7 @@ import Projects from './pages/Projects';
 import Proposals from './pages/Proposals';
 import Invoices from './pages/Invoices';
 import Reminders from './pages/Reminders';
+import Ecosystem from './pages/Ecosystem';
 
 import './styles/index.css';
 
@@ -42,6 +43,7 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/invoices/*" element={<Invoices />} />
                 <Route path="/reminders/*" element={<Reminders />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/ecosystem" element={<Ecosystem />} />
               </Route>
             {/* </Route> */}
           </Routes>

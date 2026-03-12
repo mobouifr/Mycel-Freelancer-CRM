@@ -127,6 +127,7 @@ export default function WidgetGrid({
               >
                 <WidgetCard
                   title={entry.label}
+                  isEditing={isEditing}
                   onRemove={isEditing ? () => onRemoveWidget(widgetId) : undefined}
                   icon={
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">

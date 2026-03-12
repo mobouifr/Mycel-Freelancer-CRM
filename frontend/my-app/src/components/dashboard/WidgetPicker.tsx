@@ -19,6 +19,8 @@ interface WidgetPickerProps {
   onClearLayout: () => void;
   canUndo: boolean;
   onUndo: () => void;
+  onExportLayout?: () => string;
+  onImportLayout?: (json: string) => boolean;
 }
 
 export default function WidgetPicker({
@@ -31,6 +33,8 @@ export default function WidgetPicker({
   onClearLayout,
   canUndo,
   onUndo,
+  onExportLayout,
+  onImportLayout,
 }: WidgetPickerProps) {
   const [search, setSearch] = useState('');
   const panelRef = useRef<HTMLDivElement>(null);
@@ -284,6 +288,96 @@ export default function WidgetPicker({
               Undo
             </button>
           </div>
+
+          {/* Export / Import */}
+          {(onExportLayout || onImportLayout) && (
+            <div style={{ display: 'flex', gap: 6, marginBottom: 20 }}>
+              {onExportLayout && (
+                <button
+                  onClick={() => {
+                    const json = onExportLayout();
+                    const blob = new Blob([json], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'dashboard-layout.json';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '7px 10px',
+                    background: 'var(--surface-2)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 5,
+                    fontFamily: 'var(--font-m)',
+                    fontSize: 10,
+                    color: 'var(--text-mid)',
+                    cursor: 'pointer',
+                    transition: 'all .15s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 4,
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
+                >
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Export
+                </button>
+              )}
+              {onImportLayout && (
+                <button
+                  onClick={() => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.json,application/json';
+                    input.onchange = () => {
+                      const file = input.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        const ok = onImportLayout(reader.result as string);
+                        if (!ok) alert('Invalid layout file.');
+                      };
+                      reader.readAsText(file);
+                    };
+                    input.click();
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '7px 10px',
+                    background: 'var(--surface-2)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 5,
+                    fontFamily: 'var(--font-m)',
+                    fontSize: 10,
+                    color: 'var(--text-mid)',
+                    cursor: 'pointer',
+                    transition: 'all .15s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 4,
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
+                >
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  Import
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Widget list */}
           <p style={{

@@ -16,6 +16,8 @@ interface WidgetCardProps {
   /** Class name for the drag handle */
   dragHandleClass?: string;
   noPadding?: boolean;
+  /** When true, show drag handles and resize affordances */
+  isEditing?: boolean;
 }
 
 export default function WidgetCard({
@@ -26,6 +28,7 @@ export default function WidgetCard({
   actions,
   dragHandleClass = 'widget-drag-handle',
   noPadding,
+  isEditing = false,
 }: WidgetCardProps) {
   const [hovered, setHovered] = useState(false);
 
@@ -33,12 +36,13 @@ export default function WidgetCard({
     <div
       style={{
         background: 'var(--surface-2)',
-        border: '1px solid var(--border)',
+        border: isEditing ? '1.5px dashed var(--accent)' : '1px solid var(--border)',
         borderRadius: 10,
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
         overflow: 'hidden',
+        position: 'relative',
         transition: 'border-color .2s, box-shadow .2s',
         boxShadow: hovered ? '0 4px 24px rgba(0,0,0,.15)' : 'none',
       }}
@@ -47,26 +51,28 @@ export default function WidgetCard({
     >
       {/* Header */}
       <div
-        className={dragHandleClass}
+        className={isEditing ? dragHandleClass : undefined}
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '12px 16px 10px',
-          cursor: 'grab',
+          cursor: isEditing ? 'grab' : 'default',
           userSelect: 'none',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* Drag dots indicator */}
-          <svg width="8" height="14" viewBox="0 0 8 14" fill="none" style={{ opacity: hovered ? 0.4 : 0.15, transition: 'opacity .15s', flexShrink: 0 }}>
-            <circle cx="2" cy="2" r="1.2" fill="currentColor" />
-            <circle cx="6" cy="2" r="1.2" fill="currentColor" />
-            <circle cx="2" cy="7" r="1.2" fill="currentColor" />
-            <circle cx="6" cy="7" r="1.2" fill="currentColor" />
-            <circle cx="2" cy="12" r="1.2" fill="currentColor" />
-            <circle cx="6" cy="12" r="1.2" fill="currentColor" />
-          </svg>
+          {/* Drag dots indicator — only visible in edit mode */}
+          {isEditing && (
+            <svg width="8" height="14" viewBox="0 0 8 14" fill="none" style={{ opacity: hovered ? 0.4 : 0.15, transition: 'opacity .15s', flexShrink: 0 }}>
+              <circle cx="2" cy="2" r="1.2" fill="currentColor" />
+              <circle cx="6" cy="2" r="1.2" fill="currentColor" />
+              <circle cx="2" cy="7" r="1.2" fill="currentColor" />
+              <circle cx="6" cy="7" r="1.2" fill="currentColor" />
+              <circle cx="2" cy="12" r="1.2" fill="currentColor" />
+              <circle cx="6" cy="12" r="1.2" fill="currentColor" />
+            </svg>
+          )}
           {icon && <span style={{ display: 'flex', alignItems: 'center', color: 'var(--text-dim)' }}>{icon}</span>}
           <p style={{
             fontFamily: 'var(--font-m)',
@@ -120,6 +126,27 @@ export default function WidgetCard({
       }}>
         {children}
       </div>
+
+      {/* Resize grip — visible only in edit mode */}
+      {isEditing && (
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            bottom: 4,
+            right: 4,
+            width: 12,
+            height: 12,
+            opacity: hovered ? 0.35 : 0.12,
+            transition: 'opacity .15s',
+            pointerEvents: 'none',
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M10 2L2 10M10 6L6 10M10 10L10 10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+          </svg>
+        </div>
+      )}
     </div>
   );
 }

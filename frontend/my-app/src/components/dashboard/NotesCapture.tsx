@@ -225,7 +225,7 @@ function NotesCapture() {
       </div>
 
       {/* View all link */}
-      <div style={{ borderTop: '1px solid var(--border)', paddingTop: 8, marginTop: 4, textAlign: 'center' }}>
+      <div style={{ borderTop: '1px solid var(--border)', paddingTop: 8, marginTop: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button
           onClick={() => navigate('/reminders')}
           style={{
@@ -233,10 +233,19 @@ function NotesCapture() {
             fontFamily: 'var(--font-m)', fontSize: 10,
             color: 'var(--accent)', cursor: 'pointer',
             letterSpacing: '.04em',
+            transition: 'opacity .15s',
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
         >
-          View all notes →
+          View all in Reminders →
         </button>
+        <span style={{
+          fontFamily: 'var(--font-m)', fontSize: 8, color: 'var(--text-dim)',
+          opacity: 0.5,
+        }}>
+          ⌘K to compose
+        </span>
       </div>
     </div>
   );
