@@ -2,40 +2,46 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 
+export interface Customer {
+  id: number;
+  name: string;
+  email: string;
+}
+
 @Injectable()
 export class CustomersService {
-  // 1. This is our "Fake Database"
-  private customers = []; 
+  // In-memory array acting as the database
+  private customers: Customer[] = [];
+  private nextId = 1;
 
   // CREATE
-  create(createCustomerDto: CreateCustomerDto) {
-    const newCustomer = {
-      id: Date.now(), // Generate a fake unique ID using the current timestamp
-      ...createCustomerDto, // Spread the incoming data (name, email, etc.)
+  create(createCustomerDto: CreateCustomerDto): Customer {
+    const newCustomer: Customer = {
+      id: this.nextId++,
+      ...createCustomerDto,
     };
     this.customers.push(newCustomer);
     return newCustomer;
   }
 
   // READ (All)
-  findAll() {
+  findAll(): Customer[] {
     return this.customers;
   }
 
   // READ (One)
-  findOne(id: number) {
+  findOne(id: number): Customer {
     const customer = this.customers.find(c => c.id === id);
     if (!customer) {
-      // NestJS will automatically turn this into a 404 Not Found error for the user!
       throw new NotFoundException(`Customer with ID ${id} not found`);
     }
     return customer;
   }
 
   // UPDATE
-  update(id: number, updateCustomerDto: UpdateCustomerDto) {
+  update(id: number, updateCustomerDto: UpdateCustomerDto): Customer {
     const customerIndex = this.customers.findIndex(c => c.id === id);
-    
+
     if (customerIndex === -1) {
       throw new NotFoundException(`Customer with ID ${id} not found`);
     }
@@ -50,15 +56,15 @@ export class CustomersService {
   }
 
   // DELETE
-  remove(id: number) {
+  remove(id: number): Customer {
     const customerIndex = this.customers.findIndex(c => c.id === id);
-    
+
     if (customerIndex === -1) {
       throw new NotFoundException(`Customer with ID ${id} not found`);
     }
 
-    // Remove 1 item at the specific index
-    const deletedCustomer = this.customers.splice(customerIndex, 1);
-    return deletedCustomer[0];
+    // Remove 1 item at the specific index and return it
+    const [deletedCustomer] = this.customers.splice(customerIndex, 1);
+    return deletedCustomer;
   }
 }

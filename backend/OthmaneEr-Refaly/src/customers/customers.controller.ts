@@ -1,10 +1,12 @@
+// customers.controller.ts
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 
-@Controller('customers')
+@Controller('customers') // This means all routes start with http://localhost:3000/customers
 export class CustomersController {
+  // NestJS magically injects your Service here!
   constructor(private readonly customersService: CustomersService) {}
 
   @Post()
@@ -19,7 +21,7 @@ export class CustomersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.customersService.findOne(+id);
+    return this.customersService.findOne(+id); // The '+' turns the string URL into a number!
   }
 
   @Patch(':id')
