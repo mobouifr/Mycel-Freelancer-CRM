@@ -94,6 +94,7 @@ export default function StatCard({ label, value, sub, trend, accent, href }: Sta
       </div>
 
       <span
+        className="kpi-num"
         style={{
           fontFamily: 'var(--font-d)',
           fontWeight: 700,
@@ -111,7 +112,7 @@ export default function StatCard({ label, value, sub, trend, accent, href }: Sta
             style={{
               fontSize: 10,
               fontFamily: 'var(--font-m)',
-              color: trend === 'up' ? 'rgba(72,200,100,0.8)' : trend === 'down' ? 'var(--danger)' : 'var(--text-dim)',
+              color: trend === 'up' ? 'var(--trend-up)' : trend === 'down' ? 'var(--trend-down)' : 'var(--text-dim)',
               letterSpacing: '.04em',
             }}
           >

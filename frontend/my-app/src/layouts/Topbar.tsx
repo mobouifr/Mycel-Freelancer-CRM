@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../hooks/useTheme';
+import { NotificationBell } from '../components';
 
 /* ─────────────────────────────────────────────
    TOPBAR — Breadcrumb + search + user avatar
@@ -34,6 +36,7 @@ export default function Topbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { mode, setMode } = useTheme();
   const [showMenu, setShowMenu] = useState(false);
   const menuTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -125,7 +128,7 @@ export default function Topbar() {
         <span style={{ color: 'var(--white)' }}>{label}</span>
       </p>
 
-      {/* Search + Avatar */}
+      {/* Search + Theme Toggle + Avatar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
         <div ref={searchRef} style={{ position: 'relative' }}>
           <span
@@ -246,6 +249,55 @@ export default function Topbar() {
             </div>
           )}
         </div>
+
+        {/* Theme toggle */}
+        <button
+          onClick={() => {
+            const next = mode === 'dark' ? 'lighter-dark' : mode === 'lighter-dark' ? 'light' : 'dark';
+            setMode(next);
+          }}
+          aria-label={`Switch to ${mode === 'dark' ? 'lighter dark' : mode === 'lighter-dark' ? 'light' : 'dark'} mode`}
+          title={`Theme: ${mode}`}
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,.06)',
+            border: '1px solid var(--border)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            color: 'var(--text-dim)',
+            transition: 'all .2s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'var(--accent)';
+            e.currentTarget.style.color = 'var(--white)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border)';
+            e.currentTarget.style.color = 'var(--text-dim)';
+          }}
+        >
+          {mode === 'light' ? (
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          ) : mode === 'lighter-dark' ? (
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              <circle cx="12" cy="12" r="4" fill="currentColor" opacity="0.15"/>
+            </svg>
+          ) : (
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          )}
+        </button>
+
+        {/* Notification bell */}
+        <NotificationBell />
 
         {/* User avatar */}
         <div

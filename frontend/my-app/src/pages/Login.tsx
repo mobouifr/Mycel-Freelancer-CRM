@@ -221,7 +221,7 @@ export default function Login() {
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = 'var(--accent)';
-                  e.currentTarget.style.background = 'rgba(72,200,100,.06)';
+                  e.currentTarget.style.background = 'var(--accent-bg)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = 'var(--border)';

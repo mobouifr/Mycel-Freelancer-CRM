@@ -55,7 +55,7 @@ export default function Input({
             border: 'none',
             borderBottom: `1px solid ${
               error
-                ? 'rgba(220,80,80,.5)'
+                ? 'var(--danger)'
                 : focused
                   ? 'rgba(255,255,255,0.45)'
                   : 'rgba(255,255,255,0.12)'

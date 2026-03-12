@@ -105,7 +105,7 @@ export default function Sidebar() {
       style={{
         width,
         minWidth: width,
-        background: '#080808',
+        background: 'var(--sidebar-bg)',
         borderRight: '1px solid var(--border)',
         display: 'flex',
         flexDirection: 'column',
@@ -192,11 +192,11 @@ export default function Sidebar() {
               margin: '1px 10px',
               borderRadius: 8,
               background: active
-                ? 'rgba(72,200,100,.08)'
+                ? 'var(--sidebar-active-bg)'
                 : hovered
                   ? 'rgba(255,255,255,.04)'
                   : 'transparent',
-              border: active ? '1px solid rgba(72,200,100,.15)' : '1px solid transparent',
+              border: active ? '1px solid var(--sidebar-active-border)' : '1px solid transparent',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -204,7 +204,7 @@ export default function Sidebar() {
               gap: expanded ? 12 : 0,
               padding: expanded ? '0 14px' : '0',
               color: active
-                ? 'rgba(72,200,100,.9)'
+                ? 'var(--sidebar-active)'
                 : hovered
                   ? 'rgba(220,220,220,.8)'
                   : 'var(--text-dim)',
@@ -297,16 +297,16 @@ export default function Sidebar() {
           margin: '1px 10px',
           borderRadius: 8,
           background: isActive('/settings')
-            ? 'rgba(72,200,100,.08)'
+            ? 'var(--sidebar-active-bg)'
             : 'transparent',
-          border: isActive('/settings') ? '1px solid rgba(72,200,100,.15)' : '1px solid transparent',
+          border: isActive('/settings') ? '1px solid var(--sidebar-active-border)' : '1px solid transparent',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: expanded ? 'flex-start' : 'center',
           gap: expanded ? 12 : 0,
           padding: expanded ? '0 14px' : '0',
-          color: isActive('/settings') ? 'rgba(72,200,100,.9)' : 'var(--text-dim)',
+          color: isActive('/settings') ? 'var(--sidebar-active)' : 'var(--text-dim)',
           transition: 'all .18s',
           position: 'relative',
           overflow: 'hidden',
