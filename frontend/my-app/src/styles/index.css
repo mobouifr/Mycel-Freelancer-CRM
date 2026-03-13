@@ -36,11 +36,11 @@
   --sidebar-active-border:rgba(72, 200, 100, 0.18);
   --white:     #ececec;
   --glass:     rgba(255,255,255,0.03);
-  --font-d:     'Syne', sans-serif;
+  --font-d:     'DM Mono', monospace;
   --font-m:     'DM Mono', monospace;
   --font-body:  'DM Mono', monospace;
   --font-sans:  'DM Mono', monospace;
-  --font-display: var(--font-d);
+  --font-display: 'Syne', sans-serif;
   --ease:       cubic-bezier(.4,0,.2,1);
 
   /* ── Extra aliases (set by JS but need CSS fallbacks) ── */
