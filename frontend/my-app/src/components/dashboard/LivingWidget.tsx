@@ -190,8 +190,9 @@ function LivingWidget() {
         <p style={{
           fontFamily: 'var(--font-d)',
           fontSize: 14,
-          fontWeight: 600,
-          color: 'var(--white)',
+          fontWeight: 500,
+          color: 'var(--text)',
+          letterSpacing: '.03em',
           lineHeight: 1.4,
         }}>
           Level {level} · {hours < 1 ? 'Just planted' : `${Math.floor(hours)}h growth`}

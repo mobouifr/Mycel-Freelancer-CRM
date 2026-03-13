@@ -99,11 +99,11 @@ export default function Signup() {
             <h1
               style={{
                 fontFamily: 'var(--font-d)',
-                fontWeight: 700,
+                fontWeight: 500,
                 fontSize: 58,
                 lineHeight: 1.15,
-                color: 'var(--white)',
-                letterSpacing: '.01em',
+                color: 'var(--text)',
+                letterSpacing: '.05em',
                 marginBottom: 48,
               }}
             >

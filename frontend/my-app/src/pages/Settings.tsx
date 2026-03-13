@@ -77,10 +77,10 @@ export default function Settings() {
         <h2
           style={{
             fontFamily: 'var(--font-d)',
-            fontWeight: 700,
+            fontWeight: 500,
             fontSize: 26,
-            color: 'var(--white)',
-            letterSpacing: '.01em',
+            color: 'var(--text)',
+            letterSpacing: '.06em',
             lineHeight: 1.3,
             marginBottom: 4,
           }}
@@ -265,9 +265,10 @@ function SectionTitle({ title, sub }: { title: string; sub: string }) {
       <h3
         style={{
           fontFamily: 'var(--font-d)',
-          fontWeight: 600,
+          fontWeight: 500,
           fontSize: 16,
-          color: 'var(--white)',
+          color: 'var(--text)',
+          letterSpacing: '.04em',
           marginBottom: 4,
         }}
       >

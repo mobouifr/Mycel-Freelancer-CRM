@@ -111,11 +111,11 @@ export default function Login() {
             <h1
               style={{
                 fontFamily: 'var(--font-d)',
-                fontWeight: 700,
+                fontWeight: 500,
                 fontSize: 58,
                 lineHeight: 1.15,
-                color: 'var(--white)',
-                letterSpacing: '.01em',
+                color: 'var(--text)',
+                letterSpacing: '.05em',
                 marginBottom: 48,
               }}
             >
@@ -274,9 +274,10 @@ export default function Login() {
                 <h2
                   style={{
                     fontFamily: 'var(--font-d)',
-                    fontWeight: 700,
+                    fontWeight: 500,
                     fontSize: 22,
-                    color: 'var(--white)',
+                    color: 'var(--text)',
+                    letterSpacing: '.04em',
                     lineHeight: 1.3,
                     marginBottom: 8,
                   }}

@@ -46,8 +46,8 @@ function InvoicesDue() {
       }}>
         <div>
           <p className="kpi-num" style={{
-            fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: 20,
-            color: 'var(--white)', lineHeight: 1.3,
+            fontFamily: 'var(--font-d)', fontWeight: 500, fontSize: 20,
+            color: 'var(--text)', letterSpacing: '.04em', lineHeight: 1.3,
           }}>
             ${(totalDue / 1000).toFixed(1)}k
           </p>
@@ -113,8 +113,8 @@ function InvoicesDue() {
 
               {/* Amount */}
               <p style={{
-                fontFamily: 'var(--font-d)', fontSize: 13, fontWeight: 600,
-                color: 'var(--white)', whiteSpace: 'nowrap',
+                fontFamily: 'var(--font-d)', fontSize: 13, fontWeight: 500,
+                color: 'var(--text)', whiteSpace: 'nowrap',
               }}>
                 {inv.amount}
               </p>

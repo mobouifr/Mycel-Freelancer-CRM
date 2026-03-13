@@ -97,10 +97,10 @@ export default function StatCard({ label, value, sub, trend, accent, href }: Sta
         className="kpi-num"
         style={{
           fontFamily: 'var(--font-d)',
-          fontWeight: 700,
+          fontWeight: 500,
           fontSize: accent ? 36 : 30,
-          color: 'var(--white)',
-          letterSpacing: '.01em',
+          color: 'var(--text)',
+          letterSpacing: '.04em',
           lineHeight: 1.3,
         }}
       >

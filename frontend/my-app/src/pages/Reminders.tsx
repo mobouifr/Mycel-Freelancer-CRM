@@ -139,8 +139,8 @@ export default function Reminders() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 24 }}>
         <div>
           <h2 style={{
-            fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: 26,
-            color: 'var(--white)', letterSpacing: '.01em', lineHeight: 1.3, marginBottom: 4,
+            fontFamily: 'var(--font-d)', fontWeight: 500, fontSize: 26,
+            color: 'var(--text)', letterSpacing: '.06em', lineHeight: 1.3, marginBottom: 4,
           }}>
             Reminders
           </h2>
@@ -271,8 +271,8 @@ export default function Reminders() {
                 aria-label="Note title"
                 style={{
                   width: '100%', background: 'none', border: 'none', outline: 'none',
-                  fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: 18,
-                  color: 'var(--white)', lineHeight: 1.3, marginBottom: 12,
+                  fontFamily: 'var(--font-d)', fontWeight: 500, fontSize: 18,
+                  color: 'var(--text)', letterSpacing: '.04em', lineHeight: 1.3, marginBottom: 12,
                 }}
               />
               <textarea

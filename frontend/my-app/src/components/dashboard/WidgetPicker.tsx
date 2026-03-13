@@ -126,8 +126,9 @@ export default function WidgetPicker({
             <h3 style={{
               fontFamily: 'var(--font-d)',
               fontSize: 16,
-              fontWeight: 600,
-              color: 'var(--white)',
+              fontWeight: 500,
+              color: 'var(--text)',
+              letterSpacing: '.04em',
               lineHeight: 1.3,
               margin: 0,
             }}>
