@@ -3,10 +3,19 @@ import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 
 export interface Customer {
-  id: number;
-  name: string;
-  email: string;
-  
+  id: number; // in DB this would be UUID, here we keep number for simplicity
+  name: string; // required
+  email?: string; // optional, should be valid email
+  phone?: string;
+  company?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  postal_code?: string;
+  notes?: string;
+  status: 'active' | 'inactive' | 'archived'; // enum from schema
+  created_at: Date;
+  updated_at: Date;
 }
 
 @Injectable()
@@ -17,10 +26,16 @@ export class CustomersService {
 
   // CREATE
   create(createCustomerDto: CreateCustomerDto): Customer {
+    const now = new Date();
+
     const newCustomer: Customer = {
       id: this.nextId++,
-      ...createCustomerDto,
+      status: 'active',      // default status
+      created_at: now,
+      updated_at: now,
+      ...createCustomerDto,  // name, email, etc.
     };
+
     this.customers.push(newCustomer);
     return newCustomer;
   }
@@ -47,10 +62,10 @@ export class CustomersService {
       throw new NotFoundException(`Customer with ID ${id} not found`);
     }
 
-    // Merge the old customer data with the new updated data
     this.customers[customerIndex] = {
       ...this.customers[customerIndex],
       ...updateCustomerDto,
+      updated_at: new Date(), // keep updated_at in sync
     };
 
     return this.customers[customerIndex];
@@ -64,7 +79,6 @@ export class CustomersService {
       throw new NotFoundException(`Customer with ID ${id} not found`);
     }
 
-    // Remove 1 item at the specific index and return it
     const [deletedCustomer] = this.customers.splice(customerIndex, 1);
     return deletedCustomer;
   }
