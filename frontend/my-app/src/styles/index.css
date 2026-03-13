@@ -76,6 +76,14 @@ code, pre, kbd, .font-mono { font-family: var(--font-m); }
 /* Brand logo exception — always display font */
 .brand-logo { font-family: var(--font-display) !important; }
 
+/* ─── MONO SPACING OVERRIDES ───
+   DM Mono needs more breathing room than display fonts
+   on large/bold text. These override cramped inline styles. */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.4 !important;
+  letter-spacing: 0 !important;
+}
+
 ::selection { background: rgba(255,255,255,0.12); }
 
 input { caret-color: var(--white); }
@@ -126,8 +134,8 @@ input:-webkit-autofill:focus {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
   font-weight: 600;
-  letter-spacing: -.02em;
-  line-height: 1.1;
+  letter-spacing: 0;
+  line-height: 1.35;
 }
 
 /* ─── Light mode autofill ─── */

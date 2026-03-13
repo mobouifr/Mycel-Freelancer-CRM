@@ -60,7 +60,8 @@ export default function Dashboard() {
             fontWeight: 700,
             fontSize: 26,
             color: 'var(--white)',
-            letterSpacing: '-.01em',
+            letterSpacing: '.01em',
+            lineHeight: 1.3,
             marginBottom: 4,
           }}>
             Dashboard

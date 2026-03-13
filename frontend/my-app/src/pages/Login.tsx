@@ -113,9 +113,9 @@ export default function Login() {
                 fontFamily: 'var(--font-d)',
                 fontWeight: 700,
                 fontSize: 58,
-                lineHeight: 0.95,
+                lineHeight: 1.15,
                 color: 'var(--white)',
-                letterSpacing: '-.02em',
+                letterSpacing: '.01em',
                 marginBottom: 48,
               }}
             >
@@ -277,6 +277,7 @@ export default function Login() {
                     fontWeight: 700,
                     fontSize: 22,
                     color: 'var(--white)',
+                    lineHeight: 1.3,
                     marginBottom: 8,
                   }}
                 >

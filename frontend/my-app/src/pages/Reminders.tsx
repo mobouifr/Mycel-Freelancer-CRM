@@ -140,7 +140,7 @@ export default function Reminders() {
         <div>
           <h2 style={{
             fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: 26,
-            color: 'var(--white)', letterSpacing: '-.01em', marginBottom: 4,
+            color: 'var(--white)', letterSpacing: '.01em', lineHeight: 1.3, marginBottom: 4,
           }}>
             Reminders
           </h2>
@@ -272,7 +272,7 @@ export default function Reminders() {
                 style={{
                   width: '100%', background: 'none', border: 'none', outline: 'none',
                   fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: 18,
-                  color: 'var(--white)', marginBottom: 12,
+                  color: 'var(--white)', lineHeight: 1.3, marginBottom: 12,
                 }}
               />
               <textarea

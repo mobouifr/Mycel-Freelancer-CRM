@@ -47,7 +47,7 @@ function InvoicesDue() {
         <div>
           <p className="kpi-num" style={{
             fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: 20,
-            color: 'var(--white)', lineHeight: 1,
+            color: 'var(--white)', lineHeight: 1.3,
           }}>
             ${(totalDue / 1000).toFixed(1)}k
           </p>

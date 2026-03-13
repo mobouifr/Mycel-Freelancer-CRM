@@ -128,6 +128,7 @@ export default function WidgetPicker({
               fontSize: 16,
               fontWeight: 600,
               color: 'var(--white)',
+              lineHeight: 1.3,
               margin: 0,
             }}>
               Customize Dashboard

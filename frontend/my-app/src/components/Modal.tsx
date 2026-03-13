@@ -82,7 +82,8 @@ export default function Modal({
                 fontWeight: 700,
                 fontSize: 18,
                 color: 'var(--white)',
-                letterSpacing: '-.01em',
+                letterSpacing: '.01em',
+                lineHeight: 1.3,
               }}
             >
               {title}

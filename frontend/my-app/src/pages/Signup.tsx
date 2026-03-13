@@ -101,9 +101,9 @@ export default function Signup() {
                 fontFamily: 'var(--font-d)',
                 fontWeight: 700,
                 fontSize: 58,
-                lineHeight: 0.95,
+                lineHeight: 1.15,
                 color: 'var(--white)',
-                letterSpacing: '-.02em',
+                letterSpacing: '.01em',
                 marginBottom: 48,
               }}
             >

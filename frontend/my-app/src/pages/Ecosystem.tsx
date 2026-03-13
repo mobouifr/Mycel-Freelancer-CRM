@@ -75,7 +75,8 @@ export default function Ecosystem() {
             fontWeight: 700,
             fontSize: 26,
             color: 'var(--white)',
-            letterSpacing: '-.01em',
+            letterSpacing: '.01em',
+            lineHeight: 1.3,
             marginBottom: 4,
           }}>
             Ecosystem
@@ -186,7 +187,7 @@ export default function Ecosystem() {
               <div>
                 <p style={{
                   fontFamily: 'var(--font-d)', fontSize: 32, fontWeight: 700,
-                  color: 'var(--white)', lineHeight: 1,
+                  color: 'var(--white)', lineHeight: 1.3,
                   fontVariantNumeric: 'tabular-nums',
                 }}>
                   {level}
@@ -198,7 +199,7 @@ export default function Ecosystem() {
               <div style={{ textAlign: 'right' }}>
                 <p style={{
                   fontFamily: 'var(--font-d)', fontSize: 20, fontWeight: 600,
-                  color: 'var(--accent)', lineHeight: 1,
+                  color: 'var(--accent)', lineHeight: 1.3,
                   fontVariantNumeric: 'tabular-nums',
                 }}>
                   {Math.floor(hours)}h

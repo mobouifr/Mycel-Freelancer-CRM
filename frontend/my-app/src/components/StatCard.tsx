@@ -100,7 +100,8 @@ export default function StatCard({ label, value, sub, trend, accent, href }: Sta
           fontWeight: 700,
           fontSize: accent ? 36 : 30,
           color: 'var(--white)',
-          letterSpacing: '-.02em',
+          letterSpacing: '.01em',
+          lineHeight: 1.3,
         }}
       >
         {value}

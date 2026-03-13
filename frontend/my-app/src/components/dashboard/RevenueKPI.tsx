@@ -23,7 +23,7 @@ function RevenueKPI() {
         <div>
           <p className="kpi-num" style={{
             fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: 28,
-            color: 'var(--white)', letterSpacing: '-.02em', lineHeight: 1,
+            color: 'var(--white)', letterSpacing: '.01em', lineHeight: 1.3,
           }}>
             ${(CURRENT_REVENUE / 1000).toFixed(1)}k
           </p>
@@ -74,7 +74,7 @@ function RevenueKPI() {
           }}>
             <p style={{
               fontFamily: 'var(--font-d)', fontWeight: 600, fontSize: 13,
-              color: 'var(--white)', lineHeight: 1.2,
+              color: 'var(--white)', lineHeight: 1.4,
               fontVariantNumeric: 'tabular-nums',
             }}>
               {s.value}

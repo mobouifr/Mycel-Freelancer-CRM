@@ -192,7 +192,7 @@ function LivingWidget() {
           fontSize: 14,
           fontWeight: 600,
           color: 'var(--white)',
-          lineHeight: 1.2,
+          lineHeight: 1.4,
         }}>
           Level {level} · {hours < 1 ? 'Just planted' : `${Math.floor(hours)}h growth`}
         </p>
