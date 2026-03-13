@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700;900&family=Rubik:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
 @import "tailwindcss";
 
 /* ─── THEME VARIABLES (defaults: dark mode, emerald palette) ─── */
@@ -50,25 +50,29 @@
   --chart-grad-start: var(--chart-grad-1);
   --chart-grad-end:   var(--chart-grad-2);
   --ui-font-scale:   1;
+  --base-font-size:  16px;
+  --spacer:          calc(8px * var(--ui-font-scale, 1));
 }
 
 /* ─── BASE RESET ─── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { font-size: calc(16px * var(--ui-font-scale, 1)); }
+html { font-size: calc(var(--base-font-size) * var(--ui-font-scale, 1)); }
 html, body, #root { height: 100%; }
 
 body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
 }
 
-/* Ensure form elements inherit the site font */
-button, input, textarea, select { font-family: var(--font-sans); }
+/* Ensure form elements and headings inherit the site font */
+button, input, textarea, select, label { font-family: var(--font-sans); }
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-sans); }
 
 /* Brand logo exception — always display font */
 .brand-logo { font-family: var(--font-display) !important; }
@@ -121,7 +125,8 @@ input:-webkit-autofill:focus {
 [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.18); }
 
 /* ─── TABULAR NUMERALS ─── */
-.kpi-num {
+.kpi-num,
+.kpi-number {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
   font-weight: 600;
