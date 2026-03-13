@@ -27,65 +27,11 @@ export type ThemePresetId =
   | 'arctic-blue'
   | 'black-and-white';
 
-export type FontScale = 0.90 | 0.95 | 1 | 1.1 | 1.2;
-export type FontSizeLabel = 'XS' | 'S' | 'M' | 'L' | 'XL';
-export type FontFamilyId = 'inter' | 'ibm-plex' | 'source-sans' | 'rubik' | 'merriweather';
-
-export const FONT_SIZE_OPTIONS: { value: FontScale; label: FontSizeLabel; desc: string }[] = [
-  { value: 0.90, label: 'XS', desc: 'Extra compact' },
-  { value: 0.95, label: 'S',  desc: 'Compact' },
-  { value: 1,    label: 'M',  desc: 'Default' },
-  { value: 1.1,  label: 'L',  desc: 'Large' },
-  { value: 1.2,  label: 'XL', desc: 'Extra large' },
-];
 export type SidebarBehavior = 'automatic' | 'manual';
 
 /** Backward-compat re-exports (kept for consumer compatibility) */
 export type ThemeMode = 'dark' | 'light';
 export type PalettePreset = string;
-
-/* ── Font family definitions — 5 curated presets with distinct vibes ── */
-export const FONT_FAMILIES: { id: FontFamilyId; label: string; stack: string; desc: string; vibe: string; isSerif?: boolean }[] = [
-  {
-    id: 'inter',
-    label: 'Inter',
-    stack: "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
-    desc: 'Clean, neutral, professional',
-    vibe: 'Neutral Modern',
-  },
-  {
-    id: 'ibm-plex',
-    label: 'IBM Plex Sans',
-    stack: "'IBM Plex Sans', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
-    desc: 'Precise, engineering-focused, trustworthy',
-    vibe: 'Technical',
-  },
-  {
-    id: 'source-sans',
-    label: 'Source Sans 3',
-    stack: "'Source Sans 3', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
-    desc: 'Friendly, warm, great readability',
-    vibe: 'Warm & Human',
-  },
-  {
-    id: 'rubik',
-    label: 'Rubik',
-    stack: "'Rubik', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
-    desc: 'Modern, geometric, tech-forward',
-    vibe: 'Futuristic',
-  },
-  {
-    id: 'merriweather',
-    label: 'Merriweather',
-    stack: "'Merriweather', Georgia, 'Times New Roman', serif",
-    desc: 'Authoritative, editorial, elegant',
-    vibe: 'Elegant Serif',
-    isSerif: true,
-  },
-];
-
-export const FONT_FAMILY_MAP: Record<FontFamilyId, string> =
-  Object.fromEntries(FONT_FAMILIES.map((f) => [f.id, f.stack])) as Record<FontFamilyId, string>;
 
 // ── Token shape ──────────────────────────────
 /** Every CSS custom property a theme must define */
@@ -379,8 +325,6 @@ export const PALETTE_MAP = {
 // ── Persisted state ──────────────────────────
 interface ThemeState {
   theme: ThemePresetId;
-  fontScale: FontScale;
-  fontFamily: FontFamilyId;
   sidebarBehavior: SidebarBehavior;
   sidebarManualWidth: number;
 }
@@ -389,8 +333,6 @@ const STORAGE_KEY = 'mycel-theme';
 
 const DEFAULT_STATE: ThemeState = {
   theme: 'default-dark',
-  fontScale: 1,
-  fontFamily: 'inter',
   sidebarBehavior: 'automatic',
   sidebarManualWidth: 210,
 };
@@ -451,14 +393,6 @@ function applyTokens(state: ThemeState) {
   root.style.setProperty('--sidebar-active-bg',     t.sidebarActiveBg);
   root.style.setProperty('--sidebar-active-border', t.sidebarActiveBorder);
 
-  // Font scale
-  root.style.setProperty('--ui-font-scale', String(state.fontScale));
-
-  // Font family
-  const fontStack = FONT_FAMILY_MAP[state.fontFamily] || FONT_FAMILY_MAP.inter;
-  root.style.setProperty('--font-sans', fontStack);
-  root.style.setProperty('--font-body', fontStack);
-
   // Data attributes for CSS selectors (scrollbar, autofill, etc.)
   root.dataset.theme = preset.family;           // "dark" | "light"
   root.dataset.palette = state.theme;           // full preset id
@@ -470,14 +404,10 @@ interface ThemeContextType {
   theme: ThemePresetId;
   /** Current preset metadata */
   preset: ThemePresetMeta;
-  fontScale: FontScale;
-  fontFamily: FontFamilyId;
   sidebarBehavior: SidebarBehavior;
   sidebarManualWidth: number;
   /** Set the active theme preset */
   setTheme: (id: ThemePresetId) => void;
-  setFontScale: (s: FontScale) => void;
-  setFontFamily: (f: FontFamilyId) => void;
   setSidebarBehavior: (b: SidebarBehavior) => void;
   setSidebarManualWidth: (w: number) => void;
   /** Cycle quick-toggle: Default Dark ↔ Default Light (or snap to dark from custom) */
@@ -495,9 +425,6 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
-
-const VALID_FONT_FAMILIES = new Set<string>(FONT_FAMILIES.map((f) => f.id));
-const VALID_FONT_SCALES = new Set<number>(FONT_SIZE_OPTIONS.map((o) => o.value));
 
 function loadState(): ThemeState {
   try {
@@ -519,14 +446,9 @@ function loadState(): ThemeState {
       if (parsed.theme && !THEME_PRESET_MAP[parsed.theme as ThemePresetId]) {
         parsed.theme = 'default-dark';
       }
-      // Migrate old font family values (e.g. 'manrope') to valid new ones
-      if (parsed.fontFamily && !VALID_FONT_FAMILIES.has(parsed.fontFamily)) {
-        parsed.fontFamily = 'inter';
-      }
-      // Migrate old font scale values to nearest valid option
-      if (parsed.fontScale != null && !VALID_FONT_SCALES.has(parsed.fontScale)) {
-        parsed.fontScale = 1;
-      }
+      // Strip legacy font fields
+      delete parsed.fontFamily;
+      delete parsed.fontScale;
       return { ...DEFAULT_STATE, ...parsed };
     }
   } catch { /* noop */ }
@@ -543,14 +465,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setTheme = useCallback((theme: ThemePresetId) => {
     setState((s) => ({ ...s, theme }));
-  }, []);
-
-  const setFontScale = useCallback((fontScale: FontScale) => {
-    setState((s) => ({ ...s, fontScale }));
-  }, []);
-
-  const setFontFamily = useCallback((fontFamily: FontFamilyId) => {
-    setState((s) => ({ ...s, fontFamily }));
   }, []);
 
   const setSidebarBehavior = useCallback((sidebarBehavior: SidebarBehavior) => {
@@ -575,13 +489,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const ctx: ThemeContextType = {
     theme: state.theme,
     preset,
-    fontScale: state.fontScale,
-    fontFamily: state.fontFamily,
     sidebarBehavior: state.sidebarBehavior,
     sidebarManualWidth: state.sidebarManualWidth,
     setTheme,
-    setFontScale,
-    setFontFamily,
     setSidebarBehavior,
     setSidebarManualWidth,
     cycleQuickTheme,
