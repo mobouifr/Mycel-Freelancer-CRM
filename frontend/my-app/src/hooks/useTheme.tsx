@@ -27,19 +27,61 @@ export type ThemePresetId =
   | 'arctic-blue'
   | 'black-and-white';
 
-export type FontScale = 0.95 | 1 | 1.1;
-export type FontFamilyId = 'inter' | 'source-sans' | 'manrope';
+export type FontScale = 0.90 | 0.95 | 1 | 1.1 | 1.2;
+export type FontSizeLabel = 'XS' | 'S' | 'M' | 'L' | 'XL';
+export type FontFamilyId = 'inter' | 'ibm-plex' | 'source-sans' | 'rubik' | 'merriweather';
+
+export const FONT_SIZE_OPTIONS: { value: FontScale; label: FontSizeLabel; desc: string }[] = [
+  { value: 0.90, label: 'XS', desc: 'Extra compact' },
+  { value: 0.95, label: 'S',  desc: 'Compact' },
+  { value: 1,    label: 'M',  desc: 'Default' },
+  { value: 1.1,  label: 'L',  desc: 'Large' },
+  { value: 1.2,  label: 'XL', desc: 'Extra large' },
+];
 export type SidebarBehavior = 'automatic' | 'manual';
 
 /** Backward-compat re-exports (kept for consumer compatibility) */
 export type ThemeMode = 'dark' | 'light';
 export type PalettePreset = string;
 
-/* ── Font family definitions ── */
-export const FONT_FAMILIES: { id: FontFamilyId; label: string; stack: string; desc: string }[] = [
-  { id: 'inter',       label: 'Inter',        stack: "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif", desc: 'Clean & modern — the default' },
-  { id: 'source-sans', label: 'Source Sans 3', stack: "'Source Sans 3', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",                  desc: 'Warm humanist — great readability' },
-  { id: 'manrope',     label: 'Manrope',       stack: "'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",                        desc: 'Geometric & friendly' },
+/* ── Font family definitions — 5 curated presets with distinct vibes ── */
+export const FONT_FAMILIES: { id: FontFamilyId; label: string; stack: string; desc: string; vibe: string; isSerif?: boolean }[] = [
+  {
+    id: 'inter',
+    label: 'Inter',
+    stack: "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+    desc: 'Clean, neutral, professional',
+    vibe: 'Neutral Modern',
+  },
+  {
+    id: 'ibm-plex',
+    label: 'IBM Plex Sans',
+    stack: "'IBM Plex Sans', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+    desc: 'Precise, engineering-focused, trustworthy',
+    vibe: 'Technical',
+  },
+  {
+    id: 'source-sans',
+    label: 'Source Sans 3',
+    stack: "'Source Sans 3', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+    desc: 'Friendly, warm, great readability',
+    vibe: 'Warm & Human',
+  },
+  {
+    id: 'rubik',
+    label: 'Rubik',
+    stack: "'Rubik', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+    desc: 'Modern, geometric, tech-forward',
+    vibe: 'Futuristic',
+  },
+  {
+    id: 'merriweather',
+    label: 'Merriweather',
+    stack: "'Merriweather', Georgia, 'Times New Roman', serif",
+    desc: 'Authoritative, editorial, elegant',
+    vibe: 'Elegant Serif',
+    isSerif: true,
+  },
 ];
 
 export const FONT_FAMILY_MAP: Record<FontFamilyId, string> =
@@ -454,6 +496,9 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
+const VALID_FONT_FAMILIES = new Set<string>(FONT_FAMILIES.map((f) => f.id));
+const VALID_FONT_SCALES = new Set<number>(FONT_SIZE_OPTIONS.map((o) => o.value));
+
 function loadState(): ThemeState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -473,6 +518,14 @@ function loadState(): ThemeState {
       // Validate theme exists
       if (parsed.theme && !THEME_PRESET_MAP[parsed.theme as ThemePresetId]) {
         parsed.theme = 'default-dark';
+      }
+      // Migrate old font family values (e.g. 'manrope') to valid new ones
+      if (parsed.fontFamily && !VALID_FONT_FAMILIES.has(parsed.fontFamily)) {
+        parsed.fontFamily = 'inter';
+      }
+      // Migrate old font scale values to nearest valid option
+      if (parsed.fontScale != null && !VALID_FONT_SCALES.has(parsed.fontScale)) {
+        parsed.fontScale = 1;
       }
       return { ...DEFAULT_STATE, ...parsed };
     }
