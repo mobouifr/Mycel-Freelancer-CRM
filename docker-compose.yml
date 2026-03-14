@@ -179,6 +179,99 @@ services:
     networks:
       - freelancer_crm_network
 
+  # ---------------------------------------------------------------------------
+  # Prometheus — Metrics Collection
+  # ---------------------------------------------------------------------------
+  # Access at http://localhost:9090
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: crm_prometheus
+    restart: unless-stopped
+
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+    ports:
+      - "9090:9090"
+
+    depends_on:
+      - backend
+
+    networks:
+      - freelancer_crm_network
+
+  # ---------------------------------------------------------------------------
+  # Postgres Exporter — PostgreSQL Metrics for Prometheus
+  # ---------------------------------------------------------------------------
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: crm_pg_exporter
+    restart: unless-stopped
+
+    environment:
+      DATA_SOURCE_NAME: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-freelancer_crm}?sslmode=disable
+
+    depends_on:
+      - postgres
+
+    networks:
+      - freelancer_crm_network
+
+  # ---------------------------------------------------------------------------
+  # Grafana — Metrics Dashboard
+  # ---------------------------------------------------------------------------
+  # Access at http://localhost:3002  (admin / ${GRAFANA_PASSWORD})
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: crm_grafana
+    restart: unless-stopped
+
+    ports:
+      - "3002:3000"
+
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+
+    depends_on:
+      - prometheus
+
+    networks:
+      - freelancer_crm_network
+
+  # ---------------------------------------------------------------------------
+  # Backup — Scheduled Database Backups (daily at 02:00)
+  # ---------------------------------------------------------------------------
+  backup:
+    image: postgres:16-alpine
+    container_name: crm_backup
+    restart: unless-stopped
+
+    volumes:
+      - ./scripts/backup-db.sh:/backup.sh:ro
+      - backup_data:/backups
+
+    environment:
+      - PGPASSWORD=${POSTGRES_PASSWORD:-password}
+      - PGHOST=postgres
+      - PGUSER=${POSTGRES_USER:-postgres}
+      - PGDATABASE=${POSTGRES_DB:-freelancer_crm}
+
+    entrypoint: >
+      sh -c "echo '0 2 * * * sh /backup.sh >> /var/log/backup.log 2>&1'
+             | crontab - && crond -f"
+
+    depends_on:
+      - postgres
+
+    networks:
+      - freelancer_crm_network
+
 # =============================================================================
 # NETWORKS
 # =============================================================================
@@ -193,4 +286,8 @@ networks:
 volumes:
   freelancer_crm_postgres_data:
     name: freelancer_crm_postgres_data
+    driver: local
+  grafana_data:
+    driver: local
+  backup_data:
     driver: local
