@@ -5,6 +5,8 @@ import { reminderSchema, ReminderFormData } from '../../utils/validation';
 import { Reminder, ReminderType, ReminderPriority } from '../../types/reminder.types';
 import { formatDateTimeInput } from '../../utils/formatters';
 import { useClients } from '../../hooks/useClients';
+import { useInvoices } from '../../hooks/useInvoices';
+import { useProposals } from '../../hooks/useProposals';
 
 interface ReminderFormProps {
   reminder?: Reminder;
@@ -15,6 +17,8 @@ interface ReminderFormProps {
 
 export const ReminderForm = ({ reminder, onSubmit, onCancel, isLoading = false }: ReminderFormProps) => {
   const { clients } = useClients();
+  const { invoices } = useInvoices();
+  const { proposals } = useProposals();
 
   const {
     register,
@@ -129,6 +133,42 @@ export const ReminderForm = ({ reminder, onSubmit, onCancel, isLoading = false }
           {clients.map((client) => (
             <option key={client.id} value={client.id}>
               {client.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label htmlFor="invoiceId" className="block text-sm font-medium mb-1">
+          Link to Invoice (Optional)
+        </label>
+        <select
+          id="invoiceId"
+          {...register('invoiceId')}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">None</option>
+          {invoices.map((invoice) => (
+            <option key={invoice.id} value={invoice.id}>
+              Invoice - {invoice.project?.title || 'No project'} - ${Number(invoice.amount).toFixed(2)}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label htmlFor="proposalId" className="block text-sm font-medium mb-1">
+          Link to Proposal (Optional)
+        </label>
+        <select
+          id="proposalId"
+          {...register('proposalId')}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">None</option>
+          {proposals.map((proposal) => (
+            <option key={proposal.id} value={proposal.id}>
+              {proposal.title} - ${Number(proposal.amount).toFixed(2)}
             </option>
           ))}
         </select>

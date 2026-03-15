@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { projectsService } from '../../services/data.service';
-import { Project } from '../../types/project.types';
+import { Project, ProjectStatus } from '../../types/project.types';
 import { ApiError } from '../../types/common.types';
 import { formatDate, formatCurrency } from '../../utils/formatters';
 import { ProjectStatusBadge } from '../../components/projects/ProjectStatusBadge';
@@ -30,6 +30,18 @@ export const ProjectDetailPage = () => {
     };
     fetchProject();
   }, [id]);
+
+  const handleStatusChange = async (newStatus: ProjectStatus) => {
+    if (!id) return;
+    try {
+      await projectsService.updateStatus(id, newStatus);
+      if (project) {
+        setProject({ ...project, status: newStatus });
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to update status');
+    }
+  };
 
   if (loading) {
     return (
@@ -104,6 +116,23 @@ export const ProjectDetailPage = () => {
               <p className="mt-1">{formatDate(project.updatedAt)}</p>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow p-6 mt-4">
+        <h2 className="text-lg font-semibold mb-4">Actions</h2>
+        <div className="flex gap-2 flex-wrap">
+          <select
+            value={project.status}
+            onChange={(e) => handleStatusChange(e.target.value as ProjectStatus)}
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {Object.values(ProjectStatus).map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     </div>

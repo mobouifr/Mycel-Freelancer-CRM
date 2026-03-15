@@ -124,7 +124,40 @@ export const ReminderDetailPage = () => {
           {reminder.clientId && (
             <div>
               <h3 className="text-sm font-medium text-gray-500">Linked Client</h3>
-              <p className="mt-1">Client ID: {reminder.clientId}</p>
+              <p className="mt-1">
+                <button
+                  onClick={() => navigate(`/clients/${reminder.clientId}`)}
+                  className="text-blue-600 hover:text-blue-900 underline"
+                >
+                  View Client
+                </button>
+              </p>
+            </div>
+          )}
+          {reminder.invoiceId && (
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">Linked Invoice</h3>
+              <p className="mt-1">
+                <button
+                  onClick={() => navigate(`/invoices/${reminder.invoiceId}`)}
+                  className="text-blue-600 hover:text-blue-900 underline"
+                >
+                  View Invoice
+                </button>
+              </p>
+            </div>
+          )}
+          {reminder.proposalId && (
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">Linked Proposal</h3>
+              <p className="mt-1">
+                <button
+                  onClick={() => navigate(`/proposals/${reminder.proposalId}`)}
+                  className="text-blue-600 hover:text-blue-900 underline"
+                >
+                  View Proposal
+                </button>
+              </p>
             </div>
           )}
         </div>

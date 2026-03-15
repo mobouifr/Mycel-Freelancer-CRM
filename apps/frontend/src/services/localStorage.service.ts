@@ -183,6 +183,11 @@ export const localStorageProjectsService = {
     const filtered = projects.filter((p) => p.id !== id);
     saveToStorage(STORAGE_KEYS.PROJECTS, filtered);
   },
+
+  // Update project status
+  updateStatus: async (id: string, status: string): Promise<Project> => {
+    return localStorageProjectsService.update(id, { status: status as ProjectStatus });
+  },
 };
 
 // Proposals service
