@@ -13,8 +13,8 @@ export default function ErrorMessage({ message, onDismiss }: ErrorMessageProps) 
   return (
     <div
       style={{
-        background: 'rgba(220,80,80,.06)',
-        border: '1px solid rgba(220,80,80,.2)',
+        background: 'var(--danger-bg)',
+        border: '1px solid var(--danger)',
         borderRadius: 6,
         padding: '12px 16px',
         display: 'flex',
@@ -30,7 +30,7 @@ export default function ErrorMessage({ message, onDismiss }: ErrorMessageProps) 
           style={{
             fontFamily: 'var(--font-m)',
             fontSize: 12,
-            color: 'rgba(220,80,80,.85)',
+            color: 'var(--danger)',
             letterSpacing: '.02em',
           }}
         >
@@ -44,7 +44,7 @@ export default function ErrorMessage({ message, onDismiss }: ErrorMessageProps) 
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            color: 'rgba(220,80,80,.5)',
+            color: 'var(--danger)',
             fontSize: 14,
             padding: 2,
           }}

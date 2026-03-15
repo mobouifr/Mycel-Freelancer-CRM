@@ -94,12 +94,14 @@ export default function StatCard({ label, value, sub, trend, accent, href }: Sta
       </div>
 
       <span
+        className="kpi-num"
         style={{
           fontFamily: 'var(--font-d)',
-          fontWeight: 700,
+          fontWeight: 500,
           fontSize: accent ? 36 : 30,
-          color: 'var(--white)',
-          letterSpacing: '-.02em',
+          color: 'var(--text)',
+          letterSpacing: '.04em',
+          lineHeight: 1.3,
         }}
       >
         {value}
@@ -111,11 +113,11 @@ export default function StatCard({ label, value, sub, trend, accent, href }: Sta
             style={{
               fontSize: 10,
               fontFamily: 'var(--font-m)',
-              color: trend === 'up' ? 'rgba(72,200,100,0.8)' : 'var(--danger)',
+              color: trend === 'up' ? 'var(--trend-up)' : trend === 'down' ? 'var(--trend-down)' : 'var(--text-dim)',
               letterSpacing: '.04em',
             }}
           >
-            {trend === 'up' ? '↑' : '↓'} {sub}
+            {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '•'} {sub}
           </span>
         </div>
       )}

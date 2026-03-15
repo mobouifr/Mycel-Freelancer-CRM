@@ -9,33 +9,34 @@ export interface LoginPayload {
   password: string;
 }
 
-export interface SignupPayload {
-  firstName: string;
-  lastName: string;
+export interface RegisterPayload {
+  username: string;
   email: string;
   password: string;
 }
 
+/** Backend sets JWT in HttpOnly cookie — no token in response body */
 export interface AuthResponse {
-  token: string;
+  message?: string;
   user: User;
 }
 
 // ── User ────────────────────────────────────
 export interface User {
-  id: string;
+  id: number;
+  username: string;
   email: string;
-  name: string;
+  createdAt: string;
+  intraId?: string;
   businessName?: string;
   businessAddress?: string;
   logoUrl?: string;
   phone?: string;
-  defaultCurrency: string;
+  defaultCurrency?: string;
   taxRate?: number;
-  isActive: boolean;
-  emailVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
+  isActive?: boolean;
+  emailVerified?: boolean;
+  updatedAt?: string;
 }
 
 // ── Client ──────────────────────────────────

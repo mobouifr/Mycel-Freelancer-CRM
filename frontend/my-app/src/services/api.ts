@@ -3,7 +3,8 @@ import type { ApiError } from '../types';
 
 /* ─────────────────────────────────────────────
    API CLIENT — Axios wrapper with interceptors
-   Handles auth tokens, error normalization
+   Auth is handled via HttpOnly cookies set by
+   the backend. We just need withCredentials.
 ───────────────────────────────────────────── */
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -11,22 +12,14 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
+  withCredentials: true,          // ← sends HttpOnly cookie with every request
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// ── Request interceptor: attach token ────────
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+// No request interceptor needed — the browser
+// automatically attaches the HttpOnly cookie.
 
 // ── Response interceptor: normalize errors ───
 api.interceptors.response.use(
@@ -45,14 +38,12 @@ api.interceptors.response.use(
         `Error ${error.response.status}`;
       apiError.errors = error.response.data?.errors;
 
-      // Auto-logout on 401
+      // Auto-redirect on 401 (cookie expired / not set)
       if (error.response.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('remember');
-        sessionStorage.removeItem('token');
-        sessionStorage.removeItem('user');
-        window.location.href = '/login';
+        // Avoid redirect loop if already on login
+        if (!window.location.pathname.startsWith('/login')) {
+          window.location.href = '/login';
+        }
       }
     } else if (error.request) {
       apiError.message = 'Network error — please check your connection';

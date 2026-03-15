@@ -1,0 +1,14 @@
+curl -X POST http://localhost:3000/auth/register \
+-H "Content-Type: application/json" \
+-d '{"username": "Othmane", "email": "othmane@test.com", "password": "mypassword123"}'
+
+
+curl -c cookies.txt -X POST http://localhost:3000/auth/login \
+-H "Content-Type: application/json" \
+-d '{"email": "othmane@test.com", "password": "mypassword123"}'
+
+
+curl -b cookies.txt -X GET http://localhost:3000/auth/me
+
+
+http://localhost:3000/auth/42

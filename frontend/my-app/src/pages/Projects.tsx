@@ -5,10 +5,11 @@ export default function Projects() {
       <h2
         style={{
           fontFamily: 'var(--font-d)',
-          fontWeight: 700,
+          fontWeight: 500,
           fontSize: 26,
-          color: 'var(--white)',
-          letterSpacing: '-.01em',
+          color: 'var(--text)',
+          letterSpacing: '.06em',
+          lineHeight: 1.3,
           marginBottom: 4,
         }}
       >

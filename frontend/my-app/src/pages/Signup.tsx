@@ -10,16 +10,15 @@ import { AuthLeftPanel } from './Login';
 
 export default function Signup() {
   const navigate = useNavigate();
-  const { signup, isLoading, error, clearError } = useAuth();
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const { register, isLoading, error, clearError } = useAuth();
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   
   const handleSubmit = async () => {
     try {
-      await signup({ firstName, lastName, email, password });
+      await register({ username, email, password });
       navigate('/');
     } catch {
       // error is handled by auth context
@@ -100,11 +99,11 @@ export default function Signup() {
             <h1
               style={{
                 fontFamily: 'var(--font-d)',
-                fontWeight: 700,
+                fontWeight: 500,
                 fontSize: 58,
-                lineHeight: 0.95,
-                color: 'var(--white)',
-                letterSpacing: '-.02em',
+                lineHeight: 1.15,
+                color: 'var(--text)',
+                letterSpacing: '.05em',
                 marginBottom: 48,
               }}
             >
@@ -118,21 +117,13 @@ export default function Signup() {
             )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-              {/* Name row */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-                <Input
-                  label="First Name"
-                  placeholder="Montassir"
-                  value={firstName}
-                  onChange={setFirstName}
-                />
-                <Input
-                  label="Last Name"
-                  placeholder="—"
-                  value={lastName}
-                  onChange={setLastName}
-                />
-              </div>
+              {/* Username */}
+              <Input
+                label="Username"
+                placeholder="montassir"
+                value={username}
+                onChange={setUsername}
+              />
 
               {/* Email + Password */}
               <Input

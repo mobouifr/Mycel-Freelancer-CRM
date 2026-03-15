@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { authService } from '../services/auth';
 import { Input, Button, ErrorMessage, LogoMark, MyceliumCanvas } from '../components';
 
 /* ─────────────────────────────────────────────
@@ -12,7 +13,6 @@ export default function Login() {
   const { login, forgotPassword, isLoading, error, clearError } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
 
   // ── Forgot password state ──────────────────
   const [showForgot, setShowForgot] = useState(false);
@@ -22,7 +22,7 @@ export default function Login() {
 
   const handleSubmit = async () => {
     try {
-      await login({ email, password }, rememberMe);
+      await login({ email, password });
       navigate('/');
     } catch {
       // error is handled by auth context
@@ -111,11 +111,11 @@ export default function Login() {
             <h1
               style={{
                 fontFamily: 'var(--font-d)',
-                fontWeight: 700,
+                fontWeight: 500,
                 fontSize: 58,
-                lineHeight: 0.95,
-                color: 'var(--white)',
-                letterSpacing: '-.02em',
+                lineHeight: 1.15,
+                color: 'var(--text)',
+                letterSpacing: '.05em',
                 marginBottom: 48,
               }}
             >
@@ -146,7 +146,7 @@ export default function Login() {
                 />
               </div>
 
-              {/* Remember + Forgot */}
+              {/* Forgot + 42 OAuth */}
               <div
                 style={{
                   display: 'flex',
@@ -155,58 +155,11 @@ export default function Login() {
                   marginTop: -10,
                 }}
               >
-                <label
-                  style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
-                  onClick={() => setRememberMe((v) => !v)}
-                >
-                  <div
-                    style={{
-                      width: 14,
-                      height: 14,
-                      border: '1px solid rgba(255,255,255,.22)',
-                      borderRadius: 3,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      background: rememberMe ? 'var(--accent)' : 'transparent',
-                      transition: 'background .15s, border-color .15s',
-                      borderColor: rememberMe ? 'var(--accent)' : 'rgba(255,255,255,.22)',
-                    }}
-                  >
-                    {rememberMe && (
-                      <svg
-                        width="10"
-                        height="10"
-                        viewBox="0 0 10 10"
-                        fill="none"
-                        style={{ display: 'block' }}
-                      >
-                        <path
-                          d="M2 5.2L4.2 7.4L8 3"
-                          stroke="#000"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    )}
-                  </div>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-m)',
-                      fontSize: 11,
-                      color: 'var(--text-dim)',
-                      letterSpacing: '.06em',
-                    }}
-                  >
-                    Remember me
-                  </span>
-                </label>
                 <button
                   onClick={() => {
                     setShowForgot(true);
                     setForgotMsg('');
-                    setForgotEmail(email); // pre-fill with login email
+                    setForgotEmail(email);
                   }}
                   style={{
                     background: 'none',
@@ -216,11 +169,70 @@ export default function Login() {
                     fontSize: 11,
                     color: 'var(--text-dim)',
                     letterSpacing: '.06em',
+                    padding: 0,
                   }}
                 >
-                  Forgot?
+                  Forgot password?
                 </button>
               </div>
+
+              {/* Divider */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  marginTop: 4,
+                }}
+              >
+                <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+                <span
+                  style={{
+                    fontFamily: 'var(--font-m)',
+                    fontSize: 10,
+                    color: 'var(--text-dim)',
+                    letterSpacing: '.08em',
+                  }}
+                >
+                  OR
+                </span>
+                <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+              </div>
+
+              {/* 42 OAuth */}
+              <a
+                href={authService.oauthUrl}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 10,
+                  padding: '11px 0',
+                  border: '1px solid var(--border)',
+                  borderRadius: 4,
+                  background: 'transparent',
+                  color: 'var(--white)',
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 12,
+                  letterSpacing: '.06em',
+                  textDecoration: 'none',
+                  cursor: 'pointer',
+                  transition: 'border-color .2s, background .2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--accent)';
+                  e.currentTarget.style.background = 'var(--accent-bg)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M9 1L11.5 6.5H17L12.5 10L14.5 17L9 13L3.5 17L5.5 10L1 6.5H6.5L9 1Z" fill="var(--white)" opacity=".9" />
+                </svg>
+                Continue with 42
+              </a>
             </div>
           </div>
 
@@ -262,9 +274,11 @@ export default function Login() {
                 <h2
                   style={{
                     fontFamily: 'var(--font-d)',
-                    fontWeight: 700,
+                    fontWeight: 500,
                     fontSize: 22,
-                    color: 'var(--white)',
+                    color: 'var(--text)',
+                    letterSpacing: '.04em',
+                    lineHeight: 1.3,
                     marginBottom: 8,
                   }}
                 >

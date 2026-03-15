@@ -79,10 +79,11 @@ export default function Modal({
             <h3
               style={{
                 fontFamily: 'var(--font-d)',
-                fontWeight: 700,
+                fontWeight: 500,
                 fontSize: 18,
-                color: 'var(--white)',
-                letterSpacing: '-.01em',
+                color: 'var(--text)',
+                letterSpacing: '.04em',
+                lineHeight: 1.3,
               }}
             >
               {title}

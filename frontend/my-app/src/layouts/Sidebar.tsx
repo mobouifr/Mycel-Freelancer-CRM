@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LogoMark } from '../components';
+import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../hooks/useTheme';
 
 /* ─────────────────────────────────────────────
    SIDEBAR — Expandable navigation panel
+   Supports Automatic (breakpoint) & Manual (drag) modes
 ───────────────────────────────────────────── */
 
 /* ── SVG icon components (24×24 viewBox) ── */
@@ -50,6 +53,11 @@ const icons = {
       <path d="M13.73 21a2 2 0 0 1-3.46 0" />
     </svg>
   ),
+  ecosystem: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22V8M12 8C9 8 5 6 5 2M12 8c3 0 7-2 7-6M7 14c-3 0-5 1-5 3M17 14c3 0 5 1 5 3" />
+    </svg>
+  ),
   settings: (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="3" />
@@ -73,39 +81,96 @@ const NAV_ITEMS: NavEntry[] = [
   { icon: 'proposals',  label: 'Proposals',  path: '/proposals' },
   { icon: 'invoices',   label: 'Invoices',   path: '/invoices' },
   { icon: 'reminders',  label: 'Reminders',  path: '/reminders' },
+  { icon: 'ecosystem',  label: 'Ecosystem',  path: '/ecosystem' },
 ];
 
 const COLLAPSED_W = 64;
 const EXPANDED_W = 210;
+const MIN_MANUAL_W = 64;
+const MAX_MANUAL_W = 360;
 
-const BREAKPOINT = 1200;
+const AUTO_BREAKPOINT = 900;
 
 export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [expanded, setExpanded] = useState(() => window.innerWidth >= BREAKPOINT);
+  const { logout } = useAuth();
+  const { sidebarBehavior, sidebarManualWidth, setSidebarManualWidth } = useTheme();
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
+  /* ── Automatic mode: breakpoint-driven expand/collapse ── */
+  const [autoExpanded, setAutoExpanded] = useState(() => window.innerWidth >= AUTO_BREAKPOINT);
   useEffect(() => {
-    const mq = window.matchMedia(`(min-width: ${BREAKPOINT}px)`);
-    const handler = (e: MediaQueryListEvent) => setExpanded(e.matches);
+    if (sidebarBehavior !== 'automatic') return;
+    const mq = window.matchMedia(`(min-width: ${AUTO_BREAKPOINT}px)`);
+    const handler = (e: MediaQueryListEvent) => setAutoExpanded(e.matches);
+    setAutoExpanded(mq.matches);
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
-  }, []);
+  }, [sidebarBehavior]);
+
+  /* ── Manual mode: drag resize ── */
+  const isDragging = useRef(false);
+  const dragStartX = useRef(0);
+  const dragStartW = useRef(sidebarManualWidth);
+
+  const onDragStart = useCallback((clientX: number) => {
+    isDragging.current = true;
+    dragStartX.current = clientX;
+    dragStartW.current = sidebarManualWidth;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }, [sidebarManualWidth]);
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!isDragging.current) return;
+      const delta = e.clientX - dragStartX.current;
+      const next = Math.min(MAX_MANUAL_W, Math.max(MIN_MANUAL_W, dragStartW.current + delta));
+      setSidebarManualWidth(next);
+    };
+    const onUp = () => {
+      if (!isDragging.current) return;
+      isDragging.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+  }, [setSidebarManualWidth]);
+
+  /* Keyboard nudge for drag handle */
+  const handleKeyNudge = useCallback((e: React.KeyboardEvent) => {
+    const step = e.shiftKey ? 20 : 4;
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      setSidebarManualWidth(Math.min(MAX_MANUAL_W, sidebarManualWidth + step));
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      setSidebarManualWidth(Math.max(MIN_MANUAL_W, sidebarManualWidth - step));
+    }
+  }, [sidebarManualWidth, setSidebarManualWidth]);
+
+  /* ── Derived width ── */
+  const isManual = sidebarBehavior === 'manual';
+  const width = isManual ? sidebarManualWidth : (autoExpanded ? EXPANDED_W : COLLAPSED_W);
+  const expanded = isManual ? sidebarManualWidth >= 120 : autoExpanded;
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
   };
 
-  const width = expanded ? EXPANDED_W : COLLAPSED_W;
-
   return (
     <div
       style={{
         width,
         minWidth: width,
-        background: '#080808',
+        background: 'var(--sidebar-bg)',
         borderRight: '1px solid var(--border)',
         display: 'flex',
         flexDirection: 'column',
@@ -134,7 +199,7 @@ export default function Sidebar() {
           style={{ cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center' }}
           onClick={() => navigate('/')}
         >
-          <LogoMark size={30} color="rgba(255,255,255,.7)" />
+          <LogoMark size={30} color="var(--text-mid)" />
         </div>
 
         {/* Brand name – only when expanded */}
@@ -151,6 +216,7 @@ export default function Sidebar() {
             transition: 'opacity .2s, width .2s',
             overflow: 'hidden',
           }}
+          className="brand-logo"
         >
           Mycel.
         </span>
@@ -192,11 +258,11 @@ export default function Sidebar() {
               margin: '1px 10px',
               borderRadius: 8,
               background: active
-                ? 'rgba(72,200,100,.08)'
+                ? 'var(--sidebar-active-bg)'
                 : hovered
-                  ? 'rgba(255,255,255,.04)'
+                  ? 'var(--glass)'
                   : 'transparent',
-              border: active ? '1px solid rgba(72,200,100,.15)' : '1px solid transparent',
+              border: active ? '1px solid var(--sidebar-active-border)' : '1px solid transparent',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -204,9 +270,9 @@ export default function Sidebar() {
               gap: expanded ? 12 : 0,
               padding: expanded ? '0 14px' : '0',
               color: active
-                ? 'rgba(72,200,100,.9)'
+                ? 'var(--sidebar-active)'
                 : hovered
-                  ? 'rgba(220,220,220,.8)'
+                  ? 'var(--text)'
                   : 'var(--text-dim)',
               transition: 'all .18s',
               position: 'relative',
@@ -239,8 +305,11 @@ export default function Sidebar() {
             {!expanded && hovered && (
               <span
                 style={{
-                  position: 'fixed',
-                  left: COLLAPSED_W + 6,
+                  position: 'absolute',
+                  left: '100%',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  marginLeft: 12,
                   background: 'var(--surface)',
                   border: '1px solid var(--border)',
                   borderRadius: 6,
@@ -279,8 +348,8 @@ export default function Sidebar() {
         onClick={() => navigate('/settings')}
         onMouseEnter={(e) => {
           if (!isActive('/settings')) {
-            e.currentTarget.style.background = 'rgba(255,255,255,.04)';
-            e.currentTarget.style.color = 'rgba(220,220,220,.8)';
+            e.currentTarget.style.background = 'var(--glass)';
+            e.currentTarget.style.color = 'var(--text)';
           }
         }}
         onMouseLeave={(e) => {
@@ -294,16 +363,16 @@ export default function Sidebar() {
           margin: '1px 10px',
           borderRadius: 8,
           background: isActive('/settings')
-            ? 'rgba(72,200,100,.08)'
+            ? 'var(--sidebar-active-bg)'
             : 'transparent',
-          border: isActive('/settings') ? '1px solid rgba(72,200,100,.15)' : '1px solid transparent',
+          border: isActive('/settings') ? '1px solid var(--sidebar-active-border)' : '1px solid transparent',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: expanded ? 'flex-start' : 'center',
           gap: expanded ? 12 : 0,
           padding: expanded ? '0 14px' : '0',
-          color: isActive('/settings') ? 'rgba(72,200,100,.9)' : 'var(--text-dim)',
+          color: isActive('/settings') ? 'var(--sidebar-active)' : 'var(--text-dim)',
           transition: 'all .18s',
           position: 'relative',
           overflow: 'hidden',
@@ -328,6 +397,89 @@ export default function Sidebar() {
           Settings
         </span>
       </button>
+
+      {/* ── Logout ── */}
+      <button
+        onClick={logout}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(239,68,68,.06)';
+          e.currentTarget.style.color = 'var(--danger)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'transparent';
+          e.currentTarget.style.color = 'var(--text-dim)';
+        }}
+        style={{
+          height: 40,
+          margin: '1px 10px 0',
+          borderRadius: 8,
+          background: 'transparent',
+          border: '1px solid transparent',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: expanded ? 'flex-start' : 'center',
+          gap: expanded ? 12 : 0,
+          padding: expanded ? '0 14px' : '0',
+          color: 'var(--text-dim)',
+          transition: 'all .18s',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+        </span>
+        <span
+          style={{
+            fontFamily: 'var(--font-m)',
+            fontSize: 12,
+            letterSpacing: '.04em',
+            whiteSpace: 'nowrap',
+            opacity: expanded ? 1 : 0,
+            width: expanded ? 'auto' : 0,
+            transform: expanded ? 'translateX(0)' : 'translateX(-6px)',
+            transition: 'opacity .2s, transform .2s, width .2s',
+            overflow: 'hidden',
+          }}
+        >
+          Sign out
+        </span>
+      </button>
+
+      {/* ── Manual mode: drag handle on right edge ── */}
+      {isManual && (
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize sidebar"
+          aria-valuenow={sidebarManualWidth}
+          aria-valuemin={MIN_MANUAL_W}
+          aria-valuemax={MAX_MANUAL_W}
+          tabIndex={0}
+          onMouseDown={(e) => onDragStart(e.clientX)}
+          onKeyDown={handleKeyNudge}
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: 6,
+            height: '100%',
+            cursor: 'col-resize',
+            background: 'transparent',
+            zIndex: 10,
+            transition: 'background .15s',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-hover)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+          onFocus={(e) => { e.currentTarget.style.background = 'var(--accent-hover)'; }}
+          onBlur={(e) => { e.currentTarget.style.background = 'transparent'; }}
+        />
+      )}
 
     </div>
   );

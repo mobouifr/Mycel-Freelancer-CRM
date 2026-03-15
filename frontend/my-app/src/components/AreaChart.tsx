@@ -9,9 +9,11 @@ interface AreaChartProps {
 }
 
 export default function AreaChart({ data, label, height = 56 }: AreaChartProps) {
+  if (!data || data.length < 2) return null;
+
   const W = 100;
   const H = 60;
-  const max = Math.max(...data);
+  const max = Math.max(...data) || 1;
   const pts = data.map((v, i) => ({
     x: (i / (data.length - 1)) * W,
     y: H - (v / max) * H * 0.85,
@@ -37,15 +39,15 @@ export default function AreaChart({ data, label, height = 56 }: AreaChartProps) 
       <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height }}>
         <defs>
           <linearGradient id="area-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgba(72,200,100,0.18)" />
-            <stop offset="100%" stopColor="rgba(72,200,100,0)" />
+            <stop offset="0%" stopColor="var(--chart-grad-start, var(--chart-grad-1))" />
+            <stop offset="100%" stopColor="var(--chart-grad-end, var(--chart-grad-2))" />
           </linearGradient>
         </defs>
         <path d={area} fill="url(#area-grad)" />
         <path
           d={path}
           fill="none"
-          stroke="rgba(72,200,100,0.55)"
+          stroke="var(--chart-line)"
           strokeWidth="1.2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -54,7 +56,7 @@ export default function AreaChart({ data, label, height = 56 }: AreaChartProps) 
           cx={pts[pts.length - 1].x}
           cy={pts[pts.length - 1].y}
           r="2"
-          fill="rgba(72,200,100,0.8)"
+          fill="var(--accent)"
         />
       </svg>
     </div>

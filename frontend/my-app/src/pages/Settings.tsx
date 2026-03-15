@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { Input, Select, Button, ErrorMessage } from '../components';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme, type SidebarBehavior, THEME_PRESETS } from '../hooks/useTheme';
 
 /* ─────────────────────────────────────────────
-   SETTINGS PAGE — Profile + Business settings
+   SETTINGS PAGE — Profile + Business + Security + Preferences
 ───────────────────────────────────────────── */
 
-type Tab = 'profile' | 'business' | 'security';
+type Tab = 'profile' | 'business' | 'security' | 'preferences';
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: 'profile',  label: 'Profile' },
-  { id: 'business', label: 'Business' },
-  { id: 'security', label: 'Security' },
+  { id: 'profile',     label: 'Profile' },
+  { id: 'business',    label: 'Business' },
+  { id: 'security',    label: 'Security' },
+  { id: 'preferences', label: 'Preferences' },
 ];
 
 const CURRENCIES = [
@@ -29,7 +31,7 @@ export default function Settings() {
   const [error, setError] = useState<string | null>(null);
 
   // ── Profile state ──────────────────────────
-  const [name, setName] = useState(user?.name || '');
+  const [name, setName] = useState(user?.username || '');
   const [email, setEmail] = useState(user?.email || '');
   const [phone, setPhone] = useState(user?.phone || '');
 
@@ -75,10 +77,11 @@ export default function Settings() {
         <h2
           style={{
             fontFamily: 'var(--font-d)',
-            fontWeight: 700,
+            fontWeight: 500,
             fontSize: 26,
-            color: 'var(--white)',
-            letterSpacing: '-.01em',
+            color: 'var(--text)',
+            letterSpacing: '.06em',
+            lineHeight: 1.3,
             marginBottom: 4,
           }}
         >
@@ -127,7 +130,7 @@ export default function Settings() {
         <div
           style={{
             background: 'var(--accent-bg)',
-            border: '1px solid rgba(72,200,100,.2)',
+            border: '1px solid var(--accent-hover)',
             borderRadius: 6,
             padding: '12px 16px',
             fontFamily: 'var(--font-m)',
@@ -160,7 +163,7 @@ export default function Settings() {
             }}
           >
             <SectionTitle title="Profile Information" sub="Your personal details" />
-            <Input label="Full Name" placeholder="Montassir Bouifrou" value={name} onChange={setName} />
+            <Input label="Username" placeholder="montassir" value={name} onChange={setName} />
             <Input label="Email" type="email" placeholder="you@studio.com" value={email} onChange={setEmail} />
             <Input label="Phone" type="tel" placeholder="+212 600 000 000" value={phone} onChange={setPhone} />
           </div>
@@ -239,14 +242,18 @@ export default function Settings() {
             />
           </div>
         )}
+
+        {activeTab === 'preferences' && <PreferencesPanel />}
       </div>
 
       {/* Save button */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="primary" size="md" loading={saving} onClick={handleSave}>
-          Save Changes
-        </Button>
-      </div>
+      {activeTab !== 'preferences' && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Button variant="primary" size="md" loading={saving} onClick={handleSave}>
+            Save Changes
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
@@ -258,9 +265,10 @@ function SectionTitle({ title, sub }: { title: string; sub: string }) {
       <h3
         style={{
           fontFamily: 'var(--font-d)',
-          fontWeight: 600,
+          fontWeight: 500,
           fontSize: 16,
-          color: 'var(--white)',
+          color: 'var(--text)',
+          letterSpacing: '.04em',
           marginBottom: 4,
         }}
       >
@@ -269,6 +277,146 @@ function SectionTitle({ title, sub }: { title: string; sub: string }) {
       <p style={{ fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)', letterSpacing: '.04em' }}>
         {sub}
       </p>
+    </div>
+  );
+}
+
+/* ── Preferences Panel ─── */
+
+const SIDEBAR_OPTIONS: { value: SidebarBehavior; label: string; desc: string }[] = [
+  { value: 'automatic', label: 'Automatic', desc: 'Collapses on narrow screens' },
+  { value: 'manual',    label: 'Manual',     desc: 'Drag to resize freely' },
+];
+
+function PreferencesPanel() {
+  const { theme, sidebarBehavior, setTheme, setSidebarBehavior } = useTheme();
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 32,
+        animation: 'fadeUp .2s var(--ease) both',
+      }}
+    >
+      {/* Theme Presets */}
+      <div>
+        <SectionTitle title="Color Theme" sub="Choose a unified look — colors, surfaces, and accents" />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 16 }}>
+          {THEME_PRESETS.map((p) => {
+            const active = theme === p.id;
+            return (
+              <button
+                key={p.id}
+                onClick={() => setTheme(p.id)}
+                style={{
+                  padding: '14px 14px 12px',
+                  borderRadius: 8,
+                  border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                  background: active ? 'var(--accent-bg)' : 'transparent',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all .2s var(--ease)',
+                }}
+              >
+                <div style={{ display: 'flex', gap: 5, marginBottom: 10 }}>
+                  {p.swatches.map((c, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        width: i < 2 ? 20 : 16,
+                        height: i < 2 ? 20 : 16,
+                        borderRadius: i < 2 ? 4 : '50%',
+                        background: c,
+                        border: '1px solid var(--border)',
+                        alignSelf: 'center',
+                      }}
+                    />
+                  ))}
+                </div>
+                <p style={{
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 11,
+                  fontWeight: 500,
+                  color: active ? 'var(--white)' : 'var(--text-mid)',
+                  marginBottom: 2,
+                  letterSpacing: '.02em',
+                }}>
+                  {p.label}
+                </p>
+                <p style={{
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 9,
+                  color: 'var(--text-dim)',
+                  letterSpacing: '.03em',
+                  lineHeight: 1.4,
+                }}>
+                  {p.desc}
+                </p>
+                <span style={{
+                  display: 'inline-block',
+                  marginTop: 6,
+                  padding: '2px 6px',
+                  borderRadius: 3,
+                  background: 'var(--glass)',
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 8,
+                  color: 'var(--text-dim)',
+                  letterSpacing: '.08em',
+                  textTransform: 'uppercase',
+                }}>
+                  {p.family}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Sidebar Behavior */}
+      <div>
+        <SectionTitle title="Sidebar Behavior" sub="How the navigation panel resizes" />
+        <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+          {SIDEBAR_OPTIONS.map((opt) => {
+            const active = sidebarBehavior === opt.value;
+            return (
+              <button
+                key={opt.value}
+                onClick={() => setSidebarBehavior(opt.value)}
+                style={{
+                  flex: 1,
+                  padding: '14px 14px',
+                  borderRadius: 8,
+                  border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                  background: active ? 'var(--accent-bg)' : 'transparent',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all .2s var(--ease)',
+                }}
+              >
+                <p style={{
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 11,
+                  fontWeight: 500,
+                  color: active ? 'var(--white)' : 'var(--text-mid)',
+                  marginBottom: 3,
+                }}>
+                  {opt.label}
+                </p>
+                <p style={{
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 10,
+                  color: 'var(--text-dim)',
+                  letterSpacing: '.03em',
+                }}>
+                  {opt.desc}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

@@ -76,8 +76,6 @@ class Tip {
       pool.push(new Tip(nx, ny, this.angle - spread, this.gen + 1, this.w * 0.68));
       pool.push(new Tip(nx, ny, this.angle + spread, this.gen + 1, this.w * 0.68));
       this.branched = true;
-      this.branchAt = this.age + 80 + Math.random() * 100;
-      this.branched = false;
     }
 
     if (this.age >= this.life || nx < -30 || nx > W + 30 || ny < -30 || ny > H + 30) {

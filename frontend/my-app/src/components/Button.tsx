@@ -62,9 +62,9 @@ export default function Button({
       color: 'var(--text-dim)',
     },
     danger: {
-      background: 'rgba(220,80,80,.08)',
-      border: '1px solid rgba(220,80,80,.2)',
-      color: 'rgba(220,80,80,.8)',
+      background: 'var(--danger-bg)',
+      border: '1px solid var(--danger)',
+      color: 'var(--danger)',
     },
   };
 
@@ -94,6 +94,8 @@ export default function Button({
           e.currentTarget.style.boxShadow = '0 0 0 0 rgba(255,255,255,.1)';
         } else if (variant === 'ghost') {
           e.currentTarget.style.color = 'var(--text-dim)';
+        } else if (variant === 'danger') {
+          e.currentTarget.style.borderColor = 'var(--danger)';
         } else {
           e.currentTarget.style.borderColor = 'var(--border)';
         }

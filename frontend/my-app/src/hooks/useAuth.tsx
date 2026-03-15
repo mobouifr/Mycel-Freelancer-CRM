@@ -7,10 +7,12 @@ import {
   type ReactNode,
 } from 'react';
 import { authService } from '../services/auth';
-import type { User, LoginPayload, SignupPayload } from '../types';
+import type { User, LoginPayload, RegisterPayload } from '../types';
 
 /* ─────────────────────────────────────────────
    AUTH CONTEXT — Global auth state
+   Session is cookie-based (HttpOnly JWT).
+   We call /auth/me on mount to check the cookie.
 ───────────────────────────────────────────── */
 
 interface AuthContextType {
@@ -18,8 +20,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (payload: LoginPayload, rememberMe?: boolean) => Promise<void>;
-  signup: (payload: SignupPayload) => Promise<void>;
+  login: (payload: LoginPayload) => Promise<void>;
+  register: (payload: RegisterPayload) => Promise<void>;
   logout: () => void;
   clearError: () => void;
   forgotPassword: (email: string) => Promise<string>;
@@ -32,21 +34,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ── Restore session on mount ───────────────
+  // ── Restore session on mount via /auth/me ──
   useEffect(() => {
-    const storedUser = authService.getUser();
-    const token = authService.getToken();
-    if (token && storedUser) {
-      setUser(storedUser);
-    }
-    setIsLoading(false);
+    authService
+      .fetchCurrentUser()
+      .then((u) => setUser(u))
+      .catch(() => {
+        // No valid cookie → user stays null (not logged in)
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
-  const login = useCallback(async (payload: LoginPayload, rememberMe = false) => {
+  const login = useCallback(async (payload: LoginPayload) => {
     setIsLoading(true);
     setError(null);
     try {
-      const { user: loggedInUser } = await authService.login(payload, rememberMe);
+      const { user: loggedInUser } = await authService.login(payload);
       setUser(loggedInUser);
     } catch (err: unknown) {
       const message =
@@ -60,17 +63,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const signup = useCallback(async (payload: SignupPayload) => {
+  const register = useCallback(async (payload: RegisterPayload) => {
     setIsLoading(true);
     setError(null);
     try {
-      const { user: newUser } = await authService.signup(payload);
+      const { user: newUser } = await authService.register(payload);
       setUser(newUser);
     } catch (err: unknown) {
       const message =
         err && typeof err === 'object' && 'message' in err
           ? (err as { message: string }).message
-          : 'Signup failed';
+          : 'Registration failed';
       setError(message);
       throw err;
     } finally {
@@ -108,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         error,
         login,
-        signup,
+        register,
         logout,
         clearError,
         forgotPassword,

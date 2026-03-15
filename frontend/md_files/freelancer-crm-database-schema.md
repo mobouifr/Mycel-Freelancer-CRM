@@ -22,9 +22,9 @@
 │    logo_url: VARCHAR(500)         │
 │    phone: VARCHAR(20)             │
 │    default_currency: VARCHAR(3)   │ --> USD, EUR, MAD, etc.
-│    tax_rate: DECIMAL(5,2)         │ --> Default tax percentage
-│    is_active: BOOLEAN             │
-│    email_verified: BOOLEAN        │
+│    tax_rate: DECIMAL(5,2)         │ --> Default tax percentage/X
+│    is_active: BOOLEAN             │X
+│    email_verified: BOOLEAN        │X
 │    created_at: TIMESTAMP          │
 │    updated_at: TIMESTAMP          │
 └──────────────────────────────────┘

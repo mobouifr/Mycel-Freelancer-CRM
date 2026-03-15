@@ -1,405 +1,310 @@
-import { useNavigate } from 'react-router-dom';
-import { StatCard, AreaChart, Button } from '../components';
-import type { RecentActivity } from '../types';
+import { useState, useCallback } from 'react';
+import { useDashboardLayout, PRESET_OPTIONS } from '../hooks/useDashboardLayout';
+import WidgetGrid from '../components/dashboard/WidgetGrid';
+import WidgetPicker from '../components/dashboard/WidgetPicker';
+import QuickCreateFAB from '../components/dashboard/QuickCreateFAB';
+
+// ── Register all widget components (side-effect imports) ──
+import '../components/dashboard/CalendarUpcoming';
+import '../components/dashboard/NotesCapture';
+import '../components/dashboard/RevenueKPI';
+import '../components/dashboard/InvoicesDue';
+import '../components/dashboard/ActivityFeed';
+import '../components/dashboard/ProjectsProgress';
+import '../components/dashboard/SmartSuggestions';
+import '../components/dashboard/LivingWidget';
 
 /* ─────────────────────────────────────────────
-   DASHBOARD PAGE — Overview with stats, chart,
-   balance widget, and recent activity table
+   DASHBOARD PAGE — Configurable widget grid
+   with picker, presets, editing mode, and
+   floating Quick Create button
 ───────────────────────────────────────────── */
 
-// ── Mock data (replace with API calls later) ─
-const CHART_DATA = [12, 19, 8, 25, 18, 31, 24, 38, 29, 44, 35, 52];
-
-const RECENT: RecentActivity[] = [
-  { type: 'Invoice',  client: 'Arca Studio',  amount: '$3,200', status: 'Paid',    date: 'Feb 28' },
-  { type: 'Proposal', client: 'Noma Labs',    amount: '$8,500', status: 'Sent',    date: 'Feb 26' },
-  { type: 'Invoice',  client: 'Pixel Root',   amount: '$1,800', status: 'Overdue', date: 'Feb 20' },
-  { type: 'Proposal', client: 'Drift Co.',    amount: '$5,000', status: 'Draft',   date: 'Feb 18' },
-  { type: 'Invoice',  client: 'Vault Studio', amount: '$2,400', status: 'Paid',    date: 'Feb 15' },
-];
-
-const STATUS_COLOR: Record<string, string> = {
-  Paid:    'rgba(72,200,100,0.75)',
-  Sent:    'rgba(200,200,200,0.5)',
-  Overdue: 'rgba(220,80,80,0.7)',
-  Draft:   'rgba(150,150,150,0.4)',
-};
-
 export default function Dashboard() {
-  const navigate = useNavigate();
+  const {
+    layouts,
+    visible,
+    preset,
+    onLayoutChange,
+    applyPreset,
+    toggleWidget,
+    clearLayout,
+    undo,
+    canUndo,
+    exportLayout,
+    importLayout,
+  } = useDashboardLayout();
 
-  /** Generate & download CSV from recent activity data */
-  const exportCSV = () => {
-    const headers = ['Type', 'Client', 'Amount', 'Status', 'Date'];
-    const rows = RECENT.map((r) => [r.type, r.client, r.amount, r.status, r.date]);
-    const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
+  const [isEditing, setIsEditing] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `mycel-activity-${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
+  const handleRemoveWidget = useCallback((id: string) => {
+    toggleWidget(id);
+  }, [toggleWidget]);
+
+  const currentPreset = PRESET_OPTIONS.find((p) => p.id === preset);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 28,
-        animation: 'fadeUp .3s var(--ease) both',
-      }}
-    >
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 20,
+      animation: 'fadeUp .3s var(--ease) both',
+      position: 'relative',
+    }}>
       {/* ── Header row ── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
-          <h2
-            style={{
-              fontFamily: 'var(--font-d)',
-              fontWeight: 700,
-              fontSize: 26,
-              color: 'var(--white)',
-              letterSpacing: '-.01em',
-              marginBottom: 4,
-            }}
-          >
-            Overview
+          <h2 style={{
+            fontFamily: 'var(--font-d)',
+            fontWeight: 500,
+            fontSize: 26,
+            color: 'var(--text)',
+            letterSpacing: '.06em',
+            lineHeight: 1.3,
+            marginBottom: 4,
+          }}>
+            Dashboard
           </h2>
-          <p
+          <p style={{
+            fontFamily: 'var(--font-m)',
+            fontSize: 11,
+            color: 'var(--text-dim)',
+            letterSpacing: '.04em',
+          }}>
+            {currentPreset?.label} layout · {visible.length} widget{visible.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* Undo button */}
+          {canUndo && (
+            <button
+              onClick={undo}
+              aria-label="Undo last layout change"
+              title="Undo"
+              style={{
+                width: 32, height: 32, borderRadius: 6,
+                background: 'var(--surface-2)',
+                border: '1px solid var(--border)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: 'var(--text-dim)',
+                transition: 'all .15s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--text-mid)';
+                e.currentTarget.style.color = 'var(--text)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.color = 'var(--text-dim)';
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 7v6h6" />
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+              </svg>
+            </button>
+          )}
+
+          {/* Reset Layout — only in edit mode */}
+          {isEditing && (
+            <button
+              onClick={clearLayout}
+              aria-label="Reset layout to preset default"
+              title="Reset Layout"
+              style={{
+                padding: '7px 12px',
+                borderRadius: 6,
+                background: 'var(--surface-2)',
+                border: '1px solid var(--border)',
+                fontFamily: 'var(--font-m)',
+                fontSize: 11,
+                fontWeight: 500,
+                color: 'var(--text-dim)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                transition: 'all .15s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--danger)';
+                e.currentTarget.style.color = 'var(--danger)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.color = 'var(--text-dim)';
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="1 4 1 10 7 10" />
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+              </svg>
+              Reset
+            </button>
+          )}
+
+          {/* Edit toggle */}
+          <button
+            onClick={() => setIsEditing(!isEditing)}
             style={{
+              padding: '7px 14px',
+              borderRadius: 6,
+              background: isEditing ? 'var(--accent)' : 'var(--surface-2)',
+              border: `1px solid ${isEditing ? 'var(--accent)' : 'var(--border)'}`,
               fontFamily: 'var(--font-m)',
               fontSize: 11,
-              color: 'var(--text-dim)',
-              letterSpacing: '.04em',
-            }}
-          >
-            March 2026 — your freelance network
-          </p>
-        </div>
-        <Button variant="secondary" size="md" onClick={exportCSV}>
-          Export CSV <span style={{ opacity: 0.5 }}>↓</span>
-        </Button>
-      </div>
-
-      {/* ── Stat cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
-        <StatCard label="Net Revenue"       value="$24.5k"  sub="12% from last month" trend="up"   href="/invoices" />
-        <StatCard label="Active Clients"    value="18"       sub="3 new this month"    trend="up"   href="/clients" />
-        <StatCard label="Pending Invoices"  value="$8.2k"   sub="2 overdue"            trend="down" href="/invoices" />
-      </div>
-
-      {/* ── Mid row: chart + balance ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 14 }}>
-        {/* Revenue chart */}
-        <div
-          style={{
-            background: 'var(--surface-2)',
-            border: '1px solid var(--border)',
-            borderRadius: 8,
-            padding: '22px 24px',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: 20,
-            }}
-          >
-            <div>
-              <p
-                style={{
-                  fontFamily: 'var(--font-m)',
-                  fontSize: 10,
-                  color: 'var(--text-dim)',
-                  letterSpacing: '.1em',
-                  textTransform: 'uppercase',
-                  marginBottom: 4,
-                }}
-              >
-                Revenue Flow
-              </p>
-              <p style={{ fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)' }}>
-                4× increase vs last quarter
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              {['Max', 'Compare'].map((t, i) => (
-                <button
-                  key={t}
-                  style={{
-                    background: i === 1 ? 'rgba(72,200,100,.08)' : 'none',
-                    border: `1px solid ${i === 1 ? 'rgba(72,200,100,.22)' : 'var(--border)'}`,
-                    borderRadius: 5,
-                    padding: '5px 10px',
-                    color: i === 1 ? 'rgba(72,200,100,.8)' : 'var(--text-dim)',
-                    fontFamily: 'var(--font-m)',
-                    fontSize: 10,
-                    letterSpacing: '.06em',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <AreaChart data={CHART_DATA} />
-
-          {/* X axis labels */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-            {['Jan', 'Feb', 'Mar', 'Apr'].map((m) => (
-              <span
-                key={m}
-                style={{
-                  fontFamily: 'var(--font-m)',
-                  fontSize: 9,
-                  color: 'var(--text-dim)',
-                  letterSpacing: '.06em',
-                }}
-              >
-                {m}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Balance card */}
-        <div
-          style={{
-            background: 'var(--surface-2)',
-            border: '1px solid var(--border)',
-            borderRadius: 8,
-            padding: '22px 24px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div>
-            <p
-              style={{
-                fontFamily: 'var(--font-m)',
-                fontSize: 10,
-                color: 'var(--text-dim)',
-                letterSpacing: '.1em',
-                textTransform: 'uppercase',
-                marginBottom: 6,
-              }}
-            >
-              Your Balance
-            </p>
-            <p
-              style={{
-                fontFamily: 'var(--font-m)',
-                fontSize: 10,
-                color: 'var(--text-dim)',
-                marginBottom: 16,
-              }}
-            >
-              total across all invoices
-            </p>
-            <p
-              style={{
-                fontFamily: 'var(--font-d)',
-                fontWeight: 700,
-                fontSize: 34,
-                color: 'var(--white)',
-                letterSpacing: '-.02em',
-              }}
-            >
-              $101.4k
-              <span
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'var(--font-m)',
-                  color: 'var(--text-dim)',
-                  marginLeft: 6,
-                  letterSpacing: '.04em',
-                }}
-              >
-                USD
-              </span>
-            </p>
-          </div>
-
-          <div
-            style={{
-              background: 'rgba(255,255,255,.03)',
-              border: '1px solid var(--border)',
-              borderRadius: 6,
-              padding: '14px 16px',
-            }}
-          >
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-              {[
-                { label: 'Clients', val: '24', trend: 'down' as const, pct: '−3.8%', href: '/clients' },
-                { label: 'Income',  val: '256k', trend: 'up' as const,  pct: '+37.8%', href: '/invoices' },
-              ].map((d) => (
-                <div
-                  key={d.label}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => navigate(d.href)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      navigate(d.href);
-                    }
-                  }}
-                  style={{ cursor: 'pointer', borderRadius: 4, padding: 4, transition: 'background .15s' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,.04)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                >
-                  <p
-                    style={{
-                      fontFamily: 'var(--font-m)',
-                      fontSize: 9,
-                      color: 'var(--text-dim)',
-                      letterSpacing: '.1em',
-                      textTransform: 'uppercase',
-                      marginBottom: 4,
-                    }}
-                  >
-                    {d.label}
-                  </p>
-                  <p
-                    style={{
-                      fontFamily: 'var(--font-d)',
-                      fontSize: 22,
-                      fontWeight: 700,
-                      color: 'var(--white)',
-                      marginBottom: 2,
-                    }}
-                  >
-                    {d.val}
-                  </p>
-                  <p
-                    style={{
-                      fontFamily: 'var(--font-m)',
-                      fontSize: 9,
-                      color: d.trend === 'up' ? 'rgba(72,200,100,.75)' : 'var(--danger)',
-                    }}
-                  >
-                    {d.pct}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Recent activity table ── */}
-      <div
-        style={{
-          background: 'var(--surface-2)',
-          border: '1px solid var(--border)',
-          borderRadius: 8,
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            padding: '16px 24px',
-            borderBottom: '1px solid var(--border)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <p
-            style={{
-              fontFamily: 'var(--font-m)',
-              fontSize: 10,
-              color: 'var(--text-mid)',
-              letterSpacing: '.1em',
-              textTransform: 'uppercase',
-            }}
-          >
-            Recent Activity
-          </p>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/invoices')}>
-            View all →
-          </Button>
-        </div>
-
-        {RECENT.map((r, i) => (
-          <div
-            key={i}
-            role="button"
-            tabIndex={0}
-            onClick={() => navigate(r.type === 'Invoice' ? '/invoices' : '/proposals')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                navigate(r.type === 'Invoice' ? '/invoices' : '/proposals');
-              }
-            }}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 2fr 1fr 1fr 1fr',
-              padding: '13px 24px',
-              borderBottom: i < RECENT.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-              alignItems: 'center',
-              transition: 'background .15s',
+              fontWeight: 500,
+              color: isEditing ? 'var(--white)' : 'var(--text-mid)',
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              transition: 'all .15s',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,.02)';
+              if (!isEditing) {
+                e.currentTarget.style.borderColor = 'var(--text-dim)';
+                e.currentTarget.style.color = 'var(--text)';
+              }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'none';
+              if (!isEditing) {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.color = 'var(--text-mid)';
+              }
             }}
           >
-            <span
-              style={{
-                fontFamily: 'var(--font-m)',
-                fontSize: 9,
-                letterSpacing: '.1em',
-                textTransform: 'uppercase',
-                color: r.type === 'Invoice' ? 'rgba(200,200,200,.5)' : 'rgba(200,200,200,.35)',
-                border: '1px solid var(--border)',
-                borderRadius: 4,
-                padding: '3px 8px',
-                width: 'fit-content',
-              }}
-            >
-              {r.type}
-            </span>
-            <span style={{ fontFamily: 'var(--font-m)', fontSize: 12, color: 'var(--text)' }}>
-              {r.client}
-            </span>
-            <span
-              style={{
-                fontFamily: 'var(--font-d)',
-                fontSize: 14,
-                fontWeight: 600,
-                color: 'var(--white)',
-              }}
-            >
-              {r.amount}
-            </span>
-            <span
-              style={{
-                fontFamily: 'var(--font-m)',
-                fontSize: 9,
-                letterSpacing: '.08em',
-                color: STATUS_COLOR[r.status] || 'var(--text-dim)',
-              }}
-            >
-              ● {r.status}
-            </span>
-            <span style={{ fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)' }}>
-              {r.date}
-            </span>
-          </div>
-        ))}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {isEditing
+                ? <><path d="M20 6L9 17l-5-5" /></>
+                : <><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></>
+              }
+            </svg>
+            {isEditing ? 'Done Editing' : 'Edit Layout'}
+          </button>
+
+          {/* Customize button */}
+          <button
+            onClick={() => setPickerOpen(true)}
+            style={{
+              padding: '7px 14px',
+              borderRadius: 6,
+              background: 'var(--surface-2)',
+              border: '1px solid var(--border)',
+              fontFamily: 'var(--font-m)',
+              fontSize: 11,
+              fontWeight: 500,
+              color: 'var(--text-mid)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              transition: 'all .15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--accent-hover)';
+              e.currentTarget.style.color = 'var(--accent)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border)';
+              e.currentTarget.style.color = 'var(--text-mid)';
+            }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+            </svg>
+            Customize
+          </button>
+        </div>
       </div>
+
+      {/* ── Editing mode notice ── */}
+      {isEditing && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '8px 14px',
+          background: 'var(--accent-bg)',
+          border: '1px solid var(--accent-hover)',
+          borderRadius: 6,
+          animation: 'fadeUp .15s var(--ease) both',
+        }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+          <p style={{
+            fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--accent)',
+          }}>
+            Drag widgets to rearrange · Resize from corners · Click <strong>Done Editing</strong> when finished
+          </p>
+        </div>
+      )}
+
+      {/* ── Widget Grid ── */}
+      {visible.length === 0 ? (
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', padding: '60px 0', gap: 12,
+        }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+          </svg>
+          <p style={{
+            fontFamily: 'var(--font-m)', fontSize: 13, color: 'var(--text-dim)',
+          }}>
+            No widgets visible
+          </p>
+          <button
+            onClick={() => setPickerOpen(true)}
+            style={{
+              padding: '8px 16px', borderRadius: 6,
+              background: 'var(--accent)', border: 'none',
+              fontFamily: 'var(--font-m)', fontSize: 11,
+              fontWeight: 500, color: 'var(--white)',
+              cursor: 'pointer',
+            }}
+          >
+            Add Widgets
+          </button>
+        </div>
+      ) : (
+        <WidgetGrid
+          layouts={layouts}
+          visible={visible}
+          onLayoutChange={onLayoutChange}
+          onRemoveWidget={handleRemoveWidget}
+          isEditing={isEditing}
+        />
+      )}
+
+      {/* ── Widget Picker Side Panel ── */}
+      <WidgetPicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        visible={visible}
+        onToggle={toggleWidget}
+        preset={preset}
+        onApplyPreset={applyPreset}
+        onClearLayout={clearLayout}
+        canUndo={canUndo}
+        onUndo={undo}
+        onExportLayout={exportLayout}
+        onImportLayout={importLayout}
+      />
+
+      {/* ── Quick Create FAB ── */}
+      <QuickCreateFAB />
     </div>
   );
 }
