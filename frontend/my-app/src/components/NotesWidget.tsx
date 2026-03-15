@@ -74,7 +74,7 @@ export default function NotesWidget() {
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/reminders'); }}
               style={{
                 padding: '10px 0',
-                borderBottom: i < recent.length - 1 ? '1px solid rgba(255,255,255,.04)' : 'none',
+                borderBottom: i < recent.length - 1 ? '1px solid var(--border)' : 'none',
                 cursor: 'pointer',
                 transition: 'background .15s',
                 borderRadius: 4,

@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useStore, type Note } from '../hooks/useStore';
+import { useTheme } from '../hooks/useTheme';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { Button, Input, Modal } from '../components';
 
 /* ─────────────────────────────────────────────
@@ -26,6 +28,8 @@ export default function Reminders() {
     addEvent, deleteEvent,
     undo, canUndo,
   } = useStore();
+  const { mode } = useTheme();
+  const isMobile = useIsMobile();
 
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
   const [showEventModal, setShowEventModal] = useState(false);
@@ -36,6 +40,7 @@ export default function Reminders() {
   const [noteTitle, setNoteTitle] = useState('');
   const [noteBody, setNoteBody] = useState('');
   const [noteTags, setNoteTags] = useState<string[]>([]);
+  const [savedFlash, setSavedFlash] = useState(false);
 
   // ── Event form state ───────────────────────
   const [evtTitle, setEvtTitle] = useState('');
@@ -83,6 +88,8 @@ export default function Reminders() {
   const handleSaveNote = useCallback(() => {
     if (!activeNoteId) return;
     updateNote(activeNoteId, { title: noteTitle || 'Untitled', body: noteBody, tags: noteTags });
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 1500);
   }, [activeNoteId, noteTitle, noteBody, noteTags, updateNote]);
 
   const handleDeleteNote = useCallback((id: string) => {
@@ -136,7 +143,7 @@ export default function Reminders() {
   return (
     <div style={{ animation: 'fadeUp .3s var(--ease) both', display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 24 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'flex-end', marginBottom: 24, flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 12 : 0 }}>
         <div>
           <h2 style={{
             fontFamily: 'var(--font-d)', fontWeight: 500, fontSize: 26,
@@ -161,7 +168,7 @@ export default function Reminders() {
       </div>
 
       {/* Split View */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, flex: 1, minHeight: 0 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16, flex: 1, minHeight: 0 }}>
 
         {/* ── LEFT: Notes ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -307,7 +314,16 @@ export default function Reminders() {
                   </button>
                 ))}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10 }}>
+                {savedFlash && (
+                  <span style={{
+                    fontFamily: 'var(--font-m)', fontSize: 10,
+                    color: 'var(--success)', letterSpacing: '.04em',
+                    animation: 'fadeIn .15s ease both',
+                  }}>
+                    ✓ Saved
+                  </span>
+                )}
                 <Button variant="primary" size="sm" onClick={handleSaveNote}>
                   Save Note
                 </Button>
@@ -354,7 +370,7 @@ export default function Reminders() {
                     key={evt.id}
                     style={{
                       padding: '14px 20px',
-                      borderBottom: '1px solid rgba(255,255,255,.03)',
+                      borderBottom: '1px solid var(--border)',
                       opacity: isPast ? 0.5 : 1,
                       transition: 'background .15s',
                     }}
@@ -463,7 +479,7 @@ export default function Reminders() {
                   borderBottom: '1px solid var(--border)',
                   padding: '10px 0', color: 'var(--white)',
                   fontFamily: 'var(--font-m)', fontSize: 14, outline: 'none',
-                  colorScheme: 'dark',
+                  colorScheme: mode,
                 }}
               />
             </div>
@@ -483,7 +499,7 @@ export default function Reminders() {
                   borderBottom: '1px solid var(--border)',
                   padding: '10px 0', color: 'var(--white)',
                   fontFamily: 'var(--font-m)', fontSize: 14, outline: 'none',
-                  colorScheme: 'dark',
+                  colorScheme: mode,
                 }}
               />
             </div>

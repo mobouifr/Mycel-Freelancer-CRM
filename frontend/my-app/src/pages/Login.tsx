@@ -432,7 +432,7 @@ export default function Login() {
                           background: 'var(--accent)',
                           border: 'none',
                           borderRadius: 4,
-                          color: '#000',
+                          color: 'var(--bg)',
                           fontFamily: 'var(--font-m)',
                           fontSize: 11,
                           fontWeight: 600,
@@ -465,7 +465,7 @@ export function AuthLeftPanel() {
       style={{
         position: 'relative',
         overflow: 'hidden',
-        background: '#060606',
+        background: 'var(--bg)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -520,7 +520,7 @@ export function AuthLeftPanel() {
           animation: 'fadeIn 2s ease both 1s',
         }}
       >
-        <LogoMark size={88} color="rgba(255,255,255,0.18)" />
+        <LogoMark size={88} color="var(--border-h)" />
       </div>
 
       {/* Crosshair lines */}

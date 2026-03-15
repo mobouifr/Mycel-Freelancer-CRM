@@ -113,7 +113,7 @@ function NotesCapture() {
                 padding: '4px 10px', borderRadius: 4,
                 background: 'var(--accent)', border: 'none',
                 fontFamily: 'var(--font-m)', fontSize: 10,
-                color: 'var(--white)', cursor: 'pointer',
+                color: 'var(--bg)', cursor: 'pointer',
                 fontWeight: 500,
               }}
             >
@@ -175,7 +175,7 @@ function NotesCapture() {
                 onKeyDown={(e) => { if (e.key === 'Enter') navigate('/reminders'); }}
                 style={{
                   padding: '8px 6px',
-                  borderBottom: i < recent.length - 1 ? '1px solid rgba(255,255,255,.04)' : 'none',
+                  borderBottom: i < recent.length - 1 ? '1px solid var(--border)' : 'none',
                   cursor: 'pointer',
                   borderRadius: 4,
                   transition: 'background .12s',

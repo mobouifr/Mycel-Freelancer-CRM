@@ -89,8 +89,8 @@ h1, h2, h3, h4, h5, h6 {
 input { caret-color: var(--white); }
 input:-webkit-autofill,
 input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 1000px #0c0c0c inset !important;
-  -webkit-text-fill-color: #e2e2e2 !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--bg2) inset !important;
+  -webkit-text-fill-color: var(--text) !important;
 }
 
 /* ─── ANIMATIONS ─── */

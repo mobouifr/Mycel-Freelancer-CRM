@@ -57,8 +57,8 @@ export default function Input({
               error
                 ? 'var(--danger)'
                 : focused
-                  ? 'rgba(255,255,255,0.45)'
-                  : 'rgba(255,255,255,0.12)'
+                  ? 'var(--border-h)'
+                  : 'var(--border)'
             }`,
             padding: '10px 0',
             paddingRight: isPassword ? 40 : 0,

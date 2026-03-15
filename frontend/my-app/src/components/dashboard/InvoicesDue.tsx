@@ -88,7 +88,7 @@ function InvoicesDue() {
                 alignItems: 'center',
                 gap: 10,
                 padding: '8px 4px',
-                borderBottom: i < INVOICES.length - 1 ? '1px solid rgba(255,255,255,.04)' : 'none',
+                borderBottom: i < INVOICES.length - 1 ? '1px solid var(--border)' : 'none',
                 cursor: 'pointer',
                 borderRadius: 4,
                 transition: 'background .12s',

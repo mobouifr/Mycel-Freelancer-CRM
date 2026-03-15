@@ -26,11 +26,10 @@ export const authService = {
   // ── Logout ─────────────────────────────────
   async logout(): Promise<void> {
     try {
-      await api.post('/auth/logout');   // backend clears the cookie
+      await api.post('/auth/logout');
     } catch {
-      // even if it fails, redirect to login
+      // cookie clear may fail if backend is unreachable — that's ok
     }
-    window.location.href = '/login';
   },
 
   // ── Get current user (session check) ───────

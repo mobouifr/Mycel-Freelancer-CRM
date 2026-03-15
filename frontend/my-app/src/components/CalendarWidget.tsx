@@ -144,13 +144,13 @@ export default function CalendarWidget() {
                 justifyContent: 'center',
                 borderRadius: 6,
                 border: isSel ? '1px solid var(--accent)' : '1px solid transparent',
-                background: isSel ? 'var(--accent-bg)' : isTd ? 'rgba(255,255,255,.04)' : 'transparent',
+                background: isSel ? 'var(--accent-bg)' : isTd ? 'var(--glass)' : 'transparent',
                 cursor: 'pointer',
                 transition: 'all .12s',
                 padding: 0,
               }}
               onMouseEnter={(e) => { if (!isSel) e.currentTarget.style.background = 'var(--glass)'; }}
-              onMouseLeave={(e) => { if (!isSel) e.currentTarget.style.background = isTd ? 'rgba(255,255,255,.04)' : 'transparent'; }}
+              onMouseLeave={(e) => { if (!isSel) e.currentTarget.style.background = isTd ? 'var(--glass)' : 'transparent'; }}
             >
               <span style={{
                 fontFamily: 'var(--font-m)', fontSize: 10,

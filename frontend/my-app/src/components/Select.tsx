@@ -61,8 +61,8 @@ export default function Select({
               error
                 ? 'var(--danger)'
                 : focused
-                  ? 'rgba(255,255,255,0.45)'
-                  : 'rgba(255,255,255,0.12)'
+                  ? 'var(--border-h)'
+                  : 'var(--border)'
             }`,
             padding: '10px 0',
             color: 'var(--white)',
@@ -80,7 +80,7 @@ export default function Select({
             <option
               key={opt.value}
               value={opt.value}
-              style={{ background: '#0c0c0c', color: 'var(--white)' }}
+              style={{ background: 'var(--surface)', color: 'var(--white)' }}
             >
               {opt.label}
             </option>

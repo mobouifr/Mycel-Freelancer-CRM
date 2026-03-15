@@ -46,7 +46,7 @@ function ProjectsProgress() {
               onKeyDown={(e) => { if (e.key === 'Enter') navigate('/projects'); }}
               style={{
                 padding: '10px 4px',
-                borderBottom: i < PROJECTS.length - 1 ? '1px solid rgba(255,255,255,.04)' : 'none',
+                borderBottom: i < PROJECTS.length - 1 ? '1px solid var(--border)' : 'none',
                 cursor: 'pointer',
                 borderRadius: 4,
                 transition: 'background .12s',

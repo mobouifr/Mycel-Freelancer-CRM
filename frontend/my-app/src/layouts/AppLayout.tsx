@@ -47,9 +47,11 @@ export default function AppLayout() {
               top: 0,
               left: 0,
               bottom: 0,
-              width: 240,
+              width: 260,
               zIndex: 1001,
               animation: 'slideInLeft .25s var(--ease) both',
+              background: 'var(--sidebar-bg)',
+              overflowY: 'auto',
             }}
           >
             <Sidebar onNavigate={closeMenu} />

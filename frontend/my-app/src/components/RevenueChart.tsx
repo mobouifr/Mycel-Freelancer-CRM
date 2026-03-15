@@ -107,14 +107,14 @@ export default function RevenueChart({ data, labels, height = 200 }: RevenueChar
           <g key={i}>
             <line
               x1={PAD.left} y1={g.y} x2={W - PAD.right} y2={g.y}
-              stroke="rgba(255,255,255,.04)" strokeWidth="0.5"
+              stroke="var(--border)" strokeWidth="0.5"
               strokeDasharray={i === gridLines.length - 1 ? 'none' : '2 4'}
             />
             {i < gridLines.length - 1 && (
               <text
                 x={PAD.left} y={g.y - 4}
                 style={{ fontFamily: 'var(--font-m)', fontSize: 8 }}
-                fill="rgba(255,255,255,.2)"
+                fill="var(--text-dim)"
               >
                 ${g.val}k
               </text>
@@ -200,7 +200,7 @@ export default function RevenueChart({ data, labels, height = 200 }: RevenueChar
               x={x} y={H - 8}
               textAnchor="middle"
               style={{ fontFamily: 'var(--font-m)', fontSize: 9 }}
-              fill="rgba(255,255,255,.3)"
+              fill="var(--text-mid)"
             >
               {lbl}
             </text>

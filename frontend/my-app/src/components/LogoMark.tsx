@@ -9,7 +9,7 @@ interface LogoMarkProps {
 
 export default function LogoMark({
   size = 32,
-  color = 'rgba(255,255,255,0.85)',
+  color = 'var(--white)',
 }: LogoMarkProps) {
   const rays = 8;
   const lines = Array.from({ length: rays }, (_, i) => {

@@ -39,7 +39,7 @@ function RevenueKPI() {
         <div style={{
           display: 'flex', alignItems: 'center', gap: 3,
           padding: '3px 8px', borderRadius: 4,
-          background: isUp ? 'rgba(34,197,94,.08)' : 'rgba(239,68,68,.08)',
+          background: isUp ? 'var(--success-bg)' : 'var(--danger-bg)',
         }}>
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={isUp ? 'var(--trend-up)' : 'var(--trend-down)'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             {isUp

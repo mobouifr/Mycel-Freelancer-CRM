@@ -184,8 +184,8 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
             onKeyDown={handleKeyDown}
             placeholder="Search pages..."
             style={{
-              background: 'rgba(255,255,255,.04)',
-              border: `1px solid ${focused ? 'rgba(255,255,255,.18)' : 'var(--border)'}`,
+              background: 'var(--glass)',
+              border: `1px solid ${focused ? 'var(--border-h)' : 'var(--border)'}`,
               borderRadius: 6,
               padding: '7px 14px 7px 34px',
               color: 'var(--white)',
@@ -226,7 +226,7 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
                     gap: 10,
                     width: '100%',
                     padding: '9px 14px',
-                    background: i === selectedIdx ? 'rgba(255,255,255,.06)' : 'transparent',
+                    background: i === selectedIdx ? 'var(--glass)' : 'transparent',
                     border: 'none',
                     cursor: 'pointer',
                     color: i === selectedIdx ? 'var(--white)' : 'var(--text-mid)',
@@ -291,7 +291,7 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
             width: 32,
             height: 32,
             borderRadius: '50%',
-            background: 'rgba(255,255,255,.06)',
+            background: 'var(--glass)',
             border: '1px solid var(--border)',
             display: 'flex',
             alignItems: 'center',
@@ -339,7 +339,7 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
               width: 32,
               height: 32,
               borderRadius: '50%',
-              background: showMenu ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.08)',
+              background: showMenu ? 'var(--accent-hover)' : 'var(--glass)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -401,7 +401,7 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
                 </p>
               </div>
               <button
-                onClick={logout}
+                onClick={() => { logout(); navigate('/login'); }}
                 style={{
                   display: 'block',
                   width: '100%',
@@ -417,7 +417,7 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
                   transition: 'background .15s',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,.03)';
+                  e.currentTarget.style.background = 'var(--glass)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = 'none';

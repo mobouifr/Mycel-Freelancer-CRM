@@ -165,9 +165,10 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
   }, [sidebarManualWidth, setSidebarManualWidth]);
 
   /* ── Derived width ── */
+  const isMobileOverlay = !!onNavigate;
   const isManual = sidebarBehavior === 'manual';
-  const width = isManual ? sidebarManualWidth : (autoExpanded ? EXPANDED_W : COLLAPSED_W);
-  const expanded = isManual ? sidebarManualWidth >= 120 : autoExpanded;
+  const width = isMobileOverlay ? '100%' : isManual ? sidebarManualWidth : (autoExpanded ? EXPANDED_W : COLLAPSED_W);
+  const expanded = isMobileOverlay ? true : isManual ? sidebarManualWidth >= 120 : autoExpanded;
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
@@ -409,9 +410,9 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
 
       {/* ── Logout ── */}
       <button
-        onClick={logout}
+        onClick={() => { logout(); go('/login'); }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'rgba(239,68,68,.06)';
+          e.currentTarget.style.background = 'var(--danger-bg)';
           e.currentTarget.style.color = 'var(--danger)';
         }}
         onMouseLeave={(e) => {
@@ -460,8 +461,8 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
         </span>
       </button>
 
-      {/* ── Manual mode: drag handle on right edge ── */}
-      {isManual && (
+      {/* ── Manual mode: drag handle on right edge (hidden on mobile overlay) ── */}
+      {isManual && !isMobileOverlay && (
         <div
           role="separator"
           aria-orientation="vertical"

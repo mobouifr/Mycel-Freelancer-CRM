@@ -170,8 +170,8 @@ function LivingWidget() {
               opacity="0.7"
             />
             {/* Spots */}
-            <circle cx={m.x - 1.5} cy={90 - m.stemHeight - 1} r={0.8} fill="white" opacity="0.3" />
-            <circle cx={m.x + 2} cy={90 - m.stemHeight + 0.5} r={0.5} fill="white" opacity="0.2" />
+            <circle cx={m.x - 1.5} cy={90 - m.stemHeight - 1} r={0.8} fill="var(--white)" opacity="0.3" />
+            <circle cx={m.x + 2} cy={90 - m.stemHeight + 0.5} r={0.5} fill="var(--white)" opacity="0.2" />
           </g>
         ))}
 

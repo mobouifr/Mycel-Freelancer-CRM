@@ -18,7 +18,7 @@ export default function LoadingSpinner({
       style={{
         width: size,
         height: size,
-        border: `1.5px solid rgba(255,255,255,0.06)`,
+        border: `1.5px solid var(--border)`,
         borderTopColor: color,
         borderRadius: '50%',
         animation: 'spin .7s linear infinite',

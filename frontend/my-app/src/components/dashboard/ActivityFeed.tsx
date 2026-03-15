@@ -46,7 +46,7 @@ function ActivityFeed() {
                 alignItems: 'flex-start',
                 gap: 10,
                 padding: '8px 4px',
-                borderBottom: i < ACTIVITIES.length - 1 ? '1px solid rgba(255,255,255,.04)' : 'none',
+                borderBottom: i < ACTIVITIES.length - 1 ? '1px solid var(--border)' : 'none',
                 transition: 'background .12s',
                 borderRadius: 4,
               }}

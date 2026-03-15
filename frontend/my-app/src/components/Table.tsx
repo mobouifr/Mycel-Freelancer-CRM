@@ -79,13 +79,13 @@ export default function Table<T extends Record<string, unknown>>({
               gridTemplateColumns: columns.map((c) => c.width || '1fr').join(' '),
               padding: '13px 24px',
               borderBottom:
-                i < data.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                i < data.length - 1 ? '1px solid var(--border)' : 'none',
               alignItems: 'center',
               transition: 'background .15s',
               cursor: onRowClick ? 'pointer' : 'default',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,.02)';
+              e.currentTarget.style.background = 'var(--glass)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'none';

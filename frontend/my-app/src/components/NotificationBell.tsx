@@ -73,7 +73,7 @@ export default function NotificationBell() {
             background: 'var(--danger)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontFamily: 'var(--font-m)', fontSize: 9, fontWeight: 600,
-            color: '#fff', padding: '0 4px',
+            color: 'var(--bg)', padding: '0 4px',
             lineHeight: 1,
           }}>
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -137,7 +137,7 @@ export default function NotificationBell() {
                   key={n.id}
                   style={{
                     padding: '12px 16px',
-                    borderBottom: '1px solid rgba(255,255,255,.03)',
+                    borderBottom: '1px solid var(--border)',
                     display: 'flex', gap: 10,
                     background: n.isRead ? 'transparent' : 'var(--accent-bg)',
                     transition: 'background .15s',

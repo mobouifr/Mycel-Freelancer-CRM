@@ -135,8 +135,8 @@ export default function StatCard({ label, value, sub, trend, accent, href }: Sta
         }}
       >
         <svg width="100%" height="100%" style={{ position: 'absolute', bottom: 0, right: 0 }}>
-          <line x1="100%" y1="0" x2="0" y2="100%" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
-          <line x1="100%" y1="20%" x2="20%" y2="100%" stroke="rgba(255,255,255,0.025)" strokeWidth=".7" />
+          <line x1="100%" y1="0" x2="0" y2="100%" stroke="var(--glass)" strokeWidth="1" />
+          <line x1="100%" y1="20%" x2="20%" y2="100%" stroke="var(--glass)" strokeWidth=".7" />
         </svg>
       </div>
     </div>

@@ -93,7 +93,7 @@ function SmartSuggestions() {
                 key={s.id}
                 style={{
                   padding: '10px 4px',
-                  borderBottom: i < activeSuggestions.length - 1 ? '1px solid rgba(255,255,255,.04)' : 'none',
+                  borderBottom: i < activeSuggestions.length - 1 ? '1px solid var(--border)' : 'none',
                   animation: 'fadeUp .2s var(--ease) both',
                   animationDelay: `${i * 50}ms`,
                 }}

@@ -49,11 +49,11 @@ export default function Button({
   const variantStyles: Record<string, React.CSSProperties> = {
     primary: {
       background: 'var(--white)',
-      color: '#080808',
-      boxShadow: '0 0 0 0 rgba(255,255,255,.1)',
+      color: 'var(--bg)',
+      boxShadow: '0 0 0 0 var(--glass)',
     },
     secondary: {
-      background: 'rgba(255,255,255,.05)',
+      background: 'var(--glass)',
       border: '1px solid var(--border)',
       color: 'var(--text-mid)',
     },
@@ -80,7 +80,7 @@ export default function Button({
       onMouseEnter={(e) => {
         if (variant === 'primary') {
           e.currentTarget.style.transform = 'scale(1.04)';
-          e.currentTarget.style.boxShadow = '0 0 32px rgba(255,255,255,.12)';
+          e.currentTarget.style.boxShadow = '0 0 32px var(--accent-hover)';
         } else if (variant === 'ghost') {
           e.currentTarget.style.color = 'var(--white)';
         } else {
@@ -91,7 +91,7 @@ export default function Button({
       onMouseLeave={(e) => {
         if (variant === 'primary') {
           e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 0 0 0 rgba(255,255,255,.1)';
+          e.currentTarget.style.boxShadow = '0 0 0 0 var(--glass)';
         } else if (variant === 'ghost') {
           e.currentTarget.style.color = 'var(--text-dim)';
         } else if (variant === 'danger') {
