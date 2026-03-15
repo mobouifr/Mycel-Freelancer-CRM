@@ -3,16 +3,20 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { authService } from '../services/auth';
 import { Input, Button, ErrorMessage, LogoMark, MyceliumCanvas } from '../components';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 /* ─────────────────────────────────────────────
    LOGIN PAGE — Two-panel auth layout
 ───────────────────────────────────────────── */
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function Login() {
   const navigate = useNavigate();
   const { login, forgotPassword, isLoading, error, clearError } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
 
   // ── Forgot password state ──────────────────
   const [showForgot, setShowForgot] = useState(false);
@@ -20,17 +24,29 @@ export default function Login() {
   const [forgotMsg, setForgotMsg] = useState('');
   const [forgotSending, setForgotSending] = useState(false);
 
+  const validate = (): boolean => {
+    const errs: typeof fieldErrors = {};
+    if (!email.trim()) errs.email = 'Email is required';
+    else if (!EMAIL_RE.test(email.trim())) errs.email = 'Enter a valid email address';
+    if (!password) errs.password = 'Password is required';
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const handleSubmit = async () => {
+    if (!validate()) return;
     try {
-      await login({ email, password });
+      await login({ email: email.trim(), password });
       navigate('/');
     } catch {
       // error is handled by auth context
     }
   };
 
+  const isMobile = useIsMobile();
+
   const handleForgot = async () => {
-    if (!forgotEmail.trim()) return;
+    if (!forgotEmail.trim() || !EMAIL_RE.test(forgotEmail.trim())) return;
     setForgotSending(true);
     const msg = await forgotPassword(forgotEmail.trim());
     setForgotMsg(msg);
@@ -53,7 +69,7 @@ export default function Login() {
           width: '100%',
           maxWidth: 920,
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
           borderRadius: 4,
           overflow: 'hidden',
           border: '1px solid var(--border)',
@@ -62,8 +78,8 @@ export default function Login() {
           animation: 'scaleIn .5s var(--ease) both',
         }}
       >
-        {/* ── LEFT PANEL ── */}
-        <AuthLeftPanel />
+        {/* ── LEFT PANEL (hidden on mobile) ── */}
+        {!isMobile && <AuthLeftPanel />}
 
         {/* ── RIGHT PANEL ── */}
         <div
@@ -71,7 +87,7 @@ export default function Login() {
             background: 'var(--bg2)',
             display: 'flex',
             flexDirection: 'column',
-            padding: '36px 52px',
+            padding: isMobile ? '28px 24px' : '36px 52px',
             position: 'relative',
           }}
         >
@@ -112,11 +128,11 @@ export default function Login() {
               style={{
                 fontFamily: 'var(--font-d)',
                 fontWeight: 500,
-                fontSize: 58,
+                fontSize: isMobile ? 36 : 58,
                 lineHeight: 1.15,
                 color: 'var(--text)',
                 letterSpacing: '.05em',
-                marginBottom: 48,
+                marginBottom: isMobile ? 32 : 48,
               }}
             >
               Login
@@ -129,20 +145,22 @@ export default function Login() {
             )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 24 }}>
                 <Input
                   label="Email"
                   type="email"
                   placeholder="you@studio.com"
                   value={email}
-                  onChange={setEmail}
+                  error={fieldErrors.email}
+                  onChange={(v) => { setEmail(v); setFieldErrors((e) => ({ ...e, email: undefined })); }}
                 />
                 <Input
                   label="Password"
                   type="password"
                   placeholder="••••••••"
                   value={password}
-                  onChange={setPassword}
+                  error={fieldErrors.password}
+                  onChange={(v) => { setPassword(v); setFieldErrors((e) => ({ ...e, password: undefined })); }}
                 />
               </div>
 
@@ -537,19 +555,37 @@ export function AuthLeftPanel() {
         />
       </div>
 
-      {/* Copyright */}
-      <p
+      {/* Copyright + Legal links */}
+      <div
         style={{
           position: 'relative',
           zIndex: 2,
-          fontFamily: 'var(--font-m)',
-          fontSize: 10,
-          letterSpacing: '.08em',
-          color: 'var(--text-dim)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 8,
         }}
       >
-        © Mycel. {new Date().getFullYear()}. Freelancer Intelligence.
-      </p>
+        <p
+          style={{
+            fontFamily: 'var(--font-m)',
+            fontSize: 10,
+            letterSpacing: '.08em',
+            color: 'var(--text-dim)',
+          }}
+        >
+          © Mycel. {new Date().getFullYear()}
+        </p>
+        <div style={{ display: 'flex', gap: 14 }}>
+          <Link to="/privacy-policy" style={{ fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)', textDecoration: 'none', letterSpacing: '.06em' }}>
+            Privacy
+          </Link>
+          <Link to="/terms-of-service" style={{ fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)', textDecoration: 'none', letterSpacing: '.06em' }}>
+            Terms
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

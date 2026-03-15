@@ -1,99 +1,285 @@
-# Freelancer CRM
+# Freelancer CRM — Mycel
 
-*This project has been created as part of the 42 curriculum by [member1], [member2], [member3], [member4], [member5].*
+*This project has been created as part of the 42 curriculum by montassir (mobouifr), Othmane Er-Refaly (oer-refa), solacode-SC, Admin.*
 
-## 🎯 Description
+---
 
-A comprehensive CRM (Customer Relationship Management) system designed for freelancers to manage clients, projects, proposals, and invoices.
+## Description
 
-## 👥 Team
+Mycel is a web-based Customer Relationship Management (CRM) system designed for freelancers and small businesses. It provides a unified dashboard for managing clients, tracking projects, creating proposals, generating invoices, setting reminders, and monitoring business performance through real-time analytics.
 
-- **Member 1** - Tech Lead / DevOps / Database / GitHub Management
-- **Member 2** - Backend Developer (Auth, Users, Clients, Projects)
-- **Member 3** - Backend Developer (Proposals, Invoices, PDF, Jobs)
-- **Member 4** - Frontend Developer (Dashboard, Clients, Design System)
-- **Member 5** - Frontend Developer (Projects, Proposals, Invoices)
+The goal is to deliver a full-stack application with authentication, persistent data storage, responsive UI, and a clean developer experience — all containerized with Docker for one-command deployment.
 
-## 🚀 Features
+---
 
-- User authentication and management
-- Client management
-- Project tracking
-- Proposal creation with PDF export
-- Invoice generation with PDF export
-- Reminders and notifications
-- Real-time updates via WebSockets
-- Dashboard with analytics
+## Features
 
-## 🛠️ Tech Stack
+| Feature | Description |
+|---------|-------------|
+| Authentication | Local registration with hashed passwords (bcrypt), JWT sessions via HTTP-only cookies, 42 OAuth integration |
+| Dashboard | Customizable drag-and-drop widget grid (revenue KPIs, calendar, invoices due, activity feed, growth tracker) |
+| Clients | CRUD management of client contacts and associated projects |
+| Projects | Track project status, deadlines, and linked clients |
+| Proposals | Create and manage business proposals |
+| Invoices | Generate and track invoices with amounts and due dates |
+| Reminders | Sticky-note-style reminders with color coding and pinning |
+| Ecosystem | Gamified growth tracker — visualizes user activity as levels and hours |
+| Settings | Profile, business details, security (password change), UI preferences (9 theme presets, sidebar behavior) |
+| Theming | 9 curated color themes (dark, light, violet, paper, terminal, graphite, sand, arctic, monochrome) with instant switching |
+| Privacy & Terms | Dedicated legal pages accessible from the app footer and auth screens |
+
+---
+
+## Tech Stack
 
 ### Frontend
-- React 18
-- Vite
-- Tailwind CSS
-- React Router
-- Axios
+| Technology | Version | Justification |
+|-----------|---------|---------------|
+| React | 19 | Component-based UI with hooks, fast rendering via virtual DOM |
+| TypeScript | 5.x | Type safety across the entire frontend codebase |
+| Vite | 7 | Extremely fast HMR and build times, native ESM support |
+| Tailwind CSS | 4 | Utility-first CSS framework for rapid styling and consistency |
+| React Router | 7 | Declarative client-side routing with nested layouts |
+| Axios | 1.x | HTTP client for API communication with interceptors |
+| react-grid-layout | 2.x | Drag-and-drop dashboard widget grid |
 
 ### Backend
-- Node.js
-- Express
-- PostgreSQL
-- Prisma ORM
-- JWT Authentication
-- WebSockets (Socket.io)
+| Technology | Version | Justification |
+|-----------|---------|---------------|
+| NestJS | 11 | Enterprise-grade Node.js framework with modular architecture |
+| TypeScript | 5.x | Shared type safety with the frontend |
+| bcrypt | — | Industry-standard password hashing with salt rounds |
+| JWT (jsonwebtoken) | — | Stateless authentication with HTTP-only cookie transport |
+| class-validator | — | Decorator-based DTO validation on all endpoints |
+| cookie-parser | — | Parse and manage HTTP-only authentication cookies |
+| Passport.js | — | Pluggable auth strategies (Local, JWT, 42 OAuth) |
+
+### Database
+| Technology | Justification |
+|-----------|---------------|
+| PostgreSQL | Relational DB with strong data integrity, perfect for structured CRM data |
 
 ### DevOps
-- Docker
-- Docker Compose
-- GitHub Actions
+| Technology | Justification |
+|-----------|---------------|
+| Docker & Docker Compose | One-command deployment, isolated environments, reproducible builds |
+| Git & GitHub | Version control with feature branches and collaborative PRs |
 
-## 📋 Prerequisites
+---
+
+## Database Schema
+
+```
+┌─────────────┐       ┌──────────────┐
+│   users      │       │   clients    │
+├─────────────┤       ├──────────────┤
+│ id (PK)     │──┐    │ id (PK)      │
+│ username     │  │    │ user_id (FK) │──┐
+│ email        │  │    │ name         │  │
+│ passwordHash │  │    │ email        │  │
+│ intraId      │  │    │ company      │  │
+│ createdAt    │  │    │ phone        │  │
+└─────────────┘  │    │ createdAt    │  │
+                 │    └──────────────┘  │
+                 │                      │
+                 │    ┌──────────────┐  │
+                 │    │  projects    │  │
+                 │    ├──────────────┤  │
+                 ├───>│ id (PK)      │  │
+                 │    │ user_id (FK) │  │
+                 │    │ client_id(FK)│<─┘
+                 │    │ name         │
+                 │    │ status       │
+                 │    │ deadline     │
+                 │    └──────────────┘
+                 │
+                 │    ┌──────────────┐     ┌──────────────┐
+                 │    │  proposals   │     │  invoices    │
+                 │    ├──────────────┤     ├──────────────┤
+                 ├───>│ id (PK)      │     │ id (PK)      │
+                 │    │ user_id (FK) │     │ user_id (FK) │<── users
+                 │    │ client_id(FK)│     │ client_id(FK)│
+                 │    │ title        │     │ amount       │
+                 │    │ amount       │     │ status       │
+                 │    │ status       │     │ dueDate      │
+                 │    └──────────────┘     └──────────────┘
+                 │
+                 │    ┌──────────────┐
+                 ├───>│  reminders   │
+                      ├──────────────┤
+                      │ id (PK)      │
+                      │ user_id (FK) │
+                      │ title        │
+                      │ content      │
+                      │ color        │
+                      │ pinned       │
+                      │ createdAt    │
+                      └──────────────┘
+```
+
+**Key relations:**
+- Each `user` owns many `clients`, `projects`, `proposals`, `invoices`, and `reminders`
+- Each `client` belongs to one `user` and can have many `projects`, `proposals`, and `invoices`
+- Each `project` is linked to one `client` and one `user`
+- All tables have `id` as primary key and use foreign keys for referential integrity
+
+---
+
+## Prerequisites
 
 - Node.js 18+
 - Docker & Docker Compose
 - Git
+- A modern browser (Chrome recommended — tested for compatibility)
 
-## 🏃 Quick Start
+---
+
+## Quick Start
 
 **1. Clone the repository**
 ```bash
-git clone https://github.com/YOUR-USERNAME/freelancer-crm.git
-cd freelancer-crm
+git clone <repository-url>
+cd freelancer-crm-final-project
 ```
 
 **2. Set up environment variables**
 ```bash
 cp .env.example .env
-# Edit .env with your values
+# Edit .env with your values (database credentials, JWT secret, etc.)
 ```
 
-**3. Run with Docker** (Recommended)
+**3. Run with Docker**
 ```bash
-docker-compose up
+docker-compose up --build
 ```
 
 **4. Access the application**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:3001
-- Database: localhost:5432
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3000
 
-## 📚 Documentation
+**5. Manual development (without Docker)**
+```bash
+# Backend
+cd backend/OthmaneEr-Refaly
+npm install
+npm run start:dev
 
-See the `/docs` folder for detailed documentation:
-- [Architecture](docs/architecture.md)
-- [Database Schema](docs/database-schema.md)
-- [API Documentation](docs/api-documentation.md)
-- [User Flows](docs/user-flows.md)
+# Frontend (separate terminal)
+cd frontend/my-app
+npm install
+npm run dev
+```
 
-## 🤝 Contributing
+---
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+## Project Structure
 
-## 📄 License
+```
+freelancer-crm-final-project/
+├── frontend/my-app/          # React + Vite frontend
+│   ├── src/
+│   │   ├── components/       # Reusable UI components (Input, Button, Modal, StatCard, etc.)
+│   │   ├── components/dashboard/  # Dashboard widgets (RevenueKPI, InvoicesDue, etc.)
+│   │   ├── hooks/            # Custom React hooks (useAuth, useTheme, useStore, useIsMobile)
+│   │   ├── layouts/          # AppLayout, Sidebar, Topbar
+│   │   ├── pages/            # Route pages (Dashboard, Login, Signup, Settings, etc.)
+│   │   ├── services/         # API service layer (auth, axios client)
+│   │   └── styles/           # Global CSS (index.css with theme variables)
+│   ├── index.html
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── vite.config.ts
+├── backend/OthmaneEr-Refaly/ # NestJS backend
+│   ├── src/
+│   │   ├── auth/             # Auth module (strategies, guards, DTOs)
+│   │   ├── users/            # Users module (service, entity)
+│   │   └── main.ts           # App entry point
+│   ├── package.json
+│   └── tsconfig.json
+├── docs/                     # Documentation
+├── .env.example              # Environment variable template
+├── .gitignore                # Git ignore rules (includes .env)
+├── docker-compose.yml        # Docker Compose configuration
+└── README.md                 # This file
+```
 
-This project is licensed under the MIT License.
+---
 
-## 🙏 Acknowledgments
+## Modules
 
-- 42 School for the project guidelines
-- Our peers for code reviews and feedback
+| Module | Points | Justification |
+|--------|--------|---------------|
+| **Frontend Framework (React)** | Major | Full SPA with component architecture, hooks, context API, and client-side routing |
+| **Backend Framework (NestJS)** | Major | Modular backend with decorators, dependency injection, guards, and validation pipes |
+| **CSS Framework (Tailwind CSS)** | Minor | Utility-first styling integrated via Vite plugin, used alongside CSS custom properties for theming |
+| **Database (PostgreSQL)** | Minor | Relational storage with proper schema, foreign keys, and data integrity |
+| **User Management** | Major | Registration, login, password hashing (bcrypt), JWT auth, 42 OAuth, profile management |
+| **Dashboard** | Major | Configurable drag-and-drop widget grid with presets, real-time KPIs, and editing mode |
+
+---
+
+## Team & Individual Contributions
+
+### montassir (mobouifr) — Frontend Lead / Design System
+- Designed and implemented the entire frontend UI (all pages, components, layouts)
+- Built the 9-preset theming system with CSS custom properties and React context
+- Created the drag-and-drop dashboard with configurable widget grid
+- Implemented responsive layout with mobile hamburger menu
+- Added Privacy Policy and Terms of Service pages
+- Implemented frontend form validation on Login and Signup
+- Typography system: DM Mono unification with Syne brand font exception
+- Integrated authentication UI with backend API
+
+### Othmane Er-Refaly (oer-refa) — Backend Lead / Auth
+- Built the NestJS backend application from scratch
+- Implemented authentication system: local strategy, JWT strategy, 42 OAuth strategy
+- Set up HTTP-only cookie-based session management
+- Created user registration with bcrypt password hashing
+- Implemented DTO validation with class-validator decorators
+- Set up Passport.js guards and strategies
+
+### solacode-SC — Contributor
+- Backend collaboration and feature development
+
+### Admin — DevOps / Project Setup
+- Initial project structure and repository setup
+- Docker Compose configuration
+- Documentation scaffolding
+
+---
+
+## Project Management
+
+- **Version Control**: Git with feature branches (`feat/`, `fix/`, `refactor/` prefixes)
+- **Branching Strategy**: Feature branches merged into `montassir` integration branch
+- **Communication**: Direct team coordination for PR reviews and task assignment
+- **Task Tracking**: GitHub-based issue tracking and commit-driven progress
+- **Code Quality**: TypeScript strict mode, ESLint, Prettier, no console.log statements in production code
+
+---
+
+## Resources & Documentation
+
+- `/docs/design-tokens.md` — Complete CSS custom property reference
+- `.env.example` — Environment variable documentation
+- React: https://react.dev
+- NestJS: https://docs.nestjs.com
+- Tailwind CSS: https://tailwindcss.com/docs
+- Vite: https://vitejs.dev
+- PostgreSQL: https://www.postgresql.org/docs
+
+### AI Tool Usage
+- Cursor IDE with AI assistance was used for code generation, debugging, and refactoring
+- All AI-generated code was reviewed, tested, and adapted by team members
+
+---
+
+## Browser Compatibility
+
+Tested and optimized for **Google Chrome** (latest). The application uses standard web APIs and should work in all modern browsers (Firefox, Safari, Edge).
+
+---
+
+## License
+
+This project was created for educational purposes as part of the 42 school curriculum.

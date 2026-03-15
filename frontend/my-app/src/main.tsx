@@ -19,6 +19,8 @@ import Proposals from './pages/Proposals';
 import Invoices from './pages/Invoices';
 import Reminders from './pages/Reminders';
 import Ecosystem from './pages/Ecosystem';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 import './styles/index.css';
 
@@ -32,6 +34,8 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/auth/callback" element={<OAuthCallback />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
 
             {/* Protected routes — guard disabled until backend is ready */}
             {/* <Route element={<ProtectedRoute />}> */}

@@ -29,7 +29,12 @@ const SEARCH_ITEMS = [
   { label: 'Settings',   path: '/settings',  keywords: 'profile preferences account security' },
 ];
 
-export default function Topbar() {
+interface TopbarProps {
+  isMobile?: boolean;
+  onMenuToggle?: () => void;
+}
+
+export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps = {}) {
   const [query, setQuery] = useState('');
   const [focused, setFocused] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState(0);
@@ -110,27 +115,54 @@ export default function Topbar() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 28px',
+        padding: isMobile ? '0 16px' : '0 28px',
         flexShrink: 0,
       }}
     >
-      {/* Breadcrumb */}
-      <p
-        style={{
-          fontFamily: 'var(--font-m)',
-          fontSize: 12,
-          color: 'var(--text-dim)',
-          letterSpacing: '.04em',
-        }}
-      >
-        <span style={{ color: 'var(--text-mid)' }}>Dashboard</span>
-        <span style={{ margin: '0 8px', opacity: 0.4 }}>/</span>
-        <span style={{ color: 'var(--white)' }}>{label}</span>
-      </p>
+      {/* Left side: hamburger (mobile) + breadcrumb */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {isMobile && (
+          <button
+            onClick={onMenuToggle}
+            aria-label="Toggle menu"
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--text-mid)',
+              display: 'flex',
+              alignItems: 'center',
+              padding: 4,
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+        )}
+        <p
+          style={{
+            fontFamily: 'var(--font-m)',
+            fontSize: 12,
+            color: 'var(--text-dim)',
+            letterSpacing: '.04em',
+          }}
+        >
+          {!isMobile && (
+            <>
+              <span style={{ color: 'var(--text-mid)' }}>Dashboard</span>
+              <span style={{ margin: '0 8px', opacity: 0.4 }}>/</span>
+            </>
+          )}
+          <span style={{ color: 'var(--white)' }}>{label}</span>
+        </p>
+      </div>
 
       {/* Search + Theme Toggle + Avatar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
-        <div ref={searchRef} style={{ position: 'relative' }}>
+        {!isMobile && <div ref={searchRef} style={{ position: 'relative' }}>
           <span
             style={{
               fontSize: 13,
@@ -248,7 +280,7 @@ export default function Topbar() {
               No pages found for "{query}"
             </div>
           )}
-        </div>
+        </div>}
 
         {/* Theme toggle */}
         <button

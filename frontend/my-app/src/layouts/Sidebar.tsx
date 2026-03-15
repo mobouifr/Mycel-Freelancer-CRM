@@ -91,12 +91,21 @@ const MAX_MANUAL_W = 360;
 
 const AUTO_BREAKPOINT = 900;
 
-export default function Sidebar() {
+interface SidebarProps {
+  onNavigate?: () => void;
+}
+
+export default function Sidebar({ onNavigate }: SidebarProps = {}) {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { sidebarBehavior, sidebarManualWidth, setSidebarManualWidth } = useTheme();
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
+  const go = (path: string) => {
+    navigate(path);
+    onNavigate?.();
+  };
 
   /* ── Automatic mode: breakpoint-driven expand/collapse ── */
   const [autoExpanded, setAutoExpanded] = useState(() => window.innerWidth >= AUTO_BREAKPOINT);
@@ -197,7 +206,7 @@ export default function Sidebar() {
       >
         <div
           style={{ cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center' }}
-          onClick={() => navigate('/')}
+          onClick={() => go('/')}
         >
           <LogoMark size={30} color="var(--text-mid)" />
         </div>
@@ -250,7 +259,7 @@ export default function Sidebar() {
         return (
           <button
             key={n.path}
-            onClick={() => navigate(n.path)}
+            onClick={() => go(n.path)}
             onMouseEnter={() => setHoveredIdx(idx)}
             onMouseLeave={() => setHoveredIdx(null)}
             style={{
@@ -345,7 +354,7 @@ export default function Sidebar() {
 
       {/* ── Settings ── */}
       <button
-        onClick={() => navigate('/settings')}
+        onClick={() => go('/settings')}
         onMouseEnter={(e) => {
           if (!isActive('/settings')) {
             e.currentTarget.style.background = 'var(--glass)';

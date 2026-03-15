@@ -3,10 +3,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Input, Button, ErrorMessage } from '../components';
 import { AuthLeftPanel } from './Login';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 /* ─────────────────────────────────────────────
    SIGNUP PAGE — Two-panel auth layout
 ───────────────────────────────────────────── */
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -14,11 +17,26 @@ export default function Signup() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{ username?: string; email?: string; password?: string }>({});
 
-  
+  const validate = (): boolean => {
+    const errs: typeof fieldErrors = {};
+    if (!username.trim()) errs.username = 'Username is required';
+    else if (username.trim().length < 3) errs.username = 'Username must be at least 3 characters';
+    if (!email.trim()) errs.email = 'Email is required';
+    else if (!EMAIL_RE.test(email.trim())) errs.email = 'Enter a valid email address';
+    if (!password) errs.password = 'Password is required';
+    else if (password.length < 6) errs.password = 'Password must be at least 6 characters';
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const isMobile = useIsMobile();
+
   const handleSubmit = async () => {
+    if (!validate()) return;
     try {
-      await register({ username, email, password });
+      await register({ username: username.trim(), email: email.trim(), password });
       navigate('/');
     } catch {
       // error is handled by auth context
@@ -41,7 +59,7 @@ export default function Signup() {
           width: '100%',
           maxWidth: 920,
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
           borderRadius: 4,
           overflow: 'hidden',
           border: '1px solid var(--border)',
@@ -50,8 +68,8 @@ export default function Signup() {
           animation: 'scaleIn .5s var(--ease) both',
         }}
       >
-        {/* ── LEFT PANEL ── */}
-        <AuthLeftPanel />
+        {/* ── LEFT PANEL (hidden on mobile) ── */}
+        {!isMobile && <AuthLeftPanel />}
 
         {/* ── RIGHT PANEL ── */}
         <div
@@ -59,7 +77,7 @@ export default function Signup() {
             background: 'var(--bg2)',
             display: 'flex',
             flexDirection: 'column',
-            padding: '36px 52px',
+            padding: isMobile ? '28px 24px' : '36px 52px',
             position: 'relative',
           }}
         >
@@ -100,11 +118,11 @@ export default function Signup() {
               style={{
                 fontFamily: 'var(--font-d)',
                 fontWeight: 500,
-                fontSize: 58,
+                fontSize: isMobile ? 36 : 58,
                 lineHeight: 1.15,
                 color: 'var(--text)',
                 letterSpacing: '.05em',
-                marginBottom: 48,
+                marginBottom: isMobile ? 32 : 48,
               }}
             >
               Sign Up
@@ -117,28 +135,28 @@ export default function Signup() {
             )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-              {/* Username */}
               <Input
                 label="Username"
                 placeholder="montassir"
                 value={username}
-                onChange={setUsername}
+                error={fieldErrors.username}
+                onChange={(v) => { setUsername(v); setFieldErrors((e) => ({ ...e, username: undefined })); }}
               />
-
-              {/* Email + Password */}
               <Input
                 label="Email"
                 type="email"
                 placeholder="you@studio.com"
                 value={email}
-                onChange={setEmail}
+                error={fieldErrors.email}
+                onChange={(v) => { setEmail(v); setFieldErrors((e) => ({ ...e, email: undefined })); }}
               />
               <Input
                 label="Password"
                 type="password"
-                placeholder="Min. 8 characters"
+                placeholder="Min. 6 characters"
                 value={password}
-                onChange={setPassword}
+                error={fieldErrors.password}
+                onChange={(v) => { setPassword(v); setFieldErrors((e) => ({ ...e, password: undefined })); }}
               />
             </div>
           </div>
