@@ -155,3 +155,4 @@ export function getAllWidgetEntries(): WidgetEntry[] {
 export default REGISTRY;
 
 
+

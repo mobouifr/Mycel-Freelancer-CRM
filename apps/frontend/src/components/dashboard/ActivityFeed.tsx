@@ -145,3 +145,4 @@ setWidgetComponent('activity', ActivityFeed);
 export default ActivityFeed;
 
 
+

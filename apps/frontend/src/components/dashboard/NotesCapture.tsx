@@ -350,3 +350,4 @@ setWidgetComponent('notes', NotesCapture);
 export default NotesCapture;
 
 
+
