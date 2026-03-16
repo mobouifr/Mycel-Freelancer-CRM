@@ -12,87 +12,181 @@ interface ClientTableProps {
 export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTableProps) => {
   if (clients.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        <p>No clients found. Create your first client to get started.</p>
+      <div
+        style={{
+          textAlign: 'center',
+          padding: '40px 24px',
+          fontFamily: 'var(--font-m)',
+          fontSize: 12,
+          color: 'var(--text-dim)',
+        }}
+      >
+        No clients yet. Create your first client to get started.
       </div>
     );
   }
 
+  const headerStyle: React.CSSProperties = {
+    fontFamily: 'var(--font-m)',
+    fontSize: 9,
+    letterSpacing: '.12em',
+    textTransform: 'uppercase',
+    color: 'var(--text-dim)',
+  };
+
+  const cellTextStyle: React.CSSProperties = {
+    fontFamily: 'var(--font-m)',
+    fontSize: 12,
+    color: 'var(--text)',
+  };
+
+  const cellMutedStyle: React.CSSProperties = {
+    ...cellTextStyle,
+    color: 'var(--text-mid)',
+  };
+
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Name
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Email
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Company
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Phone
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Created
-            </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {clients.map((client) => (
-            <tr key={client.id} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900">{client.name}</div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-500">{client.email || '—'}</div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-500">{client.company || '—'}</div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-500">{client.phone || '—'}</div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-500">{formatDate(client.createdAt)}</div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <div className="flex gap-2 justify-end">
-                  {onView && (
-                    <button
-                      onClick={() => onView(client)}
-                      className="text-blue-600 hover:text-blue-900"
-                    >
-                      View
-                    </button>
-                  )}
-                  {onEdit && (
-                    <button
-                      onClick={() => onEdit(client)}
-                      className="text-indigo-600 hover:text-indigo-900"
-                    >
-                      Edit
-                    </button>
-                  )}
-                  {onDelete && (
-                    <button
-                      onClick={() => onDelete(client)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Delete
-                    </button>
-                  )}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div>
+      {/* Header row */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '2fr 2fr 2fr 1.5fr 1.5fr 1fr',
+          padding: '12px 24px',
+          borderBottom: '1px solid var(--border)',
+        }}
+      >
+        <span style={headerStyle}>Name</span>
+        <span style={headerStyle}>Email</span>
+        <span style={headerStyle}>Company</span>
+        <span style={headerStyle}>Phone</span>
+        <span style={headerStyle}>Created</span>
+        <span style={{ ...headerStyle, textAlign: 'right' }}>Actions</span>
+      </div>
+
+      {/* Rows */}
+      {clients.map((client, index) => (
+        <div
+          key={client.id}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '2fr 2fr 2fr 1.5fr 1.5fr 1fr',
+            padding: '13px 24px',
+            borderBottom:
+              index < clients.length - 1
+                ? '1px solid rgba(255,255,255,0.04)'
+                : 'none',
+            alignItems: 'center',
+            transition: 'background .15s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255,255,255,.02)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          <span>
+            <span
+              style={{
+                ...cellTextStyle,
+                fontWeight: 500,
+              }}
+            >
+              {client.name}
+            </span>
+          </span>
+
+          <span>
+            <span style={cellMutedStyle}>{client.email || '—'}</span>
+          </span>
+
+          <span>
+            <span style={cellMutedStyle}>{client.company || '—'}</span>
+          </span>
+
+          <span>
+            <span style={cellMutedStyle}>{client.phone || '—'}</span>
+          </span>
+
+          <span>
+            <span style={cellMutedStyle}>{formatDate(client.createdAt)}</span>
+          </span>
+
+          <span>
+            <div
+              style={{
+                display: 'flex',
+                gap: 8,
+                justifyContent: 'flex-end',
+              }}
+            >
+              {onView && (
+                <button
+                  onClick={() => onView(client)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-dim)',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-m)',
+                    fontSize: 10,
+                    padding: 0,
+                    transition: 'color .15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-dim)';
+                  }}
+                >
+                  View
+                </button>
+              )}
+              {onEdit && (
+                <button
+                  onClick={() => onEdit(client)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-dim)',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-m)',
+                    fontSize: 10,
+                    padding: 0,
+                    transition: 'color .15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-dim)';
+                  }}
+                >
+                  Edit
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  onClick={() => onDelete(client)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--danger)',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-m)',
+                    fontSize: 10,
+                    padding: 0,
+                  }}
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          </span>
+        </div>
+      ))}
     </div>
   );
 };

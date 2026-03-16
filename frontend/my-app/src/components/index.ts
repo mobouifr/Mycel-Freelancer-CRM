@@ -15,6 +15,7 @@ export { default as CalendarWidget } from './CalendarWidget';
 export { default as NotesWidget } from './NotesWidget';
 export { default as RevenueChart } from './RevenueChart';
 export { default as NotificationBell } from './NotificationBell';
+export { default as StatusBadge } from './StatusBadge';
 
 /* ─── Dashboard Widget System ─── */
 export { default as WidgetGrid } from './dashboard/WidgetGrid';
