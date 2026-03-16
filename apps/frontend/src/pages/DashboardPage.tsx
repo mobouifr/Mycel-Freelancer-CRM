@@ -1,22 +1,57 @@
-import Button from '../components/Button';
-import StatusBadge from '../components/StatusBadge';
+import { useState, useCallback } from 'react';
+import { useDashboardLayout, PRESET_OPTIONS } from '../hooks/useDashboardLayout';
+import WidgetGrid from '../components/dashboard/WidgetGrid';
+import WidgetPicker from '../components/dashboard/WidgetPicker';
+import QuickCreateFAB from '../components/dashboard/QuickCreateFAB';
 
-/* ─────────────────────────────────────────────
-   DASHBOARD PAGE — Overview matching my-app UI
-   Static/demo data for now, focused on layout.
-───────────────────────────────────────────── */
+// Side-effect imports for widget registration:
+import '../components/dashboard/CalendarUpcoming';
+import '../components/dashboard/NotesCapture';
+import '../components/dashboard/RevenueKPI';
+import '../components/dashboard/InvoicesDue';
+import '../components/dashboard/ActivityFeed';
+import '../components/dashboard/ProjectsProgress';
+import '../components/dashboard/SmartSuggestions';
+import '../components/dashboard/LivingWidget';
 
 export const DashboardPage = () => {
+  const {
+    layouts,
+    visible,
+    preset,
+    onLayoutChange,
+    applyPreset,
+    toggleWidget,
+    clearLayout,
+    undo,
+    canUndo,
+    exportLayout,
+    importLayout,
+  } = useDashboardLayout();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const handleRemoveWidget = useCallback(
+    (id: string) => {
+      toggleWidget(id);
+    },
+    [toggleWidget],
+  );
+
+  const currentPreset = PRESET_OPTIONS.find((p) => p.id === preset);
+
   return (
     <div
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 24,
+        gap: 20,
         animation: 'fadeUp .3s var(--ease) both',
+        position: 'relative',
       }}
     >
-      {/* Header */}
+      {/* Header row */}
       <div
         style={{
           display: 'flex',
@@ -36,7 +71,7 @@ export const DashboardPage = () => {
               marginBottom: 4,
             }}
           >
-            Overview
+            Dashboard
           </h2>
           <p
             style={{
@@ -46,137 +81,327 @@ export const DashboardPage = () => {
               letterSpacing: '.04em',
             }}
           >
-            High-level snapshot of your clients, projects, proposals and invoices
+            {currentPreset?.label} layout · {visible.length} widget
+            {visible.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <Button variant="primary" size="md">
-          + New Invoice
-        </Button>
-      </div>
 
-      {/* Metrics row (4 columns, no cards) */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-          columnGap: 80,
-        }}
-      >
-        {[
-          { label: 'Total Revenue', value: '$101.4K', sub: '+37.8% vs last 30 days', trend: 'up' },
-          { label: 'Active Clients', value: '24', sub: '-3.8% vs last 30 days', trend: 'down' },
-          { label: 'Open Invoices', value: '8', sub: '$12.4K outstanding', trend: 'up' },
-          { label: 'Proposals', value: '12', sub: '4 awaiting response', trend: 'up' },
-        ].map((card) => (
-          <div
-            key={card.label}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* Undo button */}
+          {canUndo && (
+            <button
+              onClick={undo}
+              aria-label="Undo last layout change"
+              title="Undo"
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 6,
+                background: 'var(--surface-2)',
+                border: '1px solid var(--border)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: 'var(--text-dim)',
+                transition: 'all .15s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--text-mid)';
+                e.currentTarget.style.color = 'var(--text)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.color = 'var(--text-dim)';
+              }}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M3 7v6h6" />
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+              </svg>
+            </button>
+          )}
+
+          {/* Reset Layout — only in edit mode */}
+          {isEditing && (
+            <button
+              onClick={clearLayout}
+              aria-label="Reset layout to preset default"
+              title="Reset Layout"
+              style={{
+                padding: '7px 12px',
+                borderRadius: 6,
+                background: 'var(--surface-2)',
+                border: '1px solid var(--border)',
+                fontFamily: 'var(--font-m)',
+                fontSize: 11,
+                fontWeight: 500,
+                color: 'var(--text-dim)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                transition: 'all .15s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--danger)';
+                e.currentTarget.style.color = 'var(--danger)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.color = 'var(--text-dim)';
+              }}
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="1 4 1 10 7 10" />
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+              </svg>
+              Reset
+            </button>
+          )}
+
+          {/* Edit toggle */}
+          <button
+            onClick={() => setIsEditing(!isEditing)}
             style={{
+              padding: '7px 14px',
+              borderRadius: 6,
+              background: isEditing ? 'var(--accent)' : 'var(--surface-2)',
+              border: `1px solid ${
+                isEditing ? 'var(--accent)' : 'var(--border)'
+              }`,
+              fontFamily: 'var(--font-m)',
+              fontSize: 11,
+              fontWeight: 500,
+              color: isEditing ? 'var(--white)' : 'var(--text-mid)',
+              cursor: 'pointer',
               display: 'flex',
-              flexDirection: 'column',
-              gap: 4,
+              alignItems: 'center',
+              gap: 6,
+              transition: 'all .15s',
+            }}
+            onMouseEnter={(e) => {
+              if (!isEditing) {
+                e.currentTarget.style.borderColor = 'var(--text-dim)';
+                e.currentTarget.style.color = 'var(--text)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isEditing) {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.color = 'var(--text-mid)';
+              }
             }}
           >
-            <span
-              style={{
-                fontFamily: 'var(--font-m)',
-                fontSize: 10,
-                color: 'var(--text-dim)',
-                letterSpacing: '.1em',
-                textTransform: 'uppercase',
-              }}
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              {card.label}
-            </span>
-            <span
-              className="kpi-num"
-              style={{
-                fontFamily: 'var(--font-d)',
-                fontWeight: 500,
-                fontSize: 32,
-                color: 'var(--text)',
-                letterSpacing: '.04em',
-                lineHeight: 1.3,
-              }}
-            >
-              {card.value}
-            </span>
-            <span
-              style={{
-                fontFamily: 'var(--font-m)',
-                fontSize: 10,
-                color: card.trend === 'up' ? 'var(--trend-up)' : 'var(--trend-down)',
-                letterSpacing: '.04em',
-              }}
-            >
-              {card.trend === 'up' ? '↑' : '↓'} {card.sub}
-            </span>
-          </div>
-        ))}
-      </div>
+              {isEditing ? (
+                <path d="M20 6L9 17l-5-5" />
+              ) : (
+                <>
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </>
+              )}
+            </svg>
+            {isEditing ? 'Done Editing' : 'Edit Layout'}
+          </button>
 
-      {/* Recent activity */}
-      <div
-        style={{
-          marginTop: 16,
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'var(--font-m)',
-            fontSize: 10,
-            color: 'var(--text-dim)',
-            letterSpacing: '.1em',
-            textTransform: 'uppercase',
-          }}
-        >
-          Recent Activity
-        </span>
-
-        <div
-          style={{
-            marginTop: 12,
-            display: 'grid',
-            rowGap: 6,
-          }}
-        >
-          {[
-            {
-              title: 'Invoice INV-2024-005 marked as Paid - $3,200',
-              status: 'paid',
-            },
-            {
-              title: 'Proposal PROP-2024-012 sent to Arca Studio',
-              status: 'sent',
-            },
-            {
-              title: 'New client “Noma Labs” added',
-              status: 'active',
-            },
-          ].map((item) => (
-            <div
-              key={item.title}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
+          {/* Customize button */}
+          <button
+            onClick={() => setPickerOpen(true)}
+            style={{
+              padding: '7px 14px',
+              borderRadius: 6,
+              background: 'var(--surface-2)',
+              border: '1px solid var(--border)',
+              fontFamily: 'var(--font-m)',
+              fontSize: 11,
+              fontWeight: 500,
+              color: 'var(--text-mid)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              transition: 'all .15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--accent-hover)';
+              e.currentTarget.style.color = 'var(--accent)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border)';
+              e.currentTarget.style.color = 'var(--text-mid)';
+            }}
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <span
-                style={{
-                  fontFamily: 'var(--font-m)',
-                  fontSize: 12,
-                  color: 'var(--text)',
-                }}
-              >
-                {item.title}
-              </span>
-              <StatusBadge status={item.status} />
-            </div>
-          ))}
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+            </svg>
+            Customize
+          </button>
         </div>
       </div>
+
+      {/* Editing mode notice */}
+      {isEditing && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '8px 14px',
+            background: 'var(--accent-bg)',
+            border: '1px solid var(--accent-hover)',
+            borderRadius: 6,
+            animation: 'fadeUp .15s var(--ease) both',
+          }}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--accent)"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+          <p
+            style={{
+              fontFamily: 'var(--font-m)',
+              fontSize: 11,
+              color: 'var(--accent)',
+            }}
+          >
+            Drag widgets to rearrange · Resize from corners · Click{' '}
+            <strong>Done Editing</strong> when finished
+          </p>
+        </div>
+      )}
+
+      {/* Widget Grid */}
+      {visible.length === 0 ? (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '60px 0',
+            gap: 12,
+          }}
+        >
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--text-dim)"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+          </svg>
+          <p
+            style={{
+              fontFamily: 'var(--font-m)',
+              fontSize: 13,
+              color: 'var(--text-dim)',
+            }}
+          >
+            No widgets visible
+          </p>
+          <button
+            onClick={() => setPickerOpen(true)}
+            style={{
+              padding: '8px 16px',
+              borderRadius: 6,
+              background: 'var(--accent)',
+              border: 'none',
+              fontFamily: 'var(--font-m)',
+              fontSize: 11,
+              fontWeight: 500,
+              color: 'var(--white)',
+              cursor: 'pointer',
+            }}
+          >
+            Add Widgets
+          </button>
+        </div>
+      ) : (
+        <WidgetGrid
+          layouts={layouts}
+          visible={visible}
+          onLayoutChange={onLayoutChange}
+          onRemoveWidget={handleRemoveWidget}
+          isEditing={isEditing}
+        />
+      )}
+
+      {/* Widget Picker Side Panel */}
+      <WidgetPicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        visible={visible}
+        onToggle={toggleWidget}
+        preset={preset}
+        onApplyPreset={applyPreset}
+        onClearLayout={clearLayout}
+        canUndo={canUndo}
+        onUndo={undo}
+        onExportLayout={exportLayout}
+        onImportLayout={importLayout}
+      />
+
+      {/* Quick Create FAB */}
+      <QuickCreateFAB />
     </div>
   );
 };
-
 
