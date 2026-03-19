@@ -56,16 +56,16 @@ export const ClientDetailPage = () => {
           <h1 className="text-2xl font-bold">{client.name}</h1>
           {client.company && <p className="text-gray-600">{client.company}</p>}
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             onClick={() => navigate(`/clients/${client.id}/edit`)}
-            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+            className="inline-flex items-center rounded-full border border-emerald-400/70 bg-emerald-500/10 px-4 py-2 text-xs font-medium uppercase tracking-wide text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 transition-colors"
           >
             Edit
           </button>
           <button
             onClick={() => navigate('/clients')}
-            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+            className="inline-flex items-center rounded-full border border-slate-300/70 bg-slate-800 px-4 py-2 text-xs font-medium uppercase tracking-wide text-slate-100 hover:bg-slate-700 hover:border-slate-100 transition-colors"
           >
             Back to List
           </button>

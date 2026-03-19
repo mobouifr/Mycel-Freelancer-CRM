@@ -111,22 +111,22 @@ export const InvoiceDetailPage = () => {
             <InvoiceStatusBadge status={invoice.status} />
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             onClick={handleDownloadPDF}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+            className="inline-flex items-center rounded-full border border-emerald-400/70 bg-emerald-500/20 px-4 py-2 text-xs font-medium uppercase tracking-wide text-emerald-100 hover:bg-emerald-400 hover:text-slate-950 transition-colors"
           >
             Download PDF
           </button>
           <button
             onClick={() => navigate(`/invoices/${invoice.id}/edit`)}
-            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+            className="inline-flex items-center rounded-full border border-emerald-400/70 bg-transparent px-4 py-2 text-xs font-medium uppercase tracking-wide text-emerald-300 hover:bg-emerald-500/10 transition-colors"
           >
             Edit
           </button>
           <button
             onClick={() => navigate('/invoices')}
-            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+            className="inline-flex items-center rounded-full border border-slate-300/70 bg-slate-800 px-4 py-2 text-xs font-medium uppercase tracking-wide text-slate-100 hover:bg-slate-700 hover:border-slate-100 transition-colors"
           >
             Back to List
           </button>
@@ -216,20 +216,20 @@ export const InvoiceDetailPage = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setShowMarkPaidForm(false);
                     reset();
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="inline-flex items-center rounded-full border border-slate-300/70 bg-transparent px-4 py-2 text-xs font-medium uppercase tracking-wide text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  className="inline-flex items-center rounded-full border border-emerald-400/70 bg-emerald-500/20 px-4 py-2 text-xs font-medium uppercase tracking-wide text-emerald-100 hover:bg-emerald-400 hover:text-slate-950 transition-colors"
                 >
                   Mark as Paid
                 </button>

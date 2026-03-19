@@ -5,9 +5,9 @@ import './index.css';
 import { StoreProvider } from './hooks/useStore';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+    <React.StrictMode>
     <StoreProvider>
-      <App />
+        <App />
     </StoreProvider>
-  </React.StrictMode>,
+    </React.StrictMode>,
 );

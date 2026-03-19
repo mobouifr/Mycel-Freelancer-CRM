@@ -106,22 +106,22 @@ export const ProposalDetailPage = () => {
             {proposal.status}
           </span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             onClick={handleDownloadPDF}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+            className="inline-flex items-center rounded-full border border-emerald-400/70 bg-emerald-500/20 px-4 py-2 text-xs font-medium uppercase tracking-wide text-emerald-100 hover:bg-emerald-400 hover:text-slate-950 transition-colors"
           >
             Download PDF
           </button>
           <button
             onClick={() => navigate(`/proposals/${proposal.id}/edit`)}
-            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+            className="inline-flex items-center rounded-full border border-emerald-400/70 bg-transparent px-4 py-2 text-xs font-medium uppercase tracking-wide text-emerald-300 hover:bg-emerald-500/10 transition-colors"
           >
             Edit
           </button>
           <button
             onClick={() => navigate('/proposals')}
-            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+            className="inline-flex items-center rounded-full border border-slate-300/70 bg-slate-800 px-4 py-2 text-xs font-medium uppercase tracking-wide text-slate-100 hover:bg-slate-700 hover:border-slate-100 transition-colors"
           >
             Back to List
           </button>
@@ -151,7 +151,7 @@ export const ProposalDetailPage = () => {
 
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-lg font-semibold mb-4">Actions</h2>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-3 flex-wrap items-center">
           <select
             value={proposal.status}
             onChange={(e) => handleStatusChange(e.target.value as ProposalStatus)}
@@ -165,7 +165,7 @@ export const ProposalDetailPage = () => {
           </select>
           <button
             onClick={handleConvertToInvoice}
-            className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+            className="inline-flex items-center rounded-full border border-purple-400/70 bg-purple-500/15 px-4 py-2 text-xs font-medium uppercase tracking-wide text-purple-100 hover:bg-purple-500 hover:text-slate-950 transition-colors"
           >
             Convert to Invoice
           </button>

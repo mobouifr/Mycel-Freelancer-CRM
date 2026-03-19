@@ -27,31 +27,78 @@ export const RemindersListPage = () => {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityStyle = (priority: string): React.CSSProperties => {
     switch (priority) {
       case 'high':
-        return 'bg-red-100 text-red-800';
+        return {
+          backgroundColor: 'rgba(230, 90, 90, 0.15)',
+          color: 'var(--danger)',
+          border: '1px solid rgba(230, 90, 90, 0.3)',
+        };
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
+        return {
+          backgroundColor: 'rgba(240, 190, 60, 0.15)',
+          color: 'var(--warning)',
+          border: '1px solid rgba(240, 190, 60, 0.3)',
+        };
       case 'low':
-        return 'bg-green-100 text-green-800';
+        return {
+          backgroundColor: 'var(--accent-bg)',
+          color: 'var(--accent)',
+          border: '1px solid var(--accent-hover)',
+        };
       default:
-        return 'bg-gray-100 text-gray-800';
+        return {
+          backgroundColor: 'rgba(255,255,255,0.1)',
+          color: 'var(--text-mid)',
+          border: '1px solid var(--border)',
+        };
+    }
+  };
+
+  const getStatusStyle = (status: ReminderStatus): React.CSSProperties => {
+    switch (status) {
+      case ReminderStatus.COMPLETED:
+        return {
+          backgroundColor: 'var(--accent-bg)',
+          color: 'var(--accent)',
+          border: '1px solid var(--accent-hover)',
+        };
+      case ReminderStatus.DISMISSED:
+        return {
+          backgroundColor: 'rgba(255,255,255,0.1)',
+          color: 'var(--text-mid)',
+          border: '1px solid var(--border)',
+        };
+      default:
+        return {
+          backgroundColor: 'rgba(240, 190, 60, 0.15)',
+          color: 'var(--warning)',
+          border: '1px solid rgba(240, 190, 60, 0.3)',
+        };
     }
   };
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="text-center py-8">Loading reminders...</div>
+      <div style={{ padding: '24px' }}>
+        <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text)' }}>Loading reminders...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+      <div style={{ padding: '24px' }}>
+        <div
+          style={{
+            backgroundColor: 'rgba(230, 90, 90, 0.15)',
+            border: '1px solid rgba(230, 90, 90, 0.3)',
+            color: 'var(--danger)',
+            padding: '12px 16px',
+            borderRadius: '8px',
+          }}
+        >
           Error: {error}
         </div>
       </div>
@@ -59,95 +106,373 @@ export const RemindersListPage = () => {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Reminders</h1>
-        <button
-          onClick={() => navigate('/reminders/new')}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+    <div
+      style={{
+        padding: '32px',
+        backgroundColor: '#060606',
+        minHeight: '100vh',
+      }}
+    >
+      {/* Header Section */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '32px',
+        }}
+      >
+        <h1
+          style={{
+            fontSize: '32px',
+            fontWeight: 700,
+            fontFamily: 'var(--font-display)',
+            color: 'var(--text)',
+            margin: 0,
+          }}
         >
-          + New Reminder
-        </button>
+          Reminders
+        </h1>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div style={{ position: 'relative' }}>
+            <input
+              type="text"
+              placeholder="Search reminders..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                padding: '10px 16px 10px 40px',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                fontSize: '14px',
+                width: '260px',
+                fontFamily: 'var(--font-m)',
+                backgroundColor: 'var(--surface)',
+                color: 'var(--text)',
+                outline: 'none',
+              }}
+            />
+            <span
+              style={{
+                position: 'absolute',
+                left: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                fontSize: '16px',
+              }}
+            >
+              🔍
+            </span>
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as ReminderStatus | 'ALL')}
+            style={{
+              padding: '10px 14px',
+              borderRadius: '8px',
+              border: '1px solid var(--border)',
+              backgroundColor: 'var(--surface)',
+              color: 'var(--text)',
+              fontFamily: 'var(--font-m)',
+              fontSize: '13px',
+              outline: 'none',
+            }}
+          >
+            <option value="ALL">All Statuses</option>
+            {Object.values(ReminderStatus).map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => navigate('/reminders/new')}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#22c55e',
+              color: '#050505',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 600,
+              fontFamily: 'var(--font-m)',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#16a34a';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#22c55e';
+            }}
+          >
+            + New Reminder
+          </button>
+        </div>
       </div>
 
-      <div className="mb-4 flex gap-4">
-        <input
-          type="text"
-          placeholder="Search reminders..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 max-w-md px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as ReminderStatus | 'ALL')}
-          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="ALL">All Statuses</option>
-          {Object.values(ReminderStatus).map((status) => (
-            <option key={status} value={status}>
-              {status}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      {/* Main Content Container */}
+      <div
+        style={{
+          backgroundColor: '#0e0e0e',
+          borderRadius: '12px',
+          border: '1px solid var(--border)',
+          padding: '24px',
+        }}
+      >
+        {/* Table */}
         {filteredReminders.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-dim)' }}>
             <p>No reminders found.</p>
           </div>
         ) : (
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+            }}
+          >
+            <thead>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Priority</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Due Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th
+                  style={{
+                    textAlign: 'left',
+                    padding: '12px 16px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    color: 'var(--text-dim)',
+                    fontFamily: 'var(--font-m)',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  TITLE
+                </th>
+                <th
+                  style={{
+                    textAlign: 'left',
+                    padding: '12px 16px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    color: 'var(--text-dim)',
+                    fontFamily: 'var(--font-m)',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  TYPE
+                </th>
+                <th
+                  style={{
+                    textAlign: 'left',
+                    padding: '12px 16px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    color: 'var(--text-dim)',
+                    fontFamily: 'var(--font-m)',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  PRIORITY
+                </th>
+                <th
+                  style={{
+                    textAlign: 'left',
+                    padding: '12px 16px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    color: 'var(--text-dim)',
+                    fontFamily: 'var(--font-m)',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  DUE DATE
+                </th>
+                <th
+                  style={{
+                    textAlign: 'left',
+                    padding: '12px 16px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    color: 'var(--text-dim)',
+                    fontFamily: 'var(--font-m)',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  STATUS
+                </th>
+                <th
+                  style={{
+                    textAlign: 'right',
+                    padding: '12px 16px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    color: 'var(--text-dim)',
+                    fontFamily: 'var(--font-m)',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  ACTIONS
+                </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredReminders.map((reminder) => (
-                <tr key={reminder.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900">{reminder.title}</div>
+            <tbody>
+              {filteredReminders.map((reminder, index) => (
+                <tr
+                  key={reminder.id}
+                  style={{
+                    borderTop: index > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                  }}
+                >
+                  <td style={{ padding: '16px' }}>
+                    <div
+                      style={{
+                        fontWeight: 500,
+                        fontSize: '13px',
+                        color: 'var(--text)',
+                        fontFamily: 'var(--font-m)',
+                      }}
+                    >
+                      {reminder.title}
+                    </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-500">{reminder.reminderType}</div>
+                  <td style={{ padding: '16px' }}>
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        color: 'var(--text)',
+                        fontFamily: 'var(--font-m)',
+                      }}
+                    >
+                      {reminder.reminderType}
+                    </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(reminder.priority)}`}>
+                  <td style={{ padding: '16px' }}>
+                    <span
+                      style={{
+                        ...getPriorityStyle(reminder.priority),
+                        padding: '4px 12px',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        fontFamily: 'var(--font-m)',
+                        display: 'inline-block',
+                      }}
+                    >
                       {reminder.priority}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-500">{formatDateTime(reminder.dueDate)}</div>
+                  <td style={{ padding: '16px' }}>
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        color: 'var(--text)',
+                        fontFamily: 'var(--font-m)',
+                      }}
+                    >
+                      {formatDateTime(reminder.dueDate)}
+                    </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      reminder.status === ReminderStatus.COMPLETED
-                        ? 'bg-green-100 text-green-800'
-                        : reminder.status === ReminderStatus.DISMISSED
-                        ? 'bg-gray-100 text-gray-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
+                  <td style={{ padding: '16px' }}>
+                    <span
+                      style={{
+                        ...getStatusStyle(reminder.status),
+                        padding: '4px 12px',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        fontFamily: 'var(--font-m)',
+                        display: 'inline-block',
+                      }}
+                    >
                       {reminder.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right text-sm font-medium">
-                    <div className="flex gap-2 justify-end">
+                  <td style={{ padding: '16px', textAlign: 'right' }}>
+                    <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
                       <button
                         onClick={() => navigate(`/reminders/${reminder.id}`)}
-                        className="text-blue-600 hover:text-blue-900"
+                        style={{
+                          background: 'rgba(255,255,255,0.02)',
+                          border: '1px solid var(--border)',
+                          color: 'var(--text-mid)',
+                          cursor: 'pointer',
+                          fontFamily: 'var(--font-m)',
+                          fontSize: 10,
+                          padding: '6px 12px',
+                          borderRadius: 999,
+                          letterSpacing: '.06em',
+                          textTransform: 'uppercase',
+                          transition: 'all .15s',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.color = 'var(--text)';
+                          e.currentTarget.style.borderColor = 'var(--border-h)';
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.color = 'var(--text-mid)';
+                          e.currentTarget.style.borderColor = 'var(--border)';
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                        }}
                       >
                         View
                       </button>
                       <button
+                        onClick={() => navigate(`/reminders/${reminder.id}/edit`)}
+                        style={{
+                          background: 'var(--accent-bg)',
+                          border: '1px solid var(--accent-hover)',
+                          color: 'var(--accent)',
+                          cursor: 'pointer',
+                          fontFamily: 'var(--font-m)',
+                          fontSize: 10,
+                          padding: '6px 12px',
+                          borderRadius: 999,
+                          letterSpacing: '.06em',
+                          textTransform: 'uppercase',
+                          transition: 'all .15s',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--accent)';
+                          e.currentTarget.style.color = '#050505';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'var(--accent-bg)';
+                          e.currentTarget.style.color = 'var(--accent)';
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
                         onClick={() => handleDelete(reminder)}
-                        className="text-red-600 hover:text-red-900"
+                        style={{
+                          background: 'rgba(230, 90, 90, 0.08)',
+                          border: '1px solid rgba(230, 90, 90, 0.35)',
+                          color: 'var(--danger)',
+                          cursor: 'pointer',
+                          fontFamily: 'var(--font-m)',
+                          fontSize: 10,
+                          padding: '6px 12px',
+                          borderRadius: 999,
+                          letterSpacing: '.06em',
+                          textTransform: 'uppercase',
+                          transition: 'all .15s',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--danger)';
+                          e.currentTarget.style.color = '#050505';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(230, 90, 90, 0.08)';
+                          e.currentTarget.style.color = 'var(--danger)';
+                        }}
                       >
                         Delete
                       </button>

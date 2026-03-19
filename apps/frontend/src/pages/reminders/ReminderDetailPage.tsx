@@ -85,16 +85,16 @@ export const ReminderDetailPage = () => {
             {reminder.status}
           </span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             onClick={handleTrigger}
-            className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+            className="inline-flex items-center rounded-full border border-purple-400/70 bg-purple-500/15 px-4 py-2 text-xs font-medium uppercase tracking-wide text-purple-100 hover:bg-purple-500 hover:text-slate-950 transition-colors"
           >
             Trigger/Send
           </button>
           <button
             onClick={() => navigate('/reminders')}
-            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+            className="inline-flex items-center rounded-full border border-slate-300/70 bg-slate-800 px-4 py-2 text-xs font-medium uppercase tracking-wide text-slate-100 hover:bg-slate-700 hover:border-slate-100 transition-colors"
           >
             Back to List
           </button>

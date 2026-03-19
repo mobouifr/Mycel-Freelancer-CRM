@@ -6,22 +6,59 @@ interface ProjectStatusBadgeProps {
 }
 
 export const ProjectStatusBadge = ({ status }: ProjectStatusBadgeProps) => {
-  const statusColors = {
-    [ProjectStatus.ACTIVE]: 'bg-green-100 text-green-800',
-    [ProjectStatus.COMPLETED]: 'bg-blue-100 text-blue-800',
-    [ProjectStatus.PAUSED]: 'bg-yellow-100 text-yellow-800',
-    [ProjectStatus.CANCELLED]: 'bg-red-100 text-red-800',
+  const statusStyles: Record<ProjectStatus, React.CSSProperties> = {
+    [ProjectStatus.ACTIVE]: {
+      backgroundColor: '#d1fae5', // light green
+      color: '#065f46',
+      padding: '4px 12px',
+      borderRadius: '12px',
+      fontSize: '11px',
+      fontWeight: 600,
+      textTransform: 'uppercase',
+      fontFamily: 'var(--font-m)',
+    },
+    [ProjectStatus.COMPLETED]: {
+      backgroundColor: '#dbeafe', // light blue
+      color: '#1e40af',
+      padding: '4px 12px',
+      borderRadius: '12px',
+      fontSize: '11px',
+      fontWeight: 600,
+      textTransform: 'uppercase',
+      fontFamily: 'var(--font-m)',
+    },
+    [ProjectStatus.PAUSED]: {
+      backgroundColor: '#fef3c7', // yellow
+      color: '#92400e',
+      padding: '4px 12px',
+      borderRadius: '12px',
+      fontSize: '11px',
+      fontWeight: 600,
+      textTransform: 'uppercase',
+      fontFamily: 'var(--font-m)',
+    },
+    [ProjectStatus.CANCELLED]: {
+      backgroundColor: '#ffffff', // white
+      color: '#000000',
+      border: '1px solid #000000',
+      padding: '4px 12px',
+      borderRadius: '12px',
+      fontSize: '11px',
+      fontWeight: 600,
+      textTransform: 'uppercase',
+      fontFamily: 'var(--font-m)',
+    },
   };
 
   const statusLabels = {
-    [ProjectStatus.ACTIVE]: 'Active',
-    [ProjectStatus.COMPLETED]: 'Completed',
-    [ProjectStatus.PAUSED]: 'Paused',
-    [ProjectStatus.CANCELLED]: 'Cancelled',
+    [ProjectStatus.ACTIVE]: 'ACTIVE',
+    [ProjectStatus.COMPLETED]: 'COMPLETED',
+    [ProjectStatus.PAUSED]: 'PENDING',
+    [ProjectStatus.CANCELLED]: 'DRAFT',
   };
 
   return (
-    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[status]}`}>
+    <span style={statusStyles[status]}>
       {statusLabels[status]}
     </span>
   );

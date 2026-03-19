@@ -116,8 +116,8 @@ export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTablePr
           <span>
             <div
               style={{
-                display: 'flex',
-                gap: 8,
+                display: 'inline-flex',
+                gap: 10,
                 justifyContent: 'flex-end',
               }}
             >
@@ -125,20 +125,27 @@ export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTablePr
                 <button
                   onClick={() => onView(client)}
                   style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--text-dim)',
+                    background: 'rgba(255,255,255,0.02)',
+                    border: '1px solid var(--border)',
+                    color: 'var(--text-mid)',
                     cursor: 'pointer',
                     fontFamily: 'var(--font-m)',
                     fontSize: 10,
-                    padding: 0,
-                    transition: 'color .15s',
+                    padding: '6px 12px',
+                    borderRadius: 999,
+                    letterSpacing: '.06em',
+                    textTransform: 'uppercase',
+                    transition: 'all .15s',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.color = 'var(--text)';
+                    e.currentTarget.style.borderColor = 'var(--border-h)';
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.color = 'var(--text-dim)';
+                    e.currentTarget.style.borderColor = 'var(--border)';
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
                   }}
                 >
                   View
@@ -148,20 +155,25 @@ export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTablePr
                 <button
                   onClick={() => onEdit(client)}
                   style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--text-dim)',
+                    background: 'var(--accent-bg)',
+                    border: '1px solid var(--accent-hover)',
+                    color: 'var(--accent)',
                     cursor: 'pointer',
                     fontFamily: 'var(--font-m)',
                     fontSize: 10,
-                    padding: 0,
-                    transition: 'color .15s',
+                    padding: '6px 12px',
+                    borderRadius: 999,
+                    letterSpacing: '.06em',
+                    textTransform: 'uppercase',
+                    transition: 'all .15s',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = 'var(--text)';
+                    e.currentTarget.style.background = 'var(--accent)';
+                    e.currentTarget.style.color = '#050505';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.color = 'var(--text-dim)';
+                    e.currentTarget.style.background = 'var(--accent-bg)';
+                    e.currentTarget.style.color = 'var(--accent)';
                   }}
                 >
                   Edit
@@ -171,13 +183,25 @@ export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTablePr
                 <button
                   onClick={() => onDelete(client)}
                   style={{
-                    background: 'none',
-                    border: 'none',
+                    background: 'rgba(230, 90, 90, 0.08)',
+                    border: '1px solid rgba(230, 90, 90, 0.35)',
                     color: 'var(--danger)',
                     cursor: 'pointer',
                     fontFamily: 'var(--font-m)',
                     fontSize: 10,
-                    padding: 0,
+                    padding: '6px 12px',
+                    borderRadius: 999,
+                    letterSpacing: '.06em',
+                    textTransform: 'uppercase',
+                    transition: 'all .15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--danger)';
+                    e.currentTarget.style.color = '#050505';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(230, 90, 90, 0.08)';
+                    e.currentTarget.style.color = 'var(--danger)';
                   }}
                 >
                   Delete
