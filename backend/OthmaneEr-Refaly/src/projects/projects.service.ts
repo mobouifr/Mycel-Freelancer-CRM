@@ -3,32 +3,35 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
 export interface Project {
-  id: number; // in DB this would be UUID
+  id: number; 
+  userid: number; 
+  clientid: number;
   title: string;
-  description?: string;
-  status: 'planned' | 'in_progress' | 'completed' | 'cancelled';
-  budget?: number;
-  clientId?: number;
-  created_at: Date;
-  updated_at: Date;
+  description: string;
+  status: 'planned' | 'in_progress' | 'completed' | 'cancelled'; //
+  due_date: string;
+  budget: number;
+  priority: 'low' | 'medium' | 'high' | 'urgent'; //
 }
 
 @Injectable()
 export class ProjectsService {
-  // In-memory array acting as the database
-  private projects: Project[] = [];
+
+  private projects: Project[] = []; // fake ass databasss
   private nextId = 1;
 
   // CREATE
-  create(createProjectDto: CreateProjectDto): Project {
-    const now = new Date();
-
+  create(createProjectDto: CreateProjectDto | any): Project {
     const newProject: Project = {
       id: this.nextId++,
-      status: createProjectDto.status ?? 'planned', // default status
-      created_at: now,
-      updated_at: now,
-      ...createProjectDto, // title, description, budget, clientId, etc.
+      userid: createProjectDto.userid !== undefined ? createProjectDto.userid : 1,
+      clientid: createProjectDto.clientid !== undefined ? createProjectDto.clientid : 1,
+      title: createProjectDto.title || '',
+      description: createProjectDto.description || '',
+      status: createProjectDto.status || 'planned',
+      due_date: createProjectDto.due_date || '',
+      budget: createProjectDto.budget !== undefined ? createProjectDto.budget : 0,
+      priority: createProjectDto.priority || 'medium',
     };
 
     this.projects.push(newProject);
@@ -52,17 +55,17 @@ export class ProjectsService {
   }
 
   // UPDATE
-  update(id: number, updateProjectDto: UpdateProjectDto): Project {
+  update(id: number, updateProjectDto: UpdateProjectDto | any): Project {
     const projectIndex = this.projects.findIndex((p) => p.id === id);
 
     if (projectIndex === -1) {
       throw new NotFoundException(`Project with ID ${id} not found`);
     }
 
+    // Merge existing project data with the incoming updates
     this.projects[projectIndex] = {
       ...this.projects[projectIndex],
       ...updateProjectDto,
-      updated_at: new Date(),
     };
 
     return this.projects[projectIndex];

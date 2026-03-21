@@ -2,7 +2,7 @@
 
 ## Database Class Diagram (ERD)
 
-```
+
 ┌─────────────────────────────────────────────────────────────────────┐
 │                                                                      │
 │                        DATABASE SCHEMA                               │
@@ -42,14 +42,8 @@
 │    email: VARCHAR(255)            │
 │    phone: VARCHAR(20)             │
 │    company: VARCHAR(200)          │
-│    address: TEXT                  │
-│    city: VARCHAR(100)             │
-│    country: VARCHAR(100)          │
-│    postal_code: VARCHAR(20)       │
-│    notes: TEXT                    │
+│    address: TEXT                  |
 │    status: ENUM                   │ --> 'active', 'inactive', 'archived'
-│    created_at: TIMESTAMP          │
-│    updated_at: TIMESTAMP          │
 └──────────────────────────────────┘
            │ 1
            │
@@ -65,14 +59,9 @@
 │    title: VARCHAR(255)            │
 │    description: TEXT              │
 │    status: ENUM                   │ --> 'planned', 'in_progress', 'completed', 'cancelled'
-│    start_date: DATE               │
 │    due_date: DATE                 │
-│    completion_date: DATE          │
 │    budget: DECIMAL(12,2)          │
-│    actual_cost: DECIMAL(12,2)     │
 │    priority: ENUM                 │ --> 'low', 'medium', 'high', 'urgent'
-│    created_at: TIMESTAMP          │
-│    updated_at: TIMESTAMP          │
 └──────────────────────────────────┘
            │ 1
            │
