@@ -4,6 +4,9 @@ export class User {
     email: string;
     passwordHash?: string; // Add the question mark here!
     createdAt: Date;
-    intraId?: string; 
+    intraId?: string;
+    // added these two vars for gamification
+    xp: number;
+    level: number;
 }
 

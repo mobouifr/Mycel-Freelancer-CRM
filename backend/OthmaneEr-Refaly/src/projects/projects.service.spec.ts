@@ -1,18 +1,30 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ProjectsController } from './projects.controller';
 import { ProjectsService } from './projects.service';
+import { GamificationService } from '../gamification/gamification.service';
 
-describe('ProjectsService', () => {
-  let service: ProjectsService;
+describe('ProjectsController', () => {
+  let controller: ProjectsController;
 
-  beforeEach(async () => {
+beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ProjectsService],
+      controllers: [ProjectsController],
+      providers: [
+        ProjectsService,
+        // ADD THIS: Provide a "fake" GamificationService
+        {
+          provide: GamificationService,
+          useValue: {
+            awardProjectCompletionXp: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
-    service = module.get<ProjectsService>(ProjectsService);
+    controller = module.get<ProjectsController>(ProjectsController);
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(controller).toBeDefined();
   });
 });

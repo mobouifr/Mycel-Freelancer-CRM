@@ -32,3 +32,4 @@ export class ProjectsController {
     return this.projectsService.remove(+id);
   }
 }
+
