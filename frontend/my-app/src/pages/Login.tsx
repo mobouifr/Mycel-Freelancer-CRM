@@ -146,9 +146,10 @@ export default function Login() {
             <div style={{ flexShrink: 0 }}>
               <div style={{
                 display: 'flex', justifyContent: 'center',
-                marginBottom: 24, opacity: 0.55,
+                marginBottom: 24,
+                filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.12))',
               }}>
-                <LogoMark size={40} color="var(--text-mid)" />
+                <LogoMark size={40} color="var(--white)" />
               </div>
               <div style={{
                 display: 'flex', width: '100%',
@@ -162,7 +163,7 @@ export default function Login() {
 
             {/* ═══ BODY — flex:1, absorbs height delta ═══ */}
             <div
-              style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+              style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}
               onKeyDown={handleKeyDown}
             >
               {error && (
@@ -269,52 +270,55 @@ export default function Login() {
                   : (mode === 'signin' ? 'SIGN IN' : 'SIGN UP')}
               </button>
 
-              {/* Divider */}
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                marginTop: 20, marginBottom: 16,
-              }}>
-                <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
-                <span style={{
-                  fontFamily: 'var(--font-m)', fontSize: 9,
-                  color: 'var(--text-dim)', letterSpacing: '.1em',
-                  textTransform: 'uppercase', whiteSpace: 'nowrap',
-                }}>or continue with</span>
-                <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
-              </div>
+              {/* 42 OAuth — only on sign-in (42 OAuth handles registration server-side) */}
+              {mode === 'signin' && (
+                <>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    marginTop: 20, marginBottom: 16,
+                  }}>
+                    <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+                    <span style={{
+                      fontFamily: 'var(--font-m)', fontSize: 9,
+                      color: 'var(--text-dim)', letterSpacing: '.1em',
+                      textTransform: 'uppercase', whiteSpace: 'nowrap',
+                    }}>or continue with</span>
+                    <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+                  </div>
 
-              {/* 42 OAuth — clean logo via CSS mask, no filter/inversion */}
-              <a
-                href={authService.oauthUrl}
-                style={{
-                  width: '100%', display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', padding: '12px 0',
-                  border: '1px solid var(--border)', borderRadius: 6,
-                  background: 'transparent', textDecoration: 'none',
-                  cursor: 'pointer', transition: 'border-color .2s, background .2s',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = 'var(--accent)';
-                  e.currentTarget.style.background = 'var(--accent-bg)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = 'var(--border)';
-                  e.currentTarget.style.background = 'transparent';
-                }}
-              >
-                <div style={{
-                  width: 22, height: 18,
-                  backgroundColor: 'var(--text-mid)',
-                  WebkitMaskImage: `url(${fortyTwoLogoUrl})`,
-                  WebkitMaskSize: 'contain',
-                  WebkitMaskRepeat: 'no-repeat',
-                  WebkitMaskPosition: 'center',
-                  maskImage: `url(${fortyTwoLogoUrl})`,
-                  maskSize: 'contain',
-                  maskRepeat: 'no-repeat',
-                  maskPosition: 'center',
-                } as React.CSSProperties} />
-              </a>
+                  <a
+                    href={authService.oauthUrl}
+                    style={{
+                      width: '100%', display: 'flex', alignItems: 'center',
+                      justifyContent: 'center', padding: '12px 0',
+                      border: '1px solid var(--border)', borderRadius: 6,
+                      background: 'transparent', textDecoration: 'none',
+                      cursor: 'pointer', transition: 'border-color .2s, background .2s',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = 'var(--accent)';
+                      e.currentTarget.style.background = 'var(--accent-bg)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = 'var(--border)';
+                      e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <div style={{
+                      width: 22, height: 18,
+                      backgroundColor: 'var(--text-mid)',
+                      WebkitMaskImage: `url(${fortyTwoLogoUrl})`,
+                      WebkitMaskSize: 'contain',
+                      WebkitMaskRepeat: 'no-repeat',
+                      WebkitMaskPosition: 'center',
+                      maskImage: `url(${fortyTwoLogoUrl})`,
+                      maskSize: 'contain',
+                      maskRepeat: 'no-repeat',
+                      maskPosition: 'center',
+                    } as React.CSSProperties} />
+                  </a>
+                </>
+              )}
 
               {/* Footer text */}
               <p style={{
@@ -481,12 +485,6 @@ export function AuthLeftPanel() {
           fontFamily: 'var(--font-display)', fontWeight: 700,
           fontSize: 17, color: 'var(--white)', letterSpacing: '.01em',
         }}>Mycel.</span>
-      </div>
-      <div style={{
-        position: 'absolute', zIndex: 2, top: '50%', left: '50%',
-        transform: 'translate(-50%, -50%)', animation: 'fadeIn 2s ease both 1s',
-      }}>
-        <LogoMark size={88} color="var(--border-h)" />
       </div>
       <div style={{
         position: 'absolute', inset: 0, zIndex: 1,
