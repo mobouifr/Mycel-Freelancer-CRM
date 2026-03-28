@@ -1,6 +1,7 @@
 import { Body, Controller, Post, UseGuards, Request, Res, HttpCode, HttpStatus, Get } from '@nestjs/common';
 import { Response } from 'express'; // Ensure this is imported from 'express'
 import { RegisterDto } from './DTO/register.dto';
+import { LoginDto } from './DTO/login.dto';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard'; // Import your new guard
 import { JwtAuthGuard } from './jwt-auth.guard'; // Add this import
@@ -19,7 +20,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard) // 🛡️ This triggers the LocalStrategy!
   @Post('login')
   @HttpCode(HttpStatus.OK) // Logins are usually 200 OK, not 201 Created
-  async login(@Request() req: any, @Res({ passthrough: true }) res: Response) {
+  async login(@Body() loginDto: LoginDto, @Request() req: any, @Res({ passthrough: true }) res: Response) {
     // 1. Generate the JWT
     const { access_token } = await this.authService.login(req.user);
 
