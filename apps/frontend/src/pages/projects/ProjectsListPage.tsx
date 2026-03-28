@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProjects } from '../../hooks/useProjects';
-import { Project, ProjectStatus } from '../../types/project.types';
+import { Project, ProjectPriority, ProjectStatus } from '../../types/project.types';
 import { ProjectStatusBadge } from '../../components/projects/ProjectStatusBadge';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 
@@ -27,6 +27,30 @@ const getAvatarColor = (name: string): string => {
   ];
   const index = name.charCodeAt(0) % colors.length;
   return colors[index];
+};
+
+const getPriorityStyle = (priority: ProjectPriority): React.CSSProperties => {
+  switch (priority) {
+    case ProjectPriority.HIGH:
+      return {
+        color: '#fca5a5',
+        backgroundColor: 'rgba(239, 68, 68, 0.14)',
+        border: '1px solid rgba(239, 68, 68, 0.35)',
+      };
+    case ProjectPriority.LOW:
+      return {
+        color: '#86efac',
+        backgroundColor: 'rgba(34, 197, 94, 0.14)',
+        border: '1px solid rgba(34, 197, 94, 0.35)',
+      };
+    case ProjectPriority.MEDIUM:
+    default:
+      return {
+        color: '#fde68a',
+        backgroundColor: 'rgba(245, 158, 11, 0.14)',
+        border: '1px solid rgba(245, 158, 11, 0.35)',
+      };
+  }
 };
 
 export const ProjectsListPage = () => {
@@ -137,8 +161,8 @@ export const ProjectsListPage = () => {
             onClick={() => navigate('/projects/new')}
             style={{
               padding: '10px 20px',
-              backgroundColor: '#9333ea', // purple
-              color: '#ffffff',
+              backgroundColor: 'var(--accent)',
+              color: 'var(--white)',
               border: 'none',
               borderRadius: '8px',
               fontSize: '14px',
@@ -148,10 +172,10 @@ export const ProjectsListPage = () => {
               transition: 'background-color 0.2s',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#7e22ce';
+              e.currentTarget.style.backgroundColor = 'var(--accent-hover)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#9333ea';
+              e.currentTarget.style.backgroundColor = 'var(--accent)';
             }}
           >
             + Add Project
@@ -242,6 +266,18 @@ export const ProjectsListPage = () => {
                   fontFamily: 'var(--font-m)',
                   letterSpacing: '0.05em',
                 }}>
+                  PRIORITY
+                </th>
+                <th style={{
+                  textAlign: 'left',
+                  padding: '12px 16px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  color: 'var(--text-dim)',
+                  fontFamily: 'var(--font-m)',
+                  letterSpacing: '0.05em',
+                }}>
                   STATUS
                 </th>
                 <th style={{
@@ -287,6 +323,7 @@ export const ProjectsListPage = () => {
                 const clientName = project.client?.name || '—';
                 const initials = getClientInitials(clientName);
                 const avatarColor = getAvatarColor(clientName);
+                const priority = project.priority || ProjectPriority.MEDIUM;
                 
                 return (
                   <tr
@@ -351,6 +388,22 @@ export const ProjectsListPage = () => {
                         </span>
                       </div>
                   </td>
+                    <td style={{ padding: '16px' }}>
+                      <span
+                        style={{
+                          ...getPriorityStyle(priority),
+                          display: 'inline-block',
+                          fontSize: '10px',
+                          fontWeight: 700,
+                          fontFamily: 'var(--font-m)',
+                          letterSpacing: '.06em',
+                          borderRadius: '999px',
+                          padding: '4px 10px',
+                        }}
+                      >
+                        {priority}
+                      </span>
+                    </td>
                     <td style={{ padding: '16px' }}>
                     <ProjectStatusBadge status={project.status} />
                   </td>

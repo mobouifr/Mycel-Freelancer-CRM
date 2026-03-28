@@ -2,7 +2,7 @@
 // This mimics the API structure and can be easily replaced with real API calls
 
 import { Client, CreateClientDto, UpdateClientDto } from '../types/client.types';
-import { Project, CreateProjectDto, UpdateProjectDto, ProjectStatus } from '../types/project.types';
+import { Project, CreateProjectDto, UpdateProjectDto, ProjectPriority, ProjectStatus } from '../types/project.types';
 import { Proposal, CreateProposalDto, UpdateProposalDto, ProposalStatus } from '../types/proposal.types';
 import { Invoice, CreateInvoiceDto, UpdateInvoiceDto, MarkInvoicePaidDto, InvoiceStatus } from '../types/invoice.types';
 import { Reminder, CreateReminderDto, UpdateReminderDto, ReminderStatus, ReminderPriority } from '../types/reminder.types';
@@ -150,6 +150,7 @@ export const localStorageProjectsService = {
       title: data.title,
       description: data.description || null,
       status: (data.status || ProjectStatus.ACTIVE) as ProjectStatus,
+      priority: (data.priority || ProjectPriority.MEDIUM) as ProjectPriority,
       budget: data.budget,
       deadline: data.deadline || null,
       createdAt: new Date().toISOString(),

@@ -7,11 +7,18 @@ export enum ProjectStatus {
   CANCELLED = 'CANCELLED',
 }
 
+export enum ProjectPriority {
+  HIGH = 'HIGH',
+  MEDIUM = 'MEDIUM',
+  LOW = 'LOW',
+}
+
 export interface Project {
   id: string;
   title: string;
   description: string | null;
   status: ProjectStatus;
+  priority?: ProjectPriority;
   budget: number;
   deadline: string | null;
   createdAt: string;
@@ -29,6 +36,7 @@ export interface CreateProjectDto {
   title: string;
   description?: string;
   status?: ProjectStatus;
+  priority?: ProjectPriority;
   budget: number;
   deadline?: string;
   clientId: string;
@@ -38,6 +46,7 @@ export interface UpdateProjectDto {
   title?: string;
   description?: string;
   status?: ProjectStatus;
+  priority?: ProjectPriority;
   budget?: number;
   deadline?: string;
   clientId?: string;

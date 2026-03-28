@@ -45,6 +45,18 @@ export const ReminderForm = ({ reminder, onSubmit, onCancel, isLoading = false }
     await onSubmit(data);
   };
 
+  const fieldBoxStyle: React.CSSProperties = {
+    width: '100%',
+    background: 'rgba(255,255,255,0.02)',
+    border: '2px solid var(--border-h)',
+    borderRadius: 10,
+    padding: '12px 16px',
+    color: 'var(--text)',
+    fontSize: 13,
+    fontFamily: 'var(--font-m)',
+    outline: 'none',
+  };
+
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div>
@@ -55,7 +67,8 @@ export const ReminderForm = ({ reminder, onSubmit, onCancel, isLoading = false }
           id="title"
           type="text"
           {...register('title')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md focus:outline-none"
+          style={fieldBoxStyle}
         />
         {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
       </div>
@@ -68,7 +81,8 @@ export const ReminderForm = ({ reminder, onSubmit, onCancel, isLoading = false }
           id="description"
           {...register('description')}
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md focus:outline-none"
+          style={fieldBoxStyle}
         />
         {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>}
       </div>
@@ -81,7 +95,8 @@ export const ReminderForm = ({ reminder, onSubmit, onCancel, isLoading = false }
           <select
             id="reminderType"
             {...register('reminderType')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-md focus:outline-none"
+            style={fieldBoxStyle}
           >
             <option value={ReminderType.TASK}>Task</option>
             <option value={ReminderType.FOLLOW_UP}>Follow Up</option>
@@ -98,7 +113,8 @@ export const ReminderForm = ({ reminder, onSubmit, onCancel, isLoading = false }
           <select
             id="priority"
             {...register('priority')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-md focus:outline-none"
+            style={fieldBoxStyle}
           >
             <option value={ReminderPriority.LOW}>Low</option>
             <option value={ReminderPriority.MEDIUM}>Medium</option>
@@ -115,7 +131,8 @@ export const ReminderForm = ({ reminder, onSubmit, onCancel, isLoading = false }
           id="dueDate"
           type="datetime-local"
           {...register('dueDate')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md focus:outline-none"
+          style={fieldBoxStyle}
         />
         {errors.dueDate && <p className="text-red-500 text-sm mt-1">{errors.dueDate.message}</p>}
       </div>
@@ -127,7 +144,8 @@ export const ReminderForm = ({ reminder, onSubmit, onCancel, isLoading = false }
         <select
           id="clientId"
           {...register('clientId')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md focus:outline-none"
+          style={fieldBoxStyle}
         >
           <option value="">None</option>
           {clients.map((client) => (
@@ -145,7 +163,8 @@ export const ReminderForm = ({ reminder, onSubmit, onCancel, isLoading = false }
         <select
           id="invoiceId"
           {...register('invoiceId')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md focus:outline-none"
+          style={fieldBoxStyle}
         >
           <option value="">None</option>
           {invoices.map((invoice) => (
@@ -163,7 +182,8 @@ export const ReminderForm = ({ reminder, onSubmit, onCancel, isLoading = false }
         <select
           id="proposalId"
           {...register('proposalId')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md focus:outline-none"
+          style={fieldBoxStyle}
         >
           <option value="">None</option>
           {proposals.map((proposal) => (
@@ -174,13 +194,41 @@ export const ReminderForm = ({ reminder, onSubmit, onCancel, isLoading = false }
         </select>
       </div>
 
-      <div className="flex gap-2 justify-end">
+      <div
+        className="flex gap-2 justify-end"
+        style={{
+          borderTop: '1px solid var(--border)',
+          paddingTop: 16,
+          marginTop: 0,
+        }}
+      >
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
             disabled={isSubmitting || isLoading}
+            style={{
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-mid)',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-m)',
+              fontSize: 10,
+              padding: '6px 12px',
+              borderRadius: 999,
+              letterSpacing: '.06em',
+              transition: 'all .15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--text)';
+              e.currentTarget.style.borderColor = 'var(--border-h)';
+              e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--text-dim)';
+              e.currentTarget.style.borderColor = 'var(--border)';
+              e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+            }}
           >
             Cancel
           </button>
@@ -188,7 +236,28 @@ export const ReminderForm = ({ reminder, onSubmit, onCancel, isLoading = false }
         <button
           type="submit"
           disabled={!isValid || isSubmitting || isLoading}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            background: 'var(--accent-bg)',
+            border: '1px solid var(--accent-hover)',
+            color: 'var(--accent)',
+            cursor: !isValid || isSubmitting || isLoading ? 'not-allowed' : 'pointer',
+            fontFamily: 'var(--font-m)',
+            fontSize: 10,
+            padding: '6px 12px',
+            borderRadius: 999,
+            letterSpacing: '.06em',
+            transition: 'all .15s',
+            opacity: !isValid || isSubmitting || isLoading ? 0.65 : 1,
+          }}
+          onMouseEnter={(e) => {
+            if (isSubmitting || isLoading || !isValid) return;
+            e.currentTarget.style.background = 'var(--accent)';
+            e.currentTarget.style.color = '#050505';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'var(--accent-bg)';
+            e.currentTarget.style.color = 'var(--accent)';
+          }}
         >
           {isSubmitting || isLoading ? 'Saving...' : reminder ? 'Update Reminder' : 'Create Reminder'}
         </button>

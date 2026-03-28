@@ -6,6 +6,7 @@ import { ClientForm } from '../../components/clients/ClientForm';
 import { ClientFormData } from '../../utils/validation';
 import { Client } from '../../types/client.types';
 import { ApiError } from '../../types/common.types';
+import CenteredModal from '../../components/modals/CenteredModal';
 
 export const EditClientPage = () => {
   const navigate = useNavigate();
@@ -47,34 +48,44 @@ export const EditClientPage = () => {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="text-center py-8">Loading client...</div>
-      </div>
+      <CenteredModal title="Edit Client" onClose={() => navigate('/clients')}>
+        <div className="text-center py-8" style={{ color: 'var(--text-mid)' }}>
+          Loading client...
+        </div>
+      </CenteredModal>
     );
   }
 
   if (error || !client) {
     return (
-      <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+      <CenteredModal title="Edit Client" onClose={() => navigate('/clients')}>
+        <div
+          style={{
+            background: 'rgba(230, 90, 90, 0.08)',
+            border: '1px solid rgba(230, 90, 90, 0.35)',
+            color: 'var(--danger)',
+            padding: '12px 16px',
+            borderRadius: 10,
+            fontFamily: 'var(--font-m)',
+            fontSize: 12,
+            letterSpacing: '.04em',
+          }}
+        >
           {error || 'Client not found'}
         </div>
-      </div>
+      </CenteredModal>
     );
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Edit Client</h1>
-      <div className="bg-white rounded-lg shadow p-6 max-w-2xl">
-        <ClientForm
-          client={client}
-          onSubmit={handleSubmit}
-          onCancel={() => navigate('/clients')}
-          isLoading={isSaving}
-        />
-      </div>
-    </div>
+    <CenteredModal title="Edit Client" onClose={() => navigate('/clients')}>
+      <ClientForm
+        client={client}
+        onSubmit={handleSubmit}
+        onCancel={() => navigate('/clients')}
+        isLoading={isSaving}
+      />
+    </CenteredModal>
   );
 };
 

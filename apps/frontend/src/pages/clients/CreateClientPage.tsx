@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useClients } from '../../hooks/useClients';
 import { ClientForm } from '../../components/clients/ClientForm';
 import { ClientFormData } from '../../utils/validation';
+import CenteredModal from '../../components/modals/CenteredModal';
 
 export const CreateClientPage = () => {
   const navigate = useNavigate();
@@ -23,12 +24,9 @@ export const CreateClientPage = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Create New Client</h1>
-      <div className="bg-white rounded-lg shadow p-6 max-w-2xl">
-        <ClientForm onSubmit={handleSubmit} onCancel={() => navigate('/clients')} isLoading={isLoading} />
-      </div>
-    </div>
+    <CenteredModal title="Create New Client" onClose={() => navigate('/clients')}>
+      <ClientForm onSubmit={handleSubmit} onCancel={() => navigate('/clients')} isLoading={isLoading} />
+    </CenteredModal>
   );
 };
 
