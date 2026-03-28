@@ -22,7 +22,7 @@ The goal is to deliver a full-stack application with authentication, persistent 
 | Projects | Track project status, deadlines, and linked clients |
 | Proposals | Create and manage business proposals |
 | Invoices | Generate and track invoices with amounts and due dates |
-| Reminders | Sticky-note-style reminders with color coding and pinning |
+| Reminders & Planner | Full calendar (month/week/day views) with event lanes, sticky notes board with color-coding and pin/unpin, standalone todos with flags (important/follow-up) and due dates, event CRUD via modal (type, priority, recurrence, linked project/client), note-to-event conversion, in-app notifications with deep-linking on every action, localStorage persistence with API-ready data shapes |
 | Ecosystem | Gamified growth tracker — visualizes user activity as levels and hours |
 | Settings | Profile, business details, security (password change), UI preferences (9 theme presets, sidebar behavior) |
 | Theming | 9 curated color themes (dark, light, violet, paper, terminal, graphite, sand, arctic, monochrome) with instant switching |

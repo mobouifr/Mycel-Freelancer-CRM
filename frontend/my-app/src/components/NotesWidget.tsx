@@ -23,7 +23,7 @@ export default function NotesWidget() {
   const recent = notes.slice(0, 3);
 
   const handleQuickCreate = () => {
-    addNote({ title: 'Untitled Note', body: '', tags: [], eventId: undefined });
+    addNote({ title: 'Untitled Note', body: '', tags: [], pinned: false, color: 'default', todos: [], eventId: undefined });
     navigate('/reminders');
   };
 

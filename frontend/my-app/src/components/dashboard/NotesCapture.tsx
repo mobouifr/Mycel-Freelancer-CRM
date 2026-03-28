@@ -42,7 +42,7 @@ function NotesCapture() {
 
   const handleCreate = () => {
     if (!title.trim() && !body.trim()) return;
-    addNote({ title: title.trim() || 'Untitled Note', body: body.trim(), tags: [], eventId: undefined });
+    addNote({ title: title.trim() || 'Untitled Note', body: body.trim(), tags: [], pinned: false, color: 'default', todos: [], eventId: undefined });
     setTitle('');
     setBody('');
     setComposerOpen(false);

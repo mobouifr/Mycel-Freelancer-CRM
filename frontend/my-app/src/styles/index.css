@@ -43,6 +43,26 @@
   --font-display: 'Syne', sans-serif;
   --ease:       cubic-bezier(.4,0,.2,1);
 
+  /* ── Calendar event type colors ── */
+  --cal-event:     rgba(72, 200, 100, 0.85);
+  --cal-event-bg:  rgba(72, 200, 100, 0.12);
+  --cal-deadline:  rgba(230, 90, 90, 0.85);
+  --cal-deadline-bg: rgba(230, 90, 90, 0.12);
+  --cal-meeting:   rgba(80, 160, 240, 0.85);
+  --cal-meeting-bg: rgba(80, 160, 240, 0.12);
+  --cal-milestone: rgba(180, 130, 240, 0.85);
+  --cal-milestone-bg: rgba(180, 130, 240, 0.12);
+  --cal-follow-up: rgba(240, 190, 60, 0.85);
+  --cal-follow-up-bg: rgba(240, 190, 60, 0.12);
+
+  /* ── Sticky note colors ── */
+  --note-yellow:   rgba(250, 220, 80, 0.18);
+  --note-green:    rgba(72, 200, 100, 0.14);
+  --note-blue:     rgba(80, 160, 240, 0.14);
+  --note-pink:     rgba(240, 100, 160, 0.14);
+  --note-purple:   rgba(180, 130, 240, 0.14);
+  --note-default:  var(--glass);
+
   /* ── Extra aliases (set by JS but need CSS fallbacks) ── */
   --muted:           var(--text-dim);
   --accent-1:        var(--accent);

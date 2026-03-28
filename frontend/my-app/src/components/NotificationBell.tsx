@@ -1,13 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '../hooks/useStore';
 
 /* ─────────────────────────────────────────────
    NOTIFICATION BELL — Unread count badge +
    dropdown panel with mark-as-read / dismiss
+   Supports deep-linking to target objects.
 ───────────────────────────────────────────── */
 
 export default function NotificationBell() {
   const { notifications, unreadCount, markAsRead, markAllAsRead, dismissNotification } = useStore();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -143,7 +146,13 @@ export default function NotificationBell() {
                     transition: 'background .15s',
                     cursor: 'pointer',
                   }}
-                  onClick={() => { if (!n.isRead) markAsRead(n.id); }}
+                  onClick={() => {
+                    if (!n.isRead) markAsRead(n.id);
+                    if (n.targetType) {
+                      navigate('/reminders');
+                      setOpen(false);
+                    }
+                  }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--glass)'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = n.isRead ? 'transparent' : 'var(--accent-bg)'; }}
                 >

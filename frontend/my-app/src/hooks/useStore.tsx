@@ -8,18 +8,38 @@ import {
 } from 'react';
 
 /* ─────────────────────────────────────────────
-   GLOBAL STORE — Notes, Events, Notifications
+   GLOBAL STORE — Notes, Events, Todos, Notifications
    Persists to localStorage. Replace with API
    calls when backend endpoints are ready.
 ───────────────────────────────────────────── */
 
 // ── Types ────────────────────────────────────
+
+export type EventType = 'event' | 'deadline' | 'meeting' | 'milestone' | 'follow-up';
+export type EventPriority = 'low' | 'normal' | 'high';
+export type TodoFlag = 'none' | 'important' | 'follow-up';
+export type NoteColor = 'yellow' | 'green' | 'blue' | 'pink' | 'purple' | 'default';
+
+export interface TodoItem {
+  id: string;
+  text: string;
+  done: boolean;
+  dueAt: string | null;
+  flag: TodoFlag;
+  createdAt: string;
+}
+
 export interface Note {
   id: string;
   title: string;
-  body: string;          // plain text (basic rich-text in future)
+  body: string;
   tags: string[];
-  eventId?: string;      // optional link to event
+  pinned: boolean;
+  color: NoteColor;
+  todos: TodoItem[];
+  eventId?: string;
+  linkedProjectId?: string;
+  linkedClientId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -27,14 +47,21 @@ export interface Note {
 export interface CalendarEvent {
   id: string;
   title: string;
-  date: string;          // ISO date string
-  time: string;          // HH:mm
+  date: string;           // ISO date string  (YYYY-MM-DD)
+  time: string;           // HH:mm
+  endDate?: string;       // ISO date string  (YYYY-MM-DD)
+  endTime?: string;       // HH:mm
   timezone: string;
   description: string;
+  eventType: EventType;
+  priority: EventPriority;
   clientTag?: string;
   projectTag?: string;
+  linkedProjectId?: string;
+  linkedClientId?: string;
   reminderOffset: number; // minutes before
-  noteId?: string;        // linked note
+  recurrence: string;     // 'none' | 'daily' | 'weekly' | 'monthly'
+  noteId?: string;
   createdAt: string;
 }
 
@@ -44,12 +71,15 @@ export interface AppNotification {
   title: string;
   message: string;
   isRead: boolean;
+  targetType?: 'event' | 'note' | 'todo';
+  targetId?: string;
   createdAt: string;
 }
 
 interface StoreState {
   notes: Note[];
   events: CalendarEvent[];
+  todos: TodoItem[];
   notifications: AppNotification[];
 }
 
@@ -62,6 +92,10 @@ interface StoreContextType extends StoreState {
   addEvent: (event: Omit<CalendarEvent, 'id' | 'createdAt'>) => CalendarEvent;
   updateEvent: (id: string, updates: Partial<CalendarEvent>) => void;
   deleteEvent: (id: string) => void;
+  // Todos (standalone)
+  addTodo: (todo: Omit<TodoItem, 'id' | 'createdAt'>) => TodoItem;
+  updateTodo: (id: string, updates: Partial<TodoItem>) => void;
+  deleteTodo: (id: string) => void;
   // Notifications
   addNotification: (n: Omit<AppNotification, 'id' | 'createdAt' | 'isRead'>) => void;
   markAsRead: (id: string) => void;
@@ -80,9 +114,27 @@ const now = () => new Date().toISOString();
 function loadStore(): StoreState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        notes: (parsed.notes || []).map((n: Record<string, unknown>) => ({
+          pinned: false,
+          color: 'default' as NoteColor,
+          todos: [] as TodoItem[],
+          ...n,
+        })) as Note[],
+        events: (parsed.events || []).map((e: Record<string, unknown>) => ({
+          eventType: 'event' as EventType,
+          priority: 'normal' as EventPriority,
+          recurrence: 'none',
+          ...e,
+        })) as CalendarEvent[],
+        todos: (parsed.todos || []) as TodoItem[],
+        notifications: (parsed.notifications || []) as AppNotification[],
+      };
+    }
   } catch { /* noop */ }
-  return { notes: [], events: [], notifications: [] };
+  return { notes: [], events: [], todos: [], notifications: [] };
 }
 
 const StoreContext = createContext<StoreContextType | null>(null);
@@ -150,6 +202,25 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, events: s.events.filter((e) => e.id !== id) }));
   }, [pushUndo]);
 
+  // ── Todos (standalone) ─────────────────────
+  const addTodo = useCallback((todo: Omit<TodoItem, 'id' | 'createdAt'>) => {
+    const newTodo: TodoItem = { ...todo, id: uid(), createdAt: now() };
+    setState((s) => ({ ...s, todos: [newTodo, ...s.todos] }));
+    return newTodo;
+  }, []);
+
+  const updateTodo = useCallback((id: string, updates: Partial<TodoItem>) => {
+    setState((s) => ({
+      ...s,
+      todos: s.todos.map((t) => t.id === id ? { ...t, ...updates } : t),
+    }));
+  }, []);
+
+  const deleteTodo = useCallback((id: string) => {
+    pushUndo();
+    setState((s) => ({ ...s, todos: s.todos.filter((t) => t.id !== id) }));
+  }, [pushUndo]);
+
   // ── Notifications ──────────────────────────
   const addNotification = useCallback((n: Omit<AppNotification, 'id' | 'createdAt' | 'isRead'>) => {
     const newN: AppNotification = { ...n, id: uid(), createdAt: now(), isRead: false };
@@ -185,6 +256,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         ...state,
         addNote, updateNote, deleteNote,
         addEvent, updateEvent, deleteEvent,
+        addTodo, updateTodo, deleteTodo,
         addNotification, markAsRead, markAllAsRead, dismissNotification,
         unreadCount,
         undo,
