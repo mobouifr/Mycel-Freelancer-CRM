@@ -4,11 +4,37 @@ import { User } from './user.entity';
 @Injectable()
 export class UsersService {
     private userbase: User[] = [];
+
+    //*?**********************My functions "Othmane Er-REfaly"**********************
+
     
+
+    createUser(username: string, email: string, passwordHash?: string, intraId?: string): User {
+        const user: User = {
+            id: Date.now(),
+            username,
+            email,
+            createdAt: new Date(),
+            // added xp and level for gamification
+            xp: 0,
+            level: 1,
+        };
+        // Only attach these if they exist
+        if (passwordHash) user.passwordHash = passwordHash;
+        if (intraId) user.intraId = intraId;
+        
+        this.userbase.push(user);
+        return user;
+    }
+
     findByEmail(email: string): User | undefined {
         return this.userbase.find(user => user.email === email);
         //works on mac, not on session, i think i need to add the tsconfing file.
     }
+
+    ////*?**********************Zouita functions"Bdal li biti all working fine now "**********************
+
+
 
     findByIntraId(intraId: string): User | undefined {
         return this.userbase.find(user => user.intraId === intraId);
@@ -30,21 +56,4 @@ export class UsersService {
         return undefined; 
     }
 
-    createUser(username: string, email: string, passwordHash?: string, intraId?: string): User {
-        const user: User = {
-            id: Date.now(),
-            username,
-            email,
-            createdAt: new Date(),
-            // added xp and level for gamification
-            xp: 0,
-            level: 1,
-        };
-        // Only attach these if they exist
-        if (passwordHash) user.passwordHash = passwordHash;
-        if (intraId) user.intraId = intraId;
-        
-        this.userbase.push(user);
-        return user;
-    }
 }
