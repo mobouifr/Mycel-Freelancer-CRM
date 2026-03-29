@@ -1,28 +1,78 @@
 import { createRoot } from 'react-dom/client';
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
 import { ThemeProvider } from './hooks/useTheme';
 import { StoreProvider } from './hooks/useStore';
+import { LoadingSpinner } from './components';
 
 import AppLayout from './layouts/AppLayout';
 // import ProtectedRoute from './routes/ProtectedRoute';
 
 // ── Pages ────────────────────────────────────
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import OAuthCallback from './pages/OAuthCallback';
-import TwoFactorAuth from './pages/TwoFactorAuth';
-import Dashboard from './pages/Dashboard';
-import Settings from './pages/Settings';
-import Clients from './pages/Clients';
-import Projects from './pages/Projects';
-import Proposals from './pages/Proposals';
-import Invoices from './pages/Invoices';
-import Reminders from './pages/Reminders';
-import Ecosystem from './pages/Ecosystem';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsOfService from './pages/TermsOfService';
-import NotFound from './pages/NotFound';
+const Login = lazy(() => import('./pages/Login'));
+const Signup = lazy(() => import('./pages/Signup'));
+const OAuthCallback = lazy(() => import('./pages/OAuthCallback'));
+const TwoFactorAuth = lazy(() => import('./pages/TwoFactorAuth'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Clients = lazy(() => import('./pages/Clients'));
+const Projects = lazy(() => import('./pages/Projects'));
+const Proposals = lazy(() => import('./pages/Proposals'));
+const Invoices = lazy(() => import('./pages/Invoices'));
+const ClientsListPage = lazy(() =>
+  import('./pages/clients/ClientsListPage').then((module) => ({ default: module.ClientsListPage })),
+);
+const CreateClientPage = lazy(() =>
+  import('./pages/clients/CreateClientPage').then((module) => ({ default: module.CreateClientPage })),
+);
+const EditClientPage = lazy(() =>
+  import('./pages/clients/EditClientPage').then((module) => ({ default: module.EditClientPage })),
+);
+const ClientDetailPage = lazy(() =>
+  import('./pages/clients/ClientDetailPage').then((module) => ({ default: module.ClientDetailPage })),
+);
+const ProjectsListPage = lazy(() =>
+  import('./pages/projects/ProjectsListPage').then((module) => ({ default: module.ProjectsListPage })),
+);
+const CreateProjectPage = lazy(() =>
+  import('./pages/projects/CreateProjectPage').then((module) => ({ default: module.CreateProjectPage })),
+);
+const EditProjectPage = lazy(() =>
+  import('./pages/projects/EditProjectPage').then((module) => ({ default: module.EditProjectPage })),
+);
+const ProjectDetailPage = lazy(() =>
+  import('./pages/projects/ProjectDetailPage').then((module) => ({ default: module.ProjectDetailPage })),
+);
+const ProposalsListPage = lazy(() =>
+  import('./pages/proposals/ProposalsListPage').then((module) => ({ default: module.ProposalsListPage })),
+);
+const CreateProposalPage = lazy(() =>
+  import('./pages/proposals/CreateProposalPage').then((module) => ({ default: module.CreateProposalPage })),
+);
+const EditProposalPage = lazy(() =>
+  import('./pages/proposals/EditProposalPage').then((module) => ({ default: module.EditProposalPage })),
+);
+const ProposalDetailPage = lazy(() =>
+  import('./pages/proposals/ProposalDetailPage').then((module) => ({ default: module.ProposalDetailPage })),
+);
+const InvoicesListPage = lazy(() =>
+  import('./pages/invoices/InvoicesListPage').then((module) => ({ default: module.InvoicesListPage })),
+);
+const CreateInvoicePage = lazy(() =>
+  import('./pages/invoices/CreateInvoicePage').then((module) => ({ default: module.CreateInvoicePage })),
+);
+const EditInvoicePage = lazy(() =>
+  import('./pages/invoices/EditInvoicePage').then((module) => ({ default: module.EditInvoicePage })),
+);
+const InvoiceDetailPage = lazy(() =>
+  import('./pages/invoices/InvoiceDetailPage').then((module) => ({ default: module.InvoiceDetailPage })),
+);
+const Reminders = lazy(() => import('./pages/Reminders'));
+const Ecosystem = lazy(() => import('./pages/Ecosystem'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 import './styles/index.css';
 
@@ -31,32 +81,55 @@ createRoot(document.getElementById('root')!).render(
     <StoreProvider>
       <AuthProvider>
         <BrowserRouter>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/auth/callback" element={<OAuthCallback />} />
-            <Route path="/2fa" element={<TwoFactorAuth />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Suspense fallback={<LoadingSpinner fullPage />}>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/auth/callback" element={<OAuthCallback />} />
+              <Route path="/2fa" element={<TwoFactorAuth />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
 
-            {/* Protected routes — guard disabled until backend is ready */}
-            {/* <Route element={<ProtectedRoute />}> */}
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/clients/*" element={<Clients />} />
-                <Route path="/projects/*" element={<Projects />} />
-                <Route path="/proposals/*" element={<Proposals />} />
-                <Route path="/invoices/*" element={<Invoices />} />
-                <Route path="/reminders/*" element={<Reminders />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/ecosystem" element={<Ecosystem />} />
-              </Route>
-            {/* </Route> */}
+              {/* Protected routes — guard disabled until backend is ready */}
+              {/* <Route element={<ProtectedRoute />}> */}
+                <Route element={<AppLayout />}>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/clients/*" element={<Clients />} />
+                  <Route path="/projects/*" element={<Projects />} />
+                  <Route path="/proposals/*" element={<Proposals />} />
+                  <Route path="/invoices/*" element={<Invoices />} />
+                  <Route path="/reminders/*" element={<Reminders />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/ecosystem" element={<Ecosystem />} />
 
-            {/* 404 Not Found - catch all route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+                  {/* Migrated Hiba pages */}
+                  <Route path="/clients" element={<ClientsListPage />} />
+                  <Route path="/clients/new" element={<CreateClientPage />} />
+                  <Route path="/clients/:id" element={<ClientDetailPage />} />
+                  <Route path="/clients/:id/edit" element={<EditClientPage />} />
+
+                  <Route path="/projects" element={<ProjectsListPage />} />
+                  <Route path="/projects/new" element={<CreateProjectPage />} />
+                  <Route path="/projects/:id" element={<ProjectDetailPage />} />
+                  <Route path="/projects/:id/edit" element={<EditProjectPage />} />
+
+                  <Route path="/proposals" element={<ProposalsListPage />} />
+                  <Route path="/proposals/new" element={<CreateProposalPage />} />
+                  <Route path="/proposals/:id" element={<ProposalDetailPage />} />
+                  <Route path="/proposals/:id/edit" element={<EditProposalPage />} />
+
+                  <Route path="/invoices" element={<InvoicesListPage />} />
+                  <Route path="/invoices/new" element={<CreateInvoicePage />} />
+                  <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+                  <Route path="/invoices/:id/edit" element={<EditInvoicePage />} />
+                </Route>
+              {/* </Route> */}
+
+              {/* 404 Not Found - catch all route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </AuthProvider>
     </StoreProvider>

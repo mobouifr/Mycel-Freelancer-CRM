@@ -249,15 +249,3 @@ export default function CalendarView() {
     </div>
   );
 }
-
-const navBtn: React.CSSProperties = {
-  background: 'none', border: '1px solid var(--border)', borderRadius: 4,
-  padding: '4px 10px', color: 'var(--text-dim)',
-  fontFamily: 'var(--font-m)', fontSize: 16, cursor: 'pointer', lineHeight: 1,
-};
-
-const todayBtn: React.CSSProperties = {
-  background: 'var(--glass)', border: '1px solid var(--border)', borderRadius: 4,
-  padding: '4px 12px', color: 'var(--text)',
-  fontFamily: 'var(--font-m)', fontSize: 10, cursor: 'pointer',
-};

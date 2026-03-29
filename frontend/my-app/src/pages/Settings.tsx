@@ -47,8 +47,7 @@ export default function Settings() {
   const [confirmPassword, setConfirmPassword] = useState('');
   
   // ── 2FA state ────────────────────────────────
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
-  const [twoFactorSecret, setTwoFactorSecret] = useState('');
+  const [twoFactorEnabled] = useState(false);
   const [twoFactorCode, setTwoFactorCode] = useState('');
   const [showTwoFactorSetup, setShowTwoFactorSetup] = useState(false);
 

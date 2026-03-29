@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
 import { LogoMark } from '../components';
@@ -6,22 +6,15 @@ import { LogoMark } from '../components';
 export default function NotFound() {
   const navigate = useNavigate();
   const { mode: themeMode, cycleQuickTheme, theme } = useTheme();
-  const [textWidth, setTextWidth] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);
   const handleRef = useRef<HTMLSpanElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (textRef.current) {
-      setTextWidth(textRef.current.offsetWidth);
-    }
     startAnimation();
   }, []);
 
   const startAnimation = () => {
-    setIsAnimating(true);
-    
     // Typewriter effect
     const text = "404, page not found.";
     let currentText = "";
@@ -56,18 +49,7 @@ export default function NotFound() {
     return () => clearInterval(typeInterval);
   };
 
-  const replayAnimation = () => {
-    // Reset
-    if (textRef.current) {
-      textRef.current.textContent = "";
-    }
-    if (handleRef.current) {
-      handleRef.current.style.transform = 'translateX(0)';
-      handleRef.current.style.animation = 'blink 0.4s infinite alternate';
-    }
-    // Restart
-    startAnimation();
-  };
+
 
   const handleGoHome = () => {
     navigate('/');

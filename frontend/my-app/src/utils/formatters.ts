@@ -1,0 +1,47 @@
+// Utility functions for formatting data
+
+export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+  }).format(amount);
+};
+
+export const formatDate = (date: string | null | undefined): string => {
+  if (!date) return '—';
+  return new Date(date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
+export const formatDateTime = (date: string | null | undefined): string => {
+  if (!date) return '—';
+  return new Date(date).toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+export const formatDateInput = (date: string | null | undefined): string => {
+  if (!date) return '';
+  const d = new Date(date);
+  return d.toISOString().split('T')[0];
+};
+
+export const formatDateTimeInput = (date: string | null | undefined): string => {
+  if (!date) return '';
+  const d = new Date(date);
+  // Format for datetime-local input: YYYY-MM-DDTHH:mm
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
