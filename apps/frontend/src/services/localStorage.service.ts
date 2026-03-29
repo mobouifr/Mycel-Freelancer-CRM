@@ -5,7 +5,6 @@ import { Client, CreateClientDto, UpdateClientDto } from '../types/client.types'
 import { Project, CreateProjectDto, UpdateProjectDto, ProjectPriority, ProjectStatus } from '../types/project.types';
 import { Proposal, CreateProposalDto, UpdateProposalDto, ProposalStatus } from '../types/proposal.types';
 import { Invoice, CreateInvoiceDto, UpdateInvoiceDto, MarkInvoicePaidDto, InvoiceStatus } from '../types/invoice.types';
-import { Reminder, CreateReminderDto, UpdateReminderDto, ReminderStatus, ReminderPriority } from '../types/reminder.types';
 import { ApiResponse } from '../types/common.types';
 
 const STORAGE_KEYS = {
@@ -13,7 +12,6 @@ const STORAGE_KEYS = {
   PROJECTS: 'crm_projects',
   PROPOSALS: 'crm_proposals',
   INVOICES: 'crm_invoices',
-  REMINDERS: 'crm_reminders',
 };
 
 // Helper functions
@@ -448,73 +446,6 @@ export const localStorageInvoicesService = {
   generatePDF: async (_id: string): Promise<Blob> => {
     // Mock PDF generation
     return new Blob(['Mock PDF'], { type: 'application/pdf' });
-  },
-};
-
-// Reminders service
-export const localStorageRemindersService = {
-  getAll: async (): Promise<ApiResponse<Reminder[]>> => {
-    const reminders = getFromStorage<Reminder>(STORAGE_KEYS.REMINDERS);
-    return { data: reminders, count: reminders.length };
-  },
-
-  getById: async (id: string): Promise<Reminder> => {
-    const reminders = getFromStorage<Reminder>(STORAGE_KEYS.REMINDERS);
-    const reminder = reminders.find((r) => r.id === id);
-    if (!reminder) throw new Error('Reminder not found');
-    return reminder;
-  },
-
-  create: async (data: CreateReminderDto): Promise<Reminder> => {
-    const reminders = getFromStorage<Reminder>(STORAGE_KEYS.REMINDERS);
-    const newReminder: Reminder = {
-      id: generateId(),
-      title: data.title,
-      description: data.description || null,
-      reminderType: data.reminderType,
-      status: ReminderStatus.PENDING,
-      priority: (data.priority || ReminderPriority.MEDIUM) as ReminderPriority,
-      dueDate: data.dueDate,
-      notifiedAt: null,
-      completedAt: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      userId: 'demo-user',
-      clientId: data.clientId || null,
-      invoiceId: data.invoiceId || null,
-      proposalId: data.proposalId || null,
-    };
-    reminders.push(newReminder);
-    saveToStorage(STORAGE_KEYS.REMINDERS, reminders);
-    return newReminder;
-  },
-
-  update: async (id: string, data: UpdateReminderDto): Promise<Reminder> => {
-    const reminders = getFromStorage<Reminder>(STORAGE_KEYS.REMINDERS);
-    const index = reminders.findIndex((r) => r.id === id);
-    if (index === -1) throw new Error('Reminder not found');
-    reminders[index] = {
-      ...reminders[index],
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
-    saveToStorage(STORAGE_KEYS.REMINDERS, reminders);
-    return reminders[index];
-  },
-
-  delete: async (id: string): Promise<void> => {
-    const reminders = getFromStorage<Reminder>(STORAGE_KEYS.REMINDERS);
-    const filtered = reminders.filter((r) => r.id !== id);
-    saveToStorage(STORAGE_KEYS.REMINDERS, filtered);
-  },
-
-  trigger: async (id: string): Promise<void> => {
-    const reminders = getFromStorage<Reminder>(STORAGE_KEYS.REMINDERS);
-    const index = reminders.findIndex((r) => r.id === id);
-    if (index === -1) throw new Error('Reminder not found');
-    reminders[index].notifiedAt = new Date().toISOString();
-    reminders[index].updatedAt = new Date().toISOString();
-    saveToStorage(STORAGE_KEYS.REMINDERS, reminders);
   },
 };
 

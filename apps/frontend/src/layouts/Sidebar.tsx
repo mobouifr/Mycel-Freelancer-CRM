@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import LogoMark from '../components/LogoMark';
 
@@ -44,12 +44,6 @@ const icons = {
       <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
     </svg>
   ),
-  reminders: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
-  ),
 };
 
 type IconKey = keyof typeof icons;
@@ -66,7 +60,6 @@ const NAV_ITEMS: NavEntry[] = [
   { icon: 'projects', label: 'Projects', path: '/projects' },
   { icon: 'proposals', label: 'Proposals', path: '/proposals' },
   { icon: 'invoices', label: 'Invoices', path: '/invoices' },
-  { icon: 'reminders', label: 'Reminders', path: '/reminders' },
 ];
 
 const COLLAPSED_W = 64;
@@ -174,7 +167,7 @@ export default function Sidebar() {
 
       {/* Nav items */}
       <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {NAV_ITEMS.map((item, idx) => {
+        {NAV_ITEMS.map((item) => {
           const active = isActive(item.path);
           return (
             <button

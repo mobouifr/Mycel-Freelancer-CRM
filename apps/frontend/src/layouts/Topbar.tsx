@@ -13,7 +13,6 @@ const ROUTE_LABELS: Record<string, string> = {
   '/projects': 'Projects',
   '/proposals': 'Proposals',
   '/invoices': 'Invoices',
-  '/reminders': 'Reminders',
   '/settings': 'Settings',
 };
 
@@ -23,7 +22,6 @@ const SEARCH_ITEMS = [
   { label: 'Projects', path: '/projects', keywords: 'work tasks boards' },
   { label: 'Proposals', path: '/proposals', keywords: 'quotes offers bids' },
   { label: 'Invoices', path: '/invoices', keywords: 'billing payments money' },
-  { label: 'Reminders', path: '/reminders', keywords: 'alerts notifications schedule' },
   { label: 'Settings', path: '/settings', keywords: 'profile preferences account security' },
 ];
 

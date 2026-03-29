@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../hooks/useStore';
 import { setWidgetComponent } from './WidgetRegistry';
 
@@ -19,7 +18,6 @@ const TAG_COLORS: Record<string, string> = {
 
 function NotesCapture() {
   const { notes, addNote } = useStore();
-  const navigate = useNavigate();
   const [composerOpen, setComposerOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
@@ -201,25 +199,11 @@ function NotesCapture() {
             {recent.map((note, i) => (
               <div
                 key={note.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => navigate('/reminders')}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') navigate('/reminders');
-                }}
                 style={{
                   padding: '8px 6px',
                   borderBottom:
                     i < recent.length - 1 ? '1px solid rgba(255,255,255,.04)' : 'none',
-                  cursor: 'pointer',
                   borderRadius: 4,
-                  transition: 'background .12s',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.background = 'var(--glass)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.background = 'transparent';
                 }}
               >
                 <div
@@ -298,38 +282,16 @@ function NotesCapture() {
         )}
       </div>
 
-      {/* View all link */}
       <div
         style={{
           borderTop: '1px solid var(--border)',
           paddingTop: 8,
           marginTop: 4,
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-end',
           alignItems: 'center',
         }}
       >
-        <button
-          onClick={() => navigate('/reminders')}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontFamily: 'var(--font-m)',
-            fontSize: 10,
-            color: 'var(--accent)',
-            cursor: 'pointer',
-            letterSpacing: '.04em',
-            transition: 'opacity .15s',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = '0.8';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = '1';
-          }}
-        >
-          View all in Reminders →
-        </button>
         <span
           style={{
             fontFamily: 'var(--font-m)',

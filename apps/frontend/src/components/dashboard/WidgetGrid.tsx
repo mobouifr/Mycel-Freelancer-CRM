@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useRef } from 'react';
+import { useMemo, useCallback, useRef, type LegacyRef } from 'react';
 import {
   GridLayout,
   useContainerWidth,
@@ -99,7 +99,7 @@ export default function WidgetGrid({
 
   return (
     <div
-      ref={containerRef}
+      ref={containerRef as LegacyRef<HTMLDivElement>}
       className="widget-grid-container"
       style={{ width: '100%', minHeight: 200, position: 'relative' }}
     >

@@ -48,20 +48,6 @@ export const invoiceSchema = z.object({
 
 export type InvoiceFormData = z.infer<typeof invoiceSchema>;
 
-// Reminder validation
-export const reminderSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(255, 'Title must be less than 255 characters'),
-  description: z.string().optional(),
-  reminderType: z.enum(['task', 'follow_up', 'payment', 'deadline', 'custom']),
-  priority: z.enum(['low', 'medium', 'high']).optional(),
-  dueDate: z.string().min(1, 'Due date is required'),
-  clientId: z.string().optional(),
-  invoiceId: z.string().optional(),
-  proposalId: z.string().optional(),
-});
-
-export type ReminderFormData = z.infer<typeof reminderSchema>;
-
 // Mark invoice paid validation
 export const markInvoicePaidSchema = z.object({
   amount: z.number().min(0.01, 'Amount must be greater than 0'),

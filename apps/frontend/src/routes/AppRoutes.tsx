@@ -17,9 +17,6 @@ import { InvoicesListPage } from '../pages/invoices/InvoicesListPage';
 import { CreateInvoicePage } from '../pages/invoices/CreateInvoicePage';
 import { EditInvoicePage } from '../pages/invoices/EditInvoicePage';
 import { InvoiceDetailPage } from '../pages/invoices/InvoiceDetailPage';
-import { RemindersListPage } from '../pages/reminders/RemindersListPage';
-import { CreateReminderPage } from '../pages/reminders/CreateReminderPage';
-import { ReminderDetailPage } from '../pages/reminders/ReminderDetailPage';
 import { DashboardPage } from '../pages/DashboardPage';
 
 // TODO: Add protected route wrapper when auth is ready
@@ -104,19 +101,6 @@ const router = createBrowserRouter([
       {
         path: 'invoices/:id/edit',
         element: <EditInvoicePage />,
-      },
-      // Reminders routes
-      {
-        path: 'reminders',
-        element: <RemindersListPage />,
-      },
-      {
-        path: 'reminders/new',
-        element: <CreateReminderPage />,
-      },
-      {
-        path: 'reminders/:id',
-        element: <ReminderDetailPage />,
       },
     ],
   },

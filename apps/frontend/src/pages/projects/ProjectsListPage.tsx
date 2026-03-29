@@ -57,7 +57,7 @@ export const ProjectsListPage = () => {
   const navigate = useNavigate();
   const { projects, loading, error, deleteProject } = useProjects();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'ALL'>('ALL');
+  const [statusFilter] = useState<ProjectStatus | 'ALL'>('ALL');
 
   const filteredProjects = projects.filter((project) => {
     const matchesSearch =
