@@ -1,0 +1,28 @@
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+    plugins: [react()],
+
+    server: {
+        // Listen on all interfaces (required for Docker)
+        host: '0.0.0.0',
+        port: 3089,
+
+        // Enable polling for hot reload inside Docker containers
+        // (inotify doesn't work across Docker volume mounts)
+        watch: {
+            usePolling: true,
+            interval: 1000,
+        },
+
+        // Proxy API requests to the backend container
+        // Frontend calls /api/health → proxied to http://backend:3001/api/health
+        proxy: {
+            '/api': {
+                target: 'http://backend:3001',
+                changeOrigin: true,
+            },
+        },
+    },
+});

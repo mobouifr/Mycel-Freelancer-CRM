@@ -8,7 +8,9 @@ export class User {
     email: string;
     passwordHash?: string;
     createdAt: Date;
-    updatedAt?: Date;
-    intraId?: string; 
+    intraId?: string;
+    // added these two vars for gamification
+    xp: number;
+    level: number;
 }
 
