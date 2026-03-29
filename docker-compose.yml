@@ -190,6 +190,13 @@ services:
 
     volumes:
       - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./docker/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
 
     ports:
       - "9090:9090"
@@ -229,10 +236,14 @@ services:
     ports:
       - "3002:3000"
 
+    env_file:
+      - .env
+
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
-      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED:-false}
+      - GF_USERS_ALLOW_SIGN_UP=${GF_USERS_ALLOW_SIGN_UP:-false}
 
     volumes:
       - grafana_data:/var/lib/grafana
@@ -262,9 +273,7 @@ services:
       - PGUSER=${POSTGRES_USER:-postgres}
       - PGDATABASE=${POSTGRES_DB:-freelancer_crm}
 
-    entrypoint: >
-      sh -c "echo '0 2 * * * sh /backup.sh >> /var/log/backup.log 2>&1'
-             | crontab - && crond -f"
+    entrypoint: ["sh", "-c", "echo '0 2 * * * sh /backup.sh >> /var/log/backup.log 2>&1' | crontab - && crond -f"]
 
     depends_on:
       - postgres
@@ -286,6 +295,8 @@ networks:
 volumes:
   freelancer_crm_postgres_data:
     name: freelancer_crm_postgres_data
+    driver: local
+  prometheus_data:
     driver: local
   grafana_data:
     driver: local

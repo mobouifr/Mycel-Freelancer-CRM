@@ -9,10 +9,10 @@
   "links": [],
   "panels": [
     {
-      "title": "Request Rate by Route",
+      "title": "HTTP Request Rate by Route",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
-      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "datasource": { "type": "prometheus", "uid": "prometheus-ds" },
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -38,7 +38,7 @@
       "title": "Error Rate (5xx)",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "datasource": { "type": "prometheus", "uid": "prometheus-ds" },
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -62,35 +62,46 @@
       ]
     },
     {
-      "title": "Memory Usage (MB)",
+      "title": "Response Time (p50 / p95 / p99)",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
-      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "datasource": { "type": "prometheus", "uid": "prometheus-ds" },
       "fieldConfig": {
         "defaults": {
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "smooth",
-            "fillOpacity": 15,
-            "gradientMode": "scheme"
+            "fillOpacity": 10,
+            "pointSize": 5,
+            "showPoints": "auto"
           },
-          "unit": "decmbytes"
+          "unit": "s"
         },
         "overrides": []
       },
       "targets": [
         {
-          "expr": "process_resident_memory_bytes / 1024 / 1024",
-          "legendFormat": "Resident Memory (MB)",
+          "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p50",
           "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p99",
+          "refId": "C"
         }
       ]
     },
     {
-      "title": "Database Connections",
+      "title": "PostgreSQL Connections",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
-      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "datasource": { "type": "prometheus", "uid": "prometheus-ds" },
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -109,16 +120,71 @@
           "refId": "A"
         }
       ]
+    },
+    {
+      "title": "Node.js Memory Usage (MB)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus-ds" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 15,
+            "gradientMode": "scheme"
+          },
+          "unit": "decmbytes"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "process_resident_memory_bytes{job=\"nestjs-backend\"} / 1024 / 1024",
+          "legendFormat": "Resident Memory (MB)",
+          "refId": "A"
+        },
+        {
+          "expr": "nodejs_heap_size_used_bytes{job=\"nestjs-backend\"} / 1024 / 1024",
+          "legendFormat": "Heap Used (MB)",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "title": "Node.js CPU Usage",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus-ds" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 15,
+            "gradientMode": "scheme"
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total{job=\"nestjs-backend\"}[5m])",
+          "legendFormat": "CPU Usage",
+          "refId": "A"
+        }
+      ]
     }
   ],
   "refresh": "30s",
   "schemaVersion": 39,
-  "tags": ["nestjs", "backend", "crm"],
+  "tags": ["nestjs", "backend", "crm", "postgresql"],
   "templating": { "list": [] },
   "time": { "from": "now-1h", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Freelancer CRM \u2014 Backend",
+  "title": "Freelancer CRM — Backend & Database",
   "uid": "freelancer-crm-backend",
   "version": 1
 }

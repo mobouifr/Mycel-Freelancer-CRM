@@ -4,8 +4,10 @@ import { AppModule } from './app.module';
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
-    // Global prefix: /api
-    app.setGlobalPrefix('api');
+    // Global prefix: /api — but exclude /metrics for Prometheus scraping
+    app.setGlobalPrefix('api', {
+        exclude: ['metrics'],
+    });
 
     // Enable CORS (supports comma-separated CORS_ORIGINS from .env)
     const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:3089')
