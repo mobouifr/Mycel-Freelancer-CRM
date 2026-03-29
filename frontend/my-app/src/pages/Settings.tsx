@@ -45,6 +45,12 @@ export default function Settings() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  
+  // ── 2FA state ────────────────────────────────
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [twoFactorSecret, setTwoFactorSecret] = useState('');
+  const [twoFactorCode, setTwoFactorCode] = useState('');
+  const [showTwoFactorSetup, setShowTwoFactorSetup] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
@@ -67,8 +73,9 @@ export default function Settings() {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 28,
-        maxWidth: 640,
+        gap: 32,
+        maxWidth: 1200,
+        width: '100%',
         animation: 'fadeUp .3s var(--ease) both',
       }}
     >
@@ -150,7 +157,7 @@ export default function Settings() {
           background: 'var(--surface-2)',
           border: '1px solid var(--border)',
           borderRadius: 8,
-          padding: '28px 32px',
+          padding: '32px 40px',
         }}
       >
         {activeTab === 'profile' && (
@@ -158,14 +165,20 @@ export default function Settings() {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: 24,
+              gap: 32,
               animation: 'fadeUp .2s var(--ease) both',
             }}
           >
             <SectionTitle title="Profile Information" sub="Your personal details" />
-            <Input label="Username" placeholder="montassir" value={name} onChange={setName} />
-            <Input label="Email" type="email" placeholder="you@studio.com" value={email} onChange={setEmail} />
-            <Input label="Phone" type="tel" placeholder="+212 600 000 000" value={phone} onChange={setPhone} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                <Input label="Username" placeholder="montassir" value={name} onChange={setName} />
+                <Input label="Phone" type="tel" placeholder="+212 600 000 000" value={phone} onChange={setPhone} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                <Input label="Email" type="email" placeholder="you@studio.com" value={email} onChange={setEmail} />
+              </div>
+            </div>
           </div>
         )}
 
@@ -174,37 +187,41 @@ export default function Settings() {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: 24,
+              gap: 32,
               animation: 'fadeUp .2s var(--ease) both',
             }}
           >
             <SectionTitle title="Business Details" sub="Used on proposals and invoices" />
-            <Input
-              label="Business Name"
-              placeholder="Studio name or company"
-              value={businessName}
-              onChange={setBusinessName}
-            />
-            <Input
-              label="Business Address"
-              placeholder="123 Street, City, Country"
-              value={businessAddress}
-              onChange={setBusinessAddress}
-            />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-              <Select
-                label="Default Currency"
-                options={CURRENCIES}
-                value={currency}
-                onChange={setCurrency}
-              />
-              <Input
-                label="Tax Rate (%)"
-                type="number"
-                placeholder="20"
-                value={taxRate}
-                onChange={setTaxRate}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                <Input
+                  label="Business Name"
+                  placeholder="Studio name or company"
+                  value={businessName}
+                  onChange={setBusinessName}
+                />
+                <Select
+                  label="Default Currency"
+                  options={CURRENCIES}
+                  value={currency}
+                  onChange={setCurrency}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                <Input
+                  label="Business Address"
+                  placeholder="123 Street, City, Country"
+                  value={businessAddress}
+                  onChange={setBusinessAddress}
+                />
+                <Input
+                  label="Tax Rate (%)"
+                  type="number"
+                  placeholder="20"
+                  value={taxRate}
+                  onChange={setTaxRate}
+                />
+              </div>
             </div>
           </div>
         )}
@@ -214,32 +231,256 @@ export default function Settings() {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: 24,
+              gap: 40,
               animation: 'fadeUp .2s var(--ease) both',
             }}
           >
-            <SectionTitle title="Change Password" sub="Ensure your account stays secure" />
-            <Input
-              label="Current Password"
-              type="password"
-              placeholder="••••••••"
-              value={currentPassword}
-              onChange={setCurrentPassword}
-            />
-            <Input
-              label="New Password"
-              type="password"
-              placeholder="Min. 8 characters"
-              value={newPassword}
-              onChange={setNewPassword}
-            />
-            <Input
-              label="Confirm New Password"
-              type="password"
-              placeholder="Repeat new password"
-              value={confirmPassword}
-              onChange={setConfirmPassword}
-            />
+            <div>
+              <SectionTitle title="Change Password" sub="Ensure your account stays secure" />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  <Input
+                    label="Current Password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={currentPassword}
+                    onChange={setCurrentPassword}
+                  />
+                  <Input
+                    label="Confirm New Password"
+                    type="password"
+                    placeholder="Repeat new password"
+                    value={confirmPassword}
+                    onChange={setConfirmPassword}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  <Input
+                    label="New Password"
+                    type="password"
+                    placeholder="Min. 8 characters"
+                    value={newPassword}
+                    onChange={setNewPassword}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <SectionTitle title="Two-Factor Authentication" sub="Add an extra layer of security to your account" />
+              <div style={{
+                background: 'var(--surface-1)',
+                border: '1px solid var(--border)',
+                borderRadius: 8,
+                padding: '24px',
+              }}>
+                {/* 2FA Status */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 24,
+                }}>
+                  <div>
+                    <h4 style={{
+                      fontFamily: 'var(--font-d)',
+                      fontWeight: 500,
+                      fontSize: 14,
+                      color: 'var(--text)',
+                      marginBottom: 4,
+                    }}>
+                      Two-Factor Authentication
+                    </h4>
+                    <p style={{
+                      fontFamily: 'var(--font-m)',
+                      fontSize: 11,
+                      color: 'var(--text-dim)',
+                      margin: 0,
+                    }}>
+                      {twoFactorEnabled ? 'Enabled' : 'Disabled'} • Use authenticator app for extra security
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowTwoFactorSetup(!showTwoFactorSetup)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: 6,
+                      border: '1px solid var(--border)',
+                      background: twoFactorEnabled ? 'var(--accent-bg)' : 'var(--surface-2)',
+                      color: twoFactorEnabled ? 'var(--accent)' : 'var(--text)',
+                      fontFamily: 'var(--font-m)',
+                      fontSize: 11,
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      transition: 'all .2s',
+                    }}
+                  >
+                    {twoFactorEnabled ? 'Disable' : 'Enable'}
+                  </button>
+                </div>
+
+                {/* 2FA Setup */}
+                {showTwoFactorSetup && (
+                  <div style={{
+                    borderTop: '1px solid var(--border)',
+                    paddingTop: 24,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 20,
+                  }}>
+                    {!twoFactorEnabled ? (
+                      <>
+                        {/* Setup Instructions */}
+                        <div style={{
+                          background: 'var(--glass)',
+                          borderRadius: 6,
+                          padding: '16px',
+                        }}>
+                          <h5 style={{
+                            fontFamily: 'var(--font-d)',
+                            fontWeight: 500,
+                            fontSize: 12,
+                            color: 'var(--text)',
+                            marginBottom: 8,
+                          }}>
+                            Setup Instructions
+                          </h5>
+                          <ol style={{
+                            fontFamily: 'var(--font-m)',
+                            fontSize: 11,
+                            color: 'var(--text-mid)',
+                            margin: 0,
+                            paddingLeft: 20,
+                            lineHeight: 1.6,
+                          }}>
+                            <li>Download an authenticator app (Google Authenticator, Authy, etc.)</li>
+                            <li>Scan the QR code below with your app</li>
+                            <li>Enter the 6-digit code to verify setup</li>
+                          </ol>
+                        </div>
+
+                        {/* QR Code Placeholder */}
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          padding: '20px',
+                          background: 'var(--bg)',
+                          border: '1px solid var(--border)',
+                          borderRadius: 6,
+                        }}>
+                          <div style={{
+                            width: 120,
+                            height: 120,
+                            background: 'var(--surface-2)',
+                            border: '1px solid var(--border)',
+                            borderRadius: 4,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexDirection: 'column',
+                            gap: 8,
+                          }}>
+                            <div style={{
+                              width: 80,
+                              height: 80,
+                              background: 'var(--text-dim)',
+                              borderRadius: 4,
+                            }} />
+                            <span style={{
+                              fontFamily: 'var(--font-m)',
+                              fontSize: 9,
+                              color: 'var(--text-dim)',
+                            }}>
+                              QR Code
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Secret Key */}
+                        <div style={{
+                          background: 'var(--surface-1)',
+                          border: '1px solid var(--border)',
+                          borderRadius: 6,
+                          padding: '12px',
+                          textAlign: 'center',
+                        }}>
+                          <p style={{
+                            fontFamily: 'var(--font-m)',
+                            fontSize: 10,
+                            color: 'var(--text-dim)',
+                            margin: '0 0 8px 0',
+                          }}>
+                            Manual entry key
+                          </p>
+                          <code style={{
+                            fontFamily: 'monospace',
+                            fontSize: 12,
+                            color: 'var(--text)',
+                            background: 'var(--bg)',
+                            padding: '4px 8px',
+                            borderRadius: 4,
+                            letterSpacing: '0.05em',
+                          }}>
+                            JBSWY3DPEHPK3PXP
+                          </code>
+                        </div>
+
+                        {/* Verification Code */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                          <div>
+                            <Input
+                              label="Verification Code"
+                              placeholder="000000"
+                              value={twoFactorCode}
+                              onChange={setTwoFactorCode}
+                            />
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                            <Button variant="primary" size="md">
+                              Enable 2FA
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {/* Disable 2FA */}
+                        <div style={{
+                          background: 'var(--glass)',
+                          borderRadius: 6,
+                          padding: '16px',
+                        }}>
+                          <p style={{
+                            fontFamily: 'var(--font-m)',
+                            fontSize: 11,
+                            color: 'var(--text-mid)',
+                            margin: 0,
+                            lineHeight: 1.6,
+                          }}>
+                            Disabling two-factor authentication will make your account less secure. You'll need to enter your password to confirm this action.
+                          </p>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                          <div>
+                            <Input
+                              label="Confirm Password"
+                              type="password"
+                              placeholder="Enter your password"
+                            />
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                            <Button variant="danger" size="md">
+                              Disable 2FA
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
@@ -296,14 +537,14 @@ function PreferencesPanel() {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 32,
+        gap: 40,
         animation: 'fadeUp .2s var(--ease) both',
       }}
     >
       {/* Theme Presets */}
       <div>
         <SectionTitle title="Color Theme" sub="Choose a unified look — colors, surfaces, and accents" />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 20 }}>
           {THEME_PRESETS.map((p) => {
             const active = theme === p.id;
             return (
@@ -311,7 +552,7 @@ function PreferencesPanel() {
                 key={p.id}
                 onClick={() => setTheme(p.id)}
                 style={{
-                  padding: '14px 14px 12px',
+                  padding: '16px 16px 14px',
                   borderRadius: 8,
                   border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
                   background: active ? 'var(--accent-bg)' : 'transparent',
@@ -320,13 +561,13 @@ function PreferencesPanel() {
                   transition: 'all .2s var(--ease)',
                 }}
               >
-                <div style={{ display: 'flex', gap: 5, marginBottom: 10 }}>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
                   {p.swatches.map((c, i) => (
                     <div
                       key={i}
                       style={{
-                        width: i < 2 ? 20 : 16,
-                        height: i < 2 ? 20 : 16,
+                        width: i < 2 ? 24 : 20,
+                        height: i < 2 ? 24 : 20,
                         borderRadius: i < 2 ? 4 : '50%',
                         background: c,
                         border: '1px solid var(--border)',
@@ -337,17 +578,17 @@ function PreferencesPanel() {
                 </div>
                 <p style={{
                   fontFamily: 'var(--font-m)',
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 500,
                   color: active ? 'var(--white)' : 'var(--text-mid)',
-                  marginBottom: 2,
+                  marginBottom: 3,
                   letterSpacing: '.02em',
                 }}>
                   {p.label}
                 </p>
                 <p style={{
                   fontFamily: 'var(--font-m)',
-                  fontSize: 9,
+                  fontSize: 10,
                   color: 'var(--text-dim)',
                   letterSpacing: '.03em',
                   lineHeight: 1.4,
@@ -356,12 +597,12 @@ function PreferencesPanel() {
                 </p>
                 <span style={{
                   display: 'inline-block',
-                  marginTop: 6,
-                  padding: '2px 6px',
+                  marginTop: 8,
+                  padding: '3px 8px',
                   borderRadius: 3,
                   background: 'var(--glass)',
                   fontFamily: 'var(--font-m)',
-                  fontSize: 8,
+                  fontSize: 9,
                   color: 'var(--text-dim)',
                   letterSpacing: '.08em',
                   textTransform: 'uppercase',
@@ -377,7 +618,7 @@ function PreferencesPanel() {
       {/* Sidebar Behavior */}
       <div>
         <SectionTitle title="Sidebar Behavior" sub="How the navigation panel resizes" />
-        <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 20 }}>
           {SIDEBAR_OPTIONS.map((opt) => {
             const active = sidebarBehavior === opt.value;
             return (
@@ -385,8 +626,7 @@ function PreferencesPanel() {
                 key={opt.value}
                 onClick={() => setSidebarBehavior(opt.value)}
                 style={{
-                  flex: 1,
-                  padding: '14px 14px',
+                  padding: '20px 20px',
                   borderRadius: 8,
                   border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
                   background: active ? 'var(--accent-bg)' : 'transparent',
@@ -397,16 +637,16 @@ function PreferencesPanel() {
               >
                 <p style={{
                   fontFamily: 'var(--font-m)',
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 500,
                   color: active ? 'var(--white)' : 'var(--text-mid)',
-                  marginBottom: 3,
+                  marginBottom: 4,
                 }}>
                   {opt.label}
                 </p>
                 <p style={{
                   fontFamily: 'var(--font-m)',
-                  fontSize: 10,
+                  fontSize: 11,
                   color: 'var(--text-dim)',
                   letterSpacing: '.03em',
                 }}>

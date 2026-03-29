@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import useCalendar from '../../hooks/useCalendar';
 import type { CalendarViewMode } from '../../hooks/useCalendar';
 import useNotifications from '../../hooks/useNotifications';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import MiniCalendar from './MiniCalendar';
 import CalendarMonthView from './CalendarMonthView';
 import CalendarWeekView from './CalendarWeekView';
@@ -18,11 +19,38 @@ const VIEW_OPTIONS: { value: CalendarViewMode; label: string }[] = [
 export default function CalendarView() {
   const calendar = useCalendar();
   const { events, createEvent, editEvent, removeEvent, addTodo, addNotification } = useNotifications();
+  const isMobile = useIsMobile();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [defaultDate, setDefaultDate] = useState('');
   const [defaultTime, setDefaultTime] = useState('');
+
+  // Responsive mini calendar width
+  const miniCalendarWidth = useMemo(() => {
+    if (isMobile) return 180;
+    if (window.innerWidth < 1200) return 200;
+    if (window.innerWidth < 1400) return 220;
+    return 230;
+  }, [isMobile]);
+
+  // Button styles
+  const navBtn = {
+    width: 28, height: 28, borderRadius: 6,
+    background: 'var(--surface-2)', border: '1px solid var(--border)',
+    color: 'var(--text)', cursor: 'pointer',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontFamily: 'var(--font-m)', fontSize: 14,
+    transition: 'all .15s',
+  };
+
+  const todayBtn = {
+    padding: '4px 10px', borderRadius: 6,
+    background: 'var(--glass)', border: '1px solid var(--border)',
+    color: 'var(--text-mid)', cursor: 'pointer',
+    fontFamily: 'var(--font-m)', fontSize: 10, fontWeight: 500,
+    transition: 'all .15s',
+  };
 
   const filteredEvents = useMemo(() => {
     return events;
@@ -103,20 +131,28 @@ export default function CalendarView() {
         {/* Right: view switcher + create */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{
-            display: 'flex', background: 'var(--surface-2)',
-            borderRadius: 6, border: '1px solid var(--border)', padding: 2,
+            display: 'flex', background: 'transparent',
+            borderRadius: 8, border: '1px solid var(--border)', padding: 1,
           }}>
             {VIEW_OPTIONS.map((v) => (
               <button
                 key={v.value}
                 onClick={() => calendar.setViewMode(v.value)}
                 style={{
-                  fontFamily: 'var(--font-m)', fontSize: 10, padding: '4px 10px',
-                  borderRadius: 4, border: 'none', cursor: 'pointer',
-                  background: calendar.viewMode === v.value ? 'var(--accent)' : 'transparent',
-                  color: calendar.viewMode === v.value ? '#000' : 'var(--text-mid)',
+                  fontFamily: 'var(--font-m)', fontSize: 10, padding: '6px 12px',
+                  borderRadius: 7, cursor: 'pointer',
+                  background: calendar.viewMode === v.value 
+                    ? 'var(--sidebar-active-bg)' 
+                    : 'transparent',
+                  color: calendar.viewMode === v.value 
+                    ? 'var(--sidebar-active)' 
+                    : 'var(--text-mid)',
                   fontWeight: calendar.viewMode === v.value ? 600 : 400,
-                  transition: 'all .12s',
+                  transition: 'all .18s',
+                  border: calendar.viewMode === v.value 
+                    ? '1px solid var(--sidebar-active-border)' 
+                    : '1px solid transparent',
+                  margin: 1,
                 }}
               >
                 {v.label}
@@ -141,25 +177,24 @@ export default function CalendarView() {
 
       {/* Main content area */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {/* Mini calendar sidebar (month view only) */}
-        {calendar.viewMode === 'month' && (
-          <div style={{
-            width: 200, flexShrink: 0, padding: 10,
-            borderRight: '1px solid var(--border)',
-            overflowY: 'auto',
-          }}>
-            <MiniCalendar
-              currentDate={calendar.currentDate}
-              onDateClick={(d) => {
-                calendar.goToDate(d);
-                calendar.setViewMode('day');
-              }}
-              onPrev={calendar.goPrev}
-              onNext={calendar.goNext}
-              events={filteredEvents}
-            />
-          </div>
-        )}
+        {/* Mini calendar sidebar (persistent across all views) */}
+        <div style={{
+          width: miniCalendarWidth, flexShrink: 0, padding: 10,
+          borderRight: '1px solid var(--border)',
+          overflowY: 'auto',
+          display: isMobile ? 'none' : 'block', // Hide on mobile
+        }}>
+          <MiniCalendar
+            currentDate={calendar.currentDate}
+            onDateClick={(d) => {
+              calendar.goToDate(d);
+              calendar.setViewMode('day');
+            }}
+            onPrev={calendar.goPrev}
+            onNext={calendar.goNext}
+            events={filteredEvents}
+          />
+        </div>
 
         {/* Calendar view */}
         <div style={{ flex: 1, overflow: 'hidden' }}>

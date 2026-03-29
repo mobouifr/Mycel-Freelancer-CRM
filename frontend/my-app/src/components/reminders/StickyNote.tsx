@@ -58,7 +58,7 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
             padding: 0, transition: 'color .12s',
           }}
         >
-          {note.pinned ? '📌' : '📍'}
+          {note.pinned ? 'Pinned' : 'Pin'}
         </button>
 
         <div style={{ display: 'flex', gap: 4 }}>
@@ -67,21 +67,21 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
             title="Change color"
             style={iconBtn}
           >
-            🎨
+            Color
           </button>
           <button
             onClick={() => onConvertToEvent(note)}
             title="Convert to event"
             style={iconBtn}
           >
-            📅
+            Event
           </button>
           <button
             onClick={() => onDelete(note.id)}
             title="Delete note"
             style={{ ...iconBtn, color: 'var(--danger)' }}
           >
-            ✕
+            ×
           </button>
         </div>
       </div>

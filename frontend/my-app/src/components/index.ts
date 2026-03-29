@@ -8,6 +8,7 @@ export { default as FormWrapper } from './FormWrapper';
 export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as ErrorMessage } from './ErrorMessage';
 export { default as LogoMark } from './LogoMark';
+export { default as Footer } from './Footer';
 export { default as StatCard } from './StatCard';
 export { default as AreaChart } from './AreaChart';
 export { default as MyceliumCanvas } from './MyceliumCanvas';

@@ -1,23 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../hooks/useTheme';
 import { authService } from '../services/auth';
-import { Input, ErrorMessage, LogoMark, MyceliumCanvas } from '../components';
+import { Input, ErrorMessage, LogoMark } from '../components';
 import { useIsMobile } from '../hooks/useIsMobile';
 import fortyTwoLogoUrl from '../assets/42-logo.png';
 
 /* ─────────────────────────────────────────────
-   AUTH PAGE — Single component for Sign In + Sign Up.
+   AUTH PAGE — Single centered form for Sign In + Sign Up.
 
    Both /login and /signup render this exact same
    component instance.  Tabs toggle an internal
    `mode` via setState — the outer shell never
    unmounts, so there is zero layout shift.
 
-   The right panel is split into three flex regions:
+   The form is centered with three flex regions:
      HEADER  (logo + tabs)           — flexShrink: 0
      BODY    (form fields only)      — flex: 1
-     FOOTER  (button + 42 + links)   — flexShrink: 0
+     FOOTER  (button + links)        — flexShrink: 0
 
    Header and footer NEVER change position.
    Only the form body swaps between modes.
@@ -31,14 +32,15 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, register, forgotPassword, isLoading, error, clearError } = useAuth();
+  const { mode: themeMode, cycleQuickTheme, theme } = useTheme();
   const isMobile = useIsMobile();
 
-  const [mode, setMode] = useState<AuthMode>(
+  const [authMode, setAuthMode] = useState<AuthMode>(
     location.pathname === '/signup' ? 'signup' : 'signin',
   );
 
   useEffect(() => {
-    setMode(location.pathname === '/signup' ? 'signup' : 'signin');
+    setAuthMode(location.pathname === '/signup' ? 'signup' : 'signin');
   }, [location.pathname]);
 
   const [email, setEmail] = useState('');
@@ -58,7 +60,7 @@ export default function Login() {
 
   const switchMode = (next: AuthMode) => {
     clearError();
-    setMode(next);
+    setAuthMode(next);
     navigate(next === 'signup' ? '/signup' : '/login', { replace: true });
   };
 
@@ -99,7 +101,7 @@ export default function Login() {
     } catch { /* auth context handles error */ }
   };
 
-  const handleSubmit = mode === 'signin' ? handleLogin : handleSignup;
+  const handleSubmit = authMode === 'signin' ? handleLogin : handleSignup;
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleSubmit();
@@ -115,26 +117,94 @@ export default function Login() {
 
   return (
     <div style={{
-      height: '100vh', display: 'flex', alignItems: 'center',
-      justifyContent: 'center', background: 'var(--bg)', padding: 20,
+      height: '100vh', display: 'flex',
+      background: 'linear-gradient(135deg, var(--bg) 0%, var(--bg2) 100%)', position: 'relative',
     }}>
+      {/* Header with logo and theme switcher */}
       <div style={{
-        width: '100%', maxWidth: 920,
-        display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-        borderRadius: 4, overflow: 'hidden', border: '1px solid var(--border)',
-        height: isMobile ? 'auto' : 640, minHeight: isMobile ? undefined : 640,
-        boxShadow: '0 60px 120px rgba(0,0,0,.8)',
+        position: 'absolute', top: 0, left: 0, right: 0,
+        height: 64,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 32px',
+        zIndex: 10,
+      }}>
+        {/* Logo */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}>
+          <LogoMark size={32} />
+          <span className="brand-logo" style={{
+            fontFamily: 'var(--font-display)', fontWeight: 700,
+            fontSize: 18, color: 'var(--white)', letterSpacing: '.01em',
+          }}>Mycel.</span>
+        </div>
+
+        {/* Theme switcher */}
+        <button
+          onClick={cycleQuickTheme}
+          aria-label={`Switch theme (current: ${theme})`}
+          title={`Theme: ${theme}`}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: '50%',
+            background: 'var(--surface-2)',
+            border: '1px solid var(--border)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            color: 'var(--text)',
+            transition: 'all .2s',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'var(--accent)';
+            e.currentTarget.style.color = 'var(--white)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border)';
+            e.currentTarget.style.color = 'var(--text)';
+          }}
+        >
+          {themeMode === 'light' ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {/* Login form container */}
+      <div style={{
+        display: 'flex', alignItems: 'center',
+        justifyContent: 'center', width: '100%', height: '100%',
+        padding: '20px 32px',
+      }}>
+      <div style={{
+        width: '100%', maxWidth: 400,
+        borderRadius: 12, overflow: 'hidden', 
+        border: '1px solid var(--border)',
+        boxShadow: '0 60px 120px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05)',
         animation: 'scaleIn .5s var(--ease) both',
       }}>
-        {!isMobile && <AuthLeftPanel />}
 
-        {/* RIGHT PANEL — fixed shell, three flex regions */}
+        {/* LOGIN FORM — fixed shell, three flex regions */}
         <div style={{
           background: 'var(--bg2)',
           display: 'flex', flexDirection: 'column',
           alignItems: 'center',
           padding: isMobile ? '32px 24px' : '40px 48px',
           position: 'relative', overflow: 'hidden',
+          backdropFilter: 'blur(20px)',
         }}>
           <div style={{
             width: '100%', maxWidth: 320,
@@ -147,7 +217,7 @@ export default function Login() {
               <div style={{
                 display: 'flex', justifyContent: 'center',
                 marginBottom: 24,
-                filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.12))',
+                filter: 'drop-shadow(0 4px 20px rgba(0, 0, 0, 0.3))',
               }}>
                 <LogoMark size={40} color="var(--white)" />
               </div>
@@ -156,8 +226,8 @@ export default function Login() {
                 borderBottom: '1px solid var(--border)',
                 marginBottom: 24,
               }}>
-                <TabButton label="SIGN IN" active={mode === 'signin'} onClick={() => switchMode('signin')} />
-                <TabButton label="SIGN UP" active={mode === 'signup'} onClick={() => switchMode('signup')} />
+                <TabButton label="SIGN IN" active={authMode === 'signin'} onClick={() => switchMode('signin')} />
+                <TabButton label="SIGN UP" active={authMode === 'signup'} onClick={() => switchMode('signup')} />
               </div>
             </div>
 
@@ -172,7 +242,7 @@ export default function Login() {
                 </div>
               )}
 
-              {mode === 'signin' ? (
+              {authMode === 'signin' ? (
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
                     <Input
@@ -243,8 +313,8 @@ export default function Login() {
                 disabled={isLoading}
                 style={{
                   width: '100%', padding: '12px 0',
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.12)',
+                  background: 'var(--glass)',
+                  border: '1px solid var(--border)',
                   borderRadius: 6, color: 'var(--white)',
                   fontFamily: 'var(--font-m)', fontSize: 11,
                   fontWeight: 500, letterSpacing: '.12em',
@@ -256,22 +326,22 @@ export default function Login() {
                 }}
                 onMouseEnter={e => {
                   if (!isLoading) {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.22)';
+                    e.currentTarget.style.background = 'var(--accent-hover)';
+                    e.currentTarget.style.borderColor = 'var(--accent)';
                   }
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)';
+                  e.currentTarget.style.background = 'var(--glass)';
+                  e.currentTarget.style.borderColor = 'var(--border)';
                 }}
               >
                 {isLoading
-                  ? (mode === 'signin' ? 'SIGNING IN...' : 'CREATING...')
-                  : (mode === 'signin' ? 'SIGN IN' : 'SIGN UP')}
+                  ? (authMode === 'signin' ? 'SIGNING IN...' : 'CREATING...')
+                  : (authMode === 'signin' ? 'SIGN IN' : 'SIGN UP')}
               </button>
 
               {/* 42 OAuth — only on sign-in (42 OAuth handles registration server-side) */}
-              {mode === 'signin' && (
+              {authMode === 'signin' && (
                 <>
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 12,
@@ -326,17 +396,46 @@ export default function Login() {
                 fontFamily: 'var(--font-m)', fontSize: 10,
                 color: 'var(--text-dim)', letterSpacing: '.04em',
               }}>
-                {mode === 'signin' ? "Don't have an account?" : 'Already have an account?'}{' '}
+                {authMode === 'signin' ? "Don't have an account?" : 'Already have an account?'}{' '}
                 <button
-                  onClick={() => switchMode(mode === 'signin' ? 'signup' : 'signin')}
+                  onClick={() => switchMode(authMode === 'signin' ? 'signup' : 'signin')}
                   style={{
                     background: 'none', border: 'none', padding: 0,
                     color: 'var(--white)', fontFamily: 'var(--font-m)',
                     fontSize: 10, fontWeight: 500, cursor: 'pointer',
                     letterSpacing: '.04em',
                   }}
-                >{mode === 'signin' ? 'Sign up' : 'Sign in'}</button>
+                >{authMode === 'signin' ? 'Sign up' : 'Sign in'}</button>
               </p>
+
+              {/* Privacy and Terms links */}
+              <div style={{
+                display: 'flex', justifyContent: 'center',
+                gap: 20, marginTop: 16,
+              }}>
+                <Link
+                  to="/privacy-policy"
+                  style={{
+                    fontFamily: 'var(--font-m)', fontSize: 9,
+                    color: 'var(--text-dim)', textDecoration: 'none',
+                    letterSpacing: '.06em', cursor: 'pointer',
+                    transition: 'color .15s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--white)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-dim)'; }}
+                >Privacy</Link>
+                <Link
+                  to="/terms-of-service"
+                  style={{
+                    fontFamily: 'var(--font-m)', fontSize: 9,
+                    color: 'var(--text-dim)', textDecoration: 'none',
+                    letterSpacing: '.06em', cursor: 'pointer',
+                    transition: 'color .15s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--white)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-dim)'; }}
+                >Terms</Link>
+              </div>
             </div>
           </div>
 
@@ -349,6 +448,7 @@ export default function Login() {
             />
           )}
         </div>
+      </div>
       </div>
     </div>
   );
@@ -363,9 +463,9 @@ function TabButton({ label, active, onClick }: { label: string; active: boolean;
         flex: 1, textAlign: 'center', background: 'none',
         padding: '12px 0', border: 'none', cursor: 'pointer',
         fontFamily: 'var(--font-m)', fontSize: 10,
-        letterSpacing: '.12em', fontWeight: active ? 600 : 400,
+        letterSpacing: '.12em', fontWeight: active ? 700 : 500,
         color: active ? 'var(--text)' : 'var(--text-dim)',
-        borderBottom: active ? '1px solid var(--text-mid)' : '1px solid transparent',
+        borderBottom: active ? '2px solid var(--accent)' : '1px solid transparent',
         transition: 'all .15s', marginBottom: -1,
       }}
     >
@@ -386,7 +486,7 @@ function ForgotPasswordOverlay({
     <div
       style={{
         position: 'absolute', inset: 0,
-        background: 'rgba(0,0,0,.65)', backdropFilter: 'blur(6px)',
+        background: 'var(--glass)', backdropFilter: 'blur(6px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         zIndex: 10, animation: 'fadeIn .2s var(--ease) both',
       }}
@@ -413,7 +513,7 @@ function ForgotPasswordOverlay({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
               <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
-                <circle cx="9" cy="9" r="9" fill="var(--accent)" opacity=".18" />
+                <circle cx="9" cy="9" r="9" fill="var(--accent-bg)" />
                 <path d="M5.5 9.5L7.8 11.8L12.5 6.5" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <span style={{ fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--accent)' }}>Email sent</span>
@@ -461,57 +561,3 @@ const overlayPrimaryBtn: React.CSSProperties = {
   letterSpacing: '.08em', transition: 'opacity .2s',
 };
 
-/* ─────────────────────────────────────────────
-   AUTH LEFT PANEL — Visual/brand area (untouched)
-───────────────────────────────────────────── */
-export function AuthLeftPanel() {
-  return (
-    <div style={{
-      position: 'relative', overflow: 'hidden',
-      background: 'var(--bg)', display: 'flex', flexDirection: 'column',
-      justifyContent: 'space-between', padding: '36px 40px',
-    }}>
-      <MyceliumCanvas />
-      <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none',
-        background: 'radial-gradient(ellipse 90% 90% at 50% 50%, transparent 40%, rgba(6,6,6,0.65) 100%)',
-      }} />
-      <div style={{
-        position: 'relative', zIndex: 2,
-        display: 'flex', alignItems: 'center', gap: 10,
-      }}>
-        <LogoMark size={28} />
-        <span className="brand-logo" style={{
-          fontFamily: 'var(--font-display)', fontWeight: 700,
-          fontSize: 17, color: 'var(--white)', letterSpacing: '.01em',
-        }}>Mycel.</span>
-      </div>
-      <div style={{
-        position: 'absolute', inset: 0, zIndex: 1,
-        pointerEvents: 'none', opacity: 0.06,
-      }}>
-        <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 1, background: 'white' }} />
-        <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1, background: 'white' }} />
-      </div>
-      <div style={{
-        position: 'relative', zIndex: 2,
-        display: 'flex', justifyContent: 'space-between',
-        alignItems: 'center', flexWrap: 'wrap', gap: 8,
-      }}>
-        <p style={{
-          fontFamily: 'var(--font-m)', fontSize: 10,
-          letterSpacing: '.08em', color: 'var(--text-dim)',
-        }}>&copy; Mycel. {new Date().getFullYear()}</p>
-        <div style={{ display: 'flex', gap: 14 }}>
-          <Link to="/privacy-policy" style={legalLink}>Privacy</Link>
-          <Link to="/terms-of-service" style={legalLink}>Terms</Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const legalLink: React.CSSProperties = {
-  fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
-  textDecoration: 'none', letterSpacing: '.06em',
-};

@@ -50,9 +50,7 @@ export default function Reminders() {
       <div style={{
         flex: 1, display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
-        gap: 0, overflow: 'hidden',
-        border: '1px solid var(--border)', borderRadius: 12,
-        background: 'var(--surface)',
+        gap: isMobile ? 12 : 16, overflow: 'hidden',
       }}>
         {/* Left: Calendar (~70%) */}
         <div style={{
@@ -60,8 +58,9 @@ export default function Reminders() {
           minWidth: 0,
           height: isMobile ? 500 : '100%',
           display: 'flex', flexDirection: 'column',
-          borderRight: isMobile ? 'none' : '1px solid var(--border)',
-          borderBottom: isMobile ? '1px solid var(--border)' : 'none',
+          border: '1px solid var(--border)', borderRadius: 12,
+          background: 'var(--surface)',
+          overflow: 'hidden',
         }}>
           <CalendarView />
         </div>
@@ -72,7 +71,10 @@ export default function Reminders() {
           minWidth: isMobile ? undefined : 280,
           maxWidth: isMobile ? undefined : 420,
           display: 'flex', flexDirection: 'column',
+          border: '1px solid var(--border)', borderRadius: 12,
+          background: 'var(--surface)',
           overflow: 'hidden',
+          padding: '10px 0', // Add padding to match calendar widget frame
         }}>
           {/* Tab switcher */}
           <div style={{

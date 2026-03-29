@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 const actions = [
   { label: 'New Invoice',  icon: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2', path: '/invoices' },
@@ -13,6 +14,7 @@ export default function QuickCreateFAB() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   /* Close on outside click or Escape */
   useEffect(() => {
@@ -43,8 +45,12 @@ export default function QuickCreateFAB() {
       ref={containerRef}
       style={{
         position: 'fixed',
-        bottom: 'max(28px, env(safe-area-inset-bottom, 0px))',
-        right: 'max(28px, env(safe-area-inset-right, 0px))',
+        bottom: isMobile 
+          ? 'max(80px, env(safe-area-inset-bottom, 0px))'
+          : 'max(100px, env(safe-area-inset-bottom, 0px))',
+        right: isMobile
+          ? 'max(20px, env(safe-area-inset-right, 0px))'
+          : 'max(32px, env(safe-area-inset-right, 0px))',
         zIndex: 'var(--z-fab, 60)' as unknown as number,
       }}
     >
@@ -67,11 +73,11 @@ export default function QuickCreateFAB() {
       {open && (
         <div style={{
           position: 'absolute',
-          bottom: 56,
+          bottom: isMobile ? 52 : 72,
           right: 0,
           display: 'flex',
           flexDirection: 'column',
-          gap: 6,
+          gap: isMobile ? 4 : 6,
         }}>
           {actions.map((a, i) => (
             <button
@@ -80,13 +86,13 @@ export default function QuickCreateFAB() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 8,
-                padding: '9px 16px',
+                gap: isMobile ? 6 : 8,
+                padding: isMobile ? '8px 12px' : '9px 16px',
                 background: 'color-mix(in srgb, var(--surface) 80%, transparent)',
                 backdropFilter: 'blur(16px) saturate(1.4)',
                 WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
                 border: '1px solid var(--border)',
-                borderRadius: 10,
+                borderRadius: isMobile ? 8 : 10,
                 whiteSpace: 'nowrap',
                 boxShadow: '0 4px 20px rgba(0,0,0,.25)',
                 cursor: 'pointer',
@@ -105,11 +111,11 @@ export default function QuickCreateFAB() {
                 e.currentTarget.style.transform = 'translateX(0)';
               }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg width={isMobile ? 12 : 14} height={isMobile ? 12 : 14} viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d={a.icon} />
               </svg>
               <span style={{
-                fontFamily: 'var(--font-m)', fontSize: 12,
+                fontFamily: 'var(--font-m)', fontSize: isMobile ? 11 : 12,
                 fontWeight: 500, color: 'var(--text)',
                 letterSpacing: '0.01em',
               }}>
@@ -125,7 +131,9 @@ export default function QuickCreateFAB() {
         onClick={() => setOpen(!open)}
         aria-label={open ? 'Close quick create' : 'Quick create'}
         style={{
-          width: 56, height: 56, borderRadius: 999,
+          width: isMobile ? 48 : 56, 
+          height: isMobile ? 48 : 56, 
+          borderRadius: 999,
           background: 'var(--fab-bg)',
           backdropFilter: 'blur(8px) saturate(120%)',
           WebkitBackdropFilter: 'blur(8px) saturate(120%)',
@@ -147,7 +155,7 @@ export default function QuickCreateFAB() {
           e.currentTarget.style.borderColor = 'var(--fab-border)';
         }}
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width={isMobile ? 18 : 22} height={isMobile ? 18 : 22} viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <line x1="12" y1="5" x2="12" y2="19" />
           <line x1="5" y1="12" x2="19" y2="12" />
         </svg>

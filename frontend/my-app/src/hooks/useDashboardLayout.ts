@@ -39,13 +39,13 @@ const PRESETS: Record<PresetId, () => Pick<DashboardState, 'layouts' | 'visible'
   default: () => ({
     visible: ['calendar', 'revenue', 'activity', 'projects', 'notes', 'invoices', 'suggestions'],
     layouts: [
-      { i: 'calendar',    x: 0,  y: 0, w: 6, h: 5, minW: 4, minH: 4 },
-      { i: 'revenue',     x: 6,  y: 0, w: 6, h: 3, minW: 3, minH: 2 },
-      { i: 'notes',       x: 6,  y: 3, w: 6, h: 3, minW: 3, minH: 2 },
-      { i: 'activity',    x: 0,  y: 5, w: 8, h: 3, minW: 4, minH: 2 },
-      { i: 'projects',    x: 8,  y: 5, w: 4, h: 3, minW: 3, minH: 2 },
-      { i: 'invoices',    x: 0,  y: 8, w: 4, h: 3, minW: 3, minH: 2 },
-      { i: 'suggestions', x: 4,  y: 8, w: 4, h: 3, minW: 3, minH: 2 },
+      { i: 'calendar',    x: 8, y: 0, w: 4, h: 6, minW: 4, minH: 4, moved: false, static: false },
+      { i: 'revenue',     x: 0, y: 0, w: 8, h: 3, minW: 3, minH: 2, moved: false, static: false },
+      { i: 'activity',    x: 0, y: 6, w: 4, h: 3, minW: 4, minH: 2, moved: false, static: false },
+      { i: 'projects',    x: 8, y: 6, w: 4, h: 3, minW: 3, minH: 2, moved: false, static: false },
+      { i: 'notes',       x: 4, y: 3, w: 4, h: 3, minW: 3, minH: 2, moved: false, static: false },
+      { i: 'invoices',    x: 0, y: 3, w: 4, h: 3, minW: 3, minH: 2, moved: false, static: false },
+      { i: 'suggestions', x: 4, y: 6, w: 4, h: 3, minW: 3, minH: 2, moved: false, static: false },
     ],
   }),
   compact: () => ({

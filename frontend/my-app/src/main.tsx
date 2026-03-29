@@ -11,6 +11,7 @@ import AppLayout from './layouts/AppLayout';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import OAuthCallback from './pages/OAuthCallback';
+import TwoFactorAuth from './pages/TwoFactorAuth';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import Clients from './pages/Clients';
@@ -21,6 +22,7 @@ import Reminders from './pages/Reminders';
 import Ecosystem from './pages/Ecosystem';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import NotFound from './pages/NotFound';
 
 import './styles/index.css';
 
@@ -34,6 +36,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/auth/callback" element={<OAuthCallback />} />
+            <Route path="/2fa" element={<TwoFactorAuth />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
 
@@ -50,6 +53,9 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/ecosystem" element={<Ecosystem />} />
               </Route>
             {/* </Route> */}
+
+            {/* 404 Not Found - catch all route */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
