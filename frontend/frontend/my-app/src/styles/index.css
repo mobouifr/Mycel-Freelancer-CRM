@@ -1,0 +1,271 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+@import "tailwindcss";
+
+/* ─── THEME VARIABLES (defaults: dark mode, emerald palette) ─── */
+:root {
+  --bg:        #060606;
+  --bg2:       #0c0c0c;
+  --surface:   #111111;
+  --surface-2: #0e0e0e;
+  --sidebar-bg:#080808;
+  --border:    rgba(255,255,255,0.07);
+  --border-h:  rgba(255,255,255,0.16);
+  --text:      #e2e2e2;
+  --text-dim:  rgba(200,200,200,0.38);
+  --text-mid:  rgba(200,200,200,0.62);
+  --accent:    rgba(72, 200, 100, 0.85);
+  --accent-bg: rgba(72, 200, 100, 0.08);
+  --accent-hover: rgba(72, 200, 100, 0.20);
+  --success:   rgba(100, 220, 130, 0.85);
+  --success-bg:rgba(100, 220, 130, 0.08);
+  --danger:    rgba(230, 90, 90, 0.85);
+  --danger-bg: rgba(230, 90, 90, 0.08);
+  --warning:   rgba(240, 190, 60, 0.85);
+  --warning-bg:rgba(240, 190, 60, 0.08);
+  --info:      rgba(80, 160, 240, 0.80);
+  --info-bg:   rgba(80, 160, 240, 0.08);
+  --chart-line:   rgba(72, 200, 100, 0.90);
+  --chart-grad-1: rgba(72, 200, 100, 0.22);
+  --chart-grad-2: rgba(72, 200, 100, 0.00);
+  --tag-client:   rgba(72, 200, 100, 0.15);
+  --tag-project:  rgba(100, 180, 220, 0.15);
+  --trend-up:     rgba(72, 200, 100, 0.80);
+  --trend-down:   rgba(230, 90, 90, 0.80);
+  --sidebar-active:       rgba(72, 200, 100, 0.90);
+  --sidebar-active-bg:    rgba(72, 200, 100, 0.08);
+  --sidebar-active-border:rgba(72, 200, 100, 0.18);
+  --white:     #ececec;
+  --glass:     rgba(255,255,255,0.03);
+  --font-d:     'DM Mono', monospace;
+  --font-m:     'DM Mono', monospace;
+  --font-body:  'DM Mono', monospace;
+  --font-sans:  'DM Mono', monospace;
+  --font-display: 'Syne', sans-serif;
+  --ease:       cubic-bezier(.4,0,.2,1);
+
+  /* ── Calendar event type colors ── */
+  --cal-event:     rgba(72, 200, 100, 0.85);
+  --cal-event-bg:  rgba(72, 200, 100, 0.12);
+  --cal-deadline:  rgba(230, 90, 90, 0.85);
+  --cal-deadline-bg: rgba(230, 90, 90, 0.12);
+  --cal-meeting:   rgba(80, 160, 240, 0.85);
+  --cal-meeting-bg: rgba(80, 160, 240, 0.12);
+  --cal-milestone: rgba(180, 130, 240, 0.85);
+  --cal-milestone-bg: rgba(180, 130, 240, 0.12);
+  --cal-follow-up: rgba(240, 190, 60, 0.85);
+  --cal-follow-up-bg: rgba(240, 190, 60, 0.12);
+
+  /* ── Sticky note colors ── */
+  --note-yellow:   rgba(250, 220, 80, 0.18);
+  --note-green:    rgba(72, 200, 100, 0.14);
+  --note-blue:     rgba(80, 160, 240, 0.14);
+  --note-pink:     rgba(240, 100, 160, 0.14);
+  --note-purple:   rgba(180, 130, 240, 0.14);
+  --note-default:  var(--glass);
+
+  /* ── Extra aliases (set by JS but need CSS fallbacks) ── */
+  --muted:           var(--text-dim);
+  --accent-1:        var(--accent);
+  --accent-2:        var(--info);
+  --chart-grad-start: var(--chart-grad-1);
+  --chart-grad-end:   var(--chart-grad-2);
+  --ui-font-scale:   1;
+}
+
+/* ─── BASE RESET ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; }
+html, body, #root { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+/* Ensure all UI elements use DM Mono */
+button, input, textarea, select, label { font-family: var(--font-m); }
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-m); }
+code, pre, kbd, .font-mono { font-family: var(--font-m); }
+
+/* Brand logo exception — always display font */
+.brand-logo { font-family: var(--font-display) !important; }
+
+/* ─── MONO SPACING OVERRIDES ───
+   DM Mono needs more breathing room than display fonts
+   on large/bold text. These override cramped inline styles. */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.4 !important;
+  letter-spacing: 0 !important;
+}
+
+::selection { background: rgba(255,255,255,0.12); }
+
+input { caret-color: var(--white); }
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg2) inset !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.04; transform: scale(1); }
+  50%      { opacity: 0.08; transform: scale(1.05); }
+}
+@keyframes growUp {
+  from { transform: scaleY(0); transform-origin: bottom; }
+  to   { transform: scaleY(1); transform-origin: bottom; }
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
+
+/* ─── Light mode scrollbar ─── */
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.10); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.18); }
+
+/* ─── TABULAR NUMERALS ─── */
+.kpi-num,
+.kpi-number {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-weight: 500;
+  letter-spacing: .04em;
+  line-height: 1.35;
+}
+
+/* ─── Light mode autofill ─── */
+[data-theme="light"] input:-webkit-autofill,
+[data-theme="light"] input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+
+/* ─── Undo snackbar ─── */
+@keyframes slideUp {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ─── Z-INDEX SCALE ─── */
+:root {
+  --z-widget: 1;
+  --z-widget-drag: 100;
+  --z-panel-backdrop: 1399;
+  --z-panel: 1400;
+  --z-fab: 50;
+  --z-modal: 1500;
+
+  /* FAB tokens */
+  --fab-bg: rgba(255,255,255,0.04);
+  --fab-border: rgba(255,255,255,0.08);
+}
+[data-theme="light"] {
+  --fab-bg: rgba(0,0,0,0.03);
+  --fab-border: rgba(0,0,0,0.10);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 767px) {
+  body { overflow: auto; }
+  .widget-grid-container { padding: 0 !important; }
+  .react-grid-item > .react-resizable-handle { display: none !important; }
+}
+
+/* ─── WIDGET GRID (react-grid-layout v2) ───
+   RGL's own CSS is imported via "react-grid-layout/css/styles.css".
+   The rules below only *extend* the defaults — they must NOT
+   override the inline position / transform / width / height that
+   RGL sets on each .react-grid-item.
+─────────────────────────────────────────── */
+
+/* Outer wrapper — must be visible so dragged items aren't clipped */
+.widget-grid-container {
+  position: relative;
+  overflow: visible;
+}
+
+/* GridLayout container — height is managed by RGL inline style */
+.widget-grid-layout {
+  position: relative;
+}
+
+/* The inner div we render inside each grid cell — fill the cell */
+.widget-grid-item {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Drag & drop enhancements ── */
+.react-grid-item.react-draggable-dragging {
+  z-index: var(--z-widget-drag) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,.35);
+  opacity: 0.92;
+}
+
+/* Placeholder where widget will land */
+.react-grid-item.react-grid-placeholder {
+  background: var(--accent-bg) !important;
+  border: 2px dashed var(--accent-hover) !important;
+  border-radius: 10px !important;
+  opacity: 0.5;
+  z-index: 0 !important;
+}
+
+/* Resize handle styling */
+.react-grid-item > .react-resizable-handle::after {
+  border-right: 2px solid var(--text-dim);
+  border-bottom: 2px solid var(--text-dim);
+  opacity: 0.4;
+  transition: opacity .15s;
+}
+
+.react-grid-item > .react-resizable-handle:hover::after {
+  opacity: 0.8;
+  border-color: var(--accent);
+}
+
+/* Drag handle cursor — applied to WidgetCard header */
+.widget-drag-handle {
+  cursor: grab;
+  touch-action: none;
+}
+
+.widget-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Widget enter animation — only on initial mount */
+@keyframes widgetIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
