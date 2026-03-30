@@ -9,10 +9,12 @@ import { InvoiceStatusBadge } from '../../components/invoices/InvoiceStatusBadge
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { markInvoicePaidSchema, type MarkInvoicePaidFormData } from '../../utils/validation';
+import { useStore } from '../../hooks/useStore';
 
 export const InvoiceDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const { addNotification } = useStore();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,6 +81,11 @@ export const InvoiceDetailPage = () => {
       setInvoice(updatedInvoice);
       setShowMarkPaidForm(false);
       reset();
+      addNotification({
+        type: 'success',
+        title: 'Invoice updated',
+        message: `Invoice was marked as paid (${Number(data.amount).toFixed(2)}).`,
+      });
     } catch (err: any) {
       alert(err.message || 'Failed to mark invoice as paid');
     }

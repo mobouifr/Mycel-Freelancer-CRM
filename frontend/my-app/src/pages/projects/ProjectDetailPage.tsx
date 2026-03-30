@@ -6,10 +6,12 @@ import { type Project, ProjectStatus } from '../../types/project.types';
 import { type ApiError } from '../../types/common.types';
 import { formatDate, formatCurrency } from '../../utils/formatters';
 import { ProjectStatusBadge } from '../../components/projects/ProjectStatusBadge';
+import { useStore } from '../../hooks/useStore';
 
 export const ProjectDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const { addNotification } = useStore();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +39,11 @@ export const ProjectDetailPage = () => {
       await projectsService.updateStatus(id, newStatus);
       if (project) {
         setProject({ ...project, status: newStatus });
+        addNotification({
+          type: 'info',
+          title: 'Project updated',
+          message: `"${project.title}" status changed to ${newStatus}.`,
+        });
       }
     } catch (err: any) {
       alert(err.message || 'Failed to update status');

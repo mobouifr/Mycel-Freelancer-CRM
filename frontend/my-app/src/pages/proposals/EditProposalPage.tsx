@@ -7,10 +7,12 @@ import { type ProposalFormData } from '../../utils/validation';
 import { type Proposal } from '../../types/proposal.types';
 import { type ApiError } from '../../types/common.types';
 import apiClient from '../../api/client';
+import { useStore } from '../../hooks/useStore';
 
 export const EditProposalPage = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const { addNotification } = useStore();
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -50,7 +52,12 @@ export const EditProposalPage = () => {
     if (!id) return;
     setIsSaving(true);
     try {
-      await proposalsService.update(id, data as any);
+      const updatedProposal = await proposalsService.update(id, data as any);
+      addNotification({
+        type: 'info',
+        title: 'Proposal updated',
+        message: `"${updatedProposal.title}" was updated.`,
+      });
       navigate('/proposals');
     } catch (err: any) {
       alert(err.message || 'Failed to update proposal');

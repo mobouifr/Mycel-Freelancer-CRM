@@ -5,10 +5,12 @@ import { proposalsService } from '../../services/data.service';
 import { type Proposal, ProposalStatus } from '../../types/proposal.types';
 import { type ApiError } from '../../types/common.types';
 import { formatDate, formatCurrency } from '../../utils/formatters';
+import { useStore } from '../../hooks/useStore';
 
 export const ProposalDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const { addNotification } = useStore();
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +38,11 @@ export const ProposalDetailPage = () => {
       await proposalsService.updateStatus(id, newStatus);
       if (proposal) {
         setProposal({ ...proposal, status: newStatus });
+        addNotification({
+          type: 'info',
+          title: 'Proposal updated',
+          message: `"${proposal.title}" status changed to ${newStatus}.`,
+        });
       }
     } catch (err: any) {
       alert(err.message || 'Failed to update status');
@@ -65,6 +72,13 @@ export const ProposalDetailPage = () => {
     if (!dueDate) return;
     try {
       const invoice = await proposalsService.convertToInvoice(id, dueDate);
+      addNotification({
+        type: 'success',
+        title: 'Invoice created',
+        message: proposal
+          ? `Proposal "${proposal.title}" was converted to an invoice.`
+          : 'A proposal was converted to an invoice.',
+      });
       navigate(`/invoices/${invoice.id}`);
     } catch (err: any) {
       alert(err.message || 'Failed to convert to invoice');

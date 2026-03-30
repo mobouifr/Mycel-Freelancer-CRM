@@ -7,10 +7,12 @@ import { type ClientFormData } from '../../utils/validation';
 import { type Client } from '../../types/client.types';
 import { type ApiError } from '../../types/common.types';
 import CenteredModal from '../../components/modals/CenteredModal';
+import { useStore } from '../../hooks/useStore';
 
 export const EditClientPage = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const { addNotification } = useStore();
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -37,7 +39,12 @@ export const EditClientPage = () => {
     if (!id) return;
     setIsSaving(true);
     try {
-      await clientsService.update(id, data);
+      const updatedClient = await clientsService.update(id, data);
+      addNotification({
+        type: 'info',
+        title: 'Client updated',
+        message: `"${updatedClient.name}" was updated.`,
+      });
       navigate('/clients');
     } catch (err: any) {
       alert(err.message || 'Failed to update client');

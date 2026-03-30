@@ -6,10 +6,12 @@ import { ProjectForm } from '../../components/projects/ProjectForm';
 import { type ProjectFormData } from '../../utils/validation';
 import { type Project } from '../../types/project.types';
 import { type ApiError } from '../../types/common.types';
+import { useStore } from '../../hooks/useStore';
 
 export const EditProjectPage = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const { addNotification } = useStore();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -36,7 +38,12 @@ export const EditProjectPage = () => {
     if (!id) return;
     setIsSaving(true);
     try {
-      await projectsService.update(id, data as any);
+      const updatedProject = await projectsService.update(id, data as any);
+      addNotification({
+        type: 'info',
+        title: 'Project updated',
+        message: `"${updatedProject.title}" was updated.`,
+      });
       navigate('/projects');
     } catch (err: any) {
       alert(err.message || 'Failed to update project');

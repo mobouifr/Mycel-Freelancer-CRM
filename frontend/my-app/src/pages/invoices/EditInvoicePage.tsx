@@ -6,10 +6,12 @@ import { InvoiceForm } from '../../components/invoices/InvoiceForm';
 import { type InvoiceFormData } from '../../utils/validation';
 import { type Invoice } from '../../types/invoice.types';
 import { type ApiError } from '../../types/common.types';
+import { useStore } from '../../hooks/useStore';
 
 export const EditInvoicePage = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const { addNotification } = useStore();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -36,7 +38,12 @@ export const EditInvoicePage = () => {
     if (!id) return;
     setIsSaving(true);
     try {
-      await invoicesService.update(id, data as any);
+      const updatedInvoice = await invoicesService.update(id, data as any);
+      addNotification({
+        type: 'info',
+        title: 'Invoice updated',
+        message: `Invoice status is now ${updatedInvoice.status}.`,
+      });
       navigate('/invoices');
     } catch (err: any) {
       alert(err.message || 'Failed to update invoice');
