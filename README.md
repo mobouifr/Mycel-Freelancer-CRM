@@ -218,6 +218,47 @@ freelancer-crm-final-project/
 
 ---
 
+## Modules of Choice (Minor) — 1 Point Candidate
+
+### Adaptive Dashboard Layout System (Frontend)
+
+**Claim:** `Modules of choice` → **Minor (1 point)**
+
+**Why this is a valid custom module**
+- It is not a standard CRUD page feature.
+- It introduces a reusable, stateful layout engine with user-controlled composition.
+- It includes persistence, import/export, presets, and undo behavior.
+
+**Implemented scope (evidence in code)**
+- `frontend/my-app/src/hooks/useDashboardLayout.ts`
+     - Presets (`default`, `compact`, `focus`, `finance`)
+     - Layout persistence in `localStorage`
+     - Undo stack
+     - JSON export/import for layout state
+- `frontend/my-app/src/components/dashboard/WidgetGrid.tsx`
+     - Drag-and-drop + resize integration with `react-grid-layout`
+- `frontend/my-app/src/components/dashboard/WidgetPicker.tsx`
+     - Widget toggle panel
+     - Preset application
+     - Clear layout / undo controls
+     - Layout import/export actions
+- `frontend/my-app/src/pages/Dashboard.tsx`
+     - End-to-end integration of editing mode + picker + grid
+
+### Evaluation Demo Steps (2–3 minutes)
+
+1. Open the dashboard (`/`).
+2. Click **Edit Layout**.
+3. Drag at least one widget and resize another.
+4. Click **Customize** and apply a different preset (e.g., `Finance`).
+5. Toggle one widget off, then use **Undo** to restore it.
+6. Use layout **Export** and **Import** actions from the picker.
+7. Refresh the page to show layout persistence from `localStorage`.
+
+**Expected result:** evaluator can observe user-driven dashboard customization with persistent state and reversible actions, which supports a **custom Minor module (+1)** claim.
+
+---
+
 ## Team & Individual Contributions
 
 ### montassir (mobouifr) — Frontend Lead / Design System

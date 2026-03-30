@@ -34,7 +34,7 @@ export default function TwoFactorAuth() {
   return (
     <div style={{
       height: '100vh', display: 'flex',
-      background: 'var(--bg)', position: 'relative',
+      background: 'linear-gradient(135deg, var(--bg) 0%, var(--bg2) 100%)', position: 'relative',
     }}>
       {/* Header with logo and theme switcher */}
       <div style={{
@@ -106,8 +106,9 @@ export default function TwoFactorAuth() {
       }}>
       <div style={{
         width: '100%', maxWidth: 400,
-        borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border)',
-        boxShadow: '0 60px 120px var(--glass)',
+        borderRadius: 12, overflow: 'hidden', 
+        border: '1px solid var(--border)',
+        boxShadow: '0 60px 120px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05)',
         animation: 'scaleIn .5s var(--ease) both',
       }}>
         <div style={{
