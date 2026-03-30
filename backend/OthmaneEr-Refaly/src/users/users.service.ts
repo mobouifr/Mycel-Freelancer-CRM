@@ -1,59 +1,71 @@
 import { Injectable } from '@nestjs/common';
 import { User } from './user.entity';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
-    private userbase: User[] = [];
-
+    // private userbase: User[] = [];
+    constructor(private readonly prisma: PrismaService) {}
     //*?**********************My functions "Othmane Er-REfaly"**********************
 
-    
+    async createUser(username: string, email: string, passwordHash?: string, intraId?: string): Promise<User> {
+        const newUser = await this.prisma.user.create({
+            data: {
+                username,
+                email,
+                xp: 0,
+                level: 1,
+                passwordHash: passwordHash || null,
+                intraId: intraId || null,
+            }
+        });
+        return newUser;
+    }
 
-    createUser(username: string, email: string, passwordHash?: string, intraId?: string): User {
-        const user: User = {
-            id: Date.now(),
-            username,
-            email,
-            createdAt: new Date(),
-            // added xp and level for gamification
-            xp: 0,
-            level: 1,
-        };
-        // Only attach these if they exist
-        if (passwordHash) user.passwordHash = passwordHash;
-        if (intraId) user.intraId = intraId;
+    // createUser(username: string, email: string, passwordHash?: string, intraId?: string): User {
+    //     const user: User = {
+    //         id: Date.now(),
+    //         username,
+    //         email,
+    //         createdAt: new Date(),
+    //         // added xp and level for gamification
+    //         xp: 0,
+    //         level: 1,
+    //     };
+    //     // Only attach these if they exist
+    //     if (passwordHash) user.passwordHash = passwordHash;
+    //     if (intraId) user.intraId = intraId;
         
-        this.userbase.push(user);
-        return user;
+    //     this.userbase.push(user);
+    //     return user;
+    // }
+    
+    async findByEmail(email: string): Promise<User | null> {
+        return this.prisma.user.findUnique({ where: { email } });
     }
 
-    findByEmail(email: string): User | undefined {
-        return this.userbase.find(user => user.email === email);
-        //works on mac, not on session, i think i need to add the tsconfing file.
+    // findByIntraId(intraId: string): User | undefined {
+    //     return this.userbase.find(user => user.intraId === intraId);
+    // }
+
+    async findByIntraId(intraId: string): Promise<User | null> {
+        return this.prisma.user.findUnique({ where: { intraId } });
     }
+
 
     ////*?**********************Zouita functions"Bdal li biti all working fine now "**********************
-
-
-
-    findByIntraId(intraId: string): User | undefined {
-        return this.userbase.find(user => user.intraId === intraId);
-    }
+    //TODOD : "Souita" make sure to change these functions of yours to match the prisma shit.
 
     // added this method for gamification to find the user by ID and update their XP and Level
-    findOne(id: number): User | undefined {
-        return this.userbase.find(user => user.id === id);
+    async findOne(id: string): Promise<User | null> {
+        return this.prisma.user.findUnique({ where: { id } });
     }
 
     // added this method for gamification to save the newly calculated XP and Level
-    update(id: number, updateData: Partial<User>): User | undefined {
-        const userIndex = this.userbase.findIndex(u => u.id === id);
-        if (userIndex > -1) {
-            // Merges the existing user data with the new incoming data (like { xp: 250, level: 2 })
-            this.userbase[userIndex] = { ...this.userbase[userIndex], ...updateData };
-            return this.userbase[userIndex];
-        }
-        return undefined; 
+    async update(id: string, updateData: Partial<User>): Promise<User | null> {
+        return this.prisma.user.update({
+            where: { id },
+            data: updateData,
+        });
     }
-
 }
