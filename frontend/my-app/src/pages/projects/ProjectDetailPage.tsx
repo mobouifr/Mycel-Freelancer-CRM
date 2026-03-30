@@ -54,7 +54,15 @@ export const ProjectDetailPage = () => {
   if (error || !project) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div
+          style={{
+            background: 'var(--danger-bg)',
+            border: '1px solid var(--danger)',
+            color: 'var(--danger)',
+            padding: '12px 16px',
+            borderRadius: 8,
+          }}
+        >
           {error || 'Project not found'}
         </div>
       </div>
@@ -73,59 +81,90 @@ export const ProjectDetailPage = () => {
         <div className="flex gap-3">
           <button
             onClick={() => navigate(`/projects/${project.id}/edit`)}
-            className="inline-flex items-center rounded-full border border-emerald-400/70 bg-emerald-500/10 px-4 py-2 text-xs font-medium uppercase tracking-wide text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 transition-colors"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: 999,
+              border: '1px solid var(--accent)',
+              background: 'var(--accent-bg)',
+              color: 'var(--accent)',
+              padding: '8px 16px',
+              fontSize: 11,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '.06em',
+            }}
           >
             Edit
           </button>
           <button
             onClick={() => navigate('/projects')}
-            className="inline-flex items-center rounded-full border border-slate-300/70 bg-slate-800 px-4 py-2 text-xs font-medium uppercase tracking-wide text-slate-100 hover:bg-slate-700 hover:border-slate-100 transition-colors"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: 999,
+              border: '1px solid var(--border)',
+              background: 'var(--surface)',
+              color: 'var(--text)',
+              padding: '8px 16px',
+              fontSize: 11,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '.06em',
+            }}
           >
             Back to List
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6">
+      <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24 }}>
         <div className="space-y-4">
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Client</h3>
-            <p className="mt-1">{project.client?.name || '—'}</p>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Client</h3>
+            <p style={{ marginTop: 4, color: 'var(--text)' }}>{project.client?.name || '—'}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Description</h3>
-            <p className="mt-1 whitespace-pre-wrap">{project.description || '—'}</p>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Description</h3>
+            <p style={{ marginTop: 4, color: 'var(--text)', whiteSpace: 'pre-wrap' }}>{project.description || '—'}</p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h3 className="text-sm font-medium text-gray-500">Budget</h3>
-              <p className="mt-1">{formatCurrency(Number(project.budget))}</p>
+              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Budget</h3>
+              <p style={{ marginTop: 4, color: 'var(--text)' }}>{formatCurrency(Number(project.budget))}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500">Deadline</h3>
-              <p className="mt-1">{formatDate(project.deadline)}</p>
+              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Deadline</h3>
+              <p style={{ marginTop: 4, color: 'var(--text)' }}>{formatDate(project.deadline)}</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h3 className="text-sm font-medium text-gray-500">Created</h3>
-              <p className="mt-1">{formatDate(project.createdAt)}</p>
+              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Created</h3>
+              <p style={{ marginTop: 4, color: 'var(--text)' }}>{formatDate(project.createdAt)}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500">Last Updated</h3>
-              <p className="mt-1">{formatDate(project.updatedAt)}</p>
+              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Last Updated</h3>
+              <p style={{ marginTop: 4, color: 'var(--text)' }}>{formatDate(project.updatedAt)}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6 mt-4">
-        <h2 className="text-lg font-semibold mb-4">Actions</h2>
+      <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24, marginTop: 16 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: 'var(--text)' }}>Actions</h2>
         <div className="flex gap-2 flex-wrap">
           <select
             value={project.status}
             onChange={(e) => handleStatusChange(e.target.value as ProjectStatus)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={{
+              padding: '10px 14px',
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              background: 'var(--surface)',
+              color: 'var(--text)',
+              outline: 'none',
+            }}
           >
             {Object.values(ProjectStatus).map((status) => (
               <option key={status} value={status}>

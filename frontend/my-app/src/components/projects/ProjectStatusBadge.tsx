@@ -8,8 +8,9 @@ interface ProjectStatusBadgeProps {
 export const ProjectStatusBadge = ({ status }: ProjectStatusBadgeProps) => {
   const statusStyles: Record<ProjectStatus, React.CSSProperties> = {
     [ProjectStatus.ACTIVE]: {
-      backgroundColor: '#d1fae5', // light green
-      color: '#065f46',
+      backgroundColor: 'var(--success-bg)',
+      color: 'var(--success)',
+      border: '1px solid var(--success)',
       padding: '4px 12px',
       borderRadius: '12px',
       fontSize: '11px',
@@ -18,8 +19,9 @@ export const ProjectStatusBadge = ({ status }: ProjectStatusBadgeProps) => {
       fontFamily: 'var(--font-m)',
     },
     [ProjectStatus.COMPLETED]: {
-      backgroundColor: '#dbeafe', // light blue
-      color: '#1e40af',
+      backgroundColor: 'var(--info-bg)',
+      color: 'var(--info)',
+      border: '1px solid var(--info)',
       padding: '4px 12px',
       borderRadius: '12px',
       fontSize: '11px',
@@ -28,8 +30,9 @@ export const ProjectStatusBadge = ({ status }: ProjectStatusBadgeProps) => {
       fontFamily: 'var(--font-m)',
     },
     [ProjectStatus.PAUSED]: {
-      backgroundColor: '#fef3c7', // yellow
-      color: '#92400e',
+      backgroundColor: 'var(--warning-bg)',
+      color: 'var(--warning)',
+      border: '1px solid var(--warning)',
       padding: '4px 12px',
       borderRadius: '12px',
       fontSize: '11px',
@@ -38,9 +41,9 @@ export const ProjectStatusBadge = ({ status }: ProjectStatusBadgeProps) => {
       fontFamily: 'var(--font-m)',
     },
     [ProjectStatus.CANCELLED]: {
-      backgroundColor: '#ffffff', // white
-      color: '#000000',
-      border: '1px solid #000000',
+      backgroundColor: 'var(--danger-bg)',
+      color: 'var(--danger)',
+      border: '1px solid var(--danger)',
       padding: '4px 12px',
       borderRadius: '12px',
       fontSize: '11px',

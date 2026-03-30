@@ -6,11 +6,27 @@ interface InvoiceStatusBadgeProps {
 }
 
 export const InvoiceStatusBadge = ({ status }: InvoiceStatusBadgeProps) => {
-  const statusColors = {
-    [InvoiceStatus.PENDING]: 'bg-yellow-100 text-yellow-800',
-    [InvoiceStatus.PAID]: 'bg-green-100 text-green-800',
-    [InvoiceStatus.OVERDUE]: 'bg-red-100 text-red-800',
-    [InvoiceStatus.CANCELLED]: 'bg-gray-100 text-gray-800',
+  const statusStyles: Record<InvoiceStatus, React.CSSProperties> = {
+    [InvoiceStatus.PENDING]: {
+      backgroundColor: 'var(--warning-bg)',
+      color: 'var(--warning)',
+      border: '1px solid var(--warning)',
+    },
+    [InvoiceStatus.PAID]: {
+      backgroundColor: 'var(--success-bg)',
+      color: 'var(--success)',
+      border: '1px solid var(--success)',
+    },
+    [InvoiceStatus.OVERDUE]: {
+      backgroundColor: 'var(--danger-bg)',
+      color: 'var(--danger)',
+      border: '1px solid var(--danger)',
+    },
+    [InvoiceStatus.CANCELLED]: {
+      backgroundColor: 'var(--surface)',
+      color: 'var(--text-mid)',
+      border: '1px solid var(--border)',
+    },
   };
 
   const statusLabels = {
@@ -21,7 +37,17 @@ export const InvoiceStatusBadge = ({ status }: InvoiceStatusBadgeProps) => {
   };
 
   return (
-    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[status]}`}>
+    <span
+      style={{
+        ...statusStyles[status],
+        padding: '4px 12px',
+        borderRadius: '12px',
+        fontSize: '11px',
+        fontWeight: 600,
+        textTransform: 'uppercase',
+        fontFamily: 'var(--font-m)',
+      }}
+    >
       {statusLabels[status]}
     </span>
   );

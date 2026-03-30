@@ -18,12 +18,12 @@ const getClientInitials = (name: string): string => {
 // Helper function to get avatar color based on client name
 const getAvatarColor = (name: string): string => {
   const colors = [
-    '#f97316', // orange
-    '#3b82f6', // blue
-    '#ec4899', // pink
-    '#a855f7', // purple
-    '#f59e0b', // amber
-    '#10b981', // emerald
+    'var(--accent)',
+    'var(--info)',
+    'var(--warning)',
+    'var(--danger)',
+    'var(--sidebar-active)',
+    'var(--success)',
   ];
   const index = name.charCodeAt(0) % colors.length;
   return colors[index];
@@ -33,22 +33,22 @@ const getPriorityStyle = (priority: ProjectPriority): React.CSSProperties => {
   switch (priority) {
     case ProjectPriority.HIGH:
       return {
-        color: '#fca5a5',
-        backgroundColor: 'rgba(239, 68, 68, 0.14)',
-        border: '1px solid rgba(239, 68, 68, 0.35)',
+        color: 'var(--danger)',
+        backgroundColor: 'var(--danger-bg)',
+        border: '1px solid var(--danger)',
       };
     case ProjectPriority.LOW:
       return {
-        color: '#86efac',
-        backgroundColor: 'rgba(34, 197, 94, 0.14)',
-        border: '1px solid rgba(34, 197, 94, 0.35)',
+        color: 'var(--success)',
+        backgroundColor: 'var(--success-bg)',
+        border: '1px solid var(--success)',
       };
     case ProjectPriority.MEDIUM:
     default:
       return {
-        color: '#fde68a',
-        backgroundColor: 'rgba(245, 158, 11, 0.14)',
-        border: '1px solid rgba(245, 158, 11, 0.35)',
+        color: 'var(--warning)',
+        backgroundColor: 'var(--warning-bg)',
+        border: '1px solid var(--warning)',
       };
   }
 };
@@ -57,7 +57,7 @@ export const ProjectsListPage = () => {
   const navigate = useNavigate();
   const { projects, loading, error, deleteProject } = useProjects();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter] = useState<ProjectStatus | 'ALL'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'ALL'>('ALL');
 
   const filteredProjects = projects.filter((project) => {
     const matchesSearch =
@@ -90,9 +90,9 @@ export const ProjectsListPage = () => {
     return (
       <div style={{ padding: '24px' }}>
         <div style={{
-          backgroundColor: '#fee2e2',
-          border: '1px solid #fecaca',
-          color: '#991b1b',
+          backgroundColor: 'var(--danger-bg)',
+          border: '1px solid var(--danger)',
+          color: 'var(--danger)',
           padding: '12px 16px',
           borderRadius: '8px',
         }}>
@@ -106,7 +106,7 @@ export const ProjectsListPage = () => {
     <div
       style={{
         padding: '32px',
-        backgroundColor: '#060606', // match app dark background
+        backgroundColor: 'var(--bg)',
         minHeight: '100vh',
       }}
     >
@@ -115,61 +115,69 @@ export const ProjectsListPage = () => {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '32px',
+        marginBottom: 24,
       }}>
-        <h1
-          style={{
-            fontSize: '32px',
-            fontWeight: 700,
-            fontFamily: 'var(--font-display)',
-            color: 'var(--text)',
-            margin: 0,
-          }}
-        >
-          Projects
-        </h1>
+        <div>
+          <h1
+            style={{
+              fontFamily: 'var(--font-d)',
+              fontWeight: 500,
+              fontSize: 26,
+              color: 'var(--text)',
+              letterSpacing: '.06em',
+              lineHeight: 1.3,
+              marginBottom: 4,
+            }}
+          >
+            Projects
+          </h1>
+          <p
+            style={{
+              fontFamily: 'var(--font-m)',
+              fontSize: 11,
+              color: 'var(--text-dim)',
+              letterSpacing: '.04em',
+            }}
+          >
+            Track your active and completed projects
+          </p>
+        </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div style={{ position: 'relative' }}>
-        <input
-          type="text"
-              placeholder="Search records..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                padding: '10px 16px 10px 40px',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-                fontSize: '14px',
-                width: '280px',
-                fontFamily: 'var(--font-m)',
-                backgroundColor: 'var(--surface)',
-                color: 'var(--text)',
-                outline: 'none',
-              }}
-            />
-            <span style={{
-              position: 'absolute',
-              left: '12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              fontSize: '16px',
-            }}>
-              🔍
-            </span>
-          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as ProjectStatus | 'ALL')}
+            style={{
+              padding: '10px 14px',
+              borderRadius: '8px',
+              border: '1px solid var(--border)',
+              backgroundColor: 'var(--surface)',
+              color: 'var(--text)',
+              fontFamily: 'var(--font-m)',
+              fontSize: '13px',
+              outline: 'none',
+            }}
+          >
+            <option value="ALL">All Statuses</option>
+            {Object.values(ProjectStatus).map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
           <button
             onClick={() => navigate('/projects/new')}
             style={{
               padding: '10px 20px',
-              backgroundColor: 'var(--accent)',
-              color: 'var(--white)',
+              borderRadius: 6,
               border: 'none',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 600,
+              background: 'var(--accent)',
+              color: 'var(--white)',
               fontFamily: 'var(--font-m)',
+              fontSize: 11,
+              fontWeight: 500,
+              letterSpacing: '.06em',
               cursor: 'pointer',
-              transition: 'background-color 0.2s',
+              transition: 'background .2s var(--ease), transform .1s var(--ease)',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = 'var(--accent-hover)';
@@ -178,15 +186,37 @@ export const ProjectsListPage = () => {
               e.currentTarget.style.backgroundColor = 'var(--accent)';
             }}
           >
-            + Add Project
+            + New Project
           </button>
         </div>
+      </div>
+
+      {/* Search */}
+      <div style={{ marginBottom: 20 }}>
+        <input
+          type="text"
+          placeholder="Search projects by title, description, or client..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            width: '100%',
+            maxWidth: 420,
+            padding: '10px 12px',
+            borderRadius: 6,
+            border: '1px solid var(--border)',
+            background: 'var(--surface-2)',
+            color: 'var(--text)',
+            fontFamily: 'var(--font-m)',
+            fontSize: 12,
+            outline: 'none',
+          }}
+        />
       </div>
 
       {/* Main Content Container */}
       <div
         style={{
-          backgroundColor: '#0e0e0e', // dark surface similar to clients table
+          backgroundColor: 'var(--surface-2)',
           borderRadius: '12px',
           border: '1px solid var(--border)',
           padding: '24px',
@@ -222,7 +252,7 @@ export const ProjectsListPage = () => {
 
         {/* Table */}
         {filteredProjects.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '48px 0', color: '#6b7280' }}>
+          <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-dim)' }}>
             <p>No projects found.</p>
           </div>
         ) : (
@@ -329,7 +359,7 @@ export const ProjectsListPage = () => {
                   <tr
                     key={project.id}
                     style={{
-                      borderTop: index > 0 ? '1px solid #e5e5e5' : 'none',
+                      borderTop: index > 0 ? '1px solid var(--border)' : 'none',
                     }}
                   >
                     <td style={{ padding: '16px' }}>
@@ -367,7 +397,7 @@ export const ProjectsListPage = () => {
                           height: '32px',
                           borderRadius: '4px',
                           backgroundColor: avatarColor,
-                          color: '#ffffff',
+                          color: 'var(--bg)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -476,7 +506,7 @@ export const ProjectsListPage = () => {
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = 'var(--accent)';
-                            e.currentTarget.style.color = '#050505';
+                            e.currentTarget.style.color = 'var(--bg)';
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.background = 'var(--accent-bg)';
@@ -488,8 +518,8 @@ export const ProjectsListPage = () => {
                       <button
                         onClick={() => handleDelete(project)}
                           style={{
-                            background: 'rgba(230, 90, 90, 0.08)',
-                            border: '1px solid rgba(230, 90, 90, 0.35)',
+                            background: 'var(--danger-bg)',
+                            border: '1px solid var(--danger)',
                             color: 'var(--danger)',
                             cursor: 'pointer',
                             fontFamily: 'var(--font-m)',
@@ -502,10 +532,10 @@ export const ProjectsListPage = () => {
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = 'var(--danger)';
-                            e.currentTarget.style.color = '#050505';
+                            e.currentTarget.style.color = 'var(--bg)';
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(230, 90, 90, 0.08)';
+                            e.currentTarget.style.background = 'var(--danger-bg)';
                             e.currentTarget.style.color = 'var(--danger)';
                           }}
                       >

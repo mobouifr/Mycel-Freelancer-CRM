@@ -13,7 +13,10 @@ export const InvoicesListPage = () => {
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus | 'ALL'>('ALL');
 
   const filteredInvoices = invoices.filter((invoice) => {
-    const matchesSearch = invoice.project?.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      invoice.project?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      String(invoice.amount).toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'ALL' || invoice.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -41,9 +44,9 @@ export const InvoicesListPage = () => {
       <div style={{ padding: '24px' }}>
         <div
           style={{
-            backgroundColor: '#fee2e2',
-            border: '1px solid #fecaca',
-            color: '#991b1b',
+            backgroundColor: 'var(--danger-bg)',
+            border: '1px solid var(--danger)',
+            color: 'var(--danger)',
             padding: '12px 16px',
             borderRadius: '8px',
           }}
@@ -58,7 +61,7 @@ export const InvoicesListPage = () => {
     <div
       style={{
         padding: '32px',
-        backgroundColor: '#060606',
+        backgroundColor: 'var(--bg)',
         minHeight: '100vh',
       }}
     >
@@ -68,51 +71,35 @@ export const InvoicesListPage = () => {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '32px',
+          marginBottom: 24,
         }}
       >
-        <h1
-          style={{
-            fontSize: '32px',
-            fontWeight: 700,
-            fontFamily: 'var(--font-display)',
-            color: 'var(--text)',
-            margin: 0,
-          }}
-        >
-          Invoices
-        </h1>
+        <div>
+          <h1
+            style={{
+              fontFamily: 'var(--font-d)',
+              fontWeight: 500,
+              fontSize: 26,
+              color: 'var(--text)',
+              letterSpacing: '.06em',
+              lineHeight: 1.3,
+              marginBottom: 4,
+            }}
+          >
+            Invoices
+          </h1>
+          <p
+            style={{
+              fontFamily: 'var(--font-m)',
+              fontSize: 11,
+              color: 'var(--text-dim)',
+              letterSpacing: '.04em',
+            }}
+          >
+            Manage invoice status and payment tracking
+          </p>
+        </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div style={{ position: 'relative' }}>
-        <input
-          type="text"
-          placeholder="Search invoices..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                padding: '10px 16px 10px 40px',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-                fontSize: '14px',
-                width: '260px',
-                fontFamily: 'var(--font-m)',
-                backgroundColor: 'var(--surface)',
-                color: 'var(--text)',
-                outline: 'none',
-              }}
-            />
-            <span
-              style={{
-                position: 'absolute',
-                left: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                fontSize: '16px',
-              }}
-            >
-              🔍
-            </span>
-          </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as InvoiceStatus | 'ALL')}
@@ -138,21 +125,22 @@ export const InvoicesListPage = () => {
             onClick={() => navigate('/invoices/new')}
             style={{
               padding: '10px 20px',
-              backgroundColor: '#22c55e',
-              color: '#050505',
+              borderRadius: 6,
               border: 'none',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 600,
+              background: 'var(--accent)',
+              color: 'var(--white)',
               fontFamily: 'var(--font-m)',
+              fontSize: 11,
+              fontWeight: 500,
+              letterSpacing: '.06em',
               cursor: 'pointer',
-              transition: 'background-color 0.2s',
+              transition: 'background .2s var(--ease), transform .1s var(--ease)',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#16a34a';
+              e.currentTarget.style.backgroundColor = 'var(--accent-hover)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#22c55e';
+              e.currentTarget.style.backgroundColor = 'var(--accent)';
             }}
           >
             + New Invoice
@@ -160,10 +148,32 @@ export const InvoicesListPage = () => {
         </div>
       </div>
 
+      {/* Search */}
+      <div style={{ marginBottom: 20 }}>
+        <input
+          type="text"
+          placeholder="Search invoices by project, status, or amount..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            width: '100%',
+            maxWidth: 420,
+            padding: '10px 12px',
+            borderRadius: 6,
+            border: '1px solid var(--border)',
+            background: 'var(--surface-2)',
+            color: 'var(--text)',
+            fontFamily: 'var(--font-m)',
+            fontSize: 12,
+            outline: 'none',
+          }}
+        />
+      </div>
+
       {/* Main Content Container */}
       <div
         style={{
-          backgroundColor: '#0e0e0e',
+          backgroundColor: 'var(--surface-2)',
           borderRadius: '12px',
           border: '1px solid var(--border)',
           padding: '24px',
@@ -347,7 +357,7 @@ export const InvoicesListPage = () => {
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.background = 'var(--accent)';
-                          e.currentTarget.style.color = '#050505';
+                          e.currentTarget.style.color = 'var(--bg)';
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background = 'var(--accent-bg)';
@@ -359,8 +369,8 @@ export const InvoicesListPage = () => {
                       <button
                         onClick={() => handleDelete(invoice)}
                         style={{
-                          background: 'rgba(230, 90, 90, 0.08)',
-                          border: '1px solid rgba(230, 90, 90, 0.35)',
+                          background: 'var(--danger-bg)',
+                          border: '1px solid var(--danger)',
                           color: 'var(--danger)',
                           cursor: 'pointer',
                           fontFamily: 'var(--font-m)',
@@ -373,10 +383,10 @@ export const InvoicesListPage = () => {
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.background = 'var(--danger)';
-                          e.currentTarget.style.color = '#050505';
+                          e.currentTarget.style.color = 'var(--bg)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(230, 90, 90, 0.08)';
+                          e.currentTarget.style.background = 'var(--danger-bg)';
                           e.currentTarget.style.color = 'var(--danger)';
                         }}
                       >

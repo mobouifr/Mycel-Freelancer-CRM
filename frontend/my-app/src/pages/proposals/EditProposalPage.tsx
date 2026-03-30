@@ -70,7 +70,15 @@ export const EditProposalPage = () => {
   if (error || !proposal) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div
+          style={{
+            background: 'var(--danger-bg)',
+            border: '1px solid var(--danger)',
+            color: 'var(--danger)',
+            padding: '12px 16px',
+            borderRadius: 8,
+          }}
+        >
           {error || 'Proposal not found'}
         </div>
       </div>
@@ -79,8 +87,8 @@ export const EditProposalPage = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Edit Proposal</h1>
-      <div className="bg-white rounded-lg shadow p-6 max-w-2xl">
+      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text)' }}>Edit Proposal</h1>
+      <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24, maxWidth: 768 }}>
         <ProposalForm
           proposal={proposal}
           onSubmit={handleSubmit}

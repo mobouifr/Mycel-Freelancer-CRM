@@ -82,7 +82,15 @@ export const ProposalDetailPage = () => {
   if (error || !proposal) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div
+          style={{
+            background: 'var(--danger-bg)',
+            border: '1px solid var(--danger)',
+            color: 'var(--danger)',
+            padding: '12px 16px',
+            borderRadius: 8,
+          }}
+        >
           {error || 'Proposal not found'}
         </div>
       </div>
@@ -93,69 +101,137 @@ export const ProposalDetailPage = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold">{proposal.title}</h1>
-          <span className={`mt-2 inline-block px-2 py-1 text-xs font-semibold rounded-full ${
-            proposal.status === ProposalStatus.ACCEPTED
-              ? 'bg-green-100 text-green-800'
-              : proposal.status === ProposalStatus.REJECTED
-              ? 'bg-red-100 text-red-800'
-              : proposal.status === ProposalStatus.SENT
-              ? 'bg-blue-100 text-blue-800'
-              : 'bg-gray-100 text-gray-800'
-          }`}>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>{proposal.title}</h1>
+          <span
+            style={{
+              marginTop: 8,
+              display: 'inline-block',
+              padding: '4px 10px',
+              fontSize: 11,
+              fontWeight: 600,
+              borderRadius: 999,
+              background:
+                proposal.status === ProposalStatus.ACCEPTED
+                  ? 'var(--success-bg)'
+                  : proposal.status === ProposalStatus.REJECTED
+                    ? 'var(--danger-bg)'
+                    : proposal.status === ProposalStatus.SENT
+                      ? 'var(--info-bg)'
+                      : 'var(--surface)',
+              color:
+                proposal.status === ProposalStatus.ACCEPTED
+                  ? 'var(--success)'
+                  : proposal.status === ProposalStatus.REJECTED
+                    ? 'var(--danger)'
+                    : proposal.status === ProposalStatus.SENT
+                      ? 'var(--info)'
+                      : 'var(--text-mid)',
+              border:
+                proposal.status === ProposalStatus.ACCEPTED
+                  ? '1px solid var(--success)'
+                  : proposal.status === ProposalStatus.REJECTED
+                    ? '1px solid var(--danger)'
+                    : proposal.status === ProposalStatus.SENT
+                      ? '1px solid var(--info)'
+                      : '1px solid var(--border)',
+            }}
+          >
             {proposal.status}
           </span>
         </div>
         <div className="flex gap-3">
           <button
             onClick={handleDownloadPDF}
-            className="inline-flex items-center rounded-full border border-emerald-400/70 bg-emerald-500/20 px-4 py-2 text-xs font-medium uppercase tracking-wide text-emerald-100 hover:bg-emerald-400 hover:text-slate-950 transition-colors"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: 999,
+              border: '1px solid var(--accent)',
+              background: 'var(--accent-bg)',
+              color: 'var(--accent)',
+              padding: '8px 16px',
+              fontSize: 11,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '.06em',
+            }}
           >
             Download PDF
           </button>
           <button
             onClick={() => navigate(`/proposals/${proposal.id}/edit`)}
-            className="inline-flex items-center rounded-full border border-emerald-400/70 bg-transparent px-4 py-2 text-xs font-medium uppercase tracking-wide text-emerald-300 hover:bg-emerald-500/10 transition-colors"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: 999,
+              border: '1px solid var(--accent)',
+              background: 'transparent',
+              color: 'var(--accent)',
+              padding: '8px 16px',
+              fontSize: 11,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '.06em',
+            }}
           >
             Edit
           </button>
           <button
             onClick={() => navigate('/proposals')}
-            className="inline-flex items-center rounded-full border border-slate-300/70 bg-slate-800 px-4 py-2 text-xs font-medium uppercase tracking-wide text-slate-100 hover:bg-slate-700 hover:border-slate-100 transition-colors"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: 999,
+              border: '1px solid var(--border)',
+              background: 'var(--surface)',
+              color: 'var(--text)',
+              padding: '8px 16px',
+              fontSize: 11,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '.06em',
+            }}
           >
             Back to List
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6 mb-4">
+      <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24, marginBottom: 16 }}>
         <div className="space-y-4">
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Project</h3>
-            <p className="mt-1">{proposal.project?.title || '—'}</p>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Project</h3>
+            <p style={{ marginTop: 4, color: 'var(--text)' }}>{proposal.project?.title || '—'}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Amount</h3>
-            <p className="mt-1 text-lg font-semibold">{formatCurrency(Number(proposal.amount))}</p>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Amount</h3>
+            <p style={{ marginTop: 4, fontSize: 18, fontWeight: 600, color: 'var(--text)' }}>{formatCurrency(Number(proposal.amount))}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Valid Until</h3>
-            <p className="mt-1">{formatDate(proposal.validUntil)}</p>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Valid Until</h3>
+            <p style={{ marginTop: 4, color: 'var(--text)' }}>{formatDate(proposal.validUntil)}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Notes</h3>
-            <p className="mt-1 whitespace-pre-wrap">{proposal.notes || '—'}</p>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Notes</h3>
+            <p style={{ marginTop: 4, color: 'var(--text)', whiteSpace: 'pre-wrap' }}>{proposal.notes || '—'}</p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">Actions</h2>
+      <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: 'var(--text)' }}>Actions</h2>
         <div className="flex gap-3 flex-wrap items-center">
           <select
             value={proposal.status}
             onChange={(e) => handleStatusChange(e.target.value as ProposalStatus)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={{
+              padding: '10px 14px',
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              background: 'var(--surface)',
+              color: 'var(--text)',
+              outline: 'none',
+            }}
           >
             {Object.values(ProposalStatus).map((status) => (
               <option key={status} value={status}>
@@ -165,7 +241,19 @@ export const ProposalDetailPage = () => {
           </select>
           <button
             onClick={handleConvertToInvoice}
-            className="inline-flex items-center rounded-full border border-purple-400/70 bg-purple-500/15 px-4 py-2 text-xs font-medium uppercase tracking-wide text-purple-100 hover:bg-purple-500 hover:text-slate-950 transition-colors"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: 999,
+              border: '1px solid var(--info)',
+              background: 'var(--info-bg)',
+              color: 'var(--info)',
+              padding: '8px 16px',
+              fontSize: 11,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '.06em',
+            }}
           >
             Convert to Invoice
           </button>

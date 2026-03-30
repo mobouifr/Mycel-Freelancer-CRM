@@ -39,8 +39,8 @@ export const CreateProposalPage = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Create New Proposal</h1>
-      <div className="bg-white rounded-lg shadow p-6 max-w-2xl">
+      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text)' }}>Create New Proposal</h1>
+      <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24, maxWidth: 768 }}>
         <ProposalForm
           onSubmit={handleSubmit}
           onCancel={() => navigate('/proposals')}

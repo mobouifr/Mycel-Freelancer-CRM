@@ -95,7 +95,15 @@ export const InvoiceDetailPage = () => {
   if (error || !invoice) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div
+          style={{
+            background: 'var(--danger-bg)',
+            border: '1px solid var(--danger)',
+            color: 'var(--danger)',
+            padding: '12px 16px',
+            borderRadius: 8,
+          }}
+        >
           {error || 'Invoice not found'}
         </div>
       </div>
@@ -114,51 +122,87 @@ export const InvoiceDetailPage = () => {
         <div className="flex gap-3">
           <button
             onClick={handleDownloadPDF}
-            className="inline-flex items-center rounded-full border border-emerald-400/70 bg-emerald-500/20 px-4 py-2 text-xs font-medium uppercase tracking-wide text-emerald-100 hover:bg-emerald-400 hover:text-slate-950 transition-colors"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: 999,
+              border: '1px solid var(--accent)',
+              background: 'var(--accent-bg)',
+              color: 'var(--accent)',
+              padding: '8px 16px',
+              fontSize: 11,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '.06em',
+            }}
           >
             Download PDF
           </button>
           <button
             onClick={() => navigate(`/invoices/${invoice.id}/edit`)}
-            className="inline-flex items-center rounded-full border border-emerald-400/70 bg-transparent px-4 py-2 text-xs font-medium uppercase tracking-wide text-emerald-300 hover:bg-emerald-500/10 transition-colors"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: 999,
+              border: '1px solid var(--accent)',
+              background: 'transparent',
+              color: 'var(--accent)',
+              padding: '8px 16px',
+              fontSize: 11,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '.06em',
+            }}
           >
             Edit
           </button>
           <button
             onClick={() => navigate('/invoices')}
-            className="inline-flex items-center rounded-full border border-slate-300/70 bg-slate-800 px-4 py-2 text-xs font-medium uppercase tracking-wide text-slate-100 hover:bg-slate-700 hover:border-slate-100 transition-colors"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: 999,
+              border: '1px solid var(--border)',
+              background: 'var(--surface)',
+              color: 'var(--text)',
+              padding: '8px 16px',
+              fontSize: 11,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '.06em',
+            }}
           >
             Back to List
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6 mb-4">
+      <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24, marginBottom: 16 }}>
         <div className="space-y-4">
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Project</h3>
-            <p className="mt-1">{invoice.project?.title || '—'}</p>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Project</h3>
+            <p style={{ marginTop: 4, color: 'var(--text)' }}>{invoice.project?.title || '—'}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Amount</h3>
-            <p className="mt-1 text-lg font-semibold">{formatCurrency(Number(invoice.amount))}</p>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Amount</h3>
+            <p style={{ marginTop: 4, fontSize: 18, fontWeight: 600, color: 'var(--text)' }}>{formatCurrency(Number(invoice.amount))}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Due Date</h3>
-            <p className="mt-1">{formatDate(invoice.dueDate)}</p>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Due Date</h3>
+            <p style={{ marginTop: 4, color: 'var(--text)' }}>{formatDate(invoice.dueDate)}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Notes</h3>
-            <p className="mt-1 whitespace-pre-wrap">{invoice.notes || '—'}</p>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Notes</h3>
+            <p style={{ marginTop: 4, color: 'var(--text)', whiteSpace: 'pre-wrap' }}>{invoice.notes || '—'}</p>
           </div>
           {invoice.payments && invoice.payments.length > 0 && (
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Payments</h3>
+              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 8 }}>Payments</h3>
               <div className="space-y-2">
                 {invoice.payments.map((payment) => (
-                  <div key={payment.id} className="border-l-4 border-green-500 pl-3">
-                    <p className="font-medium">{formatCurrency(Number(payment.amount))}</p>
-                    <p className="text-sm text-gray-500">{payment.method} - {formatDate(payment.paidAt)}</p>
+                  <div key={payment.id} style={{ borderLeft: '4px solid var(--success)', paddingLeft: 12 }}>
+                    <p style={{ fontWeight: 500, color: 'var(--text)' }}>{formatCurrency(Number(payment.amount))}</p>
+                    <p style={{ fontSize: 13, color: 'var(--text-dim)' }}>{payment.method} - {formatDate(payment.paidAt)}</p>
                   </div>
                 ))}
               </div>
@@ -168,20 +212,27 @@ export const InvoiceDetailPage = () => {
       </div>
 
       {invoice.status !== InvoiceStatus.PAID && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4">Mark as Paid</h2>
+        <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: 'var(--text)' }}>Mark as Paid</h2>
           {!showMarkPaidForm ? (
             <button
               onClick={() => setShowMarkPaidForm(true)}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              style={{
+                padding: '10px 14px',
+                background: 'var(--accent)',
+                color: 'var(--bg)',
+                border: 'none',
+                borderRadius: 8,
+                cursor: 'pointer',
+              }}
             >
               Mark as Paid
             </button>
           ) : (
             <form onSubmit={handleSubmit(handleMarkPaid)} className="space-y-4">
               <div>
-                <label htmlFor="amount" className="block text-sm font-medium mb-1">
-                  Amount <span className="text-red-500">*</span>
+                <label htmlFor="amount" className="block text-sm font-medium mb-1" style={{ color: 'var(--text)' }}>
+                  Amount <span style={{ color: 'var(--danger)' }}>*</span>
                 </label>
                 <input
                   id="amount"
@@ -189,31 +240,55 @@ export const InvoiceDetailPage = () => {
                   step="0.01"
                   min="0.01"
                   {...register('amount', { valueAsNumber: true })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: 8,
+                    background: 'var(--surface)',
+                    color: 'var(--text)',
+                    outline: 'none',
+                  }}
                 />
-                {errors.amount && <p className="text-red-500 text-sm mt-1">{errors.amount.message}</p>}
+                {errors.amount && <p style={{ color: 'var(--danger)', fontSize: 12, marginTop: 4 }}>{errors.amount.message}</p>}
               </div>
               <div>
-                <label htmlFor="method" className="block text-sm font-medium mb-1">
-                  Payment Method <span className="text-red-500">*</span>
+                <label htmlFor="method" className="block text-sm font-medium mb-1" style={{ color: 'var(--text)' }}>
+                  Payment Method <span style={{ color: 'var(--danger)' }}>*</span>
                 </label>
                 <input
                   id="method"
                   type="text"
                   {...register('method')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: 8,
+                    background: 'var(--surface)',
+                    color: 'var(--text)',
+                    outline: 'none',
+                  }}
                 />
-                {errors.method && <p className="text-red-500 text-sm mt-1">{errors.method.message}</p>}
+                {errors.method && <p style={{ color: 'var(--danger)', fontSize: 12, marginTop: 4 }}>{errors.method.message}</p>}
               </div>
               <div>
-                <label htmlFor="notes" className="block text-sm font-medium mb-1">
+                <label htmlFor="notes" className="block text-sm font-medium mb-1" style={{ color: 'var(--text)' }}>
                   Notes
                 </label>
                 <textarea
                   id="notes"
                   {...register('notes')}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: 8,
+                    background: 'var(--surface)',
+                    color: 'var(--text)',
+                    outline: 'none',
+                  }}
                 />
               </div>
               <div className="flex gap-3">
@@ -223,13 +298,37 @@ export const InvoiceDetailPage = () => {
                     setShowMarkPaidForm(false);
                     reset();
                   }}
-                  className="inline-flex items-center rounded-full border border-slate-300/70 bg-transparent px-4 py-2 text-xs font-medium uppercase tracking-wide text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    borderRadius: 999,
+                    border: '1px solid var(--border)',
+                    background: 'transparent',
+                    color: 'var(--text-mid)',
+                    padding: '8px 16px',
+                    fontSize: 11,
+                    fontWeight: 500,
+                    textTransform: 'uppercase',
+                    letterSpacing: '.06em',
+                  }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center rounded-full border border-emerald-400/70 bg-emerald-500/20 px-4 py-2 text-xs font-medium uppercase tracking-wide text-emerald-100 hover:bg-emerald-400 hover:text-slate-950 transition-colors"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    borderRadius: 999,
+                    border: '1px solid var(--accent)',
+                    background: 'var(--accent-bg)',
+                    color: 'var(--accent)',
+                    padding: '8px 16px',
+                    fontSize: 11,
+                    fontWeight: 500,
+                    textTransform: 'uppercase',
+                    letterSpacing: '.06em',
+                  }}
                 >
                   Mark as Paid
                 </button>

@@ -28,13 +28,22 @@ export const CreateInvoicePage = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Create New Invoice</h1>
+      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text)' }}>Create New Invoice</h1>
       {proposalId && (
-        <div className="mb-4 bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded">
+        <div
+          style={{
+            marginBottom: 16,
+            background: 'var(--info-bg)',
+            border: '1px solid var(--info)',
+            color: 'var(--info)',
+            padding: '12px 16px',
+            borderRadius: 8,
+          }}
+        >
           Creating invoice from proposal...
         </div>
       )}
-      <div className="bg-white rounded-lg shadow p-6 max-w-2xl">
+      <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24, maxWidth: 768 }}>
         <InvoiceForm onSubmit={handleSubmit} onCancel={() => navigate('/invoices')} isLoading={isLoading} />
       </div>
     </div>
