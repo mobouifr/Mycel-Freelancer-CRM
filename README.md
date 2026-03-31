@@ -165,7 +165,7 @@ npm install
 npm run start:dev
 
 # Frontend (separate terminal)
-cd frontend/my-app
+cd frontend
 npm install
 npm run dev
 ```
@@ -176,7 +176,7 @@ npm run dev
 
 ```
 freelancer-crm-final-project/
-├── frontend/my-app/          # React + Vite frontend
+├── frontend/          # React + Vite frontend
 │   ├── src/
 │   │   ├── components/       # Reusable UI components (Input, Button, Modal, StatCard, etc.)
 │   │   ├── components/dashboard/  # Dashboard widgets (RevenueKPI, InvoicesDue, etc.)
@@ -230,19 +230,19 @@ freelancer-crm-final-project/
 - It includes persistence, import/export, presets, and undo behavior.
 
 **Implemented scope (evidence in code)**
-- `frontend/my-app/src/hooks/useDashboardLayout.ts`
+- `frontend/src/hooks/useDashboardLayout.ts`
      - Presets (`default`, `compact`, `focus`, `finance`)
      - Layout persistence in `localStorage`
      - Undo stack
      - JSON export/import for layout state
-- `frontend/my-app/src/components/dashboard/WidgetGrid.tsx`
+- `frontend/src/components/dashboard/WidgetGrid.tsx`
      - Drag-and-drop + resize integration with `react-grid-layout`
-- `frontend/my-app/src/components/dashboard/WidgetPicker.tsx`
+- `frontend/src/components/dashboard/WidgetPicker.tsx`
      - Widget toggle panel
      - Preset application
      - Clear layout / undo controls
      - Layout import/export actions
-- `frontend/my-app/src/pages/Dashboard.tsx`
+- `frontend/src/pages/Dashboard.tsx`
      - End-to-end integration of editing mode + picker + grid
 
 ### Evaluation Demo Steps (2–3 minutes)
