@@ -1,7 +1,7 @@
 # ============================================================================
 # BACKEND DOCKERFILE — NestJS Production Multi-Stage Build
 # ============================================================================
-# Build context: project root (not apps/backend/)
+# Build context: project root (not backend/)
 # Usage: docker build -f docker/backend.Dockerfile -t crm-backend .
 # ============================================================================
 
@@ -19,10 +19,10 @@ RUN apk add --no-cache openssl
 # Copy only the files needed for dependency resolution
 # Generate dummy root package.json so Prisma detects project root at /app
 RUN echo '{"name":"workspace-root"}' > package.json
-# PRESERVE MONOREPO STRUCTURE: Copy to apps/backend/ instead of root
-COPY apps/backend/package.json apps/backend/package-lock.json* ./apps/backend/
+# PRESERVE MONOREPO STRUCTURE: Copy to backend/ instead of root
+COPY backend/package.json backend/package-lock.json* ./backend/
 
-WORKDIR /app/apps/backend
+WORKDIR /app/backend
 
 # Install production dependencies only
 RUN npm install --omit=dev && \
@@ -43,7 +43,7 @@ WORKDIR /app
 RUN apk add --no-cache openssl
 
 # Copy installed node_modules (with devDependencies) from deps stage
-COPY --from=deps /app/apps/backend/node_modules ./apps/backend/node_modules
+COPY --from=deps /app/backend/node_modules ./backend/node_modules
 
 # Copy root package.json (so Prisma finds project root at /app)
 # Generate dummy root package.json (so Prisma finds project root at /app)
@@ -53,13 +53,13 @@ RUN echo '{"name":"workspace-root"}' > package.json
 COPY prisma ./prisma
 
 # Switch to backend dir
-WORKDIR /app/apps/backend
+WORKDIR /app/backend
 
 # Generate Prisma Client (explicit path to schema at /app/prisma/schema.prisma)
-RUN npx prisma generate --schema=../../prisma/schema.prisma
+RUN npx prisma generate --schema=/app/prisma/schema.prisma
 
-# Copy backend source code (to /app/apps/backend)
-COPY apps/backend ./
+# Copy backend source code (to /app/backend)
+COPY backend/. .
 
 # Build the NestJS application
 RUN npm run build
@@ -87,25 +87,25 @@ RUN addgroup --system --gid 1001 nestjs && \
     adduser --system --uid 1001 --ingroup nestjs nestjs
 
 # Copy production-only node_modules
-COPY --from=deps /prod_node_modules ./apps/backend/node_modules
+COPY --from=deps /prod_node_modules ./backend/node_modules
 
 # Copy compiled application
-COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
+COPY --from=builder /app/backend/dist ./backend/dist
 
 # Copy Prisma schema + generated client
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/apps/backend/node_modules/.prisma ./apps/backend/node_modules/.prisma
-COPY --from=builder /app/apps/backend/node_modules/@prisma ./apps/backend/node_modules/@prisma
+COPY --from=builder /app/backend/node_modules/.prisma ./backend/node_modules/.prisma
+COPY --from=builder /app/backend/node_modules/@prisma ./backend/node_modules/@prisma
 
 # Copy root package.json
 # Generate dummy root package.json
 RUN echo '{"name":"workspace-root"}' > package.json
 
 # Copy package.json
-COPY apps/backend/package.json ./apps/backend/
+COPY backend/package.json ./backend/
 
 # Set working directory to backend app
-WORKDIR /app/apps/backend
+WORKDIR /app/backend
 
 # Switch to non-root user
 USER nestjs

@@ -388,6 +388,34 @@ status:
 	$(call show_urls)
 
 # =============================================================================
+# MONITORING
+# =============================================================================
+
+## up-monitoring   : ▶  Start monitoring stack (Prometheus + Grafana)
+up-monitoring: docker-check
+	$(call print_header,Starting Monitoring Stack)
+	@$(DOCKER_COMPOSE) up -d prometheus grafana postgres-exporter
+	$(call print_success,Monitoring started)
+	@printf "  $(GREEN)Prometheus:$(RESET) http://localhost:9090\n"
+	@printf "  $(GREEN)Grafana:$(RESET)    http://localhost:3002\n"
+
+## down-monitoring : ⏹  Stop monitoring stack
+down-monitoring:
+	$(call print_header,Stopping Monitoring Stack)
+	@$(DOCKER_COMPOSE) stop prometheus grafana postgres-exporter
+	$(call print_success,Monitoring stopped)
+
+## restart-monitoring: 🔄 Restart monitoring stack
+restart-monitoring:
+	$(call print_header,Restarting Monitoring Stack)
+	@$(DOCKER_COMPOSE) restart prometheus grafana postgres-exporter
+	$(call print_success,Monitoring restarted)
+
+## logs-monitoring : 📋  Tail monitoring logs
+logs-monitoring:
+	@$(DOCKER_COMPOSE) logs -f prometheus grafana postgres-exporter
+
+# =============================================================================
 # PRODUCTION
 # =============================================================================
 
@@ -422,7 +450,8 @@ help:
 			category = ""; \
 			if ($$1 ~ /setup|install/) category = "SETUP"; \
 			else if ($$1 ~ /^dev|^up$$|^down$$|^restart$$/) category = "DEVELOPMENT"; \
-			else if ($$1 ~ /up-|down-|restart-/) category = "SERVICES"; \
+			else if ($$1 ~ /up-|down-|restart-|logs-monitoring/) category = "SERVICES"; \
+			else if ($$1 ~ /monitoring/) category = "MONITORING"; \
 			else if ($$1 ~ /^db-/) category = "DATABASE"; \
 			else if ($$1 ~ /^logs/) category = "LOGS"; \
 			else if ($$1 ~ /test|lint/) category = "TESTING"; \
@@ -455,4 +484,5 @@ help:
         shell-backend shell-frontend \
         stop clean fclean prune \
         status help \
+        up-monitoring down-monitoring restart-monitoring logs-monitoring \
         prod-up prod-down prod-logs
