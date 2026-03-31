@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { ProjectsController } from './projects.controller';
-import { GamificationModule } from '../gamification/gamification.module'; // 1. Add this import
+import { GamificationModule } from '../gamification/gamification.module';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-  imports: [GamificationModule], // 2. Add it to the imports array
+  imports: [GamificationModule, PrismaModule],
   controllers: [ProjectsController],
   providers: [ProjectsService],
 })

@@ -1,100 +1,83 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
-
-// NEW: Import the GamificationService so we can trigger the math
 import { GamificationService } from '../gamification/gamification.service';
-
-export interface Project {
-  id: number; 
-  userid: number; 
-  clientid: number;
-  title: string;
-  description: string;
-  status: 'planned' | 'in_progress' | 'completed' | 'cancelled'; 
-  due_date: string;
-  budget: number;
-  priority: 'low' | 'medium' | 'high' | 'urgent'; 
-}
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ProjectsService {
-  private projects: Project[] = [];
-  private nextId = 1;
+  constructor(
+    private readonly gamificationService: GamificationService,
+    private readonly prisma: PrismaService
+  ) {}
 
-  // NEW: Inject GamificationService into the constructor
-  constructor(private readonly gamificationService: GamificationService) {}
-
-  create(createProjectDto: CreateProjectDto | any): Project {
-    const newProject: Project = {
-      id: this.nextId++,
-      userid: createProjectDto.userid !== undefined ? createProjectDto.userid : 1,
-      clientid: createProjectDto.clientid !== undefined ? createProjectDto.clientid : 1,
+  async create(createProjectDto: CreateProjectDto | any) {
+    const data: any = {
       title: createProjectDto.title || '',
       description: createProjectDto.description || '',
-      status: createProjectDto.status || 'planned',
-      due_date: createProjectDto.due_date || '',
+      status: createProjectDto.status || 'ACTIVE',
       budget: createProjectDto.budget !== undefined ? createProjectDto.budget : 0,
-      priority: createProjectDto.priority || 'medium',
     };
-
-    this.projects.push(newProject);
-    return newProject;
+    if (createProjectDto.due_date) {
+        data.deadline = new Date(createProjectDto.due_date);
+    }
+    return await this.prisma.project.create({ data });
   }
 
-  findAll(): Project[] {
-    return this.projects;
+  async findAll() {
+    return await this.prisma.project.findMany();
   }
 
-  findOne(id: number): Project {
-    const project = this.projects.find((p) => p.id === id);
+  async findOne(id: string) {
+    const project = await this.prisma.project.findUnique({ where: { id } });
     if (!project) {
       throw new NotFoundException(`Project with ID ${id} not found`);
     }
     return project;
   }
 
-  update(id: number, updateProjectDto: UpdateProjectDto | any): Project {
-    const projectIndex = this.projects.findIndex((p) => p.id === id);
-
-    if (projectIndex === -1) {
+  async update(id: string, updateProjectDto: UpdateProjectDto | any) {
+    const existingProject = await this.prisma.project.findUnique({ where: { id } });
+    if (!existingProject) {
       throw new NotFoundException(`Project with ID ${id} not found`);
     }
 
-    // NEW: Capture the status before applying any updates
-    const oldStatus = this.projects[projectIndex].status;
+    const oldStatus = existingProject.status;
 
-    // Apply the updates to the project
-    this.projects[projectIndex] = {
-      ...this.projects[projectIndex],
-      ...updateProjectDto,
+    const data: any = {
+      ...updateProjectDto
     };
+    if (updateProjectDto.due_date) {
+        data.deadline = new Date(updateProjectDto.due_date);
+        delete data.due_date;
+    }
 
-    // NEW: Capture the status after applying the updates
-    const newStatus = this.projects[projectIndex].status;
+    const updatedProject = await this.prisma.project.update({
+      where: { id },
+      data
+    });
 
-    // NEW: The Trigger! If it changed to 'completed', award the XP
+    const newStatus = updatedProject.status;
+
     if (oldStatus !== 'completed' && newStatus === 'completed') {
-      const project = this.projects[projectIndex];
+      const userid = updateProjectDto.userid || 'uuid-user';
+      const priority = updateProjectDto.priority || 'medium';
       
       this.gamificationService.awardProjectCompletionXp(
-        project.userid,
-        project.budget,
-        project.priority
+        userid,
+        updatedProject.budget,
+        priority
       );
     }
 
-    return this.projects[projectIndex];
+    return updatedProject;
   }
 
-  remove(id: number): Project {
-    const projectIndex = this.projects.findIndex((p) => p.id === id);
-
-    if (projectIndex === -1) {
+  async remove(id: string) {
+    const existingProject = await this.prisma.project.findUnique({ where: { id } });
+    if (!existingProject) {
       throw new NotFoundException(`Project with ID ${id} not found`);
     }
-
-    const [deletedProject] = this.projects.splice(projectIndex, 1);
-    return deletedProject;
+    return await this.prisma.project.delete({ where: { id } });
   }
 }

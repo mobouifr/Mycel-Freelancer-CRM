@@ -1,81 +1,50 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
-
-export interface Customer {
-  id: number; // kept as number for in-memory simplicity, represents UUID in DB
-  userid: number; // represents user_id from DB
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  address: string;
-  status: 'active' | 'inactive' | 'archived'; 
-}
+import { PrismaService } from '../prisma/prisma.service';
+import { Client } from '@prisma/client';
 
 @Injectable()
 export class CustomersService {
-  private customers: Customer[] = []; // harawkan dyal database
-  private nextId = 1;
+  constructor(private readonly prisma: PrismaService) {}
 
-  // CREATE
-  create(createCustomerDto: CreateCustomerDto | any): Customer {
-    const newCustomer: Customer = {
-      id: this.nextId++,
-
-      userid: createCustomerDto.userid !== undefined ? createCustomerDto.userid : 1, 
-      name: createCustomerDto.name || '',
-      email: createCustomerDto.email || '',
-      phone: createCustomerDto.phone || '',
-      company: createCustomerDto.company || '',
-      address: createCustomerDto.address || '',
-      status: createCustomerDto.status || 'active', // default status
-    };
-
-    this.customers.push(newCustomer);
-    return newCustomer;
+  async create(createCustomerDto: CreateCustomerDto): Promise<Client> {
+    return this.prisma.client.create({
+      data: {
+        name: createCustomerDto.name,
+        email: createCustomerDto.email,
+        phone: createCustomerDto.phone,
+        company: createCustomerDto.company,
+      },
+    });
   }
 
-  // READ (All)
-  findAll(): Customer[] {
-    return this.customers;
+  async findAll(): Promise<Client[]> {
+    return this.prisma.client.findMany();
   }
 
-  // READ (One)
-  findOne(id: number): Customer {
-    const customer = this.customers.find(c => c.id === id);
+  async findOne(id: string): Promise<Client> {
+    const customer = await this.prisma.client.findUnique({
+      where: { id },
+    });
     if (!customer) {
       throw new NotFoundException(`Customer with ID ${id} not found`);
     }
     return customer;
   }
 
-  // UPDATE
-  update(id: number, updateCustomerDto: UpdateCustomerDto | any): Customer {
-    const customerIndex = this.customers.findIndex(c => c.id === id);
-
-    if (customerIndex === -1) {
-      throw new NotFoundException(`Customer with ID ${id} not found`);
-    }
-
-    // Merge existing customer data with the incoming updates
-    this.customers[customerIndex] = {
-      ...this.customers[customerIndex],
-      ...updateCustomerDto,
-    };
-
-    return this.customers[customerIndex];
+  async update(id: string, updateCustomerDto: UpdateCustomerDto): Promise<Client> {
+    await this.findOne(id); // Check existence
+    return this.prisma.client.update({
+      where: { id },
+      data: updateCustomerDto,
+    });
   }
 
-  // DELETE
-  remove(id: number): Customer {
-    const customerIndex = this.customers.findIndex(c => c.id === id);
-
-    if (customerIndex === -1) {
-      throw new NotFoundException(`Customer with ID ${id} not found`);
-    }
-
-    const [deletedCustomer] = this.customers.splice(customerIndex, 1);
-    return deletedCustomer;
+  async remove(id: string): Promise<Client> {
+    await this.findOne(id); // Check existence
+    return this.prisma.client.delete({
+      where: { id },
+    });
   }
 }

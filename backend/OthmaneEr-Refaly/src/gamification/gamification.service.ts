@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class GamificationService {
   private readonly logger = new Logger(GamificationService.name);
 
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   // XP needed to *reach* a given level (cumulative curve)
   // Example: L1 -> 0, L2 -> 100, L3 -> 400, L4 -> 900, ...
@@ -20,7 +20,7 @@ export class GamificationService {
     return level;
   }
 
-  awardProjectCompletionXp(userid: number, budget: number, priority: string) {
+  async awardProjectCompletionXp(userId: string, budget: number, priority: string) {
     const baseXP = 250;
 
     let multiplier = 1.0;
@@ -42,7 +42,10 @@ export class GamificationService {
     const budgetBonus = Math.floor(budget / 100);
     const xpAwarded = Math.floor(baseXP * multiplier + budgetBonus);
 
-    const user = this.usersService.findOne(userid);
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
 
     const previousLevel = user.level;
     const newTotalXp = user.xp + xpAwarded;
@@ -52,12 +55,15 @@ export class GamificationService {
     const leveledUp = newLevel > previousLevel;
 
     if (leveledUp) {
-      this.logger.log(`🎉 User ${userid} leveled up to Level ${newLevel}!`);
+      this.logger.log(`🎉 User ${userId} leveled up to Level ${newLevel}!`);
     }
 
-    this.usersService.update(userid, {
-      xp: newTotalXp,
-      level: newLevel,
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        xp: newTotalXp,
+        level: newLevel,
+      },
     });
 
     return {

@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { GamificationService } from './gamification.service';
-import { UsersModule } from '../users/users.module';
+import { PrismaModule } from '../prisma/prisma.module'; // Import PrismaModule
 
 @Module({
-  imports: [UsersModule], // Gives access to UsersService
+  imports: [PrismaModule], // Replace UsersModule with PrismaModule
   providers: [GamificationService],
   exports: [GamificationService], // Makes the XP logic available to Projects
 })

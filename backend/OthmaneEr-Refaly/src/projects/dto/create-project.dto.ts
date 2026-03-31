@@ -10,5 +10,5 @@ export class CreateProjectDto {
   budget?: number;
 
   // (Optional) simple numeric client relation for now
-  clientId?: number;
+  clientId?: string;
 }
