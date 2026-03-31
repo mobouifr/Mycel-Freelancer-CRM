@@ -1,7 +1,7 @@
 
 
 export class User {
-    id: number;
+    id: string;
     username: string;
     //name: string; //what wrong here ??
     businessName?: string; //for future use, if we want to add business accounts
