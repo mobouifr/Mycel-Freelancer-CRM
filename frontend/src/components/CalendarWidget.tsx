@@ -84,44 +84,52 @@ export default function CalendarWidget() {
         background: 'var(--surface-2)',
         border: '1px solid var(--border)',
         borderRadius: 8,
-        padding: '18px 20px',
+        padding: '12px 10px',
         position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        minWidth: 0,
+        overflow: 'hidden'
       }}
     >
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, gap: 4 }}>
         <p style={{
           fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-mid)',
-          letterSpacing: '.1em', textTransform: 'uppercase',
+          letterSpacing: '.1em', textTransform: 'uppercase', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis'
         }}>
           Calendar
         </p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 1, minWidth: 0 }}>
           <button onClick={prevMonth} aria-label="Previous month" style={navBtnStyle}>‹</button>
           <span style={{
             fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text)', letterSpacing: '.04em',
-            minWidth: 110, textAlign: 'center',
+            textAlign: 'center', flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
           }}>
-            {MONTHS[viewMonth]} {viewYear}
+            {MONTHS[viewMonth].slice(0,3)} {viewYear}
           </span>
           <button onClick={nextMonth} aria-label="Next month" style={navBtnStyle}>›</button>
         </div>
       </div>
 
       {/* Day headers */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 4 }}>
-        {DAYS.map((d) => (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: 2, marginBottom: 4 }}>
+        {DAYS.map(d => (
           <div key={d} style={{
-            fontFamily: 'var(--font-m)', fontSize: 8, color: 'var(--text-dim)',
-            letterSpacing: '.12em', textAlign: 'center', padding: '2px 0',
+            fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-mid)',
+            textAlign: 'center', padding: '4px 0', textTransform: 'uppercase', letterSpacing: '.05em', minWidth: 0, overflow: 'hidden', textOverflow: 'clip'
           }}>
             {d}
           </div>
         ))}
       </div>
 
-      {/* Day grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}>
+      {/* Grid */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: '2px',
+        flex: 1, minHeight: 0
+      }}>
         {grid.map((day, i) => {
           if (day === null) return <div key={`e-${i}`} />;
           const key = toKey(day);

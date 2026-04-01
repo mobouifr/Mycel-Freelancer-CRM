@@ -19,7 +19,7 @@ const VIEW_OPTIONS: { value: CalendarViewMode; label: string }[] = [
 export default function CalendarView() {
   const calendar = useCalendar();
   const { events, createEvent, editEvent, removeEvent, addTodo, addNotification } = useNotifications();
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(1100);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);

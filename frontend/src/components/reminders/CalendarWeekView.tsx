@@ -49,7 +49,7 @@ export default function CalendarWeekView({
           return (
             <div key={toDateKey(d)} style={{
               flex: 1, textAlign: 'center', padding: '8px 0',
-              borderLeft: '1px solid var(--border)',
+              borderLeft: '1px solid var(--border)', minWidth: 0, overflow: 'hidden'
             }}>
               <div style={{
                 fontFamily: 'var(--font-m)', fontSize: 9,
@@ -101,6 +101,7 @@ export default function CalendarWeekView({
               <div key={key} style={{
                 flex: 1, position: 'relative',
                 borderLeft: '1px solid var(--border)',
+                minWidth: 0, overflow: 'hidden'
               }}>
                 {/* Hour slots */}
                 {HOURS.map((h) => (

@@ -8,7 +8,7 @@ import type { Note } from '../hooks/useStore';
 type RightTab = 'notes' | 'todos';
 
 export default function Reminders() {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(1100);
   const [rightTab, setRightTab] = useState<RightTab>('notes');
   const [convertingNote, setConvertingNote] = useState<Note | null>(null);
 
