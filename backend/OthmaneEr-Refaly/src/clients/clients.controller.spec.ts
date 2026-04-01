@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CustomersController } from './customers.controller';
-import { CustomersService } from './customers.service';
+import { ClientsController } from './clients.controller';
+import { ClientsService } from './clients.service';
 
-const mockCustomersService = {
+const mockClientsService = {
   create: jest.fn(),
   findAll: jest.fn(),
   findOne: jest.fn(),
@@ -10,23 +10,23 @@ const mockCustomersService = {
   remove: jest.fn(),
 };
 
-describe('CustomersController', () => {
-  let controller: CustomersController;
-  let service: CustomersService;
+describe('ClientsController', () => {
+  let controller: ClientsController;
+  let service: ClientsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [CustomersController],
+      controllers: [ClientsController],
       providers: [
         {
-          provide: CustomersService,
-          useValue: mockCustomersService,
+          provide: ClientsService,
+          useValue: mockClientsService,
         },
       ],
     }).compile();
 
-    controller = module.get<CustomersController>(CustomersController);
-    service = module.get<CustomersService>(CustomersService);
+    controller = module.get<ClientsController>(ClientsController);
+    service = module.get<ClientsService>(ClientsService);
   });
 
   afterEach(() => {
@@ -37,47 +37,47 @@ describe('CustomersController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should create a customer', async () => {
-    const customerDto = { name: 'Test', email: 'test@test.com' };
-    const mockResult = { id: 'uuid-1', ...customerDto };
-    mockCustomersService.create.mockResolvedValue(mockResult);
+  it('should create a client', async () => {
+    const clientDto = { name: 'Test', email: 'test@test.com' };
+    const mockResult = { id: 'uuid-1', ...clientDto };
+    mockClientsService.create.mockResolvedValue(mockResult);
 
-    const result = await controller.create(customerDto as any);
+    const result = await controller.create(clientDto as any);
     expect(result).toEqual(mockResult);
-    expect(service.create).toHaveBeenCalledWith(customerDto);
+    expect(service.create).toHaveBeenCalledWith(clientDto);
   });
 
-  it('should return all customers', async () => {
+  it('should return all clients', async () => {
     const mockResult = [{ id: 'uuid-1', name: 'Test' }];
-    mockCustomersService.findAll.mockResolvedValue(mockResult);
+    mockClientsService.findAll.mockResolvedValue(mockResult);
 
     const result = await controller.findAll();
     expect(result).toEqual(mockResult);
     expect(service.findAll).toHaveBeenCalled();
   });
 
-  it('should find one customer', async () => {
+  it('should find one client', async () => {
     const mockResult = { id: 'uuid-1', name: 'Test' };
-    mockCustomersService.findOne.mockResolvedValue(mockResult);
+    mockClientsService.findOne.mockResolvedValue(mockResult);
 
     const result = await controller.findOne('uuid-1');
     expect(result).toEqual(mockResult);
     expect(service.findOne).toHaveBeenCalledWith('uuid-1');
   });
 
-  it('should update a customer', async () => {
+  it('should update a client', async () => {
     const updateDto = { name: 'Updated' };
     const mockResult = { id: 'uuid-1', ...updateDto };
-    mockCustomersService.update.mockResolvedValue(mockResult);
+    mockClientsService.update.mockResolvedValue(mockResult);
 
     const result = await controller.update('uuid-1', updateDto as any);
     expect(result).toEqual(mockResult);
     expect(service.update).toHaveBeenCalledWith('uuid-1', updateDto);
   });
 
-  it('should remove a customer', async () => {
+  it('should remove a client', async () => {
     const mockResult = { id: 'uuid-1', name: 'Test' };
-    mockCustomersService.remove.mockResolvedValue(mockResult);
+    mockClientsService.remove.mockResolvedValue(mockResult);
 
     const result = await controller.remove('uuid-1');
     expect(result).toEqual(mockResult);

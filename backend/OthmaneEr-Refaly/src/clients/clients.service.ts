@@ -1,20 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateCustomerDto } from './dto/create-customer.dto';
-import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { CreateClientDto } from './dto/create-client.dto';
+import { UpdateClientDto } from './dto/update-client.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Client } from '@prisma/client';
 
 @Injectable()
-export class CustomersService {
+export class ClientsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createCustomerDto: CreateCustomerDto): Promise<Client> {
+  async create(createClientDto: CreateClientDto): Promise<Client> {
     return this.prisma.client.create({
       data: {
-        name: createCustomerDto.name,
-        email: createCustomerDto.email,
-        phone: createCustomerDto.phone,
-        company: createCustomerDto.company,
+        name: createClientDto.name,
+        email: createClientDto.email,
+        phone: createClientDto.phone,
+        company: createClientDto.company,
       },
     });
   }
@@ -24,20 +24,20 @@ export class CustomersService {
   }
 
   async findOne(id: string): Promise<Client> {
-    const customer = await this.prisma.client.findUnique({
+    const client = await this.prisma.client.findUnique({
       where: { id },
     });
-    if (!customer) {
-      throw new NotFoundException(`Customer with ID ${id} not found`);
+    if (!client) {
+      throw new NotFoundException(`Client with ID ${id} not found`);
     }
-    return customer;
+    return client;
   }
 
-  async update(id: string, updateCustomerDto: UpdateCustomerDto): Promise<Client> {
+  async update(id: string, updateClientDto: UpdateClientDto): Promise<Client> {
     await this.findOne(id); // Check existence
     return this.prisma.client.update({
       where: { id },
-      data: updateCustomerDto,
+      data: updateClientDto,
     });
   }
 
