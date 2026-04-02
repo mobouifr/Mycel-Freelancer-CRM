@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -19,14 +16,21 @@ datasource db {
 
 model User {
   id           String   @id @default(uuid())
-  username     String
   email        String   @unique
+  username     String   @default("User")
+  name         String?
+  password     String?
   passwordHash String?
   intraId      String?  @unique
   xp           Int      @default(0)
   level        Int      @default(1)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt      @map("updated_at")
+
+  clients   Client[]
+  projects  Project[]
+  invoices  Invoice[]
+  proposals Proposal[]
 
   @@map("users")
 }
@@ -41,6 +45,11 @@ model Client {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt      @map("updated_at")
 
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projects  Project[]
+
+  @@index([userId])
   @@map("clients")
 }
 
@@ -48,11 +57,99 @@ model Project {
   id          String        @id @default(uuid())
   title       String
   description String?
-  status      String        @default("ACTIVE")
-  budget      Float
+  status      ProjectStatus @default(ACTIVE)
+  budget      Decimal       @db.Decimal(10, 2)
   deadline    DateTime?
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt      @map("updated_at")
 
+  userId      String        @map("user_id")
+  clientId    String        @map("client_id")
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  invoices    Invoice[]
+  proposals   Proposal[]
+
+  @@index([userId])
+  @@index([clientId])
   @@map("projects")
+}
+
+model Proposal {
+  id         String         @id @default(uuid())
+  title      String
+  amount     Decimal        @db.Decimal(10, 2)
+  status     ProposalStatus @default(DRAFT)
+  notes      String?
+  validUntil DateTime?      @map("valid_until")
+  createdAt  DateTime       @default(now()) @map("created_at")
+  updatedAt  DateTime       @updatedAt      @map("updated_at")
+
+  userId     String         @map("user_id")
+  projectId  String         @map("project_id")
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project    Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([projectId])
+  @@map("proposals")
+}
+
+model Invoice {
+  id        String        @id @default(uuid())
+  amount    Decimal       @db.Decimal(10, 2)
+  status    InvoiceStatus @default(PENDING)
+  dueDate   DateTime?     @map("due_date")
+  notes     String?
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt      @map("updated_at")
+
+  userId    String        @map("user_id")
+  projectId String        @map("project_id")
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  payments  Payment[]
+
+  @@index([userId])
+  @@index([projectId])
+  @@map("invoices")
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  amount    Decimal  @db.Decimal(10, 2)
+  method    String
+  notes     String?
+  paidAt    DateTime @default(now()) @map("paid_at")
+
+  invoiceId String   @map("invoice_id")
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@map("payments")
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum ProjectStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+  CANCELLED
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
 }

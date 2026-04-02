@@ -81,18 +81,16 @@ services:
 
     volumes:
       # Mount entire backend app for hot reload and config access (tsconfig.json, nest-cli.json)
-      - ./backend:/app/backend:cached
-      # Mount Prisma schema to the Root of the repo inside the container
-      - ./prisma:/app/prisma:cached
+      - ./backend/OthmaneEr-Refaly:/app/backend/OthmaneEr-Refaly:cached
       # Anonymous volume for node_modules
-      - /app/backend/node_modules
+      - /app/backend/OthmaneEr-Refaly/node_modules
 
     # Override CMD for development: run with hot reload and debug port open
     command: >
       sh -c "
-        npx prisma generate --schema=../prisma/schema.prisma &&
-        npx prisma migrate deploy --schema=../prisma/schema.prisma &&
-        npm run start:debug
+        npx prisma generate &&
+        npx prisma migrate deploy &&
+        npm run start:dev
       "
 
     # Wait for PostgreSQL to be healthy before starting
