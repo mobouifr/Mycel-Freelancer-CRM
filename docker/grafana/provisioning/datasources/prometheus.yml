@@ -1,0 +1,14 @@
+# =============================================================================
+# GRAFANA DATASOURCE PROVISIONING — Prometheus
+# =============================================================================
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus-ds
+    url: http://prometheus:9090
+    isDefault: true
+    access: proxy
+    editable: false

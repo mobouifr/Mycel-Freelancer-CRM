@@ -1,11 +1,12 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(configService: ConfigService) {
     super({
       // Tell Passport how to find the token
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -18,8 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         },
       ]),
       ignoreExpiration: false,
-      // The secret must match the one you put in auth.module.ts!
-      secretOrKey: process.env.JWT_SECRET || 'your-super-secret-key-that-will-be-in-env-later',
+      secretOrKey: configService.get<string>('JWT_SECRET'),
     });
   }
 

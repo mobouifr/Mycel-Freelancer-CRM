@@ -1,6 +1,7 @@
 import { Body, Controller, Post, UseGuards, Request, Res, HttpCode, HttpStatus, Get } from '@nestjs/common';
 import { Response } from 'express'; // Ensure this is imported from 'express'
 import { RegisterDto } from './DTO/register.dto';
+import { LoginDto } from './DTO/login.dto';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard'; // Import your new guard
 import { JwtAuthGuard } from './jwt-auth.guard'; // Add this import
@@ -19,14 +20,14 @@ export class AuthController {
   @UseGuards(LocalAuthGuard) // 🛡️ This triggers the LocalStrategy!
   @Post('login')
   @HttpCode(HttpStatus.OK) // Logins are usually 200 OK, not 201 Created
-  async login(@Request() req: any, @Res({ passthrough: true }) res: Response) {
+  async login(@Body() loginDto: LoginDto, @Request() req: any, @Res({ passthrough: true }) res: Response) {
     // 1. Generate the JWT
     const { access_token } = await this.authService.login(req.user);
 
     // 2. Set the JWT in an HttpOnly cookie
     res.cookie('jwt', access_token, {
       httpOnly: true,     // This prevents XSS attacks (JS cannot read the cookie)
-      secure: false,      // Set to true in production (requires HTTPS)
+      secure: process.env.NODE_ENV === 'production', // true in production (HTTPS), false locally
       sameSite: 'lax',    // Good default for CSRF protection
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days in milliseconds
     });
@@ -34,6 +35,19 @@ export class AuthController {
     // 3. Return the user info (so the frontend dashboard can say "Hello, Othmane!")
     return { message: 'Logged in successfully', user: req.user };
   }
+
+  @UseGuards(JwtAuthGuard) // This ensures only authenticated users can access this route
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('jwt', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+    return { message: 'Logged out successfully' };
+  }
+
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
@@ -62,13 +76,13 @@ export class AuthController {
 
     res.cookie('jwt', access_token, {
       httpOnly: true,
-      secure: false, // Set to true in production
+      secure: process.env.NODE_ENV === 'production', // true in production (HTTPS), false locally
       sameSite: 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
-    // Instead of returning JSON, redirect them to the frontend dashboard!
-    // Since we don't have a frontend yet, we'll redirect to our /auth/me to prove it works
-    return res.redirect('http://localhost:3000/auth/me'); 
+
+    // Redirect to the frontend OAuth callback page so it can handle the session
+    return res.redirect('http://localhost:5173/auth/callback');
   }
 }

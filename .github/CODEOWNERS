@@ -1,0 +1,16 @@
+# CODEOWNERS for Freelancer CRM
+# Replace @org/team or @user with your real GitHub org/teams/users.
+
+# DevOps lead: infra, CI, Docker
+docker/           @org/devops-lead
+Makefile          @org/devops-lead
+.github/          @org/devops-lead
+docker-compose*   @org/devops-lead
+
+# Backend team: API, services, Prisma schema/migrations
+apps/backend/     @org/backend-team
+prisma/           @org/backend-team
+
+# Frontend team: React app
+apps/frontend/    @org/frontend-team
+

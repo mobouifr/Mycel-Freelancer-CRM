@@ -1,20 +1,26 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private authService: AuthService) {
-    // We must tell Passport to use "email" instead of the default "username" field ???
-    super({ usernameField: 'email' }); 
+    super({ usernameField: 'email' });
   }
 
   async validate(email: string, pass: string): Promise<any> {
-    const user = await this.authService.validateUser(email, pass); // <-- Notice the await
-    if (!user) {
-        throw new UnauthorizedException('Invalid credentials');
+    const errors: string[] = [];
+    if (!email || !email.includes('@')) errors.push('email must be a valid email');
+    if (!pass || pass.length < 6) errors.push('password must be at least 6 characters');
+    if (errors.length > 0) {
+      throw new BadRequestException(errors);
     }
-    return user; 
-}
+
+    const user = await this.authService.validateUser(email, pass);
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+    return user;
+  }
 }

@@ -3,6 +3,7 @@ import { UsersService } from '../users/users.service';
 import { RegisterDto } from './DTO/register.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from '../prisma/prisma.service';
 
 
 @Injectable()
@@ -22,21 +23,21 @@ export class AuthService {
     }
 
     async register(registerDto: RegisterDto) {
-        if (this.usersService.findByEmail(registerDto.email)) {
+        if (await this.usersService.findByEmail(registerDto.email)) {
             // Throwing an Error here is okay for now, walakin in NestJS there us built-in HTTP Exceptions!
             throw new ConflictException('Email already in use'); 
         }
         
         const passwordHash = await bcrypt.hash(registerDto.password, 10);
         
-        const newUser = this.usersService.createUser(registerDto.username, registerDto.email, passwordHash);
+        const newUser = await this.usersService.createUser(registerDto.username, registerDto.email, passwordHash);
         
         const { passwordHash: _, ...result } = newUser;
         return result;
     }
 
     async validateUser(email: string, pass: string): Promise<any> {
-        const user = this.usersService.findByEmail(email);
+        const user = await this.usersService.findByEmail(email);
         if(user && user.passwordHash && await bcrypt.compare(pass, user.passwordHash)) {
             const { passwordHash, ...result } = user;
             return result;
@@ -45,12 +46,12 @@ export class AuthService {
     }
 
     async validateOAuthUser(provider: string, profile: any): Promise<any> {
-        let user = this.usersService.findByIntraId(profile.intraId);
+        let user = await this.usersService.findByIntraId(profile.intraId);
         
         if (!user) {
             // User doesn't exist, create them
             // We pass undefined for passwordHash, and profile.intraId for the intraId
-            user = this.usersService.createUser(
+            user = await this.usersService.createUser(
                 profile.username,
                 profile.email,
                 undefined,

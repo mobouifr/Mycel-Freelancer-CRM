@@ -1,6 +1,302 @@
-# Docker Compose configuration for Freelancer CRM
-version: '3.8'
+# =============================================================================
+# FREELANCER CRM — Docker Compose (DEVELOPMENT)
+# =============================================================================
+# Usage:
+#   docker compose up              → Start all services
+#   docker compose up -d           → Start detached (background)
+#   docker compose down            → Stop and remove containers
+#   docker compose down -v         → Stop and remove containers + volumes
+#   docker compose logs -f backend → Tail backend logs
+# =============================================================================
 
 services:
-  # Add services here
-  
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL 16 — Primary Database
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: freelancer-crm-postgres
+    restart: unless-stopped
+
+    # Load DB credentials from .env file
+    env_file:
+      - .env
+
+    environment:
+      # These override .env if set, but default to .env values
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+    ports:
+      # Expose PostgreSQL to host for local tools (pgAdmin, DBeaver, etc.)
+      - "${POSTGRES_PORT:-5432}:5432"
+
+    volumes:
+      # Persist database data across container restarts
+      - freelancer_crm_postgres_data:/var/lib/postgresql/data
+      # Run initialization SQL on first container start (creates extensions, etc.)
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+    # Health check: pg_isready confirms PostgreSQL is accepting connections
+    # Backend won't start until this passes (see depends_on condition below)
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-freelancer_crm}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    networks:
+      - freelancer_crm_network
+
+  # ---------------------------------------------------------------------------
+  # Backend — NestJS API Server (Development with hot reload)
+  # ---------------------------------------------------------------------------
+  backend:
+    container_name: freelancer-crm-backend
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+      # In dev, we only build the deps stage and run with ts-node/nodemon
+      target: deps
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+      # Override DATABASE_URL to point to the postgres container (not localhost)
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-freelancer_crm}?schema=public
+      NODE_ENV: development
+
+    ports:
+      # API port
+      - "${PORT:-3001}:3001"
+      # Node.js debug/inspect port (attach VS Code debugger here)
+      - "9229:9229"
+      # Prisma Studio port
+      - "5555:5555"
+
+    volumes:
+      # Mount entire backend app for hot reload and config access (tsconfig.json, nest-cli.json)
+      - ./backend/OthmaneEr-Refaly:/app/backend/OthmaneEr-Refaly:cached
+      # Anonymous volume for node_modules
+      - /app/backend/OthmaneEr-Refaly/node_modules
+
+    # Override CMD for development: run with hot reload and debug port open
+    command: >
+      sh -c "
+        npx prisma generate &&
+        npx prisma migrate deploy &&
+        npm run start:dev
+      "
+
+    # Wait for PostgreSQL to be healthy before starting
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    # Health check: verify the API is responding
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+    networks:
+      - freelancer_crm_network
+
+  # ---------------------------------------------------------------------------
+  # Frontend — React + Vite Dev Server (with hot module replacement)
+  # ---------------------------------------------------------------------------
+  frontend:
+    container_name: freelancer-crm-frontend
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+      # In dev, we only build the deps stage and run with Vite dev server
+      target: deps
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+      # Vite needs to know the API URL for proxy config
+      VITE_API_URL: http://localhost:${PORT:-3001}/api
+      VITE_WS_URL: http://localhost:${PORT:-3001}
+
+    ports:
+      # Vite dev server with HMR
+      - "${FRONTEND_PORT:-3089}:3089"
+
+    volumes:
+      # Mount source code for hot module replacement
+      - ./frontend/src:/app/frontend/src:cached
+      - ./frontend/public:/app/frontend/public:cached
+      - ./frontend/index.html:/app/frontend/index.html:cached
+      - ./frontend/vite.config.ts:/app/frontend/vite.config.ts:cached
+      # Prevent host node_modules from conflicting
+      - /app/frontend/node_modules
+
+    # Override CMD for development: run Vite dev server
+    # --host 0.0.0.0 makes it accessible from outside the container
+    command: npm run dev -- --host 0.0.0.0 --port 3089
+
+    depends_on:
+      backend:
+        condition: service_healthy
+
+    networks:
+      - freelancer_crm_network
+
+  # ---------------------------------------------------------------------------
+  # Adminer — Lightweight Database Management UI (DEV ONLY)
+  # ---------------------------------------------------------------------------
+  # Access at http://localhost:8080
+  # Server: postgres | User: see .env | Password: see .env | DB: see .env
+  adminer:
+    image: adminer:latest
+    container_name: freelancer-crm-adminer
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      # Default to PostgreSQL connection
+      ADMINER_DEFAULT_SERVER: postgres
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - freelancer_crm_network
+
+  # ---------------------------------------------------------------------------
+  # Prometheus — Metrics Collection
+  # ---------------------------------------------------------------------------
+  # Access at http://localhost:9090
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: crm_prometheus
+    restart: unless-stopped
+
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./docker/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+
+    ports:
+      - "9090:9090"
+
+    depends_on:
+      - backend
+
+    networks:
+      - freelancer_crm_network
+
+  # ---------------------------------------------------------------------------
+  # Postgres Exporter — PostgreSQL Metrics for Prometheus
+  # ---------------------------------------------------------------------------
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: crm_pg_exporter
+    restart: unless-stopped
+
+    environment:
+      DATA_SOURCE_NAME: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-freelancer_crm}?sslmode=disable
+
+    depends_on:
+      - postgres
+
+    networks:
+      - freelancer_crm_network
+
+  # ---------------------------------------------------------------------------
+  # Grafana — Metrics Dashboard
+  # ---------------------------------------------------------------------------
+  # Access at http://localhost:3002  (admin / ${GRAFANA_PASSWORD})
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: crm_grafana
+    restart: unless-stopped
+
+    ports:
+      - "3002:3000"
+
+    env_file:
+      - .env
+
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED:-false}
+      - GF_USERS_ALLOW_SIGN_UP=${GF_USERS_ALLOW_SIGN_UP:-false}
+
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+
+    depends_on:
+      - prometheus
+
+    networks:
+      - freelancer_crm_network
+
+  # ---------------------------------------------------------------------------
+  # Backup — Scheduled Database Backups (daily at 02:00)
+  # ---------------------------------------------------------------------------
+  backup:
+    image: postgres:16-alpine
+    container_name: crm_backup
+    restart: unless-stopped
+
+    volumes:
+      - ./scripts/backup-db.sh:/backup.sh:ro
+      - backup_data:/backups
+
+    environment:
+      - PGPASSWORD=${POSTGRES_PASSWORD:-password}
+      - PGHOST=postgres
+      - PGUSER=${POSTGRES_USER:-postgres}
+      - PGDATABASE=${POSTGRES_DB:-freelancer_crm}
+
+    entrypoint: ["sh", "-c", "echo '0 2 * * * sh /backup.sh >> /var/log/backup.log 2>&1' | crontab - && crond -f"]
+
+    depends_on:
+      - postgres
+
+    networks:
+      - freelancer_crm_network
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+networks:
+  freelancer_crm_network:
+    name: freelancer_crm_network
+    driver: bridge
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+volumes:
+  freelancer_crm_postgres_data:
+    name: freelancer_crm_postgres_data
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  backup_data:
+    driver: local
