@@ -81,18 +81,16 @@ services:
 
     volumes:
       # Mount entire backend app for hot reload and config access (tsconfig.json, nest-cli.json)
-      - ./apps/backend:/app/apps/backend:cached
-      # Mount Prisma schema to the Root of the repo inside the container
-      - ./prisma:/app/prisma:cached
+      - ./backend/OthmaneEr-Refaly:/app/backend/OthmaneEr-Refaly:cached
       # Anonymous volume for node_modules
-      - /app/apps/backend/node_modules
+      - /app/backend/OthmaneEr-Refaly/node_modules
 
     # Override CMD for development: run with hot reload and debug port open
     command: >
       sh -c "
-        npx prisma generate --schema=../../prisma/schema.prisma &&
-        npx prisma migrate deploy --schema=../../prisma/schema.prisma &&
-        npm run start:debug
+        npx prisma generate &&
+        npx prisma migrate deploy &&
+        npm run start:dev
       "
 
     # Wait for PostgreSQL to be healthy before starting
@@ -137,12 +135,12 @@ services:
 
     volumes:
       # Mount source code for hot module replacement
-      - ./apps/frontend/src:/app/src:cached
-      - ./apps/frontend/public:/app/public:cached
-      - ./apps/frontend/index.html:/app/index.html:cached
-      - ./apps/frontend/vite.config.ts:/app/vite.config.ts:cached
+      - ./frontend/src:/app/frontend/src:cached
+      - ./frontend/public:/app/frontend/public:cached
+      - ./frontend/index.html:/app/frontend/index.html:cached
+      - ./frontend/vite.config.ts:/app/frontend/vite.config.ts:cached
       # Prevent host node_modules from conflicting
-      - /app/node_modules
+      - /app/frontend/node_modules
 
     # Override CMD for development: run Vite dev server
     # --host 0.0.0.0 makes it accessible from outside the container
@@ -179,6 +177,108 @@ services:
     networks:
       - freelancer_crm_network
 
+  # ---------------------------------------------------------------------------
+  # Prometheus — Metrics Collection
+  # ---------------------------------------------------------------------------
+  # Access at http://localhost:9090
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: crm_prometheus
+    restart: unless-stopped
+
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./docker/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+
+    ports:
+      - "9090:9090"
+
+    depends_on:
+      - backend
+
+    networks:
+      - freelancer_crm_network
+
+  # ---------------------------------------------------------------------------
+  # Postgres Exporter — PostgreSQL Metrics for Prometheus
+  # ---------------------------------------------------------------------------
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: crm_pg_exporter
+    restart: unless-stopped
+
+    environment:
+      DATA_SOURCE_NAME: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-freelancer_crm}?sslmode=disable
+
+    depends_on:
+      - postgres
+
+    networks:
+      - freelancer_crm_network
+
+  # ---------------------------------------------------------------------------
+  # Grafana — Metrics Dashboard
+  # ---------------------------------------------------------------------------
+  # Access at http://localhost:3002  (admin / ${GRAFANA_PASSWORD})
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: crm_grafana
+    restart: unless-stopped
+
+    ports:
+      - "3002:3000"
+
+    env_file:
+      - .env
+
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED:-false}
+      - GF_USERS_ALLOW_SIGN_UP=${GF_USERS_ALLOW_SIGN_UP:-false}
+
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+
+    depends_on:
+      - prometheus
+
+    networks:
+      - freelancer_crm_network
+
+  # ---------------------------------------------------------------------------
+  # Backup — Scheduled Database Backups (daily at 02:00)
+  # ---------------------------------------------------------------------------
+  backup:
+    image: postgres:16-alpine
+    container_name: crm_backup
+    restart: unless-stopped
+
+    volumes:
+      - ./scripts/backup-db.sh:/backup.sh:ro
+      - backup_data:/backups
+
+    environment:
+      - PGPASSWORD=${POSTGRES_PASSWORD:-password}
+      - PGHOST=postgres
+      - PGUSER=${POSTGRES_USER:-postgres}
+      - PGDATABASE=${POSTGRES_DB:-freelancer_crm}
+
+    entrypoint: ["sh", "-c", "echo '0 2 * * * sh /backup.sh >> /var/log/backup.log 2>&1' | crontab - && crond -f"]
+
+    depends_on:
+      - postgres
+
+    networks:
+      - freelancer_crm_network
+
 # =============================================================================
 # NETWORKS
 # =============================================================================
@@ -193,4 +293,10 @@ networks:
 volumes:
   freelancer_crm_postgres_data:
     name: freelancer_crm_postgres_data
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  backup_data:
     driver: local

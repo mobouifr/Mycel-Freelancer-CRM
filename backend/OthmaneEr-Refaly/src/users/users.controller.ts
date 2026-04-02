@@ -15,7 +15,6 @@ export class UsersController {
 
     @Get(':id')
     findOne(@Param('id') id: string) {
-        // The + converts the string ID from the URL to a number
-        return this.usersService.findOne(+id);
+        return this.usersService.findOne(id);
     }
 }

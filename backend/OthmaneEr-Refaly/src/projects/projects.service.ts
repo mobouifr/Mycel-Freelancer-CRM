@@ -59,13 +59,13 @@ export class ProjectsService {
 
     const newStatus = updatedProject.status;
 
-    if (oldStatus !== 'completed' && newStatus === 'completed') {
+    if (oldStatus !== 'COMPLETED' && newStatus === 'COMPLETED') {
       const userid = updateProjectDto.userid || 'uuid-user';
       const priority = updateProjectDto.priority || 'medium';
       
       this.gamificationService.awardProjectCompletionXp(
         userid,
-        updatedProject.budget,
+        Number(updatedProject.budget),
         priority
       );
     }
