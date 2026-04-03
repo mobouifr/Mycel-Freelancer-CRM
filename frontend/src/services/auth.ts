@@ -46,6 +46,6 @@ export const authService = {
 
   // ── 42 OAuth ───────────────────────────────
   get oauthUrl(): string {
-    return `${BACKEND_URL}/auth/42`;
+    return `${BACKEND_URL}/api/auth/42`;
   },
 };

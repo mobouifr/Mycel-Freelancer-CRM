@@ -83,6 +83,6 @@ export class AuthController {
 
 
     // Redirect to the frontend OAuth callback page so it can handle the session
-    return res.redirect('http://localhost:5173/auth/callback');
+    return res.redirect('http://localhost:3089/auth/callback');
   }
 }
