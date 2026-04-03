@@ -37,9 +37,6 @@ export interface Note {
   pinned: boolean;
   color: NoteColor;
   todos: TodoItem[];
-  eventId?: string;
-  linkedProjectId?: string;
-  linkedClientId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -57,8 +54,6 @@ export interface CalendarEvent {
   priority: EventPriority;
   clientTag?: string;
   projectTag?: string;
-  linkedProjectId?: string;
-  linkedClientId?: string;
   reminderOffset: number; // minutes before
   recurrence: string;     // 'none' | 'daily' | 'weekly' | 'monthly'
   noteId?: string;
