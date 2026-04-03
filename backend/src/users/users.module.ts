@@ -14,7 +14,6 @@ import { PrismaModule } from '../prisma/prisma.module';
 // TODO: make sure that they work fine m3a l camification, check it m3a montaasir.
 
 @Module({
-    // imports: [TypeOrmModule.forFeature([User])],
     imports: [PrismaModule],
     controllers: [UsersController], // added for gamification to access user data
     providers: [UsersService],

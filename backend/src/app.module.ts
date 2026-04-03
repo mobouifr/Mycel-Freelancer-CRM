@@ -13,8 +13,6 @@ import { PrismaModule} from './prisma/prisma.module';
       isGlobal: true, 
       envFilePath: '../../.env', // Pointing to the root .env
     }),
-    // TypeORM is intentionally disabled; PrismaModule is the source of truth.
-
     PrismaModule,
     AuthModule,
     UsersModule,
