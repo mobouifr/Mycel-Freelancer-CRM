@@ -37,13 +37,14 @@ export default function CalendarMonthView({
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Weekday headers */}
       <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
+        display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
         borderBottom: '1px solid var(--border)',
       }}>
         {DAYS.map((d) => (
           <div key={d} style={{
             fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
             letterSpacing: '.08em', textAlign: 'center', padding: '6px 0',
+            minWidth: 0, overflow: 'hidden', textOverflow: 'clip'
           }}>
             {d}
           </div>
@@ -52,8 +53,9 @@ export default function CalendarMonthView({
 
       {/* Day cells */}
       <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
+        display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
         flex: 1, gridAutoRows: '1fr',
+        minWidth: 0
       }}>
         {grid.map((day, i) => {
           if (day === null) {
@@ -62,6 +64,7 @@ export default function CalendarMonthView({
                 borderRight: '1px solid var(--border)',
                 borderBottom: '1px solid var(--border)',
                 background: 'var(--bg)',
+                minWidth: 0
               }} />
             );
           }
@@ -84,6 +87,8 @@ export default function CalendarMonthView({
                 background: isSelected ? 'var(--accent-bg)' : 'transparent',
                 transition: 'background .12s', minHeight: 70,
                 display: 'flex', flexDirection: 'column',
+                minWidth: 0,
+                overflow: 'hidden'
               }}
             >
               <span style={{

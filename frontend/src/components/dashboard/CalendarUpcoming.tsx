@@ -49,10 +49,12 @@ function CalendarUpcoming() {
   const nextEvent = upcoming[0];
 
   return (
-    <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', gap: 0, height: '100%' }}>
-      {/* Compact: just the next event */}
+    <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', gap: 0, height: '100%', minWidth: 0, overflow: 'hidden' }}>
+      {/* Compact: next UP event */}
       {sizeMode === 'compact' && (
-        <div style={{ padding: '4px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10, flex: 1, minHeight: 0, minWidth: 0,
+        }}>
           {nextEvent ? (
             <>
               <div style={{
@@ -79,7 +81,10 @@ function CalendarUpcoming() {
                 }}>
                   {nextEvent.title}
                 </p>
-                <p style={{ fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)' }}>
+                <p style={{
+                  fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                }}>
                   {nextEvent.time} · Next up
                 </p>
               </div>
@@ -100,10 +105,10 @@ function CalendarUpcoming() {
       {/* Full: calendar + upcoming list */}
       {sizeMode === 'full' && (
         <>
-          <div style={{ flex: '1 1 auto', minHeight: 0 }}>
+          <div style={{ flex: '1 1 auto', minHeight: 0, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
             <CalendarWidget />
           </div>
-          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12, minWidth: 0, flexShrink: 0 }}>
             <UpcomingList upcoming={upcoming} />
           </div>
         </>
@@ -115,10 +120,11 @@ function CalendarUpcoming() {
 /* Upcoming events sub-component */
 function UpcomingList({ upcoming }: { upcoming: Array<{ id: string; date: string; time: string; title: string; timezone: string }> }) {
   return (
-    <div style={{ padding: '0' }}>
+    <div style={{ padding: '0', minWidth: 0, overflow: 'hidden' }}>
       <p style={{
         fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
         letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 8,
+        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0
       }}>
         Upcoming (7 days)
       </p>
@@ -143,6 +149,8 @@ function UpcomingList({ upcoming }: { upcoming: Array<{ id: string; date: string
                 borderRadius: 4,
                 transition: 'background .12s',
                 cursor: 'default',
+                minWidth: 0,
+                overflow: 'hidden'
               }}
               onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--glass)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
@@ -173,6 +181,7 @@ function UpcomingList({ upcoming }: { upcoming: Array<{ id: string; date: string
                 </p>
                 <p style={{
                   fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
                 }}>
                   {evt.time} · {evt.timezone}
                 </p>

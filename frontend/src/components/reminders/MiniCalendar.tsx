@@ -29,14 +29,14 @@ export default function MiniCalendar({ currentDate, onDateClick, onPrev, onNext,
   return (
     <div style={{
       background: 'var(--surface-2)', border: '1px solid var(--border)',
-      borderRadius: 8, padding: '14px 16px',
+      borderRadius: 8, padding: '10px', minWidth: 0, overflow: 'hidden'
     }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 4 }}>
         <button onClick={onPrev} aria-label="Previous month" style={navBtn}>‹</button>
         <span style={{
           fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text)',
-          letterSpacing: '.04em', fontWeight: 500,
+          letterSpacing: '.04em', fontWeight: 500, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
         }}>
           {MONTHS[month]} {year}
         </span>
@@ -44,11 +44,11 @@ export default function MiniCalendar({ currentDate, onDateClick, onPrev, onNext,
       </div>
 
       {/* Weekday headers */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 2 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: 1, marginBottom: 2 }}>
         {WEEKDAYS.map((d) => (
           <div key={d} style={{
             fontFamily: 'var(--font-m)', fontSize: 8, color: 'var(--text-dim)',
-            letterSpacing: '.1em', textAlign: 'center', padding: '2px 0',
+            letterSpacing: '.1em', textAlign: 'center', padding: '2px 0', minWidth: 0, overflow: 'hidden', textOverflow: 'clip'
           }}>
             {d}
           </div>
@@ -56,7 +56,7 @@ export default function MiniCalendar({ currentDate, onDateClick, onPrev, onNext,
       </div>
 
       {/* Day grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: 1, minWidth: 0 }}>
         {grid.map((day, i) => {
           if (day === null) return <div key={`e-${i}`} />;
           const d = makeDate(day);

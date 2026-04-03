@@ -99,6 +99,7 @@ export default function CalendarDayView({
           <div style={{
             flex: 1, position: 'relative',
             borderLeft: '1px solid var(--border)',
+            minWidth: 0, overflow: 'hidden'
           }}>
             {HOURS.map((h) => (
               <div
