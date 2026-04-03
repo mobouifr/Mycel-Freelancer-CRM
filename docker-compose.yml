@@ -125,7 +125,7 @@ services:
 
     ports:
       # Vite dev server with HMR
-      - "${FRONTEND_PORT:-3089}:3089"
+      - "3089:3089"
 
     volumes:
       # Mount source code for hot module replacement

@@ -29,6 +29,15 @@ up:
 	@printf "  Adminer   → http://localhost:8080\n"
 	@printf "  Grafana   → http://localhost:3002\n"
 
+## dev-d          : Start all services detached
+dev-d:
+	@$(DOCKER_COMPOSE) up -d --build
+	@printf "$(GREEN)✔ Services running$(RESET)\n"
+	@printf "  Frontend  → http://localhost:3089\n"
+	@printf "  Backend   → http://localhost:3001\n"
+	@printf "  Adminer   → http://localhost:8080\n"
+	@printf "  Grafana   → http://localhost:3002\n"
+
 ## down           : Stop all services
 down:
 	@$(DOCKER_COMPOSE) down
@@ -224,7 +233,7 @@ help:
 
 .DEFAULT_GOAL := help
 
-.PHONY: up down restart logs logs-backend logs-frontend logs-db status clean fclean \
+.PHONY: up dev-d down restart logs logs-backend logs-frontend logs-db status clean fclean \
         shell-backend shell-frontend shell-db \
         db-shell db-backup db-restore \
         migrate migrate-dev generate seed studio \
