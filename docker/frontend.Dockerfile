@@ -13,7 +13,7 @@ FROM node:20-alpine AS deps
 WORKDIR /app/frontend
 
 # Copy only dependency manifests for optimal layer caching
-COPY frontend/package.json frontend/package-lock.json* ./
+COPY frontend/my-app/package.json frontend/my-app/package-lock.json* ./
 
 # Install all dependencies (devDeps needed for Vite build)
 RUN npm install
@@ -29,7 +29,7 @@ WORKDIR /app/frontend
 COPY --from=deps /app/frontend/node_modules ./node_modules
 
 # Copy frontend source code
-COPY frontend/. .
+COPY frontend/my-app/. .
 
 # Build argument for API URL — can be overridden at build time
 # Usage: docker build --build-arg VITE_API_URL=https://api.example.com ...

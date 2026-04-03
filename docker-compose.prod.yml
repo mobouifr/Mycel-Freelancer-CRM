@@ -70,9 +70,8 @@ services:
   migrate:
     container_name: freelancer-crm-migrate
     build:
-      context: .
-      dockerfile: docker/backend.Dockerfile
-      target: production
+      context: ./backend
+      dockerfile: ../docker/backend.Dockerfile
     restart: "no"
 
     env_file:
@@ -105,10 +104,8 @@ services:
   backend:
     container_name: freelancer-crm-backend
     build:
-      context: .
-      dockerfile: docker/backend.Dockerfile
-      # Use the full production stage (compiled JS, no devDeps)
-      target: production
+      context: ./backend
+      dockerfile: ../docker/backend.Dockerfile
     restart: always
 
     env_file:

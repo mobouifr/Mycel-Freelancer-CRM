@@ -15,17 +15,22 @@ datasource db {
 // =============================================================================
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt      @map("updated_at")
+  id           String   @id @default(uuid())
+  username     String?
+  name         String?
+  email        String   @unique
+  password     String?
+  passwordHash String?
+  intraId      String?  @unique
+  xp           Int      @default(0)
+  level        Int      @default(1)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt      @map("updated_at")
 
-  clients   Client[]
-  projects  Project[]
-  invoices  Invoice[]
-  proposals Proposal[]
+  clients      Client[]
+  projects     Project[]
+  invoices     Invoice[]
+  proposals    Proposal[]
 
   @@map("users")
 }
@@ -40,8 +45,8 @@ model Client {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt      @map("updated_at")
 
-  userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   projects  Project[]
 
   @@index([userId])
@@ -53,15 +58,15 @@ model Project {
   title       String
   description String?
   status      ProjectStatus @default(ACTIVE)
-  budget      Decimal       @db.Decimal(10, 2)
+  budget      Decimal       @default(0) @db.Decimal(10, 2)
   deadline    DateTime?
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt      @map("updated_at")
 
-  userId      String        @map("user_id")
-  clientId    String        @map("client_id")
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  userId      String?       @map("user_id")
+  clientId    String?       @map("client_id")
+  user        User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client      Client?       @relation(fields: [clientId], references: [id], onDelete: Cascade)
   invoices    Invoice[]
   proposals   Proposal[]
 
@@ -148,45 +153,3 @@ enum ProposalStatus {
   ACCEPTED
   REJECTED
 }
-
-// =============================================================================
-// FUTURE-PROOF CONSTRAINTS (uncomment when needed)
-// =============================================================================
-//
-// 1. ONE ACTIVE PROPOSAL PER PROJECT
-//    Prevents duplicate proposals for the same project + status combo.
-//    Uncomment and add inside the Proposal model.
-//    Tradeoff: blocks creating a second DRAFT proposal for the same project.
-//    Use when the business rule is "only one proposal at a time per project."
-//
-//    @@unique([projectId, status])
-//
-// 2. ONE PENDING INVOICE PER PROJECT
-//    Same pattern for invoices. Prevents two PENDING invoices on one project.
-//    Uncomment and add inside the Invoice model.
-//    Tradeoff: must resolve (pay/cancel) existing invoice before creating another.
-//
-//    @@unique([projectId, status])
-//
-// 3. OPTIMISTIC LOCKING — Version Field
-//    Add this field to the Invoice model (or any model with concurrent writes):
-//
-//    version Int @default(0)
-//
-//    Usage in service code:
-//    ```
-//    const updated = await prisma.invoice.updateMany({
-//      where: { id: invoiceId, version: currentVersion },
-//      data: {
-//        status: InvoiceStatus.PAID,
-//        version: { increment: 1 },
-//      },
-//    });
-//    if (updated.count === 0) {
-//      throw new ConflictException('Invoice was modified by another request');
-//    }
-//    ```
-//    This is an alternative to SELECT FOR UPDATE (pessimistic locking).
-//    Optimistic locking is better for read-heavy workloads; pessimistic
-//    locking (used in payments.service.ts) is better for write-heavy ones.
-//
