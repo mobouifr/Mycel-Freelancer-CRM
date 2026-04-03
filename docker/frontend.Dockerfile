@@ -1,8 +1,8 @@
 # ============================================================================
 # FRONTEND DOCKERFILE — React + Vite → Nginx Production Multi-Stage Build
 # ============================================================================
-# Build context: project root (not apps/frontend/)
-# Usage: docker build -f docker/frontend.Dockerfile -t crm-frontend .
+# Build context: ./frontend
+# Usage: docker build -f ../docker/frontend.Dockerfile -t crm-frontend .
 # ============================================================================
 
 # ---------------------------------------------------------------------------
@@ -10,10 +10,10 @@
 # ---------------------------------------------------------------------------
 FROM node:20-alpine AS deps
 
-WORKDIR /app/frontend
+WORKDIR /app
 
 # Copy only dependency manifests for optimal layer caching
-COPY frontend/my-app/package.json frontend/my-app/package-lock.json* ./
+COPY package.json package-lock.json* ./
 
 # Install all dependencies (devDeps needed for Vite build)
 RUN npm install
@@ -23,13 +23,13 @@ RUN npm install
 # ---------------------------------------------------------------------------
 FROM node:20-alpine AS builder
 
-WORKDIR /app/frontend
+WORKDIR /app
 
 # Copy node_modules from deps stage
-COPY --from=deps /app/frontend/node_modules ./node_modules
+COPY --from=deps /app/node_modules ./node_modules
 
 # Copy frontend source code
-COPY frontend/my-app/. .
+COPY . .
 
 # Build argument for API URL — can be overridden at build time
 # Usage: docker build --build-arg VITE_API_URL=https://api.example.com ...
@@ -59,7 +59,7 @@ RUN rm -rf /usr/share/nginx/html/* && \
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy the built static files from the builder stage
-COPY --from=builder /app/frontend/dist /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Configure Nginx for non-root operation:
 # 1. Set correct ownership of required directories

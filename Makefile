@@ -178,11 +178,11 @@ backend-build:
 
 ## frontend-install : npm install for frontend
 frontend-install:
-	cd frontend/my-app && npm install
+	cd frontend && npm install
 
 ## frontend-dev   : Run frontend locally
 frontend-dev:
-	cd frontend/my-app && npm run dev
+	cd frontend && npm run dev
 
 # =============================================================================
 # MONITORING

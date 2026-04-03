@@ -160,7 +160,7 @@ docker-compose up --build
 **5. Manual development (without Docker)**
 ```bash
 # Backend
-cd backend/OthmaneEr-Refaly
+cd backend
 npm install
 npm run start:dev
 
@@ -176,7 +176,7 @@ npm run dev
 
 ```
 freelancer-crm-final-project/
-├── frontend/          # React + Vite frontend
+├── frontend/                 # React + Vite frontend
 │   ├── src/
 │   │   ├── components/       # Reusable UI components (Input, Button, Modal, StatCard, etc.)
 │   │   ├── components/dashboard/  # Dashboard widgets (RevenueKPI, InvoicesDue, etc.)
@@ -189,7 +189,7 @@ freelancer-crm-final-project/
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── vite.config.ts
-├── backend/OthmaneEr-Refaly/ # NestJS backend
+├── backend/                  # NestJS backend
 │   ├── src/
 │   │   ├── auth/             # Auth module (strategies, guards, DTOs)
 │   │   ├── users/            # Users module (service, entity)
