@@ -1,36 +1,50 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Body, Param, Delete } from '@nestjs/common';
 import { ProposalsService } from './proposals.service';
 import { CreateProposalDto } from './dto/create-proposal.dto';
 import { UpdateProposalDto } from './dto/update-proposal.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ProposalStatus } from '@prisma/client';
 
 @Controller('proposals')
-@UseGuards(JwtAuthGuard)
 export class ProposalsController {
   constructor(private readonly proposalsService: ProposalsService) {}
 
   @Post()
-  create(@Request() req: any, @Body() createProposalDto: CreateProposalDto) {
-    return this.proposalsService.create(req.user.id, createProposalDto);
+  create(@Body() createProposalDto: CreateProposalDto) {
+    return this.proposalsService.create(createProposalDto);
   }
 
   @Get()
-  findAll(@Request() req: any) {
-    return this.proposalsService.findAll(req.user.id);
+  findAll() {
+    return this.proposalsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Request() req: any, @Param('id') id: string) {
-    return this.proposalsService.findOne(req.user.id, id);
+  findOne(@Param('id') id: string) {
+    return this.proposalsService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Request() req: any, @Param('id') id: string, @Body() updateProposalDto: UpdateProposalDto) {
-    return this.proposalsService.update(req.user.id, id, updateProposalDto);
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateProposalDto: UpdateProposalDto) {
+    return this.proposalsService.update(id, updateProposalDto);
   }
 
   @Delete(':id')
-  remove(@Request() req: any, @Param('id') id: string) {
-    return this.proposalsService.remove(req.user.id, id);
+  remove(@Param('id') id: string) {
+    return this.proposalsService.remove(id);
+  }
+
+  @Patch(':id/status')
+  updateStatus(@Param('id') id: string, @Body('status') status: ProposalStatus) {
+    return this.proposalsService.updateStatus(id, status);
+  }
+
+  @Get(':id/pdf')
+  generatePdf(@Param('id') id: string) {
+    return this.proposalsService.generatePdf(id);
+  }
+
+  @Post(':id/convert-to-invoice')
+  convertToInvoice(@Param('id') id: string, @Body('dueDate') dueDate: string) {
+    return this.proposalsService.convertToInvoice(id, dueDate);
   }
 }
