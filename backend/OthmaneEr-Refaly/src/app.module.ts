@@ -7,6 +7,8 @@ import { ClientsModule } from './clients/clients.module';
 import { ProjectsModule } from './projects/projects.module';
 import { GamificationModule } from './gamification/gamification.module';
 import { PrismaModule} from './prisma/prisma.module';
+import { ProposalsModule } from './proposals/proposals.module';
+import { InvoicesModule } from './invoices/invoices.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { PrismaModule} from './prisma/prisma.module';
     ClientsModule,
     ProjectsModule,
     GamificationModule,
+    ProposalsModule,
+    InvoicesModule,
   ],
   controllers: [AppController]
 })

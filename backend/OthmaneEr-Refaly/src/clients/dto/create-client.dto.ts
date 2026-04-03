@@ -4,4 +4,5 @@ export class CreateClientDto
     email: string;
     phone?: string;
     company?: string;
+    userId?: string;
 }

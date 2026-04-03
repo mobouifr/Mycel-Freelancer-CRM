@@ -48,7 +48,15 @@ describe('ClientsService', () => {
     
     const result = await service.create(clientDto as any);
     expect(result).toMatchObject(mockOutput);
-    expect(prisma.client.create).toHaveBeenCalledWith({ data: clientDto });
+    expect(prisma.client.create).toHaveBeenCalledWith({
+      data: {
+        name: clientDto.name,
+        email: clientDto.email,
+        phone: undefined,
+        company: undefined,
+        userId: '1',
+      },
+    });
   });
 
   it('should return all clients', async () => {

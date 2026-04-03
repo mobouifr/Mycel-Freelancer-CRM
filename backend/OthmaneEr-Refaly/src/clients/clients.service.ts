@@ -15,6 +15,7 @@ export class ClientsService {
         email: createClientDto.email,
         phone: createClientDto.phone,
         company: createClientDto.company,
+        userId: createClientDto.userId || '1', // default fallback for testing
       },
     });
   }
