@@ -8,25 +8,27 @@ import { Client } from '@prisma/client';
 export class ClientsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createClientDto: CreateClientDto): Promise<Client> {
+  async create(userId: string, createClientDto: CreateClientDto): Promise<Client> {
     return this.prisma.client.create({
       data: {
         name: createClientDto.name,
         email: createClientDto.email,
         phone: createClientDto.phone,
         company: createClientDto.company,
-        userId: createClientDto.userId || '1', // default fallback for testing
+        userId: userId,
       },
     });
   }
 
-  async findAll(): Promise<Client[]> {
-    return this.prisma.client.findMany();
+  async findAll(userId: string): Promise<Client[]> {
+    return this.prisma.client.findMany({
+      where: { userId },
+    });
   }
 
-  async findOne(id: string): Promise<Client> {
-    const client = await this.prisma.client.findUnique({
-      where: { id },
+  async findOne(userId: string, id: string): Promise<Client> {
+    const client = await this.prisma.client.findFirst({
+      where: { id, userId },
     });
     if (!client) {
       throw new NotFoundException(`Client with ID ${id} not found`);
@@ -34,18 +36,35 @@ export class ClientsService {
     return client;
   }
 
-  async update(id: string, updateClientDto: UpdateClientDto): Promise<Client> {
-    await this.findOne(id); // Check existence
+  async update(userId: string, id: string, updateClientDto: UpdateClientDto): Promise<Client> {
+    await this.findOne(userId, id); // Check existence
     return this.prisma.client.update({
       where: { id },
       data: updateClientDto,
     });
   }
 
-  async remove(id: string): Promise<Client> {
-    await this.findOne(id); // Check existence
+  async remove(userId: string, id: string): Promise<Client> {
+    await this.findOne(userId, id); // Check existence
     return this.prisma.client.delete({
       where: { id },
     });
+  }
+
+  async getProjects(userId: string, id: string) {
+    await this.findOne(userId, id);
+    return this.prisma.project.findMany({ where: { clientId: id, userId } });
+  }
+
+  async getProposals(userId: string, id: string) {
+    const projects = await this.getProjects(userId, id);
+    if (!projects.length) return [];
+    return this.prisma.proposal.findMany({ where: { projectId: { in: projects.map(p => p.id) }, userId } });
+  }
+
+  async getInvoices(userId: string, id: string) {
+    const projects = await this.getProjects(userId, id);
+    if (!projects.length) return [];
+    return this.prisma.invoice.findMany({ where: { projectId: { in: projects.map(p => p.id) }, userId } });
   }
 }

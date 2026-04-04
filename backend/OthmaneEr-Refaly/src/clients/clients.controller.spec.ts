@@ -40,47 +40,52 @@ describe('ClientsController', () => {
   it('should create a client', async () => {
     const clientDto = { name: 'Test', email: 'test@test.com' };
     const mockResult = { id: 'uuid-1', ...clientDto };
+    const req = { user: { id: 'user-1' } };
     mockClientsService.create.mockResolvedValue(mockResult);
 
-    const result = await controller.create(clientDto as any);
+    const result = await controller.create(req, clientDto as any);
     expect(result).toEqual(mockResult);
-    expect(service.create).toHaveBeenCalledWith(clientDto);
+    expect(service.create).toHaveBeenCalledWith('user-1', clientDto);
   });
 
   it('should return all clients', async () => {
     const mockResult = [{ id: 'uuid-1', name: 'Test' }];
+    const req = { user: { id: 'user-1' } };
     mockClientsService.findAll.mockResolvedValue(mockResult);
 
-    const result = await controller.findAll();
-    expect(result).toEqual(mockResult);
-    expect(service.findAll).toHaveBeenCalled();
+    const result = await controller.findAll(req);
+    expect(result).toEqual({ data: mockResult });
+    expect(service.findAll).toHaveBeenCalledWith('user-1');
   });
 
   it('should find one client', async () => {
     const mockResult = { id: 'uuid-1', name: 'Test' };
+    const req = { user: { id: 'user-1' } };
     mockClientsService.findOne.mockResolvedValue(mockResult);
 
-    const result = await controller.findOne('uuid-1');
+    const result = await controller.findOne(req, 'uuid-1');
     expect(result).toEqual(mockResult);
-    expect(service.findOne).toHaveBeenCalledWith('uuid-1');
+    expect(service.findOne).toHaveBeenCalledWith('user-1', 'uuid-1');
   });
 
   it('should update a client', async () => {
     const updateDto = { name: 'Updated' };
     const mockResult = { id: 'uuid-1', ...updateDto };
+    const req = { user: { id: 'user-1' } };
     mockClientsService.update.mockResolvedValue(mockResult);
 
-    const result = await controller.update('uuid-1', updateDto as any);
+    const result = await controller.update(req, 'uuid-1', updateDto as any);
     expect(result).toEqual(mockResult);
-    expect(service.update).toHaveBeenCalledWith('uuid-1', updateDto);
+    expect(service.update).toHaveBeenCalledWith('user-1', 'uuid-1', updateDto);
   });
 
   it('should remove a client', async () => {
     const mockResult = { id: 'uuid-1', name: 'Test' };
+    const req = { user: { id: 'user-1' } };
     mockClientsService.remove.mockResolvedValue(mockResult);
 
-    const result = await controller.remove('uuid-1');
+    const result = await controller.remove(req, 'uuid-1');
     expect(result).toEqual(mockResult);
-    expect(service.remove).toHaveBeenCalledWith('uuid-1');
+    expect(service.remove).toHaveBeenCalledWith('user-1', 'uuid-1');
   });
 });
