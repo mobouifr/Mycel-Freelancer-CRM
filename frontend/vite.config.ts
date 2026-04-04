@@ -50,11 +50,6 @@ export default defineConfig({
         target: 'http://backend:3001',
         changeOrigin: true,
         secure: false,
-      },
-      '/auth': {
-        target: 'http://backend:3001',
-        changeOrigin: true,
-        secure: false,
       }
     }
   }
