@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import Footer from '../components/Footer';
+import ChatbotAI from '../components/ChatbotAI';
 import { useIsMobile } from '../hooks/useIsMobile';
 
 /* ─────────────────────────────────────────────
@@ -77,6 +78,7 @@ export default function AppLayout() {
           <Footer />
         </main>
       </div>
+      <ChatbotAI />
     </div>
   );
 }
