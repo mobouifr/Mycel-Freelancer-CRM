@@ -1,7 +1,8 @@
-export class CreateCustomerDto 
+export class CreateClientDto 
 {
     name: string;
     email: string;
     phone?: string;
     company?: string;
+    userId?: string;
 }

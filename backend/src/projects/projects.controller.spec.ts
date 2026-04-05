@@ -39,39 +39,44 @@ describe('ProjectsController', () => {
 
   it('should create a project', async () => {
     const dto = { title: 'Test Project' };
+    const req = { user: { id: 'user-1' } };
     mockProjectsService.create.mockResolvedValue({ id: 'uuid-1', ...dto });
 
-    const result = await controller.create(dto as any);
+    const result = await controller.create(req, dto as any);
     expect(result).toEqual({ id: 'uuid-1', title: 'Test Project' });
-    expect(service.create).toHaveBeenCalledWith(dto);
+    expect(service.create).toHaveBeenCalledWith('user-1', dto);
   });
 
   it('should get all projects', async () => {
+    const req = { user: { id: 'user-1' } };
     mockProjectsService.findAll.mockResolvedValue([]);
-    const result = await controller.findAll();
-    expect(result).toEqual([]);
-    expect(service.findAll).toHaveBeenCalledWith();
+    const result = await controller.findAll(req);
+    expect(result).toEqual({ data: [] });
+    expect(service.findAll).toHaveBeenCalledWith('user-1');
   });
 
   it('should get one project', async () => {
+    const req = { user: { id: 'user-1' } };
     mockProjectsService.findOne.mockResolvedValue({ id: 'uuid-1' });
-    const result = await controller.findOne('uuid-1');
+    const result = await controller.findOne(req, 'uuid-1');
     expect(result).toEqual({ id: 'uuid-1' });
-    expect(service.findOne).toHaveBeenCalledWith('uuid-1');
+    expect(service.findOne).toHaveBeenCalledWith('user-1', 'uuid-1');
   });
 
   it('should update a project', async () => {
     const dto = { title: 'Updated' };
+    const req = { user: { id: 'user-1' } };
     mockProjectsService.update.mockResolvedValue({ id: 'uuid-1', ...dto });
-    const result = await controller.update('uuid-1', dto);
+    const result = await controller.update(req, 'uuid-1', dto as any);
     expect(result).toEqual({ id: 'uuid-1', title: 'Updated' });
-    expect(service.update).toHaveBeenCalledWith('uuid-1', dto);
+    expect(service.update).toHaveBeenCalledWith('user-1', 'uuid-1', dto);
   });
 
   it('should remove a project', async () => {
+    const req = { user: { id: 'user-1' } };
     mockProjectsService.remove.mockResolvedValue({ id: 'uuid-1' });
-    const result = await controller.remove('uuid-1');
+    const result = await controller.remove(req, 'uuid-1');
     expect(result).toEqual({ id: 'uuid-1' });
-    expect(service.remove).toHaveBeenCalledWith('uuid-1');
+    expect(service.remove).toHaveBeenCalledWith('user-1', 'uuid-1');
   });
 });
