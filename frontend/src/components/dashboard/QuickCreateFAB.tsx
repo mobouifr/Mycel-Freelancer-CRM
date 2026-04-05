@@ -1,16 +1,22 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '../../hooks/useIsMobile';
 
-const actions = [
-  { label: 'New Invoice',  icon: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2', path: '/invoices' },
-  { label: 'New Client',   icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', path: '/clients' },
-  { label: 'New Project',  icon: 'M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z', path: '/projects' },
-  { label: 'New Proposal', icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z', path: '/proposals' },
+const ACTION_DEFS = [
+  { labelKey: 'quickCreate.newInvoice' as const, icon: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2', path: '/invoices' },
+  { labelKey: 'quickCreate.newClient' as const, icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', path: '/clients' },
+  { labelKey: 'quickCreate.newProject' as const, icon: 'M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z', path: '/projects' },
+  { labelKey: 'quickCreate.newProposal' as const, icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z', path: '/proposals' },
 ];
 
 export default function QuickCreateFAB() {
+  const { t } = useTranslation();
+  const actions = useMemo(
+    () => ACTION_DEFS.map((a) => ({ ...a, label: t(a.labelKey) })),
+    [t],
+  );
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -81,7 +87,7 @@ export default function QuickCreateFAB() {
         }}>
           {actions.map((a, i) => (
             <button
-              key={a.label}
+              key={a.labelKey}
               onClick={() => { setOpen(false); navigate(a.path); }}
               style={{
                 display: 'flex',
@@ -129,7 +135,7 @@ export default function QuickCreateFAB() {
       {/* FAB button — glassmorphism */}
       <button
         onClick={() => setOpen(!open)}
-        aria-label={open ? 'Close quick create' : 'Quick create'}
+        aria-label={open ? t('quickCreate.closeAria') : t('quickCreate.openAria')}
         style={{
           width: isMobile ? 48 : 56, 
           height: isMobile ? 48 : 56, 

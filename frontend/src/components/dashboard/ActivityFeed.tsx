@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
 
 /* ─────────────────────────────────────────────
@@ -38,6 +39,7 @@ function ActivityFeed() {
       <div style={{ flex: 1, overflow: 'auto' }}>
         {ACTIVITIES.map((item, i) => {
           const icon = TYPE_ICON[item.type];
+          const tk = `activityWidget.i${item.id}` as const;
           return (
             <div
               key={item.id}
@@ -73,21 +75,21 @@ function ActivityFeed() {
                     fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--white)',
                     lineHeight: 1.3,
                   }}>
-                    {item.title}
+                    {t(`${tk}.title`)}
                   </p>
                   <span style={{
                     fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
                     letterSpacing: '.04em', whiteSpace: 'nowrap', marginLeft: 8,
                     flexShrink: 0,
                   }}>
-                    {item.time}
+                    {t(`${tk}.time`)}
                   </span>
                 </div>
                 <p style={{
                   fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)',
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 }}>
-                  {item.detail}
+                  {t(`${tk}.detail`)}
                 </p>
               </div>
             </div>

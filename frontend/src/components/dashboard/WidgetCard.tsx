@@ -8,6 +8,8 @@ import { useState, type ReactNode } from 'react';
 
 interface WidgetCardProps {
   title: string;
+  /** Localized aria-label for remove (falls back to English pattern if omitted) */
+  removeAriaLabel?: string;
   icon?: ReactNode;
   children: ReactNode;
   onRemove?: () => void;
@@ -90,7 +92,7 @@ export default function WidgetCard({
           {onRemove && (
             <button
               onClick={onRemove}
-              aria-label={`Remove ${title} widget`}
+              aria-label={removeAriaLabel ?? `Remove ${title} widget`}
               style={{
                 width: 22, height: 22, borderRadius: 4,
                 background: 'none', border: '1px solid transparent',

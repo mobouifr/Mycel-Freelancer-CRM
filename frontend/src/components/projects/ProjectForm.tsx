@@ -1,7 +1,9 @@
 // Project form component
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { projectSchema, type ProjectFormData } from '../../utils/validation';
+import { useTranslation } from 'react-i18next';
+import { createProjectSchema, type ProjectFormData } from '../../utils/validation';
 import { type Project, ProjectPriority, ProjectStatus } from '../../types/project.types';
 import { formatDateInput } from '../../utils/formatters';
 import { useClients } from '../../hooks/useClients';
@@ -14,14 +16,16 @@ interface ProjectFormProps {
 }
 
 export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: ProjectFormProps) => {
+  const { t } = useTranslation();
   const { clients } = useClients();
+  const schema = useMemo(() => createProjectSchema(t), [t]);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isValid },
   } = useForm<ProjectFormData>({
-    resolver: zodResolver(projectSchema),
+    resolver: zodResolver(schema),
     defaultValues: project
       ? {
           title: project.title,

@@ -1,33 +1,38 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { NotificationBell } from '../components';
+import i18n, { normalizeLang } from '../i18n/config';
 
 /* ─────────────────────────────────────────────
    TOPBAR — Breadcrumb + search + user avatar
 ───────────────────────────────────────────── */
 
-const ROUTE_LABELS: Record<string, string> = {
-  '/': 'Overview',
-  '/clients': 'Clients',
-  '/projects': 'Projects',
-  '/proposals': 'Proposals',
-  '/invoices': 'Invoices',
-  '/reminders': 'Reminders',
-  '/settings': 'Settings',
+/** Maps URL segment path to `routes.*` translation key suffix */
+const ROUTE_TRANSLATION_KEYS: Record<string, string> = {
+  '/': 'overview',
+  '/ecosystem': 'ecosystem',
+  '/clients': 'clients',
+  '/projects': 'projects',
+  '/proposals': 'proposals',
+  '/invoices': 'invoices',
+  '/reminders': 'reminders',
+  '/settings': 'settings',
 };
 
-/* Searchable items — pages + quick actions */
+/* Searchable items — `id` matches `nav.*` keys; keywords stay English for matching */
 const SEARCH_ITEMS = [
-  { label: 'Dashboard',  path: '/',          keywords: 'home overview stats revenue' },
-  { label: 'Clients',    path: '/clients',   keywords: 'people contacts customers' },
-  { label: 'Projects',   path: '/projects',  keywords: 'work tasks boards' },
-  { label: 'Proposals',  path: '/proposals', keywords: 'quotes offers bids' },
-  { label: 'Invoices',   path: '/invoices',  keywords: 'billing payments money' },
-  { label: 'Reminders',  path: '/reminders', keywords: 'alerts notifications schedule' },
-  { label: 'Settings',   path: '/settings',  keywords: 'profile preferences account security' },
-];
+  { id: 'dashboard' as const, path: '/', keywords: 'home overview stats revenue' },
+  { id: 'clients' as const, path: '/clients', keywords: 'people contacts customers' },
+  { id: 'projects' as const, path: '/projects', keywords: 'work tasks boards' },
+  { id: 'proposals' as const, path: '/proposals', keywords: 'quotes offers bids' },
+  { id: 'invoices' as const, path: '/invoices', keywords: 'billing payments money' },
+  { id: 'reminders' as const, path: '/reminders', keywords: 'alerts notifications schedule' },
+  { id: 'ecosystem' as const, path: '/ecosystem', keywords: 'ecosystem partners network integrations' },
+  { id: 'settings' as const, path: '/settings', keywords: 'profile preferences account security' },
+] as const;
 
 interface TopbarProps {
   isMobile?: boolean;
@@ -35,6 +40,7 @@ interface TopbarProps {
 }
 
 export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps = {}) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [focused, setFocused] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState(0);
@@ -46,9 +52,11 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
   const menuTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // Get current page label from route
   const basePath = '/' + (location.pathname.split('/')[1] || '');
-  const label = ROUTE_LABELS[basePath] || 'Dashboard';
+  const routeKey = ROUTE_TRANSLATION_KEYS[basePath] ?? 'fallback';
+  const label = t(`routes.${routeKey}`);
+
+  const currentLang = normalizeLang(i18n.resolvedLanguage || i18n.language || 'en');
 
   const initials = user?.username
     ? user.username
@@ -59,20 +67,18 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
         .slice(0, 2)
     : 'U';
 
-  // Filter search results
   const q = query.toLowerCase().trim();
-  const results = q
-    ? SEARCH_ITEMS.filter(
-        (item) =>
-          item.label.toLowerCase().includes(q) ||
-          item.keywords.includes(q)
-      )
-    : [];
+  const results = useMemo(() => {
+    if (!q) return [];
+    return SEARCH_ITEMS.filter((item) => {
+      const translated = t(`nav.${item.id}`).toLowerCase();
+      return translated.includes(q) || item.keywords.includes(q);
+    });
+  }, [q, t]);
 
   const showResults = focused && q.length > 0 && results.length > 0;
 
-  // Reset selection when results change
-  useEffect(() => setSelectedIdx(0), [q]);
+  useEffect(() => setSelectedIdx(0), [q, i18n.resolvedLanguage]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -123,8 +129,9 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         {isMobile && (
           <button
+            type="button"
             onClick={onMenuToggle}
-            aria-label="Toggle menu"
+            aria-label={t('topbar.toggleMenu')}
             style={{
               background: 'none',
               border: 'none',
@@ -152,7 +159,7 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
         >
           {!isMobile && (
             <>
-              <span style={{ color: 'var(--text-mid)' }}>Dashboard</span>
+              <span style={{ color: 'var(--text-mid)' }}>{t('topbar.breadcrumbDashboard')}</span>
               <span style={{ margin: '0 8px', opacity: 0.4 }}>/</span>
             </>
           )}
@@ -182,7 +189,8 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setFocused(true)}
             onKeyDown={handleKeyDown}
-            placeholder="Search pages..."
+            placeholder={t('topbar.searchPlaceholder')}
+            aria-label={t('topbar.searchPlaceholder')}
             style={{
               background: 'var(--glass)',
               border: `1px solid ${focused ? 'var(--border-h)' : 'var(--border)'}`,
@@ -217,6 +225,7 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
             >
               {results.map((item, i) => (
                 <button
+                  type="button"
                   key={item.path}
                   onClick={() => goTo(item.path)}
                   onMouseEnter={() => setSelectedIdx(i)}
@@ -238,7 +247,7 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
                   }}
                 >
                   <span style={{ opacity: 0.4, fontSize: 10 }}>→</span>
-                  {item.label}
+                  {t(`nav.${item.id}`)}
                   <span
                     style={{
                       marginLeft: 'auto',
@@ -277,13 +286,39 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
                 letterSpacing: '.04em',
               }}
             >
-              No pages found for "{query}"
+              {t('topbar.noResults', { query })}
             </div>
           )}
         </div>}
 
+        {/* Language */}
+        <select
+          id="app-language"
+          aria-label={t('topbar.language')}
+          value={currentLang}
+          onChange={(e) => void i18n.changeLanguage(e.target.value)}
+          style={{
+            background: 'var(--glass)',
+            border: '1px solid var(--border)',
+            borderRadius: 6,
+            padding: '6px 10px',
+            color: 'var(--white)',
+            fontFamily: 'var(--font-m)',
+            fontSize: 11,
+            letterSpacing: '.04em',
+            cursor: 'pointer',
+            outline: 'none',
+            maxWidth: isMobile ? 100 : 120,
+          }}
+        >
+          <option value="en">{t('topbar.langEnglish')}</option>
+          <option value="fr">{t('topbar.langFrench')}</option>
+          <option value="es">{t('topbar.langSpanish')}</option>
+        </select>
+
         {/* Theme toggle */}
         <button
+          type="button"
           onClick={cycleQuickTheme}
           aria-label={`Switch theme (current: ${theme})`}
           title={`Theme: ${theme}`}
@@ -401,6 +436,7 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => { logout(); navigate('/login'); }}
                 style={{
                   display: 'block',
@@ -423,7 +459,7 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
                   e.currentTarget.style.background = 'none';
                 }}
               >
-                Sign out
+                {t('topbar.signOut')}
               </button>
             </div>
         </div>

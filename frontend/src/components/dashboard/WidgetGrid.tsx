@@ -1,4 +1,5 @@
 import { useMemo, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   GridLayout,
   useContainerWidth,
@@ -119,6 +120,7 @@ export default function WidgetGrid({
             const entry = getWidgetEntry(widgetId);
             if (!entry) return null;
             const Widget = entry.component;
+            const title = t(`widgets.${widgetId}.title`);
 
             return (
               <div
@@ -126,7 +128,8 @@ export default function WidgetGrid({
                 className="widget-grid-item"
               >
                 <WidgetCard
-                  title={entry.label}
+                  title={title}
+                  removeAriaLabel={t('dashboard.removeWidgetAria', { title })}
                   isEditing={isEditing}
                   onRemove={isEditing ? () => onRemoveWidget(widgetId) : undefined}
                   icon={

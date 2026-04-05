@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
 
 /* ─────────────────────────────────────────────
@@ -23,20 +24,28 @@ const PROJECTS: ProjectData[] = [
   { id: '4', name: 'Marketing Campaign', client: 'Pixel Root',   progress: 15, status: 'paused', dueDate: 'Apr 30' },
 ];
 
-const STATUS_STYLE: Record<ProjectData['status'], { color: string; label: string }> = {
-  active: { color: 'var(--success)',  label: 'Active' },
-  review: { color: 'var(--info, #60a5fa)',   label: 'In Review' },
-  paused: { color: 'var(--text-dim)',  label: 'Paused' },
-};
-
 function ProjectsProgress() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const statusRow = (status: ProjectData['status']) => {
+    const labels = {
+      active: t('projectsWidget.statusActive'),
+      review: t('projectsWidget.statusReview'),
+      paused: t('projectsWidget.statusPaused'),
+    } as const;
+    const colors = {
+      active: 'var(--success)',
+      review: 'var(--info, #60a5fa)',
+      paused: 'var(--text-dim)',
+    } as const;
+    return { color: colors[status], label: labels[status] };
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ flex: 1, overflow: 'auto' }}>
         {PROJECTS.map((proj, i) => {
-          const s = STATUS_STYLE[proj.status];
+          const s = statusRow(proj.status);
           return (
             <div
               key={proj.id}
@@ -66,7 +75,7 @@ function ProjectsProgress() {
                   <p style={{
                     fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
                   }}>
-                    {proj.client} · Due {proj.dueDate}
+                    {t('projectsWidget.dueLine', { client: proj.client, date: proj.dueDate })}
                   </p>
                 </div>
                 <span style={{
@@ -123,7 +132,7 @@ function ProjectsProgress() {
             letterSpacing: '.04em',
           }}
         >
-          View all projects →
+          {t('projectsWidget.viewAll')}
         </button>
       </div>
     </div>

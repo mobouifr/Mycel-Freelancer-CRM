@@ -1,59 +1,59 @@
-// Validation schemas using Zod
+// Validation schemas using Zod (messages via i18n `t`)
 import { z } from 'zod';
+import type { TFunction } from 'i18next';
 
-// Client validation
-export const clientSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(200, 'Name must be less than 200 characters'),
-  email: z.string().email('Invalid email address').optional().or(z.literal('')),
-  phone: z.string().optional(),
-  company: z.string().max(200, 'Company name must be less than 200 characters').optional(),
-  notes: z.string().optional(),
-});
+export const createClientSchema = (t: TFunction) =>
+  z.object({
+    name: z.string().min(1, t('validation.nameRequired')).max(200, t('validation.nameMax')),
+    email: z.string().email(t('validation.invalidEmail')).optional().or(z.literal('')),
+    phone: z.string().optional(),
+    company: z.string().max(200, t('validation.companyMax')).optional(),
+    notes: z.string().optional(),
+  });
 
-export type ClientFormData = z.infer<typeof clientSchema>;
+export type ClientFormData = z.infer<ReturnType<typeof createClientSchema>>;
 
-// Project validation
-export const projectSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(255, 'Title must be less than 255 characters'),
-  description: z.string().optional(),
-  status: z.enum(['ACTIVE', 'COMPLETED', 'PAUSED', 'CANCELLED']).optional(),
-  priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
-  budget: z.number().min(0, 'Budget must be positive'),
-  deadline: z.string().optional(),
-  clientId: z.string().min(1, 'Client is required'),
-});
+export const createProjectSchema = (t: TFunction) =>
+  z.object({
+    title: z.string().min(1, t('validation.titleRequired')).max(255, t('validation.titleMax')),
+    description: z.string().optional(),
+    status: z.enum(['ACTIVE', 'COMPLETED', 'PAUSED', 'CANCELLED']).optional(),
+    priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
+    budget: z.number().min(0, t('validation.budgetPositive')),
+    deadline: z.string().optional(),
+    clientId: z.string().min(1, t('validation.clientRequired')),
+  });
 
-export type ProjectFormData = z.infer<typeof projectSchema>;
+export type ProjectFormData = z.infer<ReturnType<typeof createProjectSchema>>;
 
-// Proposal validation
-export const proposalSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(255, 'Title must be less than 255 characters'),
-  amount: z.number().min(0, 'Amount must be positive'),
-  status: z.enum(['DRAFT', 'SENT', 'ACCEPTED', 'REJECTED']).optional(),
-  notes: z.string().optional(),
-  validUntil: z.string().optional(),
-  projectId: z.string().min(1, 'Project is required'),
-});
+export const createProposalSchema = (t: TFunction) =>
+  z.object({
+    title: z.string().min(1, t('validation.titleRequired')).max(255, t('validation.titleMax')),
+    amount: z.number().min(0, t('validation.amountPositive')),
+    status: z.enum(['DRAFT', 'SENT', 'ACCEPTED', 'REJECTED']).optional(),
+    notes: z.string().optional(),
+    validUntil: z.string().optional(),
+    projectId: z.string().min(1, t('validation.projectRequired')),
+  });
 
-export type ProposalFormData = z.infer<typeof proposalSchema>;
+export type ProposalFormData = z.infer<ReturnType<typeof createProposalSchema>>;
 
-// Invoice validation
-export const invoiceSchema = z.object({
-  amount: z.number().min(0, 'Amount must be positive'),
-  status: z.enum(['PENDING', 'PAID', 'OVERDUE', 'CANCELLED']).optional(),
-  dueDate: z.string().optional(),
-  notes: z.string().optional(),
-  projectId: z.string().min(1, 'Project is required'),
-});
+export const createInvoiceSchema = (t: TFunction) =>
+  z.object({
+    amount: z.number().min(0, t('validation.amountPositive')),
+    status: z.enum(['PENDING', 'PAID', 'OVERDUE', 'CANCELLED']).optional(),
+    dueDate: z.string().optional(),
+    notes: z.string().optional(),
+    projectId: z.string().min(1, t('validation.projectRequired')),
+  });
 
-export type InvoiceFormData = z.infer<typeof invoiceSchema>;
+export type InvoiceFormData = z.infer<ReturnType<typeof createInvoiceSchema>>;
 
-// Mark invoice paid validation
-export const markInvoicePaidSchema = z.object({
-  amount: z.number().min(0.01, 'Amount must be greater than 0'),
-  method: z.string().min(1, 'Payment method is required'),
-  notes: z.string().optional(),
-});
+export const createMarkInvoicePaidSchema = (t: TFunction) =>
+  z.object({
+    amount: z.number().min(0.01, t('validation.amountGtZero')),
+    method: z.string().min(1, t('validation.paymentMethodRequired')),
+    notes: z.string().optional(),
+  });
 
-export type MarkInvoicePaidFormData = z.infer<typeof markInvoicePaidSchema>;
-
+export type MarkInvoicePaidFormData = z.infer<ReturnType<typeof createMarkInvoicePaidSchema>>;

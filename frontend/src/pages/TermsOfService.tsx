@@ -1,9 +1,11 @@
 import { useNavigate, Link } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import Footer from '../components/Footer';
 import { LogoMark } from '../components';
 import { useTheme } from '../hooks/useTheme';
 
 export default function TermsOfService() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { mode: themeMode, cycleQuickTheme, theme } = useTheme();
 
@@ -54,8 +56,8 @@ export default function TermsOfService() {
         {/* Theme switcher */}
         <button
           onClick={cycleQuickTheme}
-          aria-label={`Switch theme (current: ${theme})`}
-          title={`Theme: ${theme}`}
+          aria-label={t('common.themeSwitchAria', { theme })}
+          title={t('common.themeTitle', { theme })}
           style={{
             width: 36,
             height: 36,
@@ -113,7 +115,7 @@ export default function TermsOfService() {
               padding: 0,
             }}
           >
-            ← Back
+            {t('common.back')}
           </button>
 
           <h1
@@ -126,7 +128,7 @@ export default function TermsOfService() {
               marginBottom: 8,
             }}
           >
-            Terms of Service
+            {t('legal.terms.pageTitle')}
           </h1>
 
           <p
@@ -138,8 +140,8 @@ export default function TermsOfService() {
               marginBottom: 40,
             }}
           >
-            Last updated:{' '}
-            {new Date().toLocaleDateString('en-US', {
+            {t('common.lastUpdated')}{' '}
+            {new Date().toLocaleDateString(i18n.language, {
               year: 'numeric',
               month: 'long',
               day: 'numeric',
@@ -147,110 +149,59 @@ export default function TermsOfService() {
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-            <Section title="1. Acceptance of Terms">
-              By accessing or using the Mycel Freelancer CRM application ("Service"), you
-              agree to be bound by these Terms of Service. If you do not agree, you must not
-              use the Service. These terms apply to all users, including registered account
-              holders and visitors.
-            </Section>
+            <Section title={t('legal.terms.s1t')}>{t('legal.terms.s1b')}</Section>
 
-            <Section title="2. Description of Service">
-              Mycel is a web-based Customer Relationship Management tool designed for
-              freelancers and small businesses. The Service allows users to manage clients,
-              track projects, create proposals, generate invoices, set reminders, and view
-              business analytics through an interactive dashboard.
-            </Section>
+            <Section title={t('legal.terms.s2t')}>{t('legal.terms.s2b')}</Section>
 
-            <Section title="3. User Accounts">
-              To use most features, you must create an account by providing a valid username,
-              email address, and password. You may also sign in via OAuth providers (42 Intra).
+            <Section title={t('legal.terms.s3t')}>
+              {t('legal.terms.s3intro')}
               <br /><br />
-              You are responsible for:
+              {t('legal.terms.s3sub')}
               <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-                <li>Maintaining the confidentiality of your credentials</li>
-                <li>All activity that occurs under your account</li>
-                <li>Notifying us immediately of any unauthorized access</li>
-                <li>Providing accurate and truthful registration information</li>
+                <li>{t('legal.terms.s3l1')}</li>
+                <li>{t('legal.terms.s3l2')}</li>
+                <li>{t('legal.terms.s3l3')}</li>
+                <li>{t('legal.terms.s3l4')}</li>
               </ul>
             </Section>
 
-            <Section title="4. Acceptable Use">
-              You agree not to:
+            <Section title={t('legal.terms.s4t')}>
+              {t('legal.terms.s4intro')}
               <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-                <li>Use the Service for any illegal or unauthorized purpose</li>
-                <li>Attempt to gain unauthorized access to other accounts or systems</li>
-                <li>Upload malicious code, viruses, or harmful content</li>
-                <li>Interfere with or disrupt the Service or its infrastructure</li>
-                <li>Scrape, harvest, or collect data from the Service without permission</li>
-                <li>Impersonate another person or misrepresent your affiliation</li>
+                <li>{t('legal.terms.s4l1')}</li>
+                <li>{t('legal.terms.s4l2')}</li>
+                <li>{t('legal.terms.s4l3')}</li>
+                <li>{t('legal.terms.s4l4')}</li>
+                <li>{t('legal.terms.s4l5')}</li>
+                <li>{t('legal.terms.s4l6')}</li>
               </ul>
             </Section>
 
-            <Section title="5. Your Data">
-              You retain ownership of all data you enter into the Service (clients, projects,
-              invoices, etc.). We do not claim ownership of your content.
-              <br /><br />
-              By using the Service, you grant us a limited license to store, process, and
-              display your data solely for the purpose of providing the Service to you.
-              <br /><br />
-              You are responsible for maintaining backups of your data. While we take
-              reasonable steps to protect your data, we are not liable for data loss.
+            <Section title={t('legal.terms.s5t')}>
+              <Trans i18nKey="legal.terms.s5b" />
             </Section>
 
-            <Section title="6. Availability and Modifications">
-              We strive to maintain Service availability but do not guarantee uninterrupted
-              access. The Service may be temporarily unavailable due to maintenance, updates,
-              or circumstances beyond our control.
-              <br /><br />
-              We reserve the right to modify, suspend, or discontinue any part of the Service
-              at any time. We will make reasonable efforts to notify users of significant
-              changes.
+            <Section title={t('legal.terms.s6t')}>
+              <Trans i18nKey="legal.terms.s6b" />
             </Section>
 
-            <Section title="7. Intellectual Property">
-              The Service, including its design, interface, codebase, and branding (Mycel),
-              is the intellectual property of the development team. This project was created
-              as part of the 42 curriculum.
-              <br /><br />
-              You may not copy, modify, distribute, or reverse-engineer any part of the
-              Service without explicit permission.
+            <Section title={t('legal.terms.s7t')}>
+              <Trans i18nKey="legal.terms.s7b" />
             </Section>
 
-            <Section title="8. Limitation of Liability">
-              The Service is provided "as is" without warranties of any kind, express or
-              implied. We do not warrant that the Service will be error-free, secure, or
-              available at all times.
-              <br /><br />
-              To the maximum extent permitted by law, we shall not be liable for any
-              indirect, incidental, special, or consequential damages arising from your use
-              of the Service, including loss of data, revenue, or business opportunities.
+            <Section title={t('legal.terms.s8t')}>
+              <Trans i18nKey="legal.terms.s8b" />
             </Section>
 
-            <Section title="9. Account Termination">
-              We may suspend or terminate your account if you violate these Terms or engage
-              in behavior that harms the Service or its users. You may delete your account
-              at any time through the Settings page.
-              <br /><br />
-              Upon termination, your right to use the Service ceases immediately. We may
-              retain certain data as required by law or for legitimate business purposes.
+            <Section title={t('legal.terms.s9t')}>
+              <Trans i18nKey="legal.terms.s9b" />
             </Section>
 
-            <Section title="10. Changes to Terms">
-              We may update these Terms from time to time. Changes take effect when posted
-              on this page with an updated "Last updated" date. Continued use of the Service
-              after changes constitutes acceptance of the revised Terms.
-            </Section>
+            <Section title={t('legal.terms.s10t')}>{t('legal.terms.s10b')}</Section>
 
-            <Section title="11. Governing Law">
-              These Terms are governed by and construed in accordance with applicable local
-              laws. Any disputes shall be resolved through good-faith negotiation before
-              pursuing formal legal action.
-            </Section>
+            <Section title={t('legal.terms.s11t')}>{t('legal.terms.s11b')}</Section>
 
-            <Section title="12. Contact">
-              For questions about these Terms of Service, please contact your team
-              administrator or reach out through the application's Settings page.
-            </Section>
+            <Section title={t('legal.terms.s12t')}>{t('legal.terms.s12b')}</Section>
           </div>
         </div>
       </div>

@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import RevenueChart from '../RevenueChart';
+import { monthShortLabels } from '../../i18n/localeFormat';
 import { setWidgetComponent } from './WidgetRegistry';
 
 /* ─────────────────────────────────────────────
@@ -8,12 +10,13 @@ import { setWidgetComponent } from './WidgetRegistry';
 
 // Mock data — replace with API when backend ready
 const MONTHLY_REVENUE = [12, 19, 8, 25, 18, 31, 24, 38, 29, 44, 35, 52];
-const LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const CURRENT_REVENUE = 52_400;
 const PREVIOUS_REVENUE = 44_200;
 const TREND_PCT = Math.round(((CURRENT_REVENUE - PREVIOUS_REVENUE) / PREVIOUS_REVENUE) * 100);
 
 function RevenueKPI() {
+  const { t, i18n } = useTranslation();
+  const labels = monthShortLabels(i18n.language);
   const isUp = TREND_PCT >= 0;
 
   return (
@@ -31,7 +34,7 @@ function RevenueKPI() {
             fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)',
             letterSpacing: '.04em', marginTop: 4,
           }}>
-            net revenue this month
+            {t('revenueWidget.netRevenue')}
           </p>
         </div>
 
@@ -60,9 +63,9 @@ function RevenueKPI() {
       {/* Mini stat pills */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
         {[
-          { label: 'Avg / Month', value: `$${Math.round(MONTHLY_REVENUE.reduce((a, b) => a + b, 0) / MONTHLY_REVENUE.length)}k` },
-          { label: 'Best Month', value: `$${Math.max(...MONTHLY_REVENUE)}k` },
-          { label: 'Invoices Paid', value: '14' },
+          { label: t('revenueWidget.avgMonth'), value: `$${Math.round(MONTHLY_REVENUE.reduce((a, b) => a + b, 0) / MONTHLY_REVENUE.length)}k` },
+          { label: t('revenueWidget.bestMonth'), value: `$${Math.max(...MONTHLY_REVENUE)}k` },
+          { label: t('revenueWidget.invoicesPaid'), value: '14' },
         ].map((s) => (
           <div key={s.label} style={{
             flex: 1,
@@ -91,7 +94,7 @@ function RevenueKPI() {
 
       {/* Sparkline chart */}
       <div style={{ flex: 1, minHeight: 60 }}>
-        <RevenueChart data={MONTHLY_REVENUE} labels={LABELS} height={100} />
+        <RevenueChart data={MONTHLY_REVENUE} labels={labels} height={100} />
       </div>
     </div>
   );

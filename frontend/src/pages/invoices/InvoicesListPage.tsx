@@ -1,12 +1,14 @@
 // Invoices list page
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useInvoices } from '../../hooks/useInvoices';
 import { type Invoice, InvoiceStatus } from '../../types/invoice.types';
 import { InvoiceStatusBadge } from '../../components/invoices/InvoiceStatusBadge';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 
 export const InvoicesListPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { invoices, loading, error, deleteInvoice } = useInvoices();
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,11 +24,11 @@ export const InvoicesListPage = () => {
   });
 
   const handleDelete = async (invoice: Invoice) => {
-    if (window.confirm(`Are you sure you want to delete this invoice?`)) {
+    if (window.confirm(t('invoices.deleteConfirm'))) {
       try {
         await deleteInvoice(invoice.id);
       } catch (err) {
-        alert('Failed to delete invoice');
+        alert(t('invoices.deleteFailed'));
       }
     }
   };
@@ -34,7 +36,7 @@ export const InvoicesListPage = () => {
   if (loading) {
     return (
       <div style={{ padding: '24px' }}>
-        <div style={{ textAlign: 'center', padding: '32px 0' }}>Loading invoices...</div>
+        <div style={{ textAlign: 'center', padding: '32px 0' }}>{t('invoices.loading')}</div>
       </div>
     );
   }
@@ -86,7 +88,7 @@ export const InvoicesListPage = () => {
               marginBottom: 4,
             }}
           >
-            Invoices
+            {t('invoices.listTitle')}
           </h1>
           <p
             style={{
@@ -96,7 +98,7 @@ export const InvoicesListPage = () => {
               letterSpacing: '.04em',
             }}
           >
-            Manage invoice status and payment tracking
+            {t('invoices.listSubtitle')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -143,7 +145,7 @@ export const InvoicesListPage = () => {
               e.currentTarget.style.backgroundColor = 'var(--accent)';
             }}
           >
-            + New Invoice
+            {t('invoices.newInvoice')}
           </button>
         </div>
       </div>
@@ -152,7 +154,7 @@ export const InvoicesListPage = () => {
       <div style={{ marginBottom: 20 }}>
         <input
           type="text"
-          placeholder="Search invoices by project, status, or amount..."
+          placeholder={t('invoices.searchPlaceholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{

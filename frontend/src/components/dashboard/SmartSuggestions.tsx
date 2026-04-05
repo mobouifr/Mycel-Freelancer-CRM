@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
 
 /* ─────────────────────────────────────────────
@@ -58,6 +59,7 @@ const PRIORITY_STYLE: Record<Suggestion['priority'], { dot: string; border: stri
 };
 
 function SmartSuggestions() {
+  const { t } = useTranslation();
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
 
   const activeSuggestions = SUGGESTIONS.filter((s) => !dismissed.has(s.id));
@@ -81,13 +83,14 @@ function SmartSuggestions() {
             fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)',
             textAlign: 'center',
           }}>
-            All caught up! No pending suggestions.
+            {t('suggestionsWidget.empty')}
           </p>
         </div>
       ) : (
         <div style={{ flex: 1, overflow: 'auto' }}>
           {activeSuggestions.map((s, i) => {
             const ps = PRIORITY_STYLE[s.priority];
+            const sk = `suggestionsWidget.s${s.id}` as const;
             return (
               <div
                 key={s.id}
@@ -126,13 +129,13 @@ function SmartSuggestions() {
                       fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--white)',
                       marginBottom: 2, lineHeight: 1.3,
                     }}>
-                      {s.title}
+                      {t(`${sk}.title`)}
                     </p>
                     <p style={{
                       fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)',
                       lineHeight: 1.4, marginBottom: 6,
                     }}>
-                      {s.description}
+                      {t(`${sk}.description`)}
                     </p>
 
                     {/* Actions */}
@@ -156,7 +159,7 @@ function SmartSuggestions() {
                           e.currentTarget.style.color = 'var(--accent)';
                         }}
                       >
-                        {s.action}
+                        {t(`${sk}.action`)}
                       </button>
                       <button
                         onClick={() => handleDismiss(s.id)}
@@ -171,7 +174,7 @@ function SmartSuggestions() {
                         onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--text-dim)'; }}
                         onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
                       >
-                        Dismiss
+                        {t('suggestionsWidget.dismiss')}
                       </button>
                     </div>
                   </div>

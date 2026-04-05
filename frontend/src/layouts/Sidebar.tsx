@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { LogoMark } from '../components';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
@@ -70,18 +71,19 @@ type IconKey = keyof typeof icons;
 
 interface NavEntry {
   icon: IconKey;
-  label: string;
+  /** Key under `nav.*` in locale files */
+  i18nKey: string;
   path: string;
 }
 
 const NAV_ITEMS: NavEntry[] = [
-  { icon: 'dashboard',  label: 'Dashboard',  path: '/' },
-  { icon: 'clients',    label: 'Clients',    path: '/clients' },
-  { icon: 'projects',   label: 'Projects',   path: '/projects' },
-  { icon: 'proposals',  label: 'Proposals',  path: '/proposals' },
-  { icon: 'invoices',   label: 'Invoices',   path: '/invoices' },
-  { icon: 'reminders',  label: 'Reminders',  path: '/reminders' },
-  { icon: 'ecosystem',  label: 'Ecosystem',  path: '/ecosystem' },
+  { icon: 'dashboard', i18nKey: 'dashboard', path: '/' },
+  { icon: 'clients', i18nKey: 'clients', path: '/clients' },
+  { icon: 'projects', i18nKey: 'projects', path: '/projects' },
+  { icon: 'proposals', i18nKey: 'proposals', path: '/proposals' },
+  { icon: 'invoices', i18nKey: 'invoices', path: '/invoices' },
+  { icon: 'reminders', i18nKey: 'reminders', path: '/reminders' },
+  { icon: 'ecosystem', i18nKey: 'ecosystem', path: '/ecosystem' },
 ];
 
 const COLLAPSED_W = 64;
@@ -96,6 +98,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ onNavigate }: SidebarProps = {}) {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -249,7 +252,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
           transition: 'opacity .25s var(--ease)',
         }}
       >
-        Menu
+        {t('nav.menu')}
       </div>
 
       {/* ── Nav items ── */}
@@ -259,6 +262,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
 
         return (
           <button
+            type="button"
             key={n.path}
             onClick={() => go(n.path)}
             onMouseEnter={() => setHoveredIdx(idx)}
@@ -308,7 +312,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
                 overflow: 'hidden',
               }}
             >
-              {n.label}
+              {t(`nav.${n.i18nKey}`)}
             </span>
 
             {/* Tooltip (only when collapsed) */}
@@ -335,7 +339,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
                   boxShadow: '0 4px 12px rgba(0,0,0,.4)',
                 }}
               >
-                {n.label}
+                {t(`nav.${n.i18nKey}`)}
               </span>
             )}
           </button>
@@ -355,6 +359,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
 
       {/* ── Settings ── */}
       <button
+        type="button"
         onClick={() => go('/settings')}
         onMouseEnter={(e) => {
           if (!isActive('/settings')) {
@@ -404,12 +409,13 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
             overflow: 'hidden',
           }}
         >
-          Settings
+          {t('nav.settings')}
         </span>
       </button>
 
       {/* ── Logout ── */}
       <button
+        type="button"
         onClick={() => { logout(); go('/login'); }}
         onMouseEnter={(e) => {
           e.currentTarget.style.background = 'var(--danger-bg)';
@@ -457,7 +463,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
             overflow: 'hidden',
           }}
         >
-          Sign out
+          {t('nav.signOut')}
         </span>
       </button>
 
@@ -466,7 +472,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
         <div
           role="separator"
           aria-orientation="vertical"
-          aria-label="Resize sidebar"
+          aria-label={t('nav.resizeSidebar')}
           aria-valuenow={sidebarManualWidth}
           aria-valuemin={MIN_MANUAL_W}
           aria-valuemax={MAX_MANUAL_W}

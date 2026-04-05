@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '../../hooks/useStore';
 import { setWidgetComponent } from './WidgetRegistry';
 
@@ -18,6 +19,7 @@ const TAG_COLORS: Record<string, string> = {
 };
 
 function NotesCapture() {
+  const { t, i18n } = useTranslation();
   const { notes, addNote } = useStore();
   const navigate = useNavigate();
   const [composerOpen, setComposerOpen] = useState(false);
@@ -42,7 +44,7 @@ function NotesCapture() {
 
   const handleCreate = () => {
     if (!title.trim() && !body.trim()) return;
-    addNote({ title: title.trim() || 'Untitled Note', body: body.trim(), tags: [], pinned: false, color: 'default', todos: [], eventId: undefined });
+    addNote({ title: title.trim() || t('notesWidget.untitled'), body: body.trim(), tags: [], pinned: false, color: 'default', todos: [], eventId: undefined });
     setTitle('');
     setBody('');
     setComposerOpen(false);
@@ -63,7 +65,7 @@ function NotesCapture() {
           <input
             ref={titleRef}
             type="text"
-            placeholder="Note title…"
+            placeholder={t('notesWidget.placeholderTitle')}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             style={{
@@ -80,7 +82,7 @@ function NotesCapture() {
             onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); }}
           />
           <textarea
-            placeholder="Start typing… (optional)"
+            placeholder={t('notesWidget.placeholderBody')}
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={2}
@@ -105,7 +107,7 @@ function NotesCapture() {
                 color: 'var(--text-dim)', cursor: 'pointer',
               }}
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               onClick={handleCreate}
@@ -117,7 +119,7 @@ function NotesCapture() {
                 fontWeight: 500,
               }}
             >
-              Save
+              {t('common.save')}
             </button>
           </div>
         </div>
@@ -150,7 +152,7 @@ function NotesCapture() {
             e.currentTarget.style.color = 'var(--text-dim)';
           }}
         >
-          + Quick Note{' '}
+          {t('notesWidget.quickNote')}{' '}
           <span style={{ opacity: 0.4, fontSize: 9 }}>⌘K</span>
         </button>
       )}
@@ -162,7 +164,7 @@ function NotesCapture() {
             fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)',
             textAlign: 'center', padding: '16px 0',
           }}>
-            No notes yet — start typing above
+            {t('notesWidget.empty')}
           </p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
@@ -188,13 +190,13 @@ function NotesCapture() {
                     fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--white)',
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
                   }}>
-                    {note.title || 'Untitled'}
+                    {note.title || t('notesWidget.untitledShort')}
                   </p>
                   <span style={{
                     fontFamily: 'var(--font-m)', fontSize: 8, color: 'var(--text-dim)',
                     letterSpacing: '.04em', marginLeft: 8, whiteSpace: 'nowrap',
                   }}>
-                    {new Date(note.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    {new Date(note.updatedAt).toLocaleDateString(i18n.language, { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
                 <p style={{
@@ -202,7 +204,7 @@ function NotesCapture() {
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   marginBottom: 3,
                 }}>
-                  {note.body ? note.body.slice(0, 60) : 'Empty note...'}
+                  {note.body ? note.body.slice(0, 60) : t('notesWidget.emptyNote')}
                 </p>
                 {note.tags.length > 0 && (
                   <div style={{ display: 'flex', gap: 3 }}>
@@ -238,13 +240,13 @@ function NotesCapture() {
           onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
           onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
         >
-          View all in Reminders →
+          {t('notesWidget.viewAll')}
         </button>
         <span style={{
           fontFamily: 'var(--font-m)', fontSize: 8, color: 'var(--text-dim)',
           opacity: 0.5,
         }}>
-          ⌘K to compose
+          {t('notesWidget.composeHint')}
         </span>
       </div>
     </div>

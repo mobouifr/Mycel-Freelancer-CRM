@@ -1,0 +1,499 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "clients": "Clients",
+    "projects": "Projects",
+    "proposals": "Proposals",
+    "invoices": "Invoices",
+    "reminders": "Reminders",
+    "ecosystem": "Ecosystem",
+    "settings": "Settings",
+    "menu": "Menu",
+    "signOut": "Sign out",
+    "resizeSidebar": "Resize sidebar"
+  },
+  "routes": {
+    "overview": "Overview",
+    "ecosystem": "Ecosystem",
+    "clients": "Clients",
+    "projects": "Projects",
+    "proposals": "Proposals",
+    "invoices": "Invoices",
+    "reminders": "Reminders",
+    "settings": "Settings",
+    "fallback": "Dashboard"
+  },
+  "topbar": {
+    "language": "Language",
+    "searchPlaceholder": "Search pages...",
+    "toggleMenu": "Toggle menu",
+    "noResults": "No pages found for \"{{query}}\"",
+    "signOut": "Sign out",
+    "breadcrumbDashboard": "Dashboard",
+    "langEnglish": "English",
+    "langFrench": "Français",
+    "langSpanish": "Español"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "loading": "Loading…",
+    "errorPrefix": "Error",
+    "close": "Close",
+    "back": "← Back",
+    "export": "Export",
+    "import": "Import",
+    "undo": "Undo",
+    "reset": "Reset",
+    "edit": "Edit",
+    "view": "View",
+    "create": "Create",
+    "update": "Update",
+    "saving": "Saving…",
+    "required": "Required",
+    "optional": "optional",
+    "copyright": "© Mycel. {{year}}",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "privacyShort": "Privacy",
+    "termsShort": "Terms",
+    "goHome": "GO HOME",
+    "lastUpdated": "Last updated:",
+    "themeSwitchAria": "Switch theme (current: {{theme}})",
+    "themeTitle": "Theme: {{theme}}"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "nameMax": "Name must be less than 200 characters",
+    "invalidEmail": "Invalid email address",
+    "companyMax": "Company name must be less than 200 characters",
+    "titleRequired": "Title is required",
+    "titleMax": "Title must be less than 255 characters",
+    "budgetPositive": "Budget must be positive",
+    "clientRequired": "Client is required",
+    "amountPositive": "Amount must be positive",
+    "projectRequired": "Project is required",
+    "amountGtZero": "Amount must be greater than 0",
+    "paymentMethodRequired": "Payment method is required"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitleOne": "{{preset}} layout · 1 widget",
+    "subtitleMany": "{{preset}} layout · {{count}} widgets",
+    "undoAria": "Undo last layout change",
+    "undoTitle": "Undo",
+    "resetLayoutAria": "Reset layout to preset default",
+    "resetLayout": "Reset Layout",
+    "editLayout": "Edit Layout",
+    "doneEditing": "Done Editing",
+    "customize": "Customize",
+    "editingNotice": "Drag widgets to rearrange · Resize from corners · Click {{done}} when finished",
+    "emptyWidgets": "No widgets visible",
+    "addWidgets": "Add Widgets",
+    "removeWidgetAria": "Remove {{title}} widget"
+  },
+  "presets": {
+    "default": {
+      "label": "Default",
+      "desc": "Balanced overview with all widgets"
+    },
+    "compact": {
+      "label": "Compact",
+      "desc": "Condensed single-column stack"
+    },
+    "focus": {
+      "label": "Focus",
+      "desc": "Calendar, notes, and suggestions only"
+    },
+    "finance": {
+      "label": "Finance",
+      "desc": "Revenue and invoices first"
+    }
+  },
+  "widgets": {
+    "calendar": {
+      "title": "Calendar + Upcoming",
+      "description": "Month view with event dots and upcoming events list"
+    },
+    "notes": {
+      "title": "Notes Quick-Capture",
+      "description": "Composer and 3 most recent notes"
+    },
+    "revenue": {
+      "title": "Revenue KPI",
+      "description": "Big KPI number with mini sparkline chart"
+    },
+    "invoices": {
+      "title": "Invoices Due",
+      "description": "Unpaid invoices with quick reminder actions"
+    },
+    "activity": {
+      "title": "Activity Feed",
+      "description": "Recent activity stream with timestamps"
+    },
+    "projects": {
+      "title": "Projects Progress",
+      "description": "Active projects with progress bars"
+    },
+    "suggestions": {
+      "title": "Smart Suggestions",
+      "description": "AI-powered actionable insights for your workflow"
+    },
+    "ecosystem": {
+      "title": "Living Ecosystem",
+      "description": "A generative plant that grows with your usage"
+    }
+  },
+  "widgetPicker": {
+    "title": "Customize Dashboard",
+    "subtitle": "Toggle widgets and apply presets",
+    "searchPlaceholder": "Search widgets…",
+    "layoutPresets": "Layout Presets",
+    "resetLayout": "Reset Layout",
+    "availableWidgets": "Available Widgets",
+    "noMatch": "No matching widgets",
+    "closeAria": "Close widget picker",
+    "dialogAria": "Widget Picker",
+    "invalidLayout": "Invalid layout file."
+  },
+  "quickCreate": {
+    "newInvoice": "New Invoice",
+    "newClient": "New Client",
+    "newProject": "New Project",
+    "newProposal": "New Proposal",
+    "openAria": "Quick create",
+    "closeAria": "Close quick create"
+  },
+  "revenueWidget": {
+    "netRevenue": "net revenue this month",
+    "avgMonth": "Avg / Month",
+    "bestMonth": "Best Month",
+    "invoicesPaid": "Invoices Paid"
+  },
+  "notesWidget": {
+    "untitled": "Untitled Note",
+    "placeholderTitle": "Note title…",
+    "placeholderBody": "Start typing… (optional)",
+    "emptyNote": "Empty note...",
+    "untitledShort": "Untitled",
+    "quickNote": "+ Quick Note",
+    "empty": "No notes yet — start typing above",
+    "viewAll": "View all in Reminders →",
+    "composeHint": "⌘K to compose"
+  },
+  "invoicesWidget": {
+    "totalOutstanding": "total outstanding",
+    "overdue": "{{count}} overdue",
+    "dueLine": "{{id}} · Due {{date}}",
+    "viewAll": "View all invoices →",
+    "statusOverdue": "Overdue",
+    "statusDueSoon": "Due Soon",
+    "statusPending": "Pending"
+  },
+  "calendarUpcoming": {
+    "nextUp": "{{time}} · Next up",
+    "noUpcoming": "No upcoming events",
+    "upcomingHeading": "Upcoming (7 days)"
+  },
+  "calendarWidget": {
+    "label": "Calendar",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "dayAria": "{{day}} {{month}}",
+    "noEvents": "No events"
+  },
+  "activityWidget": {
+    "i1": {
+      "title": "Invoice paid",
+      "detail": "Arca Studio — $3,200",
+      "time": "2h ago"
+    },
+    "i2": {
+      "title": "Proposal sent",
+      "detail": "Noma Labs — Web Redesign",
+      "time": "4h ago"
+    },
+    "i3": {
+      "title": "New client added",
+      "detail": "Vault Studio",
+      "time": "Yesterday"
+    },
+    "i4": {
+      "title": "Project completed",
+      "detail": "Drift Co. — Brand Identity",
+      "time": "Yesterday"
+    },
+    "i5": {
+      "title": "Invoice created",
+      "detail": "Pixel Root — $1,800",
+      "time": "2 days ago"
+    },
+    "i6": {
+      "title": "Note linked",
+      "detail": "Meeting notes → Q2 Planning",
+      "time": "3 days ago"
+    },
+    "i7": {
+      "title": "Proposal accepted",
+      "detail": "Arca Studio — $5,400",
+      "time": "4 days ago"
+    }
+  },
+  "suggestionsWidget": {
+    "empty": "All caught up! No pending suggestions.",
+    "dismiss": "Dismiss",
+    "s1": {
+      "title": "Follow up with Pixel Root",
+      "description": "Invoice #042 is due in 2 days. Send a friendly reminder.",
+      "action": "Send Reminder"
+    },
+    "s2": {
+      "title": "Proposal ready to send",
+      "description": "Drift Co. proposal has been in draft for 5 days.",
+      "action": "Review Draft"
+    },
+    "s3": {
+      "title": "Schedule Q2 planning",
+      "description": "No events scheduled for next week. Block time for planning.",
+      "action": "Add Event"
+    },
+    "s4": {
+      "title": "Revenue goal on track",
+      "description": "You're at 87% of your monthly goal. Keep it up!",
+      "action": "View Stats"
+    }
+  },
+  "projectsWidget": {
+    "dueLine": "{{client}} · Due {{date}}",
+    "viewAll": "View all projects →",
+    "statusActive": "Active",
+    "statusReview": "In Review",
+    "statusPaused": "Paused"
+  },
+  "livingWidget": {
+    "level": "Level {{level}} · {{growth}}",
+    "justPlanted": "Just planted",
+    "hoursGrowth": "{{hours}}h growth",
+    "tagline": "Your workspace ecosystem grows as you work"
+  },
+  "clients": {
+    "listTitle": "Clients",
+    "listSubtitle": "Manage your client relationships",
+    "newClient": "+ New Client",
+    "searchPlaceholder": "Search clients by name, email, or company...",
+    "loading": "Loading clients...",
+    "deleteConfirm": "Are you sure you want to delete {{name}}?",
+    "deleteFailed": "Failed to delete client",
+    "createTitle": "Create New Client",
+    "createFailed": "Failed to create client",
+    "tableEmpty": "No clients yet. Create your first client to get started.",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "company": "Company",
+      "notes": "Notes",
+      "createClient": "Create Client",
+      "updateClient": "Update Client"
+    },
+    "actions": {
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "table": {
+      "created": "Created",
+      "actions": "Actions"
+    }
+  },
+  "projects": {
+    "listTitle": "Projects",
+    "listSubtitle": "Track your active and completed projects",
+    "newProject": "+ New Project",
+    "searchPlaceholder": "Search projects by title, description, or client...",
+    "loading": "Loading projects...",
+    "deleteConfirm": "Are you sure you want to delete \"{{title}}\"?",
+    "deleteFailed": "Failed to delete project"
+  },
+  "proposals": {
+    "listTitle": "Proposals",
+    "listSubtitle": "Create and track proposals for your clients",
+    "newProposal": "+ New Proposal",
+    "searchPlaceholder": "Search proposals by title, project, or status...",
+    "loading": "Loading proposals...",
+    "deleteConfirm": "Are you sure you want to delete \"{{title}}\"?",
+    "deleteFailed": "Failed to delete proposal"
+  },
+  "invoices": {
+    "listTitle": "Invoices",
+    "listSubtitle": "Manage invoice status and payment tracking",
+    "newInvoice": "+ New Invoice",
+    "searchPlaceholder": "Search invoices by project, status, or amount...",
+    "loading": "Loading invoices...",
+    "deleteConfirm": "Are you sure you want to delete this invoice?",
+    "deleteFailed": "Failed to delete invoice"
+  },
+  "auth": {
+    "signInTab": "SIGN IN",
+    "signUpTab": "SIGN UP",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "username": "Username",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "createAccount": "Create Account",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Enter a valid email address",
+    "passwordRequired": "Password is required",
+    "usernameRequired": "Username is required",
+    "usernameMin": "Username must be at least 3 characters",
+    "passwordMin": "Password must be at least 6 characters",
+    "forgotTitle": "Reset password",
+    "forgotHint": "Enter your email and we will send reset instructions.",
+    "sendReset": "Send reset link",
+    "backToSignIn": "Back to sign in",
+    "oauthDivider": "or continue with",
+    "oauth42": "Continue with 42",
+    "emailAddress": "Email Address",
+    "signingIn": "SIGNING IN...",
+    "creating": "CREATING...",
+    "signInSubmit": "SIGN IN",
+    "signUpSubmit": "SIGN UP",
+    "footerNoAccount": "Don't have an account?",
+    "footerHasAccount": "Already have an account?",
+    "linkSignUp": "Sign up",
+    "linkSignIn": "Sign in",
+    "usernamePh": "montassir",
+    "emailPh": "you@universe.com",
+    "passwordPhDots": "••••••••",
+    "passwordPhMin": "Min. 6 characters",
+    "forgotBody": "Enter the email linked to your account and we'll send a reset link.",
+    "emailSent": "Email sent",
+    "backToLogin": "BACK TO LOGIN",
+    "sendLink": "SEND LINK",
+    "sending": "SENDING..."
+  },
+  "notFound": {
+    "line": "404, page not found."
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account and business details",
+    "save": "Save changes",
+    "saved": "Saved successfully",
+    "saveFailed": "Failed to save settings",
+    "tabs": {
+      "profile": "Profile",
+      "business": "Business",
+      "security": "Security",
+      "preferences": "Preferences"
+    },
+    "profileName": "Display name",
+    "profileEmail": "Email",
+    "profilePhone": "Phone",
+    "businessName": "Business name",
+    "businessAddress": "Business address",
+    "defaultCurrency": "Default currency",
+    "taxRate": "Tax rate (%)",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "twoFactor": "Two-factor authentication",
+    "theme": "Theme",
+    "sidebar": "Sidebar behavior",
+    "savedBanner": "✓ Settings saved successfully",
+    "secProfileTitle": "Profile Information",
+    "secProfileSub": "Your personal details",
+    "secBusinessTitle": "Business Details",
+    "secBusinessSub": "Used on proposals and invoices",
+    "secPasswordTitle": "Change Password",
+    "secPasswordSub": "Ensure your account stays secure",
+    "sec2faTitle": "Two-Factor Authentication",
+    "sec2faSub": "Add an extra layer of security to your account",
+    "secThemeTitle": "Color Theme",
+    "secThemeSub": "Choose a unified look — colors, surfaces, and accents",
+    "secSidebarTitle": "Sidebar Behavior",
+    "secSidebarSub": "How the navigation panel resizes",
+    "username": "Username",
+    "phonePlaceholder": "+212 600 000 000",
+    "emailPlaceholderStudio": "you@studio.com",
+    "businessNameLabel": "Business Name",
+    "businessNamePh": "Studio name or company",
+    "businessAddressPh": "Street, city, country",
+    "taxRateLabel": "Tax Rate (%)",
+    "currentPasswordLabel": "Current Password",
+    "newPasswordLabel": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "verificationCode": "Verification Code",
+    "confirmPasswordShort": "Confirm Password"
+  },
+  "legal": {
+    "privacy": {
+      "pageTitle": "Privacy Policy",
+      "s1t": "1. Introduction",
+      "s1b": "Mycel (\"we\", \"our\", \"us\") operates the Mycel Freelancer CRM web application. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our application. By using Mycel, you agree to the collection and use of information as described in this policy.",
+      "s2t": "2. Information We Collect",
+      "s2b": "<strong>Account Information:</strong> When you register, we collect your username, email address, and a securely hashed version of your password. If you authenticate via OAuth (42 Intra), we receive your intra ID and public profile data.<br/><br/><strong>Business Data:</strong> You may voluntarily provide business details such as company name, address, currency preference, and tax rate.<br/><br/><strong>Client and Project Data:</strong> Information you enter about your clients, projects, proposals, invoices, reminders, and notes.<br/><br/><strong>Usage Data:</strong> We collect basic usage patterns such as login timestamps.",
+      "s3t": "3. How We Use Your Information",
+      "s3intro": "We use collected information to:",
+      "s3l1": "Provide and maintain the app",
+      "s3l2": "Authenticate and secure your account",
+      "s3l3": "Generate invoices and reports",
+      "s3l4": "Send reminders",
+      "s3l5": "Improve experience",
+      "s4t": "4. Data Storage and Security",
+      "s4b": "Your data is stored in a PostgreSQL database. Passwords are hashed using bcrypt. Authentication tokens (JWT) are stored in HTTP-only cookies.",
+      "s5t": "5. Data Sharing",
+      "s5b": "We do not sell your data. We may share it only if required by law or with consent.",
+      "s6t": "6. Your Rights",
+      "s6b": "You can access, update, delete, or export your data anytime.",
+      "s7t": "7. Cookies and Local Storage",
+      "s7b": "We use local storage for preferences and HTTP-only cookies for auth.",
+      "s8t": "8. Changes to This Policy",
+      "s8b": "We may update this policy. Continued use means acceptance.",
+      "s9t": "9. Contact",
+      "s9b": "Contact us via the app settings."
+    },
+    "terms": {
+      "pageTitle": "Terms of Service",
+      "s1t": "1. Acceptance of Terms",
+      "s1b": "By accessing or using the Mycel Freelancer CRM application (\"Service\"), you agree to be bound by these Terms of Service. If you do not agree, you must not use the Service. These terms apply to all users, including registered account holders and visitors.",
+      "s2t": "2. Description of Service",
+      "s2b": "Mycel is a web-based Customer Relationship Management tool designed for freelancers and small businesses. The Service allows users to manage clients, track projects, create proposals, generate invoices, set reminders, and view business analytics through an interactive dashboard.",
+      "s3t": "3. User Accounts",
+      "s3intro": "To use most features, you must create an account by providing a valid username, email address, and password. You may also sign in via OAuth providers (42 Intra).",
+      "s3sub": "You are responsible for:",
+      "s3l1": "Maintaining the confidentiality of your credentials",
+      "s3l2": "All activity that occurs under your account",
+      "s3l3": "Notifying us immediately of any unauthorized access",
+      "s3l4": "Providing accurate and truthful registration information",
+      "s4t": "4. Acceptable Use",
+      "s4intro": "You agree not to:",
+      "s4l1": "Use the Service for any illegal or unauthorized purpose",
+      "s4l2": "Attempt to gain unauthorized access to other accounts or systems",
+      "s4l3": "Upload malicious code, viruses, or harmful content",
+      "s4l4": "Interfere with or disrupt the Service or its infrastructure",
+      "s4l5": "Scrape, harvest, or collect data from the Service without permission",
+      "s4l6": "Impersonate another person or misrepresent your affiliation",
+      "s5t": "5. Your Data",
+      "s5b": "You retain ownership of all data you enter into the Service (clients, projects, invoices, etc.). We do not claim ownership of your content. By using the Service, you grant us a limited license to store, process, and display your data solely for the purpose of providing the Service to you. You are responsible for maintaining backups of your data. While we take reasonable steps to protect your data, we are not liable for data loss.",
+      "s6t": "6. Availability and Modifications",
+      "s6b": "We strive to maintain Service availability but do not guarantee uninterrupted access. The Service may be temporarily unavailable due to maintenance, updates, or circumstances beyond our control. We reserve the right to modify, suspend, or discontinue any part of the Service at any time. We will make reasonable efforts to notify users of significant changes.",
+      "s7t": "7. Intellectual Property",
+      "s7b": "The Service, including its design, interface, codebase, and branding (Mycel), is the intellectual property of the development team. This project was created as part of the 42 curriculum. You may not copy, modify, distribute, or reverse-engineer any part of the Service without explicit permission.",
+      "s8t": "8. Limitation of Liability",
+      "s8b": "The Service is provided \"as is\" without warranties of any kind, express or implied. We do not warrant that the Service will be error-free, secure, or available at all times. To the maximum extent permitted by law, we shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the Service, including loss of data, revenue, or business opportunities.",
+      "s9t": "9. Account Termination",
+      "s9b": "We may suspend or terminate your account if you violate these Terms or engage in behavior that harms the Service or its users. You may delete your account at any time through the Settings page. Upon termination, your right to use the Service ceases immediately. We may retain certain data as required by law or for legitimate business purposes.",
+      "s10t": "10. Changes to Terms",
+      "s10b": "We may update these Terms from time to time. Changes take effect when posted on this page with an updated \"Last updated\" date. Continued use of the Service after changes constitutes acceptance of the revised Terms.",
+      "s11t": "11. Governing Law",
+      "s11b": "These Terms are governed by and construed in accordance with applicable local laws. Any disputes shall be resolved through good-faith negotiation before pursuing formal legal action.",
+      "s12t": "12. Contact",
+      "s12b": "For questions about these Terms of Service, please contact your team administrator or reach out through the application's Settings page."
+    }
+  }
+}

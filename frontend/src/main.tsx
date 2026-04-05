@@ -75,6 +75,7 @@ const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 import './styles/index.css';
+import './i18n/config';
 
 createRoot(document.getElementById('root')!).render(
   <ThemeProvider>

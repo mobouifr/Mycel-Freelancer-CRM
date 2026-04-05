@@ -1,12 +1,16 @@
 // Clients list page
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useClients } from '../../hooks/useClients';
 import { ClientTable } from '../../components/clients/ClientTable';
 import { type Client } from '../../types/client.types';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 export const ClientsListPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { clients, loading, error, deleteClient } = useClients();
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -18,11 +22,11 @@ export const ClientsListPage = () => {
   );
 
   const handleDelete = async (client: Client) => {
-    if (window.confirm(`Are you sure you want to delete ${client.name}?`)) {
+    if (window.confirm(t('clients.deleteConfirm', { name: client.name }))) {
       try {
         await deleteClient(client.id);
       } catch (err) {
-        alert('Failed to delete client');
+        alert(t('clients.deleteFailed'));
       }
     }
   };
@@ -31,7 +35,7 @@ export const ClientsListPage = () => {
     return (
       <div
         style={{
-          padding: '28px 32px',
+          padding: 0,
           animation: 'fadeUp .3s var(--ease) both',
         }}
       >
@@ -41,10 +45,11 @@ export const ClientsListPage = () => {
             padding: '40px 0',
             fontFamily: 'var(--font-m)',
             fontSize: 12,
+            lineHeight: 1.4,
             color: 'var(--text-dim)',
           }}
         >
-          Loading clients...
+          {t('clients.loading')}
         </div>
       </div>
     );
@@ -54,7 +59,7 @@ export const ClientsListPage = () => {
     return (
       <div
         style={{
-          padding: '28px 32px',
+          padding: 0,
           animation: 'fadeUp .3s var(--ease) both',
         }}
       >
@@ -67,6 +72,7 @@ export const ClientsListPage = () => {
             padding: '12px 16px',
             fontFamily: 'var(--font-m)',
             fontSize: 12,
+            lineHeight: 1.4,
           }}
         >
           Error: {error}
@@ -78,45 +84,56 @@ export const ClientsListPage = () => {
   return (
     <div
       style={{
-        padding: '28px 32px',
+        padding: 0,
         animation: 'fadeUp .3s var(--ease) both',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box',
       }}
     >
       {/* Header */}
       <div
         style={{
           display: 'flex',
+          flexWrap: 'wrap',
           justifyContent: 'space-between',
-          alignItems: 'center',
+          alignItems: isMobile ? 'stretch' : 'center',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: isMobile ? 16 : 12,
           marginBottom: 24,
+          width: '100%',
         }}
       >
-        <div>
+        <div style={{ minWidth: 0 }}>
           <h1
             style={{
               fontFamily: 'var(--font-d)',
               fontWeight: 500,
-              fontSize: 26,
+              fontSize: isMobile ? 22 : 26,
               color: 'var(--text)',
               letterSpacing: '.06em',
               lineHeight: 1.3,
               marginBottom: 4,
             }}
           >
-            Clients
+            {t('clients.listTitle')}
           </h1>
           <p
             style={{
               fontFamily: 'var(--font-m)',
               fontSize: 11,
+              fontWeight: 400,
               color: 'var(--text-dim)',
               letterSpacing: '.04em',
+              lineHeight: 1.4,
+              margin: 0,
             }}
           >
-            Manage your client relationships
+            {t('clients.listSubtitle')}
           </p>
         </div>
         <button
+          type="button"
           onClick={() => navigate('/clients/new')}
           style={{
             padding: '10px 20px',
@@ -128,8 +145,12 @@ export const ClientsListPage = () => {
             fontSize: 11,
             fontWeight: 500,
             letterSpacing: '.06em',
+            lineHeight: 1.2,
             cursor: 'pointer',
             transition: 'background .2s var(--ease), transform .1s var(--ease)',
+            alignSelf: isMobile ? 'stretch' : 'auto',
+            width: isMobile ? '100%' : 'auto',
+            boxSizing: 'border-box',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = 'var(--accent-hover)';
@@ -138,20 +159,21 @@ export const ClientsListPage = () => {
             e.currentTarget.style.background = 'var(--accent)';
           }}
         >
-          + New Client
+          {t('clients.newClient')}
         </button>
       </div>
 
       {/* Search */}
-      <div style={{ marginBottom: 20 }}>
+      <div style={{ marginBottom: 20, width: '100%' }}>
         <input
           type="text"
-          placeholder="Search clients by name, email, or company..."
+          placeholder={t('clients.searchPlaceholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
             width: '100%',
-            maxWidth: 420,
+            maxWidth: isMobile ? 'none' : 420,
+            boxSizing: 'border-box',
             padding: '10px 12px',
             borderRadius: 6,
             border: '1px solid var(--border)',
@@ -159,6 +181,8 @@ export const ClientsListPage = () => {
             color: 'var(--text)',
             fontFamily: 'var(--font-m)',
             fontSize: 12,
+            fontWeight: 400,
+            lineHeight: 1.4,
             outline: 'none',
           }}
         />
@@ -183,4 +207,3 @@ export const ClientsListPage = () => {
     </div>
   );
 };
-

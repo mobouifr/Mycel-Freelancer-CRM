@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
 
 /* ─────────────────────────────────────────────
@@ -23,14 +24,22 @@ const INVOICES: DueInvoice[] = [
   { id: 'INV-044', client: 'Drift Co.',    amount: '$2,100', dueDate: 'Mar 15', status: 'pending',  daysUntil: 9 },
 ];
 
-const STATUS_STYLE: Record<DueInvoice['status'], { color: string; bg: string; label: string }> = {
-  overdue:   { color: 'var(--danger)',  bg: 'var(--danger-bg)',  label: 'Overdue' },
-  'due-soon': { color: 'var(--warning, #f59e0b)', bg: 'rgba(245,158,11,.08)', label: 'Due Soon' },
-  pending:   { color: 'var(--text-dim)', bg: 'var(--glass)',      label: 'Pending' },
-};
-
 function InvoicesDue() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const statusStyle = (status: DueInvoice['status']) => {
+    const labels = {
+      overdue: t('invoicesWidget.statusOverdue'),
+      'due-soon': t('invoicesWidget.statusDueSoon'),
+      pending: t('invoicesWidget.statusPending'),
+    } as const;
+    const base = {
+      overdue: { color: 'var(--danger)', bg: 'var(--danger-bg)' },
+      'due-soon': { color: 'var(--warning, #f59e0b)', bg: 'rgba(245,158,11,.08)' },
+      pending: { color: 'var(--text-dim)', bg: 'var(--glass)' },
+    } as const;
+    return { ...base[status], label: labels[status] };
+  };
   const totalDue = INVOICES.reduce((sum, inv) => {
     const num = parseFloat(inv.amount.replace(/[$,]/g, ''));
     return sum + num;
@@ -55,7 +64,7 @@ function InvoicesDue() {
             fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
             letterSpacing: '.04em',
           }}>
-            total outstanding
+            {t('invoicesWidget.totalOutstanding')}
           </p>
         </div>
         <div style={{
@@ -67,7 +76,7 @@ function InvoicesDue() {
             fontFamily: 'var(--font-m)', fontSize: 9, fontWeight: 600,
             color: 'var(--danger)',
           }}>
-            {INVOICES.filter((i) => i.status === 'overdue').length} overdue
+            {t('invoicesWidget.overdue', { count: INVOICES.filter((i) => i.status === 'overdue').length })}
           </span>
         </div>
       </div>
@@ -75,7 +84,7 @@ function InvoicesDue() {
       {/* Invoice list */}
       <div style={{ flex: 1, overflow: 'auto' }}>
         {INVOICES.map((inv, i) => {
-          const s = STATUS_STYLE[inv.status];
+          const s = statusStyle(inv.status);
           return (
             <div
               key={inv.id}
@@ -107,7 +116,7 @@ function InvoicesDue() {
                 <p style={{
                   fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
                 }}>
-                  {inv.id} · Due {inv.dueDate}
+                  {t('invoicesWidget.dueLine', { id: inv.id, date: inv.dueDate })}
                 </p>
               </div>
 
@@ -148,7 +157,7 @@ function InvoicesDue() {
             letterSpacing: '.04em',
           }}
         >
-          View all invoices →
+          {t('invoicesWidget.viewAll')}
         </button>
       </div>
     </div>

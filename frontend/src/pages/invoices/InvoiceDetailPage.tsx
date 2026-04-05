@@ -1,5 +1,5 @@
 // Invoice detail page
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { invoicesService } from '../../services/data.service';
 import { type Invoice, InvoiceStatus } from '../../types/invoice.types';
@@ -8,10 +8,13 @@ import { formatDate, formatCurrency } from '../../utils/formatters';
 import { InvoiceStatusBadge } from '../../components/invoices/InvoiceStatusBadge';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { markInvoicePaidSchema, type MarkInvoicePaidFormData } from '../../utils/validation';
+import { useTranslation } from 'react-i18next';
+import { createMarkInvoicePaidSchema, type MarkInvoicePaidFormData } from '../../utils/validation';
 import { useStore } from '../../hooks/useStore';
 
 export const InvoiceDetailPage = () => {
+  const { t } = useTranslation();
+  const paidSchema = useMemo(() => createMarkInvoicePaidSchema(t), [t]);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { addNotification } = useStore();
@@ -26,7 +29,7 @@ export const InvoiceDetailPage = () => {
     formState: { errors },
     reset,
   } = useForm<MarkInvoicePaidFormData>({
-    resolver: zodResolver(markInvoicePaidSchema),
+    resolver: zodResolver(paidSchema),
     defaultValues: {
       amount: invoice ? Number(invoice.amount) : 0,
       method: '',

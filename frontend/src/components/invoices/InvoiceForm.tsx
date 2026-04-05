@@ -1,7 +1,9 @@
 // Invoice form component
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { invoiceSchema, type InvoiceFormData } from '../../utils/validation';
+import { useTranslation } from 'react-i18next';
+import { createInvoiceSchema, type InvoiceFormData } from '../../utils/validation';
 import { type Invoice, InvoiceStatus } from '../../types/invoice.types';
 import { formatDateInput } from '../../utils/formatters';
 import { useProjects } from '../../hooks/useProjects';
@@ -14,14 +16,16 @@ interface InvoiceFormProps {
 }
 
 export const InvoiceForm = ({ invoice, onSubmit, onCancel, isLoading = false }: InvoiceFormProps) => {
+  const { t } = useTranslation();
   const { projects } = useProjects();
+  const schema = useMemo(() => createInvoiceSchema(t), [t]);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isValid },
   } = useForm<InvoiceFormData>({
-    resolver: zodResolver(invoiceSchema),
+    resolver: zodResolver(schema),
     defaultValues: invoice
       ? {
           amount: Number(invoice.amount),

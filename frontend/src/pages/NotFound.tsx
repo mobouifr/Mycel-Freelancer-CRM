@@ -1,22 +1,26 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../hooks/useTheme';
 import { LogoMark } from '../components';
 
 export default function NotFound() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { mode: themeMode, cycleQuickTheme, theme } = useTheme();
   const textRef = useRef<HTMLParagraphElement>(null);
   const handleRef = useRef<HTMLSpanElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const line = t('notFound.line');
+
   useEffect(() => {
     startAnimation();
-  }, []);
+  }, [line]);
 
   const startAnimation = () => {
     // Typewriter effect
-    const text = "404, page not found.";
+    const text = line;
     let currentText = "";
     let charIndex = 0;
     
@@ -86,8 +90,8 @@ export default function NotFound() {
         {/* Theme switcher */}
         <button
           onClick={cycleQuickTheme}
-          aria-label={`Switch theme (current: ${theme})`}
-          title={`Theme: ${theme}`}
+          aria-label={t('common.themeSwitchAria', { theme })}
+          title={t('common.themeTitle', { theme })}
           style={{
             width: 36,
             height: 36,
@@ -152,7 +156,6 @@ export default function NotFound() {
                 textTransform: 'uppercase', // Uppercase text
               }}
             >
-              404, page not found.
             </p>
             <span 
               className="handle" 
@@ -196,7 +199,7 @@ export default function NotFound() {
               e.currentTarget.style.boxShadow = 'none';
             }}
           >
-            GO HOME
+            {t('common.goHome')}
           </button>
         </div>
       </div>

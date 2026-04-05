@@ -1,0 +1,499 @@
+{
+  "nav": {
+    "dashboard": "Panel",
+    "clients": "Clientes",
+    "projects": "Proyectos",
+    "proposals": "Propuestas",
+    "invoices": "Facturas",
+    "reminders": "Recordatorios",
+    "ecosystem": "Ecosistema",
+    "settings": "Ajustes",
+    "menu": "Menú",
+    "signOut": "Cerrar sesión",
+    "resizeSidebar": "Redimensionar barra lateral"
+  },
+  "routes": {
+    "overview": "Resumen",
+    "ecosystem": "Ecosistema",
+    "clients": "Clientes",
+    "projects": "Proyectos",
+    "proposals": "Propuestas",
+    "invoices": "Facturas",
+    "reminders": "Recordatorios",
+    "settings": "Ajustes",
+    "fallback": "Panel"
+  },
+  "topbar": {
+    "language": "Idioma",
+    "searchPlaceholder": "Buscar páginas...",
+    "toggleMenu": "Alternar menú",
+    "noResults": "No hay páginas para « {{query}} »",
+    "signOut": "Cerrar sesión",
+    "breadcrumbDashboard": "Panel",
+    "langEnglish": "English",
+    "langFrench": "Français",
+    "langSpanish": "Español"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "loading": "Cargando…",
+    "errorPrefix": "Error",
+    "close": "Cerrar",
+    "back": "← Volver",
+    "export": "Exportar",
+    "import": "Importar",
+    "undo": "Deshacer",
+    "reset": "Restablecer",
+    "edit": "Editar",
+    "view": "Ver",
+    "create": "Crear",
+    "update": "Actualizar",
+    "saving": "Guardando…",
+    "required": "Obligatorio",
+    "optional": "opcional",
+    "copyright": "© Mycel. {{year}}",
+    "privacyPolicy": "Política de privacidad",
+    "termsOfService": "Términos del servicio",
+    "goHome": "INICIO",
+    "lastUpdated": "Última actualización:",
+    "themeSwitchAria": "Cambiar tema (actual: {{theme}})",
+    "themeTitle": "Tema: {{theme}}",
+    "privacyShort": "Privacidad",
+    "termsShort": "Términos"
+  },
+  "validation": {
+    "nameRequired": "El nombre es obligatorio",
+    "nameMax": "El nombre debe tener menos de 200 caracteres",
+    "invalidEmail": "Correo electrónico no válido",
+    "companyMax": "La empresa debe tener menos de 200 caracteres",
+    "titleRequired": "El título es obligatorio",
+    "titleMax": "El título debe tener menos de 255 caracteres",
+    "budgetPositive": "El presupuesto debe ser positivo",
+    "clientRequired": "El cliente es obligatorio",
+    "amountPositive": "El importe debe ser positivo",
+    "projectRequired": "El proyecto es obligatorio",
+    "amountGtZero": "El importe debe ser mayor que 0",
+    "paymentMethodRequired": "El método de pago es obligatorio"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "subtitleOne": "Diseño {{preset}} · 1 widget",
+    "subtitleMany": "Diseño {{preset}} · {{count}} widgets",
+    "undoAria": "Deshacer el último cambio de diseño",
+    "undoTitle": "Deshacer",
+    "resetLayoutAria": "Restablecer diseño al predeterminado",
+    "resetLayout": "Restablecer diseño",
+    "editLayout": "Editar diseño",
+    "doneEditing": "Listo",
+    "customize": "Personalizar",
+    "editingNotice": "Arrastra los widgets · Redimensiona desde las esquinas · Pulsa {{done}} al terminar",
+    "emptyWidgets": "No hay widgets visibles",
+    "addWidgets": "Añadir widgets",
+    "removeWidgetAria": "Quitar widget {{title}}"
+  },
+  "presets": {
+    "default": {
+      "label": "Predeterminado",
+      "desc": "Vista equilibrada con todos los widgets"
+    },
+    "compact": {
+      "label": "Compacto",
+      "desc": "Pila en una columna"
+    },
+    "focus": {
+      "label": "Enfoque",
+      "desc": "Solo calendario, notas y sugerencias"
+    },
+    "finance": {
+      "label": "Finanzas",
+      "desc": "Ingresos y facturas primero"
+    }
+  },
+  "widgets": {
+    "calendar": {
+      "title": "Calendario + próximos",
+      "description": "Vista mensual con eventos y lista próxima"
+    },
+    "notes": {
+      "title": "Notas rápidas",
+      "description": "Compositor y 3 notas recientes"
+    },
+    "revenue": {
+      "title": "KPI de ingresos",
+      "description": "Cifra grande con mini gráfico"
+    },
+    "invoices": {
+      "title": "Facturas pendientes",
+      "description": "Facturas sin pagar y recordatorios"
+    },
+    "activity": {
+      "title": "Actividad reciente",
+      "description": "Flujo con marcas de tiempo"
+    },
+    "projects": {
+      "title": "Progreso de proyectos",
+      "description": "Proyectos activos con barras"
+    },
+    "suggestions": {
+      "title": "Sugerencias",
+      "description": "Ideas accionables para tu flujo"
+    },
+    "ecosystem": {
+      "title": "Ecosistema vivo",
+      "description": "Una planta generativa que crece con tu uso"
+    }
+  },
+  "widgetPicker": {
+    "title": "Personalizar panel",
+    "subtitle": "Activar widgets y aplicar diseños",
+    "searchPlaceholder": "Buscar widgets…",
+    "layoutPresets": "Diseños predefinidos",
+    "resetLayout": "Restablecer diseño",
+    "availableWidgets": "Widgets disponibles",
+    "noMatch": "Sin resultados",
+    "closeAria": "Cerrar selector",
+    "dialogAria": "Selector de widgets",
+    "invalidLayout": "Archivo de diseño no válido."
+  },
+  "quickCreate": {
+    "newInvoice": "Nueva factura",
+    "newClient": "Nuevo cliente",
+    "newProject": "Nuevo proyecto",
+    "newProposal": "Nueva propuesta",
+    "openAria": "Creación rápida",
+    "closeAria": "Cerrar creación rápida"
+  },
+  "revenueWidget": {
+    "netRevenue": "ingresos netos este mes",
+    "avgMonth": "Prom. / mes",
+    "bestMonth": "Mejor mes",
+    "invoicesPaid": "Facturas pagadas"
+  },
+  "notesWidget": {
+    "untitled": "Nota sin título",
+    "placeholderTitle": "Título de la nota…",
+    "placeholderBody": "Empieza a escribir… (opcional)",
+    "emptyNote": "Nota vacía...",
+    "untitledShort": "Sin título",
+    "quickNote": "+ Nota rápida",
+    "empty": "Aún no hay notas — escribe arriba",
+    "viewAll": "Ver todo en Recordatorios →",
+    "composeHint": "⌘K para componer"
+  },
+  "invoicesWidget": {
+    "totalOutstanding": "total pendiente",
+    "overdue": "{{count}} vencidas",
+    "dueLine": "{{id}} · Vence {{date}}",
+    "viewAll": "Todas las facturas →",
+    "statusOverdue": "Vencida",
+    "statusDueSoon": "Pronto",
+    "statusPending": "Pendiente"
+  },
+  "calendarUpcoming": {
+    "nextUp": "{{time}} · Siguiente",
+    "noUpcoming": "Sin eventos próximos",
+    "upcomingHeading": "Próximos (7 días)"
+  },
+  "calendarWidget": {
+    "label": "Calendario",
+    "prevMonth": "Mes anterior",
+    "nextMonth": "Mes siguiente",
+    "dayAria": "{{day}} {{month}}",
+    "noEvents": "Sin eventos"
+  },
+  "activityWidget": {
+    "i1": {
+      "title": "Factura pagada",
+      "detail": "Arca Studio — $3.200",
+      "time": "hace 2 h"
+    },
+    "i2": {
+      "title": "Propuesta enviada",
+      "detail": "Noma Labs — Rediseño web",
+      "time": "hace 4 h"
+    },
+    "i3": {
+      "title": "Nuevo cliente",
+      "detail": "Vault Studio",
+      "time": "Ayer"
+    },
+    "i4": {
+      "title": "Proyecto completado",
+      "detail": "Drift Co. — Identidad de marca",
+      "time": "Ayer"
+    },
+    "i5": {
+      "title": "Factura creada",
+      "detail": "Pixel Root — $1.800",
+      "time": "hace 2 días"
+    },
+    "i6": {
+      "title": "Nota vinculada",
+      "detail": "Notas reunión → Planificación Q2",
+      "time": "hace 3 días"
+    },
+    "i7": {
+      "title": "Propuesta aceptada",
+      "detail": "Arca Studio — $5.400",
+      "time": "hace 4 días"
+    }
+  },
+  "suggestionsWidget": {
+    "empty": "¡Todo al día! Sin sugerencias.",
+    "dismiss": "Descartar",
+    "s1": {
+      "title": "Seguimiento a Pixel Root",
+      "description": "La factura #042 vence en 2 días. Envía un recordatorio.",
+      "action": "Enviar recordatorio"
+    },
+    "s2": {
+      "title": "Propuesta lista para enviar",
+      "description": "La propuesta de Drift Co. lleva 5 días en borrador.",
+      "action": "Revisar borrador"
+    },
+    "s3": {
+      "title": "Programar planificación Q2",
+      "description": "Sin eventos la próxima semana. Reserva tiempo.",
+      "action": "Añadir evento"
+    },
+    "s4": {
+      "title": "Meta de ingresos en camino",
+      "description": "Estás al 87 % de la meta mensual. ¡Sigue así!",
+      "action": "Ver estadísticas"
+    }
+  },
+  "projectsWidget": {
+    "dueLine": "{{client}} · Vence {{date}}",
+    "viewAll": "Todos los proyectos →",
+    "statusActive": "Activo",
+    "statusReview": "En revisión",
+    "statusPaused": "Pausado"
+  },
+  "livingWidget": {
+    "level": "Nivel {{level}} · {{growth}}",
+    "justPlanted": "Recién plantado",
+    "hoursGrowth": "{{hours}} h de crecimiento",
+    "tagline": "Tu ecosistema de trabajo crece contigo"
+  },
+  "clients": {
+    "listTitle": "Clientes",
+    "listSubtitle": "Gestiona tus relaciones con clientes",
+    "newClient": "+ Nuevo cliente",
+    "searchPlaceholder": "Buscar por nombre, correo o empresa...",
+    "loading": "Cargando clientes...",
+    "deleteConfirm": "¿Eliminar a {{name}}?",
+    "deleteFailed": "No se pudo eliminar el cliente",
+    "createTitle": "Crear cliente",
+    "createFailed": "No se pudo crear el cliente",
+    "tableEmpty": "Aún no hay clientes. Crea el primero para empezar.",
+    "form": {
+      "name": "Nombre",
+      "email": "Correo",
+      "phone": "Teléfono",
+      "company": "Empresa",
+      "notes": "Notas",
+      "createClient": "Crear cliente",
+      "updateClient": "Actualizar cliente"
+    },
+    "actions": {
+      "view": "Ver",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "table": {
+      "created": "Creado",
+      "actions": "Acciones"
+    }
+  },
+  "projects": {
+    "listTitle": "Proyectos",
+    "listSubtitle": "Sigue tus proyectos activos y completados",
+    "newProject": "+ Nuevo proyecto",
+    "searchPlaceholder": "Buscar por título, descripción o cliente...",
+    "loading": "Cargando proyectos...",
+    "deleteConfirm": "¿Eliminar «{{title}}»?",
+    "deleteFailed": "No se pudo eliminar el proyecto"
+  },
+  "proposals": {
+    "listTitle": "Propuestas",
+    "listSubtitle": "Crea y sigue propuestas para tus clientes",
+    "newProposal": "+ Nueva propuesta",
+    "searchPlaceholder": "Buscar por título, proyecto o estado...",
+    "loading": "Cargando propuestas...",
+    "deleteConfirm": "¿Eliminar la propuesta «{{title}}»?",
+    "deleteFailed": "No se pudo eliminar"
+  },
+  "invoices": {
+    "listTitle": "Facturas",
+    "listSubtitle": "Estado de facturas y seguimiento de pagos",
+    "newInvoice": "+ Nueva factura",
+    "searchPlaceholder": "Buscar por proyecto, estado o importe...",
+    "loading": "Cargando facturas...",
+    "deleteConfirm": "¿Eliminar esta factura?",
+    "deleteFailed": "No se pudo eliminar"
+  },
+  "auth": {
+    "signInTab": "ENTRAR",
+    "signUpTab": "REGISTRO",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "rememberMe": "Recordarme",
+    "forgotPassword": "¿Olvidaste la contraseña?",
+    "username": "Usuario",
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "createAccount": "Crear cuenta",
+    "emailRequired": "El correo es obligatorio",
+    "emailInvalid": "Introduce un correo válido",
+    "passwordRequired": "La contraseña es obligatoria",
+    "usernameRequired": "El usuario es obligatorio",
+    "usernameMin": "El usuario debe tener al menos 3 caracteres",
+    "passwordMin": "La contraseña debe tener al menos 6 caracteres",
+    "forgotTitle": "Restablecer contraseña",
+    "forgotHint": "Introduce tu correo para recibir instrucciones.",
+    "sendReset": "Enviar enlace",
+    "backToSignIn": "Volver al inicio de sesión",
+    "oauthDivider": "o continuar con",
+    "oauth42": "Continuar con 42",
+    "emailAddress": "Correo electrónico",
+    "signingIn": "ENTRANDO…",
+    "creating": "CREANDO…",
+    "signInSubmit": "INICIAR SESIÓN",
+    "signUpSubmit": "REGISTRARSE",
+    "footerNoAccount": "¿No tienes cuenta?",
+    "footerHasAccount": "¿Ya tienes cuenta?",
+    "linkSignUp": "Registrarse",
+    "linkSignIn": "Iniciar sesión",
+    "usernamePh": "usuario",
+    "emailPh": "tu@ejemplo.com",
+    "passwordPhDots": "••••••••",
+    "passwordPhMin": "Mín. 6 caracteres",
+    "forgotBody": "Introduce el correo vinculado a tu cuenta y te enviaremos un enlace de restablecimiento.",
+    "emailSent": "Correo enviado",
+    "backToLogin": "VOLVER AL INICIO DE SESIÓN",
+    "sendLink": "ENVIAR ENLACE",
+    "sending": "ENVIANDO…"
+  },
+  "notFound": {
+    "line": "404, página no encontrada."
+  },
+  "settings": {
+    "title": "Ajustes",
+    "subtitle": "Cuenta y datos del negocio",
+    "save": "Guardar cambios",
+    "saved": "Guardado correctamente",
+    "saveFailed": "No se pudieron guardar los ajustes",
+    "tabs": {
+      "profile": "Perfil",
+      "business": "Negocio",
+      "security": "Seguridad",
+      "preferences": "Preferencias"
+    },
+    "profileName": "Nombre para mostrar",
+    "profileEmail": "Correo",
+    "profilePhone": "Teléfono",
+    "businessName": "Nombre del negocio",
+    "businessAddress": "Dirección",
+    "defaultCurrency": "Moneda predeterminada",
+    "taxRate": "Tipo impositivo (%)",
+    "currentPassword": "Contraseña actual",
+    "newPassword": "Nueva contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "twoFactor": "Autenticación en dos pasos",
+    "theme": "Tema",
+    "sidebar": "Comportamiento de la barra lateral",
+    "savedBanner": "✓ Ajustes guardados",
+    "secProfileTitle": "Información del perfil",
+    "secProfileSub": "Tus datos personales",
+    "secBusinessTitle": "Datos del negocio",
+    "secBusinessSub": "Se usan en propuestas y facturas",
+    "secPasswordTitle": "Cambiar contraseña",
+    "secPasswordSub": "Mantén tu cuenta segura",
+    "sec2faTitle": "Autenticación en dos pasos",
+    "sec2faSub": "Añade una capa extra de seguridad",
+    "secThemeTitle": "Tema de color",
+    "secThemeSub": "Aspecto unificado — colores y superficies",
+    "secSidebarTitle": "Comportamiento de la barra lateral",
+    "secSidebarSub": "Cómo se redimensiona el panel",
+    "username": "Usuario",
+    "phonePlaceholder": "+212 600 000 000",
+    "emailPlaceholderStudio": "tu@estudio.com",
+    "businessNameLabel": "Nombre del negocio",
+    "businessNamePh": "Nombre del estudio o empresa",
+    "businessAddressPh": "Calle, ciudad, país",
+    "taxRateLabel": "Tipo impositivo (%)",
+    "currentPasswordLabel": "Contraseña actual",
+    "newPasswordLabel": "Nueva contraseña",
+    "confirmNewPassword": "Confirmar nueva contraseña",
+    "verificationCode": "Código de verificación",
+    "confirmPasswordShort": "Confirmar contraseña"
+  },
+  "legal": {
+    "privacy": {
+      "pageTitle": "Política de privacidad",
+      "s1t": "1. Introducción",
+      "s1b": "Mycel (« nosotros ») opera la aplicación web Mycel Freelancer CRM. Esta política explica cómo recopilamos, usamos y protegemos su información. Al usar Mycel, acepta esta política.",
+      "s2t": "2. Información que recopilamos",
+      "s2b": "<strong>Cuenta:</strong> usuario, correo, contraseña cifrada; con OAuth (42), ID intra y perfil público.<br/><br/><strong>Negocio:</strong> nombre, dirección, moneda, impuestos.<br/><br/><strong>Datos operativos:</strong> clientes, proyectos, propuestas, facturas, recordatorios, notas.<br/><br/><strong>Uso:</strong> p. ej. marcas de tiempo de inicio de sesión.",
+      "s3t": "3. Cómo usamos la información",
+      "s3intro": "Usamos los datos para:",
+      "s3l1": "Proporcionar y mantener la aplicación",
+      "s3l2": "Autenticar y proteger su cuenta",
+      "s3l3": "Generar facturas e informes",
+      "s3l4": "Enviar recordatorios",
+      "s3l5": "Mejorar la experiencia",
+      "s4t": "4. Almacenamiento y seguridad",
+      "s4b": "Datos en PostgreSQL; contraseñas con bcrypt; tokens JWT en cookies HTTP-only.",
+      "s5t": "5. Compartición",
+      "s5b": "No vendemos sus datos. Solo compartimos si la ley lo exige o con su consentimiento.",
+      "s6t": "6. Sus derechos",
+      "s6b": "Puede acceder, actualizar, eliminar o exportar sus datos en cualquier momento.",
+      "s7t": "7. Cookies y almacenamiento local",
+      "s7b": "Almacenamiento local para preferencias; cookies HTTP-only para autenticación.",
+      "s8t": "8. Cambios",
+      "s8b": "Podemos actualizar esta política; el uso continuado implica aceptación.",
+      "s9t": "9. Contacto",
+      "s9b": "Contáctenos desde Ajustes de la aplicación."
+    },
+    "terms": {
+      "pageTitle": "Términos del servicio",
+      "s1t": "1. Aceptación",
+      "s1b": "Al usar Mycel (« Servicio »), acepta estos términos. Si no está de acuerdo, no use el Servicio.",
+      "s2t": "2. Descripción",
+      "s2b": "Mycel es un CRM web para autónomos y pequeñas empresas: clientes, proyectos, propuestas, facturas, recordatorios y panel.",
+      "s3t": "3. Cuentas de usuario",
+      "s3intro": "Debe crear una cuenta con usuario, correo y contraseña, u OAuth (42 Intra).",
+      "s3sub": "Usted es responsable de:",
+      "s3l1": "Mantener la confidencialidad de sus credenciales",
+      "s3l2": "Toda actividad bajo su cuenta",
+      "s3l3": "Notificar accesos no autorizados",
+      "s3l4": "Proporcionar información veraz",
+      "s4t": "4. Uso aceptable",
+      "s4intro": "Se compromete a no:",
+      "s4l1": "Usar el Servicio con fines ilegales",
+      "s4l2": "Intentar acceder a otras cuentas o sistemas",
+      "s4l3": "Subir código malicioso",
+      "s4l4": "Interrumpir el Servicio o su infraestructura",
+      "s4l5": "Extraer datos sin permiso",
+      "s4l6": "Suplantar a otra persona",
+      "s5t": "5. Sus datos",
+      "s5b": "Usted conserva la propiedad de los datos que introduce. Licencia limitada para almacenar, procesar y mostrar solo para prestar el Servicio. Mantenga copias de seguridad; no nos hacemos responsables de pérdidas de datos.",
+      "s6t": "6. Disponibilidad",
+      "s6b": "Buscamos disponibilidad continua sin garantía. Mantenimiento, actualizaciones o fuerza mayor. Podemos modificar o suspender el Servicio; avisaremos de cambios importantes cuando sea razonable.",
+      "s7t": "7. Propiedad intelectual",
+      "s7b": "El Servicio (diseño, código, marca Mycel) es propiedad del equipo (proyecto 42). No copie ni haga ingeniería inversa sin permiso.",
+      "s8t": "8. Limitación de responsabilidad",
+      "s8b": "Servicio « tal cual », sin garantías. No somos responsables de daños indirectos, pérdida de datos, ingresos u oportunidades, en la medida permitida por la ley.",
+      "s9t": "9. Terminación",
+      "s9b": "Podemos suspender o cerrar su cuenta por incumplimiento. Puede eliminar su cuenta en Ajustes. Podemos conservar datos si la ley lo exige.",
+      "s10t": "10. Cambios en los términos",
+      "s10b": "Podemos actualizar estos términos; la fecha de actualización figura en esta página. El uso continuado implica aceptación.",
+      "s11t": "11. Ley aplicable",
+      "s11b": "Se rigen por las leyes aplicables; disputas primero por negociación de buena fe.",
+      "s12t": "12. Contacto",
+      "s12b": "Preguntas: administrador o a través de Ajustes."
+    }
+  }
+}

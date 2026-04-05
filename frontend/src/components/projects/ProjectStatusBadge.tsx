@@ -1,55 +1,48 @@
-// Project status badge component
+// Project status badge component — typography aligned with Clients list / priority pills
+import type { CSSProperties } from 'react';
 import { ProjectStatus } from '../../types/project.types';
 
 interface ProjectStatusBadgeProps {
   status: ProjectStatus;
 }
 
+const baseBadge: CSSProperties = {
+  display: 'inline-block',
+  fontFamily: 'var(--font-m)',
+  fontSize: 10,
+  fontWeight: 700,
+  letterSpacing: '.06em',
+  lineHeight: 1.2,
+  textTransform: 'uppercase',
+  borderRadius: 999,
+  padding: '4px 10px',
+};
+
 export const ProjectStatusBadge = ({ status }: ProjectStatusBadgeProps) => {
-  const statusStyles: Record<ProjectStatus, React.CSSProperties> = {
+  const statusStyles: Record<ProjectStatus, CSSProperties> = {
     [ProjectStatus.ACTIVE]: {
+      ...baseBadge,
       backgroundColor: 'var(--success-bg)',
       color: 'var(--success)',
       border: '1px solid var(--success)',
-      padding: '4px 12px',
-      borderRadius: '12px',
-      fontSize: '11px',
-      fontWeight: 600,
-      textTransform: 'uppercase',
-      fontFamily: 'var(--font-m)',
     },
     [ProjectStatus.COMPLETED]: {
+      ...baseBadge,
       backgroundColor: 'var(--info-bg)',
       color: 'var(--info)',
       border: '1px solid var(--info)',
-      padding: '4px 12px',
-      borderRadius: '12px',
-      fontSize: '11px',
-      fontWeight: 600,
-      textTransform: 'uppercase',
-      fontFamily: 'var(--font-m)',
     },
     [ProjectStatus.PAUSED]: {
+      ...baseBadge,
       backgroundColor: 'var(--warning-bg)',
       color: 'var(--warning)',
       border: '1px solid var(--warning)',
-      padding: '4px 12px',
-      borderRadius: '12px',
-      fontSize: '11px',
-      fontWeight: 600,
-      textTransform: 'uppercase',
-      fontFamily: 'var(--font-m)',
     },
     [ProjectStatus.CANCELLED]: {
+      ...baseBadge,
       backgroundColor: 'var(--danger-bg)',
       color: 'var(--danger)',
       border: '1px solid var(--danger)',
-      padding: '4px 12px',
-      borderRadius: '12px',
-      fontSize: '11px',
-      fontWeight: 600,
-      textTransform: 'uppercase',
-      fontFamily: 'var(--font-m)',
     },
   };
 
@@ -60,10 +53,5 @@ export const ProjectStatusBadge = ({ status }: ProjectStatusBadgeProps) => {
     [ProjectStatus.CANCELLED]: 'DRAFT',
   };
 
-  return (
-    <span style={statusStyles[status]}>
-      {statusLabels[status]}
-    </span>
-  );
+  return <span style={statusStyles[status]}>{statusLabels[status]}</span>;
 };
-

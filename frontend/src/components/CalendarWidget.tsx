@@ -1,16 +1,17 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useStore, type CalendarEvent } from '../hooks/useStore';
+import { weekdayTwoLetterLabels, formatMonthYearLabel, formatDateLong, formatMonthShort } from '../i18n/localeFormat';
 
 /* ─────────────────────────────────────────────
    CALENDAR WIDGET — Compact month-view with
    event dots and click-to-popover detail
 ───────────────────────────────────────────── */
 
-const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
 export default function CalendarWidget() {
+  const { t, i18n } = useTranslation();
   const { events } = useStore();
+  const days = useMemo(() => weekdayTwoLetterLabels(i18n.language), [i18n.language]);
   const today = new Date();
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [viewYear, setViewYear] = useState(today.getFullYear());
@@ -99,23 +100,23 @@ export default function CalendarWidget() {
           fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-mid)',
           letterSpacing: '.1em', textTransform: 'uppercase', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis'
         }}>
-          Calendar
+          {t('calendarWidget.label')}
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 1, minWidth: 0 }}>
-          <button onClick={prevMonth} aria-label="Previous month" style={navBtnStyle}>‹</button>
+          <button onClick={prevMonth} aria-label={t('calendarWidget.prevMonth')} style={navBtnStyle}>‹</button>
           <span style={{
             fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text)', letterSpacing: '.04em',
             textAlign: 'center', flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
           }}>
-            {MONTHS[viewMonth].slice(0,3)} {viewYear}
+            {formatMonthYearLabel(viewMonth, viewYear, i18n.language)}
           </span>
-          <button onClick={nextMonth} aria-label="Next month" style={navBtnStyle}>›</button>
+          <button onClick={nextMonth} aria-label={t('calendarWidget.nextMonth')} style={navBtnStyle}>›</button>
         </div>
       </div>
 
       {/* Day headers */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: 2, marginBottom: 4 }}>
-        {DAYS.map(d => (
+        {days.map(d => (
           <div key={d} style={{
             fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-mid)',
             textAlign: 'center', padding: '4px 0', textTransform: 'uppercase', letterSpacing: '.05em', minWidth: 0, overflow: 'hidden', textOverflow: 'clip'
@@ -141,7 +142,13 @@ export default function CalendarWidget() {
             <button
               key={key}
               onClick={(e) => handleDayClick(day, e)}
-              aria-label={`${day} ${MONTHS[viewMonth]}`}
+              aria-label={t('calendarWidget.dayAria', {
+                day,
+                month: formatMonthShort(
+                  `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-01`,
+                  i18n.language,
+                ),
+              })}
               style={{
                 position: 'relative',
                 width: '100%',
@@ -204,11 +211,11 @@ export default function CalendarWidget() {
             fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)',
             letterSpacing: '.08em', marginBottom: 8, textTransform: 'uppercase',
           }}>
-            {new Date(selectedDay + 'T12:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            {formatDateLong(selectedDay, i18n.language)}
           </p>
           {selectedEvents.length === 0 ? (
             <p style={{ fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)' }}>
-              No events
+              {t('calendarWidget.noEvents')}
             </p>
           ) : (
             selectedEvents.map((evt) => (

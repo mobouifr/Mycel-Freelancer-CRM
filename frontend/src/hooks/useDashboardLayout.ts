@@ -77,12 +77,8 @@ const PRESETS: Record<PresetId, () => Pick<DashboardState, 'layouts' | 'visible'
   }),
 };
 
-export const PRESET_OPTIONS: { id: PresetId; label: string; desc: string }[] = [
-  { id: 'default', label: 'Default',  desc: 'Balanced overview with all widgets' },
-  { id: 'compact', label: 'Compact',  desc: 'Condensed single-column stack' },
-  { id: 'focus',   label: 'Focus',    desc: 'Calendar, notes, and suggestions only' },
-  { id: 'finance', label: 'Finance',  desc: 'Revenue and invoices first' },
-];
+/** Preset order for pickers (labels come from i18n `presets.<id>.*`) */
+export const PRESET_ORDER: PresetId[] = ['default', 'compact', 'focus', 'finance'];
 
 /* ── Load / save ─────────────────────────────── */
 function loadState(): DashboardState {

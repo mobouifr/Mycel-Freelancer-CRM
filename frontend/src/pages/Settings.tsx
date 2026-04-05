@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Input, Select, Button, ErrorMessage } from '../components';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme, type SidebarBehavior, THEME_PRESETS } from '../hooks/useTheme';
@@ -24,6 +25,7 @@ const CURRENCIES = [
 ];
 
 export default function Settings() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('profile');
   const [saving, setSaving] = useState(false);
@@ -61,7 +63,7 @@ export default function Settings() {
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch {
-      setError('Failed to save settings');
+      setError(t('settings.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -91,7 +93,7 @@ export default function Settings() {
             marginBottom: 4,
           }}
         >
-          Settings
+          {t('settings.title')}
         </h2>
         <p
           style={{
@@ -101,7 +103,7 @@ export default function Settings() {
             letterSpacing: '.04em',
           }}
         >
-          Manage your account and business details
+          {t('settings.subtitle')}
         </p>
       </div>
 
@@ -125,7 +127,7 @@ export default function Settings() {
               marginBottom: -1,
             }}
           >
-            {tab.label}
+            {t(`settings.tabs.${tab.id}`)}
           </button>
         ))}
       </div>
@@ -146,7 +148,7 @@ export default function Settings() {
             animation: 'fadeUp .25s var(--ease) both',
           }}
         >
-          ✓ Settings saved successfully
+          {t('settings.savedBanner')}
         </div>
       )}
 
@@ -168,14 +170,14 @@ export default function Settings() {
               animation: 'fadeUp .2s var(--ease) both',
             }}
           >
-            <SectionTitle title="Profile Information" sub="Your personal details" />
+            <SectionTitle title={t('settings.secProfileTitle')} sub={t('settings.secProfileSub')} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <Input label="Username" placeholder="montassir" value={name} onChange={setName} />
-                <Input label="Phone" type="tel" placeholder="+212 600 000 000" value={phone} onChange={setPhone} />
+                <Input label={t('settings.username')} placeholder={t('auth.usernamePh')} value={name} onChange={setName} />
+                <Input label={t('settings.profilePhone')} type="tel" placeholder={t('settings.phonePlaceholder')} value={phone} onChange={setPhone} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <Input label="Email" type="email" placeholder="you@studio.com" value={email} onChange={setEmail} />
+                <Input label={t('settings.profileEmail')} type="email" placeholder={t('settings.emailPlaceholderStudio')} value={email} onChange={setEmail} />
               </div>
             </div>
           </div>
@@ -190,17 +192,17 @@ export default function Settings() {
               animation: 'fadeUp .2s var(--ease) both',
             }}
           >
-            <SectionTitle title="Business Details" sub="Used on proposals and invoices" />
+            <SectionTitle title={t('settings.secBusinessTitle')} sub={t('settings.secBusinessSub')} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <Input
-                  label="Business Name"
-                  placeholder="Studio name or company"
+                  label={t('settings.businessNameLabel')}
+                  placeholder={t('settings.businessNamePh')}
                   value={businessName}
                   onChange={setBusinessName}
                 />
                 <Select
-                  label="Default Currency"
+                  label={t('settings.defaultCurrency')}
                   options={CURRENCIES}
                   value={currency}
                   onChange={setCurrency}
@@ -208,13 +210,13 @@ export default function Settings() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <Input
-                  label="Business Address"
-                  placeholder="123 Street, City, Country"
+                  label={t('settings.businessAddress')}
+                  placeholder={t('settings.businessAddressPh')}
                   value={businessAddress}
                   onChange={setBusinessAddress}
                 />
                 <Input
-                  label="Tax Rate (%)"
+                  label={t('settings.taxRateLabel')}
                   type="number"
                   placeholder="20"
                   value={taxRate}
@@ -235,29 +237,29 @@ export default function Settings() {
             }}
           >
             <div>
-              <SectionTitle title="Change Password" sub="Ensure your account stays secure" />
+              <SectionTitle title={t('settings.secPasswordTitle')} sub={t('settings.secPasswordSub')} />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                   <Input
-                    label="Current Password"
+                    label={t('settings.currentPasswordLabel')}
                     type="password"
-                    placeholder="••••••••"
+                    placeholder={t('auth.passwordPhDots')}
                     value={currentPassword}
                     onChange={setCurrentPassword}
                   />
                   <Input
-                    label="Confirm New Password"
+                    label={t('settings.confirmNewPassword')}
                     type="password"
-                    placeholder="Repeat new password"
+                    placeholder={t('settings.repeatNewPasswordPh')}
                     value={confirmPassword}
                     onChange={setConfirmPassword}
                   />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                   <Input
-                    label="New Password"
+                    label={t('settings.newPasswordLabel')}
                     type="password"
-                    placeholder="Min. 8 characters"
+                    placeholder={t('auth.passwordPhMin')}
                     value={newPassword}
                     onChange={setNewPassword}
                   />
@@ -266,7 +268,7 @@ export default function Settings() {
             </div>
 
             <div>
-              <SectionTitle title="Two-Factor Authentication" sub="Add an extra layer of security to your account" />
+              <SectionTitle title={t('settings.sec2faTitle')} sub={t('settings.sec2faSub')} />
               <div style={{
                 background: 'var(--surface-1)',
                 border: '1px solid var(--border)',
@@ -490,7 +492,7 @@ export default function Settings() {
       {activeTab !== 'preferences' && (
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button variant="primary" size="md" loading={saving} onClick={handleSave}>
-            Save Changes
+            {t('settings.save')}
           </Button>
         </div>
       )}
@@ -523,12 +525,13 @@ function SectionTitle({ title, sub }: { title: string; sub: string }) {
 
 /* ── Preferences Panel ─── */
 
-const SIDEBAR_OPTIONS: { value: SidebarBehavior; label: string; desc: string }[] = [
-  { value: 'automatic', label: 'Automatic', desc: 'Collapses on narrow screens' },
-  { value: 'manual',    label: 'Manual',     desc: 'Drag to resize freely' },
+const SIDEBAR_OPTIONS: { value: SidebarBehavior; titleKey: 'settings.sidebarAuto' | 'settings.sidebarManual'; descKey: 'settings.sidebarAutoDesc' | 'settings.sidebarManualDesc' }[] = [
+  { value: 'automatic', titleKey: 'settings.sidebarAuto', descKey: 'settings.sidebarAutoDesc' },
+  { value: 'manual', titleKey: 'settings.sidebarManual', descKey: 'settings.sidebarManualDesc' },
 ];
 
 function PreferencesPanel() {
+  const { t } = useTranslation();
   const { theme, sidebarBehavior, setTheme, setSidebarBehavior } = useTheme();
 
   return (
@@ -542,7 +545,7 @@ function PreferencesPanel() {
     >
       {/* Theme Presets */}
       <div>
-        <SectionTitle title="Color Theme" sub="Choose a unified look — colors, surfaces, and accents" />
+        <SectionTitle title={t('settings.secThemeTitle')} sub={t('settings.secThemeSub')} />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 20 }}>
           {THEME_PRESETS.map((p) => {
             const active = theme === p.id;
@@ -616,7 +619,7 @@ function PreferencesPanel() {
 
       {/* Sidebar Behavior */}
       <div>
-        <SectionTitle title="Sidebar Behavior" sub="How the navigation panel resizes" />
+        <SectionTitle title={t('settings.secSidebarTitle')} sub={t('settings.secSidebarSub')} />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 20 }}>
           {SIDEBAR_OPTIONS.map((opt) => {
             const active = sidebarBehavior === opt.value;

@@ -1,6 +1,8 @@
 import { useRef, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import CalendarWidget from '../CalendarWidget';
 import { useStore } from '../../hooks/useStore';
+import { formatMonthShort } from '../../i18n/localeFormat';
 import { setWidgetComponent } from './WidgetRegistry';
 
 /* ─────────────────────────────────────────────
@@ -14,6 +16,7 @@ import { setWidgetComponent } from './WidgetRegistry';
 type SizeMode = 'compact' | 'medium' | 'full';
 
 function CalendarUpcoming() {
+  const { t, i18n } = useTranslation();
   const { events } = useStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const [sizeMode, setSizeMode] = useState<SizeMode>('full');
@@ -71,7 +74,7 @@ function CalendarUpcoming() {
                   fontFamily: 'var(--font-m)', fontSize: 7, color: 'var(--accent)',
                   letterSpacing: '.08em', textTransform: 'uppercase',
                 }}>
-                  {new Date(nextEvent.date + 'T12:00').toLocaleDateString('en-US', { month: 'short' })}
+                  {formatMonthShort(nextEvent.date, i18n.language)}
                 </p>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -85,13 +88,13 @@ function CalendarUpcoming() {
                   fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
                 }}>
-                  {nextEvent.time} · Next up
+                  {t('calendarUpcoming.nextUp', { time: nextEvent.time })}
                 </p>
               </div>
             </>
           ) : (
             <p style={{ fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)' }}>
-              No upcoming events
+              {t('calendarUpcoming.noUpcoming')}
             </p>
           )}
         </div>
@@ -99,7 +102,7 @@ function CalendarUpcoming() {
 
       {/* Medium: upcoming list only (no calendar) */}
       {sizeMode === 'medium' && (
-        <UpcomingList upcoming={upcoming} />
+        <UpcomingList upcoming={upcoming} lng={i18n.language} />
       )}
 
       {/* Full: calendar + upcoming list */}
@@ -109,7 +112,7 @@ function CalendarUpcoming() {
             <CalendarWidget />
           </div>
           <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12, minWidth: 0, flexShrink: 0 }}>
-            <UpcomingList upcoming={upcoming} />
+            <UpcomingList upcoming={upcoming} lng={i18n.language} />
           </div>
         </>
       )}
@@ -118,7 +121,14 @@ function CalendarUpcoming() {
 }
 
 /* Upcoming events sub-component */
-function UpcomingList({ upcoming }: { upcoming: Array<{ id: string; date: string; time: string; title: string; timezone: string }> }) {
+function UpcomingList({
+  upcoming,
+  lng,
+}: {
+  upcoming: Array<{ id: string; date: string; time: string; title: string; timezone: string }>;
+  lng: string;
+}) {
+  const { t } = useTranslation();
   return (
     <div style={{ padding: '0', minWidth: 0, overflow: 'hidden' }}>
       <p style={{
@@ -126,7 +136,7 @@ function UpcomingList({ upcoming }: { upcoming: Array<{ id: string; date: string
         letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 8,
         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0
       }}>
-        Upcoming (7 days)
+        {t('calendarUpcoming.upcomingHeading')}
       </p>
 
       {upcoming.length === 0 ? (
@@ -134,7 +144,7 @@ function UpcomingList({ upcoming }: { upcoming: Array<{ id: string; date: string
           fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)',
           textAlign: 'center', padding: '6px 0',
         }}>
-          No upcoming events
+          {t('calendarUpcoming.noUpcoming')}
         </p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -169,7 +179,7 @@ function UpcomingList({ upcoming }: { upcoming: Array<{ id: string; date: string
                   fontFamily: 'var(--font-m)', fontSize: 7, color: 'var(--accent)',
                   letterSpacing: '.08em', textTransform: 'uppercase',
                 }}>
-                  {new Date(evt.date + 'T12:00').toLocaleDateString('en-US', { month: 'short' })}
+                  {formatMonthShort(evt.date, lng)}
                 </p>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>

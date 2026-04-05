@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
 
 /* ─────────────────────────────────────────────
@@ -84,6 +85,7 @@ function generateMushrooms(growth: number): Mushroom[] {
 }
 
 function LivingWidget() {
+  const { t } = useTranslation();
   const [hours, setHours] = useState(getGrowthHours);
   const growth = Math.min(hours, 100); // cap at 100h visual growth
   const level = Math.floor(growth / 10) + 1;
@@ -195,7 +197,10 @@ function LivingWidget() {
           letterSpacing: '.03em',
           lineHeight: 1.4,
         }}>
-          Level {level} · {hours < 1 ? 'Just planted' : `${Math.floor(hours)}h growth`}
+          {t('livingWidget.level', {
+            level,
+            growth: hours < 1 ? t('livingWidget.justPlanted') : t('livingWidget.hoursGrowth', { hours: Math.floor(hours) }),
+          })}
         </p>
         <p style={{
           fontFamily: 'var(--font-m)',
@@ -204,7 +209,7 @@ function LivingWidget() {
           letterSpacing: '.04em',
           marginTop: 2,
         }}>
-          Your workspace ecosystem grows as you work
+          {t('livingWidget.tagline')}
         </p>
       </div>
     </div>

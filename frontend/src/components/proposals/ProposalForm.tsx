@@ -1,7 +1,9 @@
 // Proposal form component
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { proposalSchema, type ProposalFormData } from '../../utils/validation';
+import { useTranslation } from 'react-i18next';
+import { createProposalSchema, type ProposalFormData } from '../../utils/validation';
 import { type Proposal, ProposalStatus } from '../../types/proposal.types';
 import { formatDateInput } from '../../utils/formatters';
 import { useProjects } from '../../hooks/useProjects';
@@ -21,14 +23,16 @@ export const ProposalForm = ({
   isLoading = false,
   onAISuggest,
 }: ProposalFormProps) => {
+  const { t } = useTranslation();
   const { projects } = useProjects();
+  const schema = useMemo(() => createProposalSchema(t), [t]);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isValid },
   } = useForm<ProposalFormData>({
-    resolver: zodResolver(proposalSchema),
+    resolver: zodResolver(schema),
     defaultValues: proposal
       ? {
           title: proposal.title,

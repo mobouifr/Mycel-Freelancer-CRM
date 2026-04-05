@@ -1,9 +1,11 @@
 import { useNavigate, Link } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import Footer from '../components/Footer';
 import { LogoMark } from '../components';
 import { useTheme } from '../hooks/useTheme';
 
 export default function PrivacyPolicy() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { mode: themeMode, cycleQuickTheme, theme } = useTheme();
 
@@ -54,8 +56,8 @@ export default function PrivacyPolicy() {
         {/* Theme switcher */}
         <button
           onClick={cycleQuickTheme}
-          aria-label={`Switch theme (current: ${theme})`}
-          title={`Theme: ${theme}`}
+          aria-label={t('common.themeSwitchAria', { theme })}
+          title={t('common.themeTitle', { theme })}
           style={{
             width: 36,
             height: 36,
@@ -113,7 +115,7 @@ export default function PrivacyPolicy() {
               padding: 0,
             }}
           >
-            ← Back
+            {t('common.back')}
           </button>
 
           <h1
@@ -126,7 +128,7 @@ export default function PrivacyPolicy() {
               marginBottom: 8,
             }}
           >
-            Privacy Policy
+            {t('legal.privacy.pageTitle')}
           </h1>
 
           <p
@@ -138,8 +140,8 @@ export default function PrivacyPolicy() {
               marginBottom: 40,
             }}
           >
-            Last updated:{' '}
-            {new Date().toLocaleDateString('en-US', {
+            {t('common.lastUpdated')}{' '}
+            {new Date().toLocaleDateString(i18n.language, {
               year: 'numeric',
               month: 'long',
               day: 'numeric',
@@ -147,62 +149,36 @@ export default function PrivacyPolicy() {
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-            <Section title="1. Introduction">
-              Mycel ("we", "our", "us") operates the Mycel Freelancer CRM web application.
-              This Privacy Policy explains how we collect, use, disclose, and safeguard your
-              information when you use our application. By using Mycel, you agree to the
-              collection and use of information as described in this policy.
+            <Section title={t('legal.privacy.s1t')}>
+              {t('legal.privacy.s1b')}
             </Section>
 
-            <Section title="2. Information We Collect">
-              <strong>Account Information:</strong> When you register, we collect your username,
-              email address, and a securely hashed version of your password. If you authenticate
-              via OAuth (42 Intra), we receive your intra ID and public profile data.
-              <br /><br />
-              <strong>Business Data:</strong> You may voluntarily provide business details such as
-              company name, address, currency preference, and tax rate.
-              <br /><br />
-              <strong>Client and Project Data:</strong> Information you enter about your clients,
-              projects, proposals, invoices, reminders, and notes.
-              <br /><br />
-              <strong>Usage Data:</strong> We collect basic usage patterns such as login timestamps.
+            <Section title={t('legal.privacy.s2t')}>
+              <Trans i18nKey="legal.privacy.s2b" />
             </Section>
 
-            <Section title="3. How We Use Your Information">
-              We use collected information to:
+            <Section title={t('legal.privacy.s3t')}>
+              {t('legal.privacy.s3intro')}
               <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-                <li>Provide and maintain the app</li>
-                <li>Authenticate and secure your account</li>
-                <li>Generate invoices and reports</li>
-                <li>Send reminders</li>
-                <li>Improve experience</li>
+                <li>{t('legal.privacy.s3l1')}</li>
+                <li>{t('legal.privacy.s3l2')}</li>
+                <li>{t('legal.privacy.s3l3')}</li>
+                <li>{t('legal.privacy.s3l4')}</li>
+                <li>{t('legal.privacy.s3l5')}</li>
               </ul>
             </Section>
 
-            <Section title="4. Data Storage and Security">
-              Your data is stored in a PostgreSQL database. Passwords are hashed using bcrypt.
-              Authentication tokens (JWT) are stored in HTTP-only cookies.
-            </Section>
+            <Section title={t('legal.privacy.s4t')}>{t('legal.privacy.s4b')}</Section>
 
-            <Section title="5. Data Sharing">
-              We do not sell your data. We may share it only if required by law or with consent.
-            </Section>
+            <Section title={t('legal.privacy.s5t')}>{t('legal.privacy.s5b')}</Section>
 
-            <Section title="6. Your Rights">
-              You can access, update, delete, or export your data anytime.
-            </Section>
+            <Section title={t('legal.privacy.s6t')}>{t('legal.privacy.s6b')}</Section>
 
-            <Section title="7. Cookies and Local Storage">
-              We use local storage for preferences and HTTP-only cookies for auth.
-            </Section>
+            <Section title={t('legal.privacy.s7t')}>{t('legal.privacy.s7b')}</Section>
 
-            <Section title="8. Changes to This Policy">
-              We may update this policy. Continued use means acceptance.
-            </Section>
+            <Section title={t('legal.privacy.s8t')}>{t('legal.privacy.s8b')}</Section>
 
-            <Section title="9. Contact">
-              Contact us via the app settings.
-            </Section>
+            <Section title={t('legal.privacy.s9t')}>{t('legal.privacy.s9b')}</Section>
           </div>
         </div>
       </div>

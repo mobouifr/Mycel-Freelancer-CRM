@@ -1,11 +1,13 @@
 // Proposals list page
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useProposals } from '../../hooks/useProposals';
 import { type Proposal, ProposalStatus } from '../../types/proposal.types';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 
 export const ProposalsListPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { proposals, loading, error, deleteProposal } = useProposals();
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,11 +23,11 @@ export const ProposalsListPage = () => {
   });
 
   const handleDelete = async (proposal: Proposal) => {
-    if (window.confirm(`Are you sure you want to delete "${proposal.title}"?`)) {
+    if (window.confirm(t('proposals.deleteConfirm', { title: proposal.title }))) {
       try {
         await deleteProposal(proposal.id);
       } catch (err) {
-        alert('Failed to delete proposal');
+        alert(t('proposals.deleteFailed'));
       }
     }
   };
@@ -68,7 +70,7 @@ export const ProposalsListPage = () => {
   if (loading) {
     return (
       <div style={{ padding: '24px' }}>
-        <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text)' }}>Loading proposals...</div>
+        <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text)' }}>{t('proposals.loading')}</div>
       </div>
     );
   }
@@ -85,7 +87,7 @@ export const ProposalsListPage = () => {
             borderRadius: '8px',
           }}
         >
-          Error: {error}
+          {t('common.errorPrefix')}: {error}
         </div>
       </div>
     );
@@ -120,7 +122,7 @@ export const ProposalsListPage = () => {
               marginBottom: 4,
             }}
           >
-            Proposals
+            {t('proposals.listTitle')}
           </h1>
           <p
             style={{
@@ -130,7 +132,7 @@ export const ProposalsListPage = () => {
               letterSpacing: '.04em',
             }}
           >
-            Create and track proposals for your clients
+            {t('proposals.listSubtitle')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -177,7 +179,7 @@ export const ProposalsListPage = () => {
               e.currentTarget.style.backgroundColor = 'var(--accent)';
             }}
           >
-            + New Proposal
+            {t('proposals.newProposal')}
           </button>
         </div>
       </div>
@@ -186,7 +188,7 @@ export const ProposalsListPage = () => {
       <div style={{ marginBottom: 20 }}>
         <input
           type="text"
-          placeholder="Search proposals by title, project, or status..."
+          placeholder={t('proposals.searchPlaceholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
