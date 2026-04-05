@@ -16,9 +16,15 @@ datasource db {
 
 model User {
   id           String   @id @default(uuid())
-  username     String?
+  username     String   @default("User")
   name         String?
   email        String   @unique
+  phone        String?
+  businessName String?  @map("business_name")
+  businessAddress String? @map("business_address")
+  logoUrl      String?  @map("logo_url")
+  defaultCurrency String? @default("USD") @map("default_currency")
+  taxRate      Decimal? @default(0) @db.Decimal(5, 2) @map("tax_rate")
   password     String?
   passwordHash String?
   intraId      String?  @unique
@@ -45,8 +51,8 @@ model Client {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt      @map("updated_at")
 
-  userId    String?  @map("user_id")
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   projects  Project[]
 
   @@index([userId])
@@ -63,10 +69,10 @@ model Project {
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt      @map("updated_at")
 
-  userId      String?       @map("user_id")
-  clientId    String?       @map("client_id")
-  user        User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  client      Client?       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  userId      String        @map("user_id")
+  clientId    String        @map("client_id")
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
   invoices    Invoice[]
   proposals   Proposal[]
 

@@ -38,6 +38,12 @@ export const authService = {
     return data;
   },
 
+  // ── Update user profile ────────────────────
+  async updateProfile(updates: Partial<User>): Promise<User> {
+    const { data } = await api.put<User>('/auth/profile', updates);
+    return data;
+  },
+
   // ── Forgot password ────────────────────────
   async forgotPassword(email: string): Promise<{ message: string }> {
     const { data } = await api.post<{ message: string }>('/auth/forgot-password', { email });

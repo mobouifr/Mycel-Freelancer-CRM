@@ -11,60 +11,69 @@ export class ProjectsService {
     private readonly prisma: PrismaService
   ) {}
 
-  async create(createProjectDto: CreateProjectDto | any) {
+  async create(userId: string, createProjectDto: CreateProjectDto | any) {
     const data: any = {
       title: createProjectDto.title || '',
-      description: createProjectDto.description || '',
+      description: createProjectDto.description || null,
       status: createProjectDto.status || 'ACTIVE',
       budget: createProjectDto.budget !== undefined ? createProjectDto.budget : 0,
+      userId: userId,
+      clientId: createProjectDto.clientId,
     };
-    if (createProjectDto.due_date) {
+    if (createProjectDto.deadline) {
+        data.deadline = new Date(createProjectDto.deadline);
+    } else if (createProjectDto.due_date) {
         data.deadline = new Date(createProjectDto.due_date);
     }
     return await this.prisma.project.create({ data });
   }
 
-  async findAll() {
-    return await this.prisma.project.findMany();
+  async findAll(userId: string) {
+    return await this.prisma.project.findMany({ 
+      where: { userId },
+      include: { client: true }
+    });
   }
 
-  async findOne(id: string) {
-    const project = await this.prisma.project.findUnique({ where: { id } });
-    if (!project) {
+  async findOne(userId: string, id: string) {
+    const project = await this.prisma.project.findUnique({ 
+      where: { id },
+      include: { client: true } 
+    });
+    if (!project || project.userId !== userId) {
       throw new NotFoundException(`Project with ID ${id} not found`);
     }
     return project;
   }
 
-  async update(id: string, updateProjectDto: UpdateProjectDto | any) {
-    const existingProject = await this.prisma.project.findUnique({ where: { id } });
-    if (!existingProject) {
-      throw new NotFoundException(`Project with ID ${id} not found`);
-    }
+  async update(userId: string, id: string, updateProjectDto: UpdateProjectDto | any) {
+    const existingProject = await this.findOne(userId, id);
 
     const oldStatus = existingProject.status;
 
     const data: any = {
       ...updateProjectDto
     };
-    if (updateProjectDto.due_date) {
+    if (updateProjectDto.deadline) {
+        data.deadline = new Date(updateProjectDto.deadline);
+    } else if (updateProjectDto.due_date) {
         data.deadline = new Date(updateProjectDto.due_date);
         delete data.due_date;
     }
 
     const updatedProject = await this.prisma.project.update({
       where: { id },
-      data
+      data,
+      include: { client: true }
     });
 
     const newStatus = updatedProject.status;
 
     if (oldStatus !== 'COMPLETED' && newStatus === 'COMPLETED') {
-      const userid = updateProjectDto.userid || 'uuid-user';
-      const priority = updateProjectDto.priority || 'medium';
+      const priority = updateProjectDto.priority || 'MEDIUM';
       
       this.gamificationService.awardProjectCompletionXp(
-        userid,
+        userId,
         Number(updatedProject.budget),
         priority
       );
@@ -72,12 +81,13 @@ export class ProjectsService {
 
     return updatedProject;
   }
+  
+  async updateStatus(userId: string, id: string, status: string) {
+    return await this.update(userId, id, { status });
+  }
 
-  async remove(id: string) {
-    const existingProject = await this.prisma.project.findUnique({ where: { id } });
-    if (!existingProject) {
-      throw new NotFoundException(`Project with ID ${id} not found`);
-    }
+  async remove(userId: string, id: string) {
+    const existingProject = await this.findOne(userId, id);
     return await this.prisma.project.delete({ where: { id } });
   }
 }

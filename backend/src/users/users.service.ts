@@ -8,13 +8,14 @@ export class UsersService {
     constructor(private readonly prisma: PrismaService) {}
     //*?**********************My functions "Othmane Er-REfaly"**********************
 
-    async createUser(username: string, email: string, passwordHash?: string, intraId?: string): Promise<User> {
+    async createUser(username: string, email: string, name: string, passwordHash?: string, intraId?: string): Promise<User> {
         const newUser = await this.prisma.user.create({
             data: {
                 username,
                 email,
+                name: name || null,
                 xp: 0,
-                level: 1,
+                level: 0,
                 passwordHash: passwordHash || null,
                 intraId: intraId || null,
             }
