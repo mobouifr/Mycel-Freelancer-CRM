@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, Request, Res, HttpCode, HttpStatus, Get } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Request, Res, HttpCode, HttpStatus, Get, Put } from '@nestjs/common';
 import { Response } from 'express'; // Ensure this is imported from 'express'
 import { RegisterDto } from './DTO/register.dto';
 import { LoginDto } from './DTO/login.dto';
@@ -51,9 +51,41 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getProfile(@Request() req: any) {
+  async getProfile(@Request() req: any) {
     // This route will ONLY run if the user has a valid 'jwt' cookie!
+    // We use the ID from the payload to fetch the full fresh user from the database
+    const user = await this.authService.validateUserById(req.user.id);
+    if (user) {
+      const { passwordHash, ...result } = user;
+      return result;
+    }
     return req.user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('profile')
+  async updateProfile(@Request() req: any, @Body() body: any) {
+    // Allows the frontend settings page to update user information
+    const allowedFields = ['name', 'username', 'email', 'phone', 'businessName', 'businessAddress', 'defaultCurrency', 'logoUrl', 'taxRate'];
+    
+    // Filter only allowed fields so they don't overwrite id, password, or intraId
+    const updateData = {};
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        if (field === 'taxRate') {
+          updateData[field] = Number(body[field]) || 0;
+        } else {
+          updateData[field] = body[field];
+        }
+      }
+    }
+
+    const updatedUser = await this.authService.updateUser(req.user.id, updateData);
+    if (updatedUser) {
+      const { passwordHash, ...result } = updatedUser;
+      return result;
+    }
+    return null;
   }
 
   // --- 42 Intra OAuth Routes ---

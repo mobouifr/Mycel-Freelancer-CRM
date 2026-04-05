@@ -19,6 +19,12 @@ model User {
   username     String   @default("User")
   name         String?
   email        String   @unique
+  phone        String?
+  businessName String?  @map("business_name")
+  businessAddress String? @map("business_address")
+  logoUrl      String?  @map("logo_url")
+  defaultCurrency String? @default("USD") @map("default_currency")
+  taxRate      Decimal? @default(0) @db.Decimal(5, 2) @map("tax_rate")
   password     String?
   passwordHash String?
   intraId      String?  @unique

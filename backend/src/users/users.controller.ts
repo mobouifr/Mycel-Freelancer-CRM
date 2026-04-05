@@ -9,8 +9,8 @@ export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
     @Post()
-    create(@Body() body: { username: string; email: string }) {
-        return this.usersService.createUser(body.username, body.email);
+    create(@Body() body: { username: string; email: string; name: string }) {
+        return this.usersService.createUser(body.username, body.email, body.name, undefined, undefined);
     }
 
     @Get(':id')

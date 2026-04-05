@@ -20,13 +20,25 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
     refreshToken: string,
     profile: any,
   ): Promise<any> {
-    const { id, username, emails } = profile;
+    const { id, username, emails, login } = profile;
     const email = emails && emails.length > 0 ? emails[0].value : `${username}@student.42.fr`;
+    
+    // Safely extract the real full name from the 42 API response
+    let fullName = username;
+    if (profile._json) {
+        fullName = profile._json.usual_full_name || 
+                   (profile._json.first_name ? `${profile._json.first_name} ${profile._json.last_name || ''}` : profile.displayName) || 
+                   username;
+    }
 
     return this.authService.validateOAuthUser('42', {
       intraId: id,
       username: username,
       email: email,
+      name: fullName,
     });
   }
 }
+
+
+//TODO:

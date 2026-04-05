@@ -25,6 +25,7 @@ export interface AuthResponse {
 export interface User {
   id: number;
   username: string;
+  name?: string;
   email: string;
   createdAt: string;
   intraId?: string;

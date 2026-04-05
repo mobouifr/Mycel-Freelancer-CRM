@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Input, Select, Button, ErrorMessage } from '../components';
 import { useAuth } from '../hooks/useAuth';
+import { authService } from '../services/auth';
 import { useTheme, type SidebarBehavior, THEME_PRESETS } from '../hooks/useTheme';
 
 /* ─────────────────────────────────────────────
@@ -31,7 +32,8 @@ export default function Settings() {
   const [error, setError] = useState<string | null>(null);
 
   // ── Profile state ──────────────────────────
-  const [name, setName] = useState(user?.username || '');
+  const [username, setUsername] = useState(user?.username || '');
+  const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [phone, setPhone] = useState(user?.phone || '');
 
@@ -56,10 +58,29 @@ export default function Settings() {
     setError(null);
     setSuccess(false);
     try {
-      // TODO: connect to API endpoint
-      await new Promise((r) => setTimeout(r, 600));
+      if (activeTab === 'profile') {
+        await authService.updateProfile({
+          username,
+          name,
+          email,
+          phone,
+        });
+      } else if (activeTab === 'business') {
+        await authService.updateProfile({
+          businessName,
+          businessAddress,
+          defaultCurrency: currency,
+          taxRate: parseFloat(taxRate) || 0,
+        });
+      } else if (activeTab === 'security') {
+        // Here you would implement password changing logic on your backend later
+        await new Promise((r) => setTimeout(r, 600)); 
+      }
       setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
+      setTimeout(() => {
+        setSuccess(false);
+        window.location.reload(); // Refresh the data across the app!
+      }, 800);
     } catch {
       setError('Failed to save settings');
     } finally {
@@ -171,7 +192,8 @@ export default function Settings() {
             <SectionTitle title="Profile Information" sub="Your personal details" />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <Input label="Username" placeholder="montassir" value={name} onChange={setName} />
+                <Input label="Username" placeholder="montassir" value={username} onChange={setUsername} />
+                <Input label="Full Name" placeholder="Montassir D." value={name} onChange={setName} />
                 <Input label="Phone" type="tel" placeholder="+212 600 000 000" value={phone} onChange={setPhone} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>

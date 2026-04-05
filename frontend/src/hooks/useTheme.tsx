@@ -325,6 +325,8 @@ export const PALETTE_MAP = {
 // ── Persisted state ──────────────────────────
 interface ThemeState {
   theme: ThemePresetId;
+  lastDarkTheme?: ThemePresetId;
+  lastLightTheme?: ThemePresetId;
   sidebarBehavior: SidebarBehavior;
   sidebarManualWidth: number;
 }
@@ -333,6 +335,8 @@ const STORAGE_KEY = 'mycel-theme';
 
 const DEFAULT_STATE: ThemeState = {
   theme: 'default-dark',
+  lastDarkTheme: 'default-dark',
+  lastLightTheme: 'default-light',
   sidebarBehavior: 'automatic',
   sidebarManualWidth: 210,
 };
@@ -464,7 +468,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [state]);
 
   const setTheme = useCallback((theme: ThemePresetId) => {
-    setState((s) => ({ ...s, theme }));
+    setState((s) => {
+      const isDark = THEME_PRESET_MAP[theme]?.family === 'dark';
+      return {
+        ...s,
+        theme,
+        lastDarkTheme: isDark ? theme : s.lastDarkTheme,
+        lastLightTheme: !isDark ? theme : s.lastLightTheme,
+      };
+    });
   }, []);
 
   const setSidebarBehavior = useCallback((sidebarBehavior: SidebarBehavior) => {
@@ -475,12 +487,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, sidebarManualWidth }));
   }, []);
 
-  /** Quick-toggle: dark ↔ light, snap custom → dark first */
+  /** Quick-toggle: dark ↔ light */
   const cycleQuickTheme = useCallback(() => {
     setState((s) => {
-      if (s.theme === 'default-dark') return { ...s, theme: 'default-light' };
-      if (s.theme === 'default-light') return { ...s, theme: 'default-dark' };
-      return { ...s, theme: 'default-dark' };
+      const isDark = THEME_PRESET_MAP[s.theme]?.family === 'dark';
+      if (isDark) {
+        return { ...s, theme: s.lastLightTheme || 'default-light' };
+      } else {
+        return { ...s, theme: s.lastDarkTheme || 'default-dark' };
+      }
     });
   }, []);
 
