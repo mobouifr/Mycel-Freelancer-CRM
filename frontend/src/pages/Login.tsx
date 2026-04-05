@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { authService } from '../services/auth';
@@ -31,7 +31,7 @@ type AuthMode = 'signin' | 'signup';
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, register, forgotPassword, isLoading, error, clearError } = useAuth();
+  const { login, register, forgotPassword, isLoading, error, clearError, isAuthenticated } = useAuth();
   const { mode: themeMode, cycleQuickTheme, theme } = useTheme();
   const isMobile = useIsMobile();
 
@@ -114,6 +114,11 @@ export default function Login() {
     setForgotMsg(msg);
     setForgotSending(false);
   };
+
+  // Already logged in? Redirect to dashboard
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div style={{

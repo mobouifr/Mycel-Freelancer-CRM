@@ -7,7 +7,7 @@ import { StoreProvider } from './hooks/useStore';
 import { LoadingSpinner } from './components';
 
 import AppLayout from './layouts/AppLayout';
-// import ProtectedRoute from './routes/ProtectedRoute';
+import ProtectedRoute from './routes/ProtectedRoute';
 
 // ── Pages ────────────────────────────────────
 const Login = lazy(() => import('./pages/Login'));
@@ -91,8 +91,8 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
 
-              {/* Protected routes — guard disabled until backend is ready */}
-              {/* <Route element={<ProtectedRoute />}> */}
+              {/* Protected routes */}
+              <Route element={<ProtectedRoute />}>
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/clients/*" element={<Clients />} />
@@ -124,7 +124,7 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
                   <Route path="/invoices/:id/edit" element={<EditInvoicePage />} />
                 </Route>
-              {/* </Route> */}
+              </Route>
 
               {/* 404 Not Found - catch all route */}
               <Route path="*" element={<NotFound />} />

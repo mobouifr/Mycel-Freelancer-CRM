@@ -25,6 +25,7 @@ interface AuthContextType {
   logout: () => void;
   clearError: () => void;
   forgotPassword: (email: string) => Promise<string>;
+  checkSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -35,15 +36,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   // ── Restore session on mount via /auth/me ──
-  useEffect(() => {
-    authService
-      .fetchCurrentUser()
-      .then((u) => setUser(u))
-      .catch(() => {
-        // No valid cookie → user stays null (not logged in)
-      })
-      .finally(() => setIsLoading(false));
+  const checkSession = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const u = await authService.fetchCurrentUser();
+      setUser(u);
+    } catch {
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    checkSession();
+  }, [checkSession]);
 
   const login = useCallback(async (payload: LoginPayload) => {
     setIsLoading(true);
@@ -115,6 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         clearError,
         forgotPassword,
+        checkSession,
       }}
     >
       {children}

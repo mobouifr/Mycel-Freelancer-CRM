@@ -1,31 +1,30 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/auth';
+import { useAuth } from '../hooks/useAuth';
 import { LoadingSpinner } from '../components';
 
 /* ─────────────────────────────────────────────
    OAUTH CALLBACK — Handles redirect after 42
    login. The backend already set the HttpOnly
-   cookie, so we just call /auth/me to get the
+   cookie, so we just check session to get the
    user and redirect to the dashboard.
 ───────────────────────────────────────────── */
 
 export default function OAuthCallback() {
   const navigate = useNavigate();
+  const { checkSession } = useAuth();
 
   useEffect(() => {
-    authService
-      .fetchCurrentUser()
+    checkSession()
       .then(() => {
-        // Cookie is valid — go to dashboard.
-        // AuthProvider will pick up the user on next mount.
+        // AuthProvider pulled the user — go to dashboard
         navigate('/', { replace: true });
       })
       .catch(() => {
         // Cookie wasn't set or something failed
         navigate('/login', { replace: true });
       });
-  }, [navigate]);
+  }, [navigate, checkSession]);
 
   return (
     <div
