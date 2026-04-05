@@ -12,6 +12,21 @@ describe('GamificationService', () => {
         findUnique: jest.fn(),
         update: jest.fn(),
       },
+      project: {
+        findUnique: jest.fn(),
+        count: jest.fn(),
+      },
+      userAchievement: {
+        findUnique: jest.fn(),
+        create: jest.fn(),
+      },
+      userBadge: {
+        findUnique: jest.fn(),
+        create: jest.fn(),
+      },
+      notification: {
+        create: jest.fn(),
+      },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -85,5 +100,91 @@ describe('GamificationService', () => {
     expect(result.newTotalXp).toBe(600);
     expect(result.newLevel).toBe(3); // 600 is less than 900, so they stay Level 3
     expect(result.leveledUp).toBe(false); 
+  });
+
+  describe('checkAchievementsAndBadges', () => {
+    it('should award FIRST_PROJECT achievement if 1 project completed', async () => {
+      const userId = 'user-1';
+      const projectId = 'proj-1';
+      mockPrismaService.project.findUnique.mockResolvedValue({ id: projectId, budget: 1000 });
+      mockPrismaService.project.count.mockResolvedValue(1); // 1 completed project
+      mockPrismaService.userAchievement.findUnique.mockResolvedValue(null); // not earned yet
+
+      await service.checkAchievementsAndBadges(userId, projectId);
+
+      expect(mockPrismaService.userAchievement.create).toHaveBeenCalledWith({
+        data: { userId, type: 'FIRST_PROJECT', name: 'First Project Completed' }
+      });
+      expect(mockPrismaService.notification.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({ type: 'ACHIEVEMENT' })
+      });
+    });
+
+    it('should award LOYAL_CLIENT_3 achievement and HIGH_ROLLER badge', async () => {
+      const userId = 'user-1';
+      const projectId = 'proj-1';
+      mockPrismaService.project.findUnique.mockResolvedValue({ 
+        id: projectId, 
+        budget: 15000, // HIGH_ROLLER criteria
+        clientId: 'client-1' 
+      });
+      
+      // Mock count to return something else for total projects, but 3 for client projects
+      mockPrismaService.project.count.mockImplementation((args) => {
+        if (args?.where?.clientId) return 3; // 3 projects for this client
+        return 5; // 5 total projects
+      });
+      
+      mockPrismaService.userAchievement.findUnique.mockResolvedValue(null);
+      mockPrismaService.userBadge.findUnique.mockResolvedValue(null);
+
+      await service.checkAchievementsAndBadges(userId, projectId);
+
+      expect(mockPrismaService.userAchievement.create).toHaveBeenCalledWith({
+        data: { userId, type: 'LOYAL_CLIENT_3', name: 'Loyalty: 3 Projects with a Client' }
+      });
+      
+      expect(mockPrismaService.userBadge.create).toHaveBeenCalledWith({
+        data: { userId, type: 'HIGH_ROLLER', name: 'High Roller' }
+      });
+    });
+
+    it('should award EARLY_BIRD badge if completed before deadline', async () => {
+      const userId = 'user-1';
+      const projectId = 'proj-1';
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 5); // 5 days in future
+
+      mockPrismaService.project.findUnique.mockResolvedValue({ 
+        id: projectId, 
+        budget: 1000,
+        deadline: futureDate
+      });
+      mockPrismaService.project.count.mockResolvedValue(5);
+      mockPrismaService.userBadge.findUnique.mockResolvedValue(null);
+
+      await service.checkAchievementsAndBadges(userId, projectId);
+
+      expect(mockPrismaService.userBadge.create).toHaveBeenCalledWith({
+        data: { userId, type: 'EARLY_BIRD', name: 'Early Bird' }
+      });
+    });
+
+    it('should not award duplicate achievements or badges', async () => {
+      const userId = 'user-1';
+      const projectId = 'proj-1';
+      mockPrismaService.project.findUnique.mockResolvedValue({ id: projectId, budget: 15000 });
+      mockPrismaService.project.count.mockResolvedValue(1); 
+      
+      // Already awarded!
+      mockPrismaService.userAchievement.findUnique.mockResolvedValue({ id: 'exists' });
+      mockPrismaService.userBadge.findUnique.mockResolvedValue({ id: 'exists' });
+
+      await service.checkAchievementsAndBadges(userId, projectId);
+
+      // Should skip creation
+      expect(mockPrismaService.userAchievement.create).not.toHaveBeenCalled();
+      expect(mockPrismaService.userBadge.create).not.toHaveBeenCalled();
+    });
   });
 });

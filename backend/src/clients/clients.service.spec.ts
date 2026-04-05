@@ -19,6 +19,9 @@ describe('ClientsService', () => {
     project: {
       findMany: jest.fn(),
     },
+    notification: {
+      create: jest.fn(),
+    },
     proposal: {
       findMany: jest.fn(),
     },
@@ -61,6 +64,54 @@ describe('ClientsService', () => {
       expect(result).toEqual(mockClient);
       expect(prisma.client.create).toHaveBeenCalledWith({
         data: { ...dto, userId },
+      });
+      expect(prisma.notification.create).toHaveBeenCalledWith({
+        data: {
+          userId,
+          message: `New client created: ${mockClient.name}`,
+          type: 'SUCCESS',
+        },
+      });
+    });
+
+    it('should update a client and create a notification', async () => {
+      const dto = { name: 'Updated Network' };
+      const updatedClient = { ...mockClient, name: 'Updated Network' };
+      jest.spyOn(service, 'findOne').mockResolvedValue(mockClient as any);
+      mockPrismaService.client.update.mockResolvedValue(updatedClient);
+
+      const result = await service.update(userId, clientId, dto as any);
+      
+      expect(result).toEqual(updatedClient);
+      expect(prisma.client.update).toHaveBeenCalledWith({
+        where: { id: clientId },
+        data: dto,
+      });
+      expect(prisma.notification.create).toHaveBeenCalledWith({
+        data: {
+          userId,
+          message: `Client updated: ${updatedClient.name}`,
+          type: 'INFO',
+        },
+      });
+    });
+
+    it('should delete a client and create a notification', async () => {
+      jest.spyOn(service, 'findOne').mockResolvedValue(mockClient as any);
+      mockPrismaService.client.delete.mockResolvedValue(mockClient);
+
+      const result = await service.remove(userId, clientId);
+      
+      expect(result).toEqual(mockClient);
+      expect(prisma.client.delete).toHaveBeenCalledWith({
+        where: { id: clientId },
+      });
+      expect(prisma.notification.create).toHaveBeenCalledWith({
+        data: {
+          userId,
+          message: `Client deleted: ${mockClient.name}`,
+          type: 'WARNING',
+        },
       });
     });
 
