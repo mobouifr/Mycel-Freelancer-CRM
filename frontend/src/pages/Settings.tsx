@@ -1,27 +1,19 @@
 import { useState } from 'react';
-import { Input, Select, Button, ErrorMessage } from '../components';
+import { Input, Button, ErrorMessage } from '../components';
 import { useAuth } from '../hooks/useAuth';
 import { authService } from '../services/auth';
 import { useTheme, type SidebarBehavior, THEME_PRESETS } from '../hooks/useTheme';
 
 /* ─────────────────────────────────────────────
-   SETTINGS PAGE — Profile + Business + Security + Preferences
+   SETTINGS PAGE — Profile + Security + Preferences
 ───────────────────────────────────────────── */
 
-type Tab = 'profile' | 'business' | 'security' | 'preferences';
+type Tab = 'profile' | 'security' | 'preferences';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'profile',     label: 'Profile' },
-  { id: 'business',    label: 'Business' },
   { id: 'security',    label: 'Security' },
   { id: 'preferences', label: 'Preferences' },
-];
-
-const CURRENCIES = [
-  { value: 'USD', label: 'USD — US Dollar' },
-  { value: 'EUR', label: 'EUR — Euro' },
-  { value: 'MAD', label: 'MAD — Moroccan Dirham' },
-  { value: 'GBP', label: 'GBP — British Pound' },
 ];
 
 export default function Settings() {
@@ -35,13 +27,6 @@ export default function Settings() {
   const [username, setUsername] = useState(user?.username || '');
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [phone, setPhone] = useState(user?.phone || '');
-
-  // ── Business state ─────────────────────────
-  const [businessName, setBusinessName] = useState(user?.businessName || '');
-  const [businessAddress, setBusinessAddress] = useState(user?.businessAddress || '');
-  const [currency, setCurrency] = useState(user?.defaultCurrency || 'USD');
-  const [taxRate, setTaxRate] = useState(String(user?.taxRate || ''));
 
   // ── Security state ─────────────────────────
   const [currentPassword, setCurrentPassword] = useState('');
@@ -63,14 +48,6 @@ export default function Settings() {
           username,
           name,
           email,
-          phone,
-        });
-      } else if (activeTab === 'business') {
-        await authService.updateProfile({
-          businessName,
-          businessAddress,
-          defaultCurrency: currency,
-          taxRate: parseFloat(taxRate) || 0,
         });
       } else if (activeTab === 'security') {
         // Here you would implement password changing logic on your backend later
@@ -122,7 +99,7 @@ export default function Settings() {
             letterSpacing: '.04em',
           }}
         >
-          Manage your account and business details
+          Manage your account details
         </p>
       </div>
 
@@ -194,54 +171,9 @@ export default function Settings() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <Input label="Username" placeholder="montassir" value={username} onChange={setUsername} />
                 <Input label="Full Name" placeholder="Montassir D." value={name} onChange={setName} />
-                <Input label="Phone" type="tel" placeholder="+212 600 000 000" value={phone} onChange={setPhone} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <Input label="Email" type="email" placeholder="you@studio.com" value={email} onChange={setEmail} />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'business' && (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 32,
-              animation: 'fadeUp .2s var(--ease) both',
-            }}
-          >
-            <SectionTitle title="Business Details" sub="Used on proposals and invoices" />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <Input
-                  label="Business Name"
-                  placeholder="Studio name or company"
-                  value={businessName}
-                  onChange={setBusinessName}
-                />
-                <Select
-                  label="Default Currency"
-                  options={CURRENCIES}
-                  value={currency}
-                  onChange={setCurrency}
-                />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <Input
-                  label="Business Address"
-                  placeholder="123 Street, City, Country"
-                  value={businessAddress}
-                  onChange={setBusinessAddress}
-                />
-                <Input
-                  label="Tax Rate (%)"
-                  type="number"
-                  placeholder="20"
-                  value={taxRate}
-                  onChange={setTaxRate}
-                />
               </div>
             </div>
           </div>

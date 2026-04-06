@@ -29,12 +29,6 @@ export interface User {
   email: string;
   createdAt: string;
   intraId?: string;
-  businessName?: string;
-  businessAddress?: string;
-  logoUrl?: string;
-  phone?: string;
-  defaultCurrency?: string;
-  taxRate?: number;
   isActive?: boolean;
   emailVerified?: boolean;
   updatedAt?: string;
@@ -222,15 +216,6 @@ export interface RecentActivity {
 export interface ProfileSettings {
   name: string;
   email: string;
-  phone: string;
-}
-
-export interface BusinessSettings {
-  businessName: string;
-  businessAddress: string;
-  defaultCurrency: string;
-  taxRate: number;
-  logoUrl: string;
 }
 
 // ── API ─────────────────────────────────────

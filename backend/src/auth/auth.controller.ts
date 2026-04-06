@@ -66,17 +66,13 @@ export class AuthController {
   @Put('profile')
   async updateProfile(@Request() req: any, @Body() body: any) {
     // Allows the frontend settings page to update user information
-    const allowedFields = ['name', 'username', 'email', 'phone', 'businessName', 'businessAddress', 'defaultCurrency', 'logoUrl', 'taxRate'];
+    const allowedFields = ['name', 'username', 'email'];
     
     // Filter only allowed fields so they don't overwrite id, password, or intraId
     const updateData = {};
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
-        if (field === 'taxRate') {
-          updateData[field] = Number(body[field]) || 0;
-        } else {
-          updateData[field] = body[field];
-        }
+        updateData[field] = body[field];
       }
     }
 
