@@ -1,10 +1,27 @@
 // Projects list page
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { useProjects } from '../../hooks/useProjects';
 import { type Project, ProjectPriority, ProjectStatus } from '../../types/project.types';
 import { ProjectStatusBadge } from '../../components/projects/ProjectStatusBadge';
 import { formatCurrency, formatDate } from '../../utils/formatters';
+import { useIsMobile } from '../../hooks/useIsMobile';
+
+const PROJECT_TABLE_MIN_WIDTH = 1000;
+
+/** Table header typography aligned with ClientTable */
+const PROJECTS_TABLE_TH: CSSProperties = {
+  textAlign: 'left',
+  padding: '12px 24px',
+  fontFamily: 'var(--font-m)',
+  fontSize: 9,
+  fontWeight: 400,
+  lineHeight: 1.2,
+  letterSpacing: '.12em',
+  textTransform: 'uppercase',
+  color: 'var(--text-dim)',
+};
 
 // Helper function to get client initials
 const getClientInitials = (name: string): string => {
@@ -29,7 +46,7 @@ const getAvatarColor = (name: string): string => {
   return colors[index];
 };
 
-const getPriorityStyle = (priority: ProjectPriority): React.CSSProperties => {
+const getPriorityStyle = (priority: ProjectPriority): CSSProperties => {
   switch (priority) {
     case ProjectPriority.HIGH:
       return {
@@ -54,7 +71,9 @@ const getPriorityStyle = (priority: ProjectPriority): React.CSSProperties => {
 };
 
 export const ProjectsListPage = () => {
+  
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { projects, loading, error, deleteProject } = useProjects();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'ALL'>('ALL');
@@ -78,24 +97,149 @@ export const ProjectsListPage = () => {
     }
   };
 
+  const renderProjectActions = (project: Project, mobile: boolean) => (
+    <div
+      style={{
+        display: 'flex',
+        gap: 10,
+        justifyContent: mobile ? 'flex-start' : 'flex-end',
+        flexWrap: 'wrap',
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => navigate(`/projects/${project.id}`)}
+        style={{
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid var(--border)',
+          color: 'var(--text-mid)',
+          cursor: 'pointer',
+          fontFamily: 'var(--font-m)',
+          fontSize: 10,
+          lineHeight: 1.2,
+          padding: '6px 12px',
+          borderRadius: 999,
+          letterSpacing: '.06em',
+          textTransform: 'uppercase',
+          transition: 'all .15s',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = 'var(--text)';
+          e.currentTarget.style.borderColor = 'var(--border-h)';
+          e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = 'var(--text-mid)';
+          e.currentTarget.style.borderColor = 'var(--border)';
+          e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+        }}
+      >
+        View
+      </button>
+      <button
+        type="button"
+        onClick={() => navigate(`/projects/${project.id}/edit`)}
+        style={{
+          background: 'var(--accent-bg)',
+          border: '1px solid var(--accent-hover)',
+          color: 'var(--accent)',
+          cursor: 'pointer',
+          fontFamily: 'var(--font-m)',
+          fontSize: 10,
+          lineHeight: 1.2,
+          padding: '6px 12px',
+          borderRadius: 999,
+          letterSpacing: '.06em',
+          textTransform: 'uppercase',
+          transition: 'all .15s',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'var(--accent)';
+          e.currentTarget.style.color = 'var(--bg)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'var(--accent-bg)';
+          e.currentTarget.style.color = 'var(--accent)';
+        }}
+      >
+        Edit
+      </button>
+      <button
+        type="button"
+        onClick={() => handleDelete(project)}
+        style={{
+          background: 'var(--danger-bg)',
+          border: '1px solid var(--danger)',
+          color: 'var(--danger)',
+          cursor: 'pointer',
+          fontFamily: 'var(--font-m)',
+          fontSize: 10,
+          lineHeight: 1.2,
+          padding: '6px 12px',
+          borderRadius: 999,
+          letterSpacing: '.06em',
+          textTransform: 'uppercase',
+          transition: 'all .15s',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'var(--danger)';
+          e.currentTarget.style.color = 'var(--bg)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'var(--danger-bg)';
+          e.currentTarget.style.color = 'var(--danger)';
+        }}
+      >
+        Delete
+      </button>
+    </div>
+  );
+
+  const projectLabelStyle: CSSProperties = {
+    fontFamily: 'var(--font-m)',
+    fontSize: 9,
+    fontWeight: 400,
+    lineHeight: 1.2,
+    letterSpacing: '.1em',
+    textTransform: 'uppercase',
+    color: 'var(--text-dim)',
+    marginBottom: 4,
+  };
+
   if (loading) {
     return (
-      <div style={{ padding: '24px' }}>
-        <div style={{ textAlign: 'center', padding: '32px 0' }}>Loading projects...</div>
+      <div style={{ padding: 0, animation: 'fadeUp .3s var(--ease) both' }}>
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '40px 0',
+            fontFamily: 'var(--font-m)',
+            fontSize: 12,
+            lineHeight: 1.4,
+            color: 'var(--text-dim)',
+          }}
+        >
+          Loading projects...
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={{ padding: '24px' }}>
-        <div style={{
-          backgroundColor: 'var(--danger-bg)',
-          border: '1px solid var(--danger)',
-          color: 'var(--danger)',
-          padding: '12px 16px',
-          borderRadius: '8px',
-        }}>
+      <div style={{ padding: 0, animation: 'fadeUp .3s var(--ease) both' }}>
+        <div
+          style={{
+            background: 'var(--danger-bg)',
+            border: '1px solid var(--danger)',
+            color: 'var(--danger)',
+            borderRadius: 8,
+            padding: '12px 16px',
+            fontFamily: 'var(--font-m)',
+            fontSize: 12,
+            lineHeight: 1.4,
+          }}
+        >
           Error: {error}
         </div>
       </div>
@@ -105,24 +249,33 @@ export const ProjectsListPage = () => {
   return (
     <div
       style={{
-        padding: '32px',
+        padding: 0,
+        animation: 'fadeUp .3s var(--ease) both',
         backgroundColor: 'var(--bg)',
-        minHeight: '100vh',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box',
       }}
     >
       {/* Header Section */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 24,
-      }}>
-        <div>
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          alignItems: isMobile ? 'stretch' : 'center',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: isMobile ? 16 : 12,
+          marginBottom: 24,
+          width: '100%',
+        }}
+      >
+        <div style={{ minWidth: 0 }}>
           <h1
             style={{
               fontFamily: 'var(--font-d)',
               fontWeight: 500,
-              fontSize: 26,
+              fontSize: isMobile ? 22 : 26,
               color: 'var(--text)',
               letterSpacing: '.06em',
               lineHeight: 1.3,
@@ -135,26 +288,43 @@ export const ProjectsListPage = () => {
             style={{
               fontFamily: 'var(--font-m)',
               fontSize: 11,
+              fontWeight: 400,
               color: 'var(--text-dim)',
               letterSpacing: '.04em',
+              lineHeight: 1.4,
+              margin: 0,
             }}
           >
             Track your active and completed projects
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: '12px',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            width: isMobile ? '100%' : 'auto',
+            flexDirection: isMobile ? 'column' : 'row',
+          }}
+        >
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as ProjectStatus | 'ALL')}
             style={{
-              padding: '10px 14px',
-              borderRadius: '8px',
+              padding: '10px 12px',
+              borderRadius: 6,
               border: '1px solid var(--border)',
-              backgroundColor: 'var(--surface)',
+              background: 'var(--surface-2)',
               color: 'var(--text)',
               fontFamily: 'var(--font-m)',
-              fontSize: '13px',
+              fontSize: 12,
+              fontWeight: 400,
+              lineHeight: 1.4,
               outline: 'none',
+              width: isMobile ? '100%' : 'auto',
+              minWidth: isMobile ? undefined : 160,
+              boxSizing: 'border-box',
             }}
           >
             <option value="ALL">All Statuses</option>
@@ -165,6 +335,7 @@ export const ProjectsListPage = () => {
             ))}
           </select>
           <button
+            type="button"
             onClick={() => navigate('/projects/new')}
             style={{
               padding: '10px 20px',
@@ -176,14 +347,18 @@ export const ProjectsListPage = () => {
               fontSize: 11,
               fontWeight: 500,
               letterSpacing: '.06em',
+              lineHeight: 1.2,
               cursor: 'pointer',
               transition: 'background .2s var(--ease), transform .1s var(--ease)',
+              width: isMobile ? '100%' : 'auto',
+              alignSelf: isMobile ? 'stretch' : 'auto',
+              boxSizing: 'border-box',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--accent-hover)';
+              e.currentTarget.style.background = 'var(--accent-hover)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--accent)';
+              e.currentTarget.style.background = 'var(--accent)';
             }}
           >
             + New Project
@@ -192,15 +367,16 @@ export const ProjectsListPage = () => {
       </div>
 
       {/* Search */}
-      <div style={{ marginBottom: 20 }}>
+      <div style={{ marginBottom: 20, width: '100%' }}>
         <input
           type="text"
-          placeholder="Search projects by title, description, or client..."
+          placeholder={'Search projects by title, description, or client...'}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
             width: '100%',
-            maxWidth: 420,
+            maxWidth: isMobile ? 'none' : 420,
+            boxSizing: 'border-box',
             padding: '10px 12px',
             borderRadius: 6,
             border: '1px solid var(--border)',
@@ -208,144 +384,198 @@ export const ProjectsListPage = () => {
             color: 'var(--text)',
             fontFamily: 'var(--font-m)',
             fontSize: 12,
+            fontWeight: 400,
+            lineHeight: 1.4,
             outline: 'none',
           }}
         />
       </div>
 
-      {/* Main Content Container */}
+      {/* Main Content Container — matches Clients list table wrapper */}
       <div
         style={{
-          backgroundColor: 'var(--surface-2)',
-          borderRadius: '12px',
+          background: 'var(--surface-2)',
+          borderRadius: 8,
           border: '1px solid var(--border)',
-          padding: '24px',
+          boxSizing: 'border-box',
+          maxWidth: '100%',
+          overflow: 'hidden',
         }}
       >
-        {/* Filter Section */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          marginBottom: '24px',
-        }}>
-          <span style={{
-            fontSize: '14px',
-            fontWeight: 500,
-            fontFamily: 'var(--font-m)',
-            color: 'var(--text)',
-          }}>
-            All Projects
-          </span>
-          <span style={{
-            backgroundColor: 'rgba(255,255,255,0.06)',
-            color: 'var(--text)',
-            padding: '4px 12px',
-            borderRadius: '999px',
-            fontSize: '12px',
-            fontWeight: 600,
-            fontFamily: 'var(--font-m)',
-          }}>
-            {filteredProjects.length}
-          </span>
-        </div>
-
-        {/* Table */}
+        {/* Table / mobile cards */}
         {filteredProjects.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-dim)' }}>
-            <p>No projects found.</p>
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '40px 24px',
+              fontFamily: 'var(--font-m)',
+              fontSize: 12,
+              lineHeight: 1.4,
+              color: 'var(--text-dim)',
+            }}
+          >
+            <p style={{ margin: 0 }}>No projects found.</p>
+          </div>
+        ) : isMobile ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '12px 0' }}>
+            {filteredProjects.map((project) => {
+              const clientName = project.client?.name || '—';
+              const initials = getClientInitials(clientName);
+              const avatarColor = getAvatarColor(clientName);
+              const priority = project.priority || ProjectPriority.MEDIUM;
+              return (
+                <div
+                  key={project.id}
+                  style={{
+                    border: '1px solid var(--border)',
+                    borderRadius: 8,
+                    padding: 14,
+                    background: 'var(--surface)',
+                  }}
+                >
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={projectLabelStyle}>Project</div>
+                    <div
+                      style={{
+                        fontWeight: 500,
+                        fontSize: 12,
+                        lineHeight: 1.3,
+                        color: 'var(--text)',
+                        fontFamily: 'var(--font-m)',
+                      }}
+                    >
+                      {project.title}
+                    </div>
+                    {project.description && (
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 400,
+                          lineHeight: 1.4,
+                          color: 'var(--text-mid)',
+                          fontFamily: 'var(--font-m)',
+                          marginTop: 6,
+                          wordBreak: 'break-word',
+                        }}
+                      >
+                        {project.description}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={projectLabelStyle}>Client</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: 4,
+                          backgroundColor: avatarColor,
+                          color: 'var(--bg)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 10,
+                          fontWeight: 600,
+                          lineHeight: 1.2,
+                          fontFamily: 'var(--font-m)',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {initials}
+                      </div>
+                      <span
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 400,
+                          lineHeight: 1.4,
+                          color: 'var(--text)',
+                          fontFamily: 'var(--font-m)',
+                          wordBreak: 'break-word',
+                        }}
+                      >
+                        {clientName}
+                      </span>
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={projectLabelStyle}>Priority</div>
+                    <span
+                      style={{
+                        ...getPriorityStyle(priority),
+                        display: 'inline-block',
+                        fontSize: 10,
+                        fontWeight: 700,
+                        fontFamily: 'var(--font-m)',
+                        letterSpacing: '.06em',
+                        lineHeight: 1.2,
+                        borderRadius: 999,
+                        padding: '4px 10px',
+                      }}
+                    >
+                      {priority}
+                    </span>
+                  </div>
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={projectLabelStyle}>Status</div>
+                    <ProjectStatusBadge status={project.status} />
+                  </div>
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={projectLabelStyle}>Budget</div>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 400,
+                        lineHeight: 1.4,
+                        color: 'var(--text)',
+                        fontFamily: 'var(--font-m)',
+                      }}
+                    >
+                      {formatCurrency(Number(project.budget))}
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={projectLabelStyle}>Deadline</div>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 400,
+                        lineHeight: 1.4,
+                        color: 'var(--text)',
+                        fontFamily: 'var(--font-m)',
+                      }}
+                    >
+                      {formatDate(project.deadline)}
+                    </div>
+                  </div>
+                  {renderProjectActions(project, true)}
+                </div>
+              );
+            })}
           </div>
         ) : (
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-          }}>
+          <div
+            style={{
+              overflowX: 'auto',
+              WebkitOverflowScrolling: 'touch',
+            }}
+          >
+            <table
+              style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+                minWidth: PROJECT_TABLE_MIN_WIDTH,
+              }}
+            >
             <thead>
               <tr>
-                <th style={{
-                  textAlign: 'left',
-                  padding: '12px 16px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  color: 'var(--text-dim)',
-                  fontFamily: 'var(--font-m)',
-                  letterSpacing: '0.05em',
-                }}>
-                  PROJECT
-                </th>
-                <th style={{
-                  textAlign: 'left',
-                  padding: '12px 16px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  color: 'var(--text-dim)',
-                  fontFamily: 'var(--font-m)',
-                  letterSpacing: '0.05em',
-                }}>
-                  CLIENT
-                </th>
-                <th style={{
-                  textAlign: 'left',
-                  padding: '12px 16px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  color: 'var(--text-dim)',
-                  fontFamily: 'var(--font-m)',
-                  letterSpacing: '0.05em',
-                }}>
-                  PRIORITY
-                </th>
-                <th style={{
-                  textAlign: 'left',
-                  padding: '12px 16px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  color: 'var(--text-dim)',
-                  fontFamily: 'var(--font-m)',
-                  letterSpacing: '0.05em',
-                }}>
-                  STATUS
-                </th>
-                <th style={{
-                  textAlign: 'left',
-                  padding: '12px 16px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  color: 'var(--text-dim)',
-                  fontFamily: 'var(--font-m)',
-                  letterSpacing: '0.05em',
-                }}>
-                  BUDGET
-                </th>
-                <th style={{
-                  textAlign: 'left',
-                  padding: '12px 16px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  color: 'var(--text-dim)',
-                  fontFamily: 'var(--font-m)',
-                  letterSpacing: '0.05em',
-                }}>
-                  DEADLINE
-                </th>
-                <th style={{
-                  textAlign: 'right',
-                  padding: '12px 16px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  color: 'var(--text-dim)',
-                  fontFamily: 'var(--font-m)',
-                  letterSpacing: '0.05em',
-                }}>
-                  ACTIONS
-                </th>
+                <th style={PROJECTS_TABLE_TH}>PROJECT</th>
+                <th style={PROJECTS_TABLE_TH}>CLIENT</th>
+                <th style={PROJECTS_TABLE_TH}>PRIORITY</th>
+                <th style={PROJECTS_TABLE_TH}>STATUS</th>
+                <th style={PROJECTS_TABLE_TH}>BUDGET</th>
+                <th style={PROJECTS_TABLE_TH}>DEADLINE</th>
+                <th style={{ ...PROJECTS_TABLE_TH, textAlign: 'right' }}>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -362,14 +592,15 @@ export const ProjectsListPage = () => {
                       borderTop: index > 0 ? '1px solid var(--border)' : 'none',
                     }}
                   >
-                    <td style={{ padding: '16px' }}>
+                    <td style={{ padding: '13px 24px' }}>
                       <div
                         style={{
                           fontWeight: 500,
-                          fontSize: '13px',
+                          fontSize: 12,
+                          lineHeight: 1.3,
                           color: 'var(--text)',
                           fontFamily: 'var(--font-m)',
-                          marginBottom: '4px',
+                          marginBottom: 4,
                         }}
                       >
                         {project.title}
@@ -377,7 +608,9 @@ export const ProjectsListPage = () => {
                       {project.description && (
                         <div
                           style={{
-                            fontSize: '11px',
+                            fontSize: 12,
+                            fontWeight: 400,
+                            lineHeight: 1.4,
                             color: 'var(--text-mid)',
                             fontFamily: 'var(--font-m)',
                             overflow: 'hidden',
@@ -390,7 +623,7 @@ export const ProjectsListPage = () => {
                         </div>
                       )}
                   </td>
-                    <td style={{ padding: '16px' }}>
+                    <td style={{ padding: '13px 24px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div style={{
                           width: '32px',
@@ -401,15 +634,18 @@ export const ProjectsListPage = () => {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: '11px',
+                          fontSize: 10,
                           fontWeight: 600,
+                          lineHeight: 1.2,
                           fontFamily: 'var(--font-m)',
                         }}>
                           {initials}
                         </div>
                         <span
                           style={{
-                            fontSize: '12px',
+                            fontSize: 12,
+                            fontWeight: 400,
+                            lineHeight: 1.4,
                             color: 'var(--text)',
                             fontFamily: 'var(--font-m)',
                           }}
@@ -418,29 +654,32 @@ export const ProjectsListPage = () => {
                         </span>
                       </div>
                   </td>
-                    <td style={{ padding: '16px' }}>
+                    <td style={{ padding: '13px 24px' }}>
                       <span
                         style={{
                           ...getPriorityStyle(priority),
                           display: 'inline-block',
-                          fontSize: '10px',
+                          fontSize: 10,
                           fontWeight: 700,
                           fontFamily: 'var(--font-m)',
                           letterSpacing: '.06em',
-                          borderRadius: '999px',
+                          lineHeight: 1.2,
+                          borderRadius: 999,
                           padding: '4px 10px',
                         }}
                       >
                         {priority}
                       </span>
                     </td>
-                    <td style={{ padding: '16px' }}>
+                    <td style={{ padding: '13px 24px' }}>
                     <ProjectStatusBadge status={project.status} />
                   </td>
-                    <td style={{ padding: '16px' }}>
+                    <td style={{ padding: '13px 24px' }}>
                       <div
                         style={{
-                          fontSize: '12px',
+                          fontSize: 12,
+                          fontWeight: 400,
+                          lineHeight: 1.4,
                           color: 'var(--text)',
                           fontFamily: 'var(--font-m)',
                         }}
@@ -448,10 +687,12 @@ export const ProjectsListPage = () => {
                         {formatCurrency(Number(project.budget))}
                       </div>
                   </td>
-                    <td style={{ padding: '16px' }}>
+                    <td style={{ padding: '13px 24px' }}>
                       <div
                         style={{
-                          fontSize: '12px',
+                          fontSize: 12,
+                          fontWeight: 400,
+                          lineHeight: 1.4,
                           color: 'var(--text)',
                           fontFamily: 'var(--font-m)',
                         }}
@@ -459,95 +700,15 @@ export const ProjectsListPage = () => {
                         {formatDate(project.deadline)}
                       </div>
                   </td>
-                    <td style={{ padding: '16px', textAlign: 'right' }}>
-                      <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-                      <button
-                        onClick={() => navigate(`/projects/${project.id}`)}
-                          style={{
-                            background: 'rgba(255,255,255,0.02)',
-                            border: '1px solid var(--border)',
-                            color: 'var(--text-mid)',
-                            cursor: 'pointer',
-                            fontFamily: 'var(--font-m)',
-                            fontSize: 10,
-                            padding: '6px 12px',
-                            borderRadius: 999,
-                            letterSpacing: '.06em',
-                            textTransform: 'uppercase',
-                            transition: 'all .15s',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.color = 'var(--text)';
-                            e.currentTarget.style.borderColor = 'var(--border-h)';
-                            e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.color = 'var(--text-mid)';
-                            e.currentTarget.style.borderColor = 'var(--border)';
-                            e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-                          }}
-                      >
-                        View
-                      </button>
-                      <button
-                        onClick={() => navigate(`/projects/${project.id}/edit`)}
-                          style={{
-                            background: 'var(--accent-bg)',
-                            border: '1px solid var(--accent-hover)',
-                            color: 'var(--accent)',
-                            cursor: 'pointer',
-                            fontFamily: 'var(--font-m)',
-                            fontSize: 10,
-                            padding: '6px 12px',
-                            borderRadius: 999,
-                            letterSpacing: '.06em',
-                            textTransform: 'uppercase',
-                            transition: 'all .15s',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'var(--accent)';
-                            e.currentTarget.style.color = 'var(--bg)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'var(--accent-bg)';
-                            e.currentTarget.style.color = 'var(--accent)';
-                          }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(project)}
-                          style={{
-                            background: 'var(--danger-bg)',
-                            border: '1px solid var(--danger)',
-                            color: 'var(--danger)',
-                            cursor: 'pointer',
-                            fontFamily: 'var(--font-m)',
-                            fontSize: 10,
-                            padding: '6px 12px',
-                            borderRadius: 999,
-                            letterSpacing: '.06em',
-                            textTransform: 'uppercase',
-                            transition: 'all .15s',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'var(--danger)';
-                            e.currentTarget.style.color = 'var(--bg)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'var(--danger-bg)';
-                            e.currentTarget.style.color = 'var(--danger)';
-                          }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
+                    <td style={{ padding: '13px 24px', textAlign: 'right' }}>
+                      {renderProjectActions(project, false)}
+                    </td>
                 </tr>
                 );
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>
