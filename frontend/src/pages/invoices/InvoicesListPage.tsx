@@ -1,12 +1,14 @@
 // Invoices list page
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useInvoices } from '../../hooks/useInvoices';
 import { type Invoice, InvoiceStatus } from '../../types/invoice.types';
 import { InvoiceStatusBadge } from '../../components/invoices/InvoiceStatusBadge';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 
 export const InvoicesListPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { invoices, loading, error, deleteInvoice } = useInvoices();
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,11 +24,11 @@ export const InvoicesListPage = () => {
   });
 
   const handleDelete = async (invoice: Invoice) => {
-    if (window.confirm(`Are you sure you want to delete this invoice?`)) {
+    if (window.confirm(t('invoices.confirm_delete'))) {
       try {
         await deleteInvoice(invoice.id);
       } catch (err) {
-        alert('Failed to delete invoice');
+        alert(t('invoices.delete_failed'));
       }
     }
   };
@@ -34,7 +36,7 @@ export const InvoicesListPage = () => {
   if (loading) {
     return (
       <div style={{ padding: '24px' }}>
-        <div style={{ textAlign: 'center', padding: '32px 0' }}>Loading invoices...</div>
+        <div style={{ textAlign: 'center', padding: '32px 0' }}>{t('invoices.loading')}</div>
       </div>
     );
   }
@@ -51,7 +53,7 @@ export const InvoicesListPage = () => {
             borderRadius: '8px',
           }}
         >
-          Error: {error}
+          {t('common.error', { message: error })}
         </div>
       </div>
     );
@@ -86,7 +88,7 @@ export const InvoicesListPage = () => {
               marginBottom: 4,
             }}
           >
-            Invoices
+            {t('invoices.title')}
           </h1>
           <p
             style={{
@@ -96,7 +98,7 @@ export const InvoicesListPage = () => {
               letterSpacing: '.04em',
             }}
           >
-            Manage invoice status and payment tracking
+            {t('invoices.subtitle')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -114,7 +116,7 @@ export const InvoicesListPage = () => {
               outline: 'none',
             }}
         >
-          <option value="ALL">All Statuses</option>
+          <option value="ALL">{t('common.all_statuses')}</option>
           {Object.values(InvoiceStatus).map((status) => (
             <option key={status} value={status}>
               {status}
@@ -143,7 +145,7 @@ export const InvoicesListPage = () => {
               e.currentTarget.style.backgroundColor = 'var(--accent)';
             }}
           >
-            + New Invoice
+            {t('invoices.new_invoice')}
           </button>
         </div>
       </div>
@@ -152,7 +154,7 @@ export const InvoicesListPage = () => {
       <div style={{ marginBottom: 20 }}>
         <input
           type="text"
-          placeholder="Search invoices by project, status, or amount..."
+          placeholder={t('invoices.search_placeholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
@@ -182,7 +184,7 @@ export const InvoicesListPage = () => {
         {/* Table */}
         {filteredInvoices.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-dim)' }}>
-            <p>No invoices found.</p>
+            <p>{t('common.no_results', { item: t('nav.invoices').toLowerCase() })}</p>
           </div>
         ) : (
           <table
@@ -205,7 +207,7 @@ export const InvoicesListPage = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  PROJECT
+                  {t('invoices.table.project')}
                 </th>
                 <th
                   style={{
@@ -219,7 +221,7 @@ export const InvoicesListPage = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  STATUS
+                  {t('invoices.table.status')}
                 </th>
                 <th
                   style={{
@@ -233,7 +235,7 @@ export const InvoicesListPage = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  AMOUNT
+                  {t('invoices.table.amount')}
                 </th>
                 <th
                   style={{
@@ -247,7 +249,7 @@ export const InvoicesListPage = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  DUE DATE
+                  {t('invoices.table.due_date')}
                 </th>
                 <th
                   style={{
@@ -261,7 +263,7 @@ export const InvoicesListPage = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  ACTIONS
+                  {t('common.actions')}
                 </th>
               </tr>
             </thead>
@@ -338,7 +340,7 @@ export const InvoicesListPage = () => {
                           e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
                         }}
                       >
-                        View
+                        {t('common.view')}
                       </button>
                       <button
                         onClick={() => navigate(`/invoices/${invoice.id}/edit`)}
@@ -364,7 +366,7 @@ export const InvoicesListPage = () => {
                           e.currentTarget.style.color = 'var(--accent)';
                         }}
                       >
-                        Edit
+                        {t('common.edit')}
                       </button>
                       <button
                         onClick={() => handleDelete(invoice)}
@@ -390,7 +392,7 @@ export const InvoicesListPage = () => {
                           e.currentTarget.style.color = 'var(--danger)';
                         }}
                       >
-                        Delete
+                        {t('common.delete')}
                       </button>
                     </div>
                   </td>

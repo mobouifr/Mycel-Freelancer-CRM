@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '../../hooks/useIsMobile';
 
 type MessageRole = 'user' | 'assistant';
@@ -27,6 +28,7 @@ const getUsername = (): string => {
 };
 
 export default function ChatbotAI() {
+  const { t } = useTranslation();
   const username = getUsername();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
@@ -868,14 +870,14 @@ export default function ChatbotAI() {
         {isOpen && (
           <section className={`chatbot-ai-panel ${fullscreenActive ? 'fullscreen' : ''}`} aria-label="AI Assistant chat panel">
             <header className="chatbot-ai-header">
-              <h3 className="chatbot-ai-title">AI Assistant</h3>
+              <h3 className="chatbot-ai-title">{t('chatbot.title')}</h3>
               <div className="chatbot-ai-header-actions">
                 {!isMobile && (
                   <button
                     className="chatbot-ai-fullscreen"
                     type="button"
                     onClick={() => setIsFullscreen(!isFullscreen)}
-                    aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                    aria-label={isFullscreen ? t('chatbot.exit_fullscreen') : t('chatbot.enter_fullscreen')}
                   >
                     {isFullscreen ? (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -899,7 +901,7 @@ export default function ChatbotAI() {
                   className="chatbot-ai-close"
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  aria-label="Close chat"
+                  aria-label={t('chatbot.close')}
                 >
                   ×
                 </button>
@@ -909,7 +911,7 @@ export default function ChatbotAI() {
             <div className="chatbot-ai-messages">
               {messages.length === 0 && !loading && (
                 <p className="chatbot-ai-empty">
-                  Ask anything to get started.
+                  {t('chatbot.empty_state')}
                 </p>
               )}
 
@@ -934,30 +936,30 @@ export default function ChatbotAI() {
               {pendingForm && (
                 <div className="cb-inline-form" role="group" aria-label="Pending CRM form">
                   <p className="cb-form-label">
-                    {pendingForm === 'CLIENT' && 'New Client'}
-                    {pendingForm === 'PROJECT' && 'New Project'}
-                    {pendingForm === 'INVOICE' && 'New Invoice'}
+                    {pendingForm === 'CLIENT' && t('chatbot.new_client')}
+                    {pendingForm === 'PROJECT' && t('chatbot.new_project')}
+                    {pendingForm === 'INVOICE' && t('chatbot.new_invoice')}
                   </p>
 
                   {pendingForm === 'CLIENT' && (
                     <>
                       <input
-                        placeholder="Name *"
+                        placeholder={t('chatbot.placeholder_name')}
                         value={formData.name ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, name: e.target.value }))}
                       />
                       <input
-                        placeholder="Email"
+                        placeholder={t('chatbot.placeholder_email')}
                         value={formData.email ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, email: e.target.value }))}
                       />
                       <input
-                        placeholder="Phone"
+                        placeholder={t('chatbot.placeholder_phone')}
                         value={formData.phone ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, phone: e.target.value }))}
                       />
                       <input
-                        placeholder="Company"
+                        placeholder={t('chatbot.placeholder_company')}
                         value={formData.company ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, company: e.target.value }))}
                       />
@@ -967,17 +969,17 @@ export default function ChatbotAI() {
                   {pendingForm === 'PROJECT' && (
                     <>
                       <input
-                        placeholder="Title *"
+                        placeholder={t('chatbot.placeholder_title')}
                         value={formData.title ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, title: e.target.value }))}
                       />
                       <input
-                        placeholder="Client name *"
+                        placeholder={t('chatbot.placeholder_client_name')}
                         value={formData.clientName ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, clientName: e.target.value }))}
                       />
                       <input
-                        placeholder="Budget"
+                        placeholder={t('chatbot.placeholder_budget')}
                         type="number"
                         value={formData.budget ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, budget: e.target.value }))}
@@ -988,18 +990,18 @@ export default function ChatbotAI() {
                   {pendingForm === 'INVOICE' && (
                     <>
                       <input
-                        placeholder="Client name *"
+                        placeholder={t('chatbot.placeholder_client_name')}
                         value={formData.clientName ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, clientName: e.target.value }))}
                       />
                       <input
-                        placeholder="Total *"
+                        placeholder={t('chatbot.placeholder_total')}
                         type="number"
                         value={formData.total ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, total: e.target.value }))}
                       />
                       <input
-                        placeholder="Due date (YYYY-MM-DD)"
+                        placeholder={t('chatbot.placeholder_due_date')}
                         value={formData.dueDate ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, dueDate: e.target.value }))}
                       />
@@ -1008,7 +1010,7 @@ export default function ChatbotAI() {
 
                   <div className="cb-form-actions">
                     <button className="cb-form-btn primary" type="button" disabled={formSubmitting} onClick={() => { void submitForm(); }}>
-                      {formSubmitting ? 'Submitting...' : 'Submit'}
+                      {formSubmitting ? t('chatbot.submitting') : t('chatbot.submit')}
                     </button>
                     <button
                       className="cb-form-btn"
@@ -1019,7 +1021,7 @@ export default function ChatbotAI() {
                         setFormData({});
                       }}
                     >
-                      Cancel
+                      {t('common.cancel')}
                     </button>
                   </div>
                 </div>
@@ -1039,7 +1041,7 @@ export default function ChatbotAI() {
                 className="chatbot-ai-input"
                 value={input}
                 onChange={(e: any) => setInput(e.target.value)}
-                placeholder="Type your message..."
+                placeholder={t('chatbot.input_placeholder')}
                 disabled={loading}
                 enterKeyHint="send"
                 autoComplete="off"
@@ -1050,13 +1052,13 @@ export default function ChatbotAI() {
                 type="submit"
                 disabled={loading || !input.trim()}
               >
-                Send
+                {t('chatbot.send')}
               </button>
             </form>
           </section>
         )}
 
-        <button className="chatbot-ai-fab" type="button" onClick={() => setIsOpen((prev: boolean) => !prev)} aria-label={isOpen ? 'Close AI Assistant' : 'Open AI Assistant'}>
+        <button className="chatbot-ai-fab" type="button" onClick={() => setIsOpen((prev: boolean) => !prev)} aria-label={isOpen ? t('chatbot.close_assistant') : t('chatbot.open_assistant')}>
           <svg width={isMobile ? 18 : 22} height={isMobile ? 18 : 22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
             <path d="M8.5 10.5h.01" />

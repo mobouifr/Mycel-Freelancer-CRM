@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Input, Button, ErrorMessage } from '../components';
 import { useAuth } from '../hooks/useAuth';
 import { authService } from '../services/auth';
@@ -11,12 +12,13 @@ import { useTheme, type SidebarBehavior, THEME_PRESETS } from '../hooks/useTheme
 type Tab = 'profile' | 'security' | 'preferences';
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: 'profile',     label: 'Profile' },
-  { id: 'security',    label: 'Security' },
-  { id: 'preferences', label: 'Preferences' },
+  { id: 'profile',     label: 'settings.profile' },
+  { id: 'security',    label: 'settings.security' },
+  { id: 'preferences', label: 'settings.preferences' },
 ];
 
 export default function Settings() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('profile');
   const [saving, setSaving] = useState(false);
@@ -59,7 +61,7 @@ export default function Settings() {
         window.location.reload(); // Refresh the data across the app!
       }, 800);
     } catch {
-      setError('Failed to save settings');
+      setError(t('settings.save_failed'));
     } finally {
       setSaving(false);
     }
@@ -89,7 +91,7 @@ export default function Settings() {
             marginBottom: 4,
           }}
         >
-          Settings
+          {t('settings.title')}
         </h2>
         <p
           style={{
@@ -99,7 +101,7 @@ export default function Settings() {
             letterSpacing: '.04em',
           }}
         >
-          Manage your account details
+          {t('settings.subtitle')}
         </p>
       </div>
 
@@ -123,7 +125,7 @@ export default function Settings() {
               marginBottom: -1,
             }}
           >
-            {tab.label}
+            {t(tab.label)}
           </button>
         ))}
       </div>
@@ -144,7 +146,7 @@ export default function Settings() {
             animation: 'fadeUp .25s var(--ease) both',
           }}
         >
-          ✓ Settings saved successfully
+          {t('settings.saved_success')}
         </div>
       )}
 
@@ -166,14 +168,14 @@ export default function Settings() {
               animation: 'fadeUp .2s var(--ease) both',
             }}
           >
-            <SectionTitle title="Profile Information" sub="Your personal details" />
+            <SectionTitle title={t('settings.profile_info')} sub={t('settings.personal_details')} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <Input label="Username" placeholder="montassir" value={username} onChange={setUsername} />
-                <Input label="Full Name" placeholder="Montassir D." value={name} onChange={setName} />
+                <Input label={t('settings.username')} placeholder="montassir" value={username} onChange={setUsername} />
+                <Input label={t('settings.full_name')} placeholder="Montassir D." value={name} onChange={setName} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <Input label="Email" type="email" placeholder="you@studio.com" value={email} onChange={setEmail} />
+                <Input label={t('settings.email')} type="email" placeholder="you@studio.com" value={email} onChange={setEmail} />
               </div>
             </div>
           </div>
@@ -189,29 +191,29 @@ export default function Settings() {
             }}
           >
             <div>
-              <SectionTitle title="Change Password" sub="Ensure your account stays secure" />
+              <SectionTitle title={t('settings.change_password')} sub={t('settings.password_secure')} />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                   <Input
-                    label="Current Password"
+                    label={t('settings.current_password')}
                     type="password"
                     placeholder="••••••••"
                     value={currentPassword}
                     onChange={setCurrentPassword}
                   />
                   <Input
-                    label="Confirm New Password"
+                    label={t('settings.confirm_new_password')}
                     type="password"
-                    placeholder="Repeat new password"
+                    placeholder={t('settings.repeat_password')}
                     value={confirmPassword}
                     onChange={setConfirmPassword}
                   />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                   <Input
-                    label="New Password"
+                    label={t('settings.new_password')}
                     type="password"
-                    placeholder="Min. 8 characters"
+                    placeholder={t('settings.password_min')}
                     value={newPassword}
                     onChange={setNewPassword}
                   />
@@ -220,7 +222,7 @@ export default function Settings() {
             </div>
 
             <div>
-              <SectionTitle title="Two-Factor Authentication" sub="Add an extra layer of security to your account" />
+              <SectionTitle title={t('settings.twofa_title')} sub={t('settings.twofa_subtitle')} />
               <div style={{
                 background: 'var(--surface-1)',
                 border: '1px solid var(--border)',
@@ -242,7 +244,7 @@ export default function Settings() {
                       color: 'var(--text)',
                       marginBottom: 4,
                     }}>
-                      Two-Factor Authentication
+                      {t('settings.twofa_title')}
                     </h4>
                     <p style={{
                       fontFamily: 'var(--font-m)',
@@ -250,7 +252,7 @@ export default function Settings() {
                       color: 'var(--text-dim)',
                       margin: 0,
                     }}>
-                      {twoFactorEnabled ? 'Enabled' : 'Disabled'} • Use authenticator app for extra security
+                      {twoFactorEnabled ? t('settings.twofa_enabled') : t('settings.twofa_disabled')} • {t('settings.twofa_use_app')}
                     </p>
                   </div>
                   <button
@@ -268,7 +270,7 @@ export default function Settings() {
                       transition: 'all .2s',
                     }}
                   >
-                    {twoFactorEnabled ? 'Disable' : 'Enable'}
+                    {twoFactorEnabled ? t('settings.disable') : t('settings.enable')}
                   </button>
                 </div>
 
@@ -296,7 +298,7 @@ export default function Settings() {
                             color: 'var(--text)',
                             marginBottom: 8,
                           }}>
-                            Setup Instructions
+                            {t('settings.setup_instructions')}
                           </h5>
                           <ol style={{
                             fontFamily: 'var(--font-m)',
@@ -306,9 +308,9 @@ export default function Settings() {
                             paddingLeft: 20,
                             lineHeight: 1.6,
                           }}>
-                            <li>Download an authenticator app (Google Authenticator, Authy, etc.)</li>
-                            <li>Scan the QR code below with your app</li>
-                            <li>Enter the 6-digit code to verify setup</li>
+                            <li>{t('settings.setup_step1')}</li>
+                            <li>{t('settings.setup_step2')}</li>
+                            <li>{t('settings.setup_step3')}</li>
                           </ol>
                         </div>
 
@@ -344,7 +346,7 @@ export default function Settings() {
                               fontSize: 9,
                               color: 'var(--text-dim)',
                             }}>
-                              QR Code
+                              {t('settings.qr_code')}
                             </span>
                           </div>
                         </div>
@@ -363,7 +365,7 @@ export default function Settings() {
                             color: 'var(--text-dim)',
                             margin: '0 0 8px 0',
                           }}>
-                            Manual entry key
+                            {t('settings.manual_key')}
                           </p>
                           <code style={{
                             fontFamily: 'monospace',
@@ -382,7 +384,7 @@ export default function Settings() {
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                           <div>
                             <Input
-                              label="Verification Code"
+                              label={t('settings.verification_code')}
                               placeholder="000000"
                               value={twoFactorCode}
                               onChange={setTwoFactorCode}
@@ -390,7 +392,7 @@ export default function Settings() {
                           </div>
                           <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                             <Button variant="primary" size="md">
-                              Enable 2FA
+                              {t('settings.enable_2fa')}
                             </Button>
                           </div>
                         </div>
@@ -410,21 +412,21 @@ export default function Settings() {
                             margin: 0,
                             lineHeight: 1.6,
                           }}>
-                            Disabling two-factor authentication will make your account less secure. You'll need to enter your password to confirm this action.
+                            {t('settings.disable_2fa_warning')}
                           </p>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                           <div>
                             <Input
-                              label="Confirm Password"
+                              label={t('settings.confirm_password')}
                               type="password"
-                              placeholder="Enter your password"
+                              placeholder={t('settings.enter_password')}
                             />
                           </div>
                           <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                             <Button variant="danger" size="md">
-                              Disable 2FA
+                              {t('settings.disable_2fa')}
                             </Button>
                           </div>
                         </div>
@@ -444,7 +446,7 @@ export default function Settings() {
       {activeTab !== 'preferences' && (
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button variant="primary" size="md" loading={saving} onClick={handleSave}>
-            Save Changes
+            {t('common.save')}
           </Button>
         </div>
       )}
@@ -478,11 +480,12 @@ function SectionTitle({ title, sub }: { title: string; sub: string }) {
 /* ── Preferences Panel ─── */
 
 const SIDEBAR_OPTIONS: { value: SidebarBehavior; label: string; desc: string }[] = [
-  { value: 'automatic', label: 'Automatic', desc: 'Collapses on narrow screens' },
-  { value: 'manual',    label: 'Manual',     desc: 'Drag to resize freely' },
+  { value: 'automatic', label: 'settings.automatic', desc: 'settings.automatic_desc' },
+  { value: 'manual',    label: 'settings.manual',     desc: 'settings.manual_desc' },
 ];
 
 function PreferencesPanel() {
+  const { t } = useTranslation();
   const { theme, sidebarBehavior, setTheme, setSidebarBehavior } = useTheme();
 
   return (
@@ -496,7 +499,7 @@ function PreferencesPanel() {
     >
       {/* Theme Presets */}
       <div>
-        <SectionTitle title="Color Theme" sub="Choose a unified look — colors, surfaces, and accents" />
+        <SectionTitle title={t('settings.color_theme')} sub={t('settings.theme_subtitle')} />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 20 }}>
           {THEME_PRESETS.map((p) => {
             const active = theme === p.id;
@@ -570,7 +573,7 @@ function PreferencesPanel() {
 
       {/* Sidebar Behavior */}
       <div>
-        <SectionTitle title="Sidebar Behavior" sub="How the navigation panel resizes" />
+        <SectionTitle title={t('settings.sidebar_behavior')} sub={t('settings.sidebar_subtitle')} />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 20 }}>
           {SIDEBAR_OPTIONS.map((opt) => {
             const active = sidebarBehavior === opt.value;
@@ -595,7 +598,7 @@ function PreferencesPanel() {
                   color: active ? 'var(--white)' : 'var(--text-mid)',
                   marginBottom: 4,
                 }}>
-                  {opt.label}
+                  {t(opt.label)}
                 </p>
                 <p style={{
                   fontFamily: 'var(--font-m)',
@@ -603,7 +606,7 @@ function PreferencesPanel() {
                   color: 'var(--text-dim)',
                   letterSpacing: '.03em',
                 }}>
-                  {opt.desc}
+                  {t(opt.desc)}
                 </p>
               </button>
             );

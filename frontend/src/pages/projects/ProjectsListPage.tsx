@@ -1,6 +1,7 @@
 // Projects list page
 import { useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { useProjects } from '../../hooks/useProjects';
 import { type Project, ProjectPriority, ProjectStatus } from '../../types/project.types';
@@ -71,7 +72,7 @@ const getPriorityStyle = (priority: ProjectPriority): CSSProperties => {
 };
 
 export const ProjectsListPage = () => {
-  
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { projects, loading, error, deleteProject } = useProjects();
@@ -88,11 +89,11 @@ export const ProjectsListPage = () => {
   });
 
   const handleDelete = async (project: Project) => {
-    if (window.confirm(`Are you sure you want to delete "${project.title}"?`)) {
+    if (window.confirm(t('projects.confirm_delete', { name: project.title }))) {
       try {
         await deleteProject(project.id);
       } catch (err) {
-        alert('Failed to delete project');
+        alert(t('projects.delete_failed'));
       }
     }
   };
@@ -134,7 +135,7 @@ export const ProjectsListPage = () => {
           e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
         }}
       >
-        View
+        {t('common.view')}
       </button>
       <button
         type="button"
@@ -162,7 +163,7 @@ export const ProjectsListPage = () => {
           e.currentTarget.style.color = 'var(--accent)';
         }}
       >
-        Edit
+        {t('common.edit')}
       </button>
       <button
         type="button"
@@ -190,7 +191,7 @@ export const ProjectsListPage = () => {
           e.currentTarget.style.color = 'var(--danger)';
         }}
       >
-        Delete
+        {t('common.delete')}
       </button>
     </div>
   );
@@ -219,7 +220,7 @@ export const ProjectsListPage = () => {
             color: 'var(--text-dim)',
           }}
         >
-          Loading projects...
+          {t('projects.loading')}
         </div>
       </div>
     );
@@ -240,7 +241,7 @@ export const ProjectsListPage = () => {
             lineHeight: 1.4,
           }}
         >
-          Error: {error}
+          {t('common.error', { message: error })}
         </div>
       </div>
     );
@@ -282,7 +283,7 @@ export const ProjectsListPage = () => {
               marginBottom: 4,
             }}
           >
-            Projects
+            {t('projects.title')}
           </h1>
           <p
             style={{
@@ -295,7 +296,7 @@ export const ProjectsListPage = () => {
               margin: 0,
             }}
           >
-            Track your active and completed projects
+            {t('projects.subtitle')}
           </p>
         </div>
         <div
@@ -327,7 +328,7 @@ export const ProjectsListPage = () => {
               boxSizing: 'border-box',
             }}
           >
-            <option value="ALL">All Statuses</option>
+            <option value="ALL">{t('common.all_statuses')}</option>
             {Object.values(ProjectStatus).map((status) => (
               <option key={status} value={status}>
                 {status}
@@ -361,7 +362,7 @@ export const ProjectsListPage = () => {
               e.currentTarget.style.background = 'var(--accent)';
             }}
           >
-            + New Project
+            {t('projects.new_project')}
           </button>
         </div>
       </div>
@@ -370,7 +371,7 @@ export const ProjectsListPage = () => {
       <div style={{ marginBottom: 20, width: '100%' }}>
         <input
           type="text"
-          placeholder={'Search projects by title, description, or client...'}
+          placeholder={t('projects.search_placeholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
@@ -414,7 +415,7 @@ export const ProjectsListPage = () => {
               color: 'var(--text-dim)',
             }}
           >
-            <p style={{ margin: 0 }}>No projects found.</p>
+            <p style={{ margin: 0 }}>{t('common.no_results', { item: t('nav.projects').toLowerCase() })}</p>
           </div>
         ) : isMobile ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '12px 0' }}>
@@ -434,7 +435,7 @@ export const ProjectsListPage = () => {
                   }}
                 >
                   <div style={{ marginBottom: 10 }}>
-                    <div style={projectLabelStyle}>Project</div>
+                    <div style={projectLabelStyle}>{t('projects.table.project')}</div>
                     <div
                       style={{
                         fontWeight: 500,
@@ -463,7 +464,7 @@ export const ProjectsListPage = () => {
                     )}
                   </div>
                   <div style={{ marginBottom: 10 }}>
-                    <div style={projectLabelStyle}>Client</div>
+                    <div style={projectLabelStyle}>{t('projects.table.client')}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <div
                         style={{
@@ -499,7 +500,7 @@ export const ProjectsListPage = () => {
                     </div>
                   </div>
                   <div style={{ marginBottom: 10 }}>
-                    <div style={projectLabelStyle}>Priority</div>
+                    <div style={projectLabelStyle}>{t('projects.table.priority')}</div>
                     <span
                       style={{
                         ...getPriorityStyle(priority),
@@ -517,11 +518,11 @@ export const ProjectsListPage = () => {
                     </span>
                   </div>
                   <div style={{ marginBottom: 10 }}>
-                    <div style={projectLabelStyle}>Status</div>
+                    <div style={projectLabelStyle}>{t('projects.table.status')}</div>
                     <ProjectStatusBadge status={project.status} />
                   </div>
                   <div style={{ marginBottom: 10 }}>
-                    <div style={projectLabelStyle}>Budget</div>
+                    <div style={projectLabelStyle}>{t('projects.table.budget')}</div>
                     <div
                       style={{
                         fontSize: 12,
@@ -535,7 +536,7 @@ export const ProjectsListPage = () => {
                     </div>
                   </div>
                   <div style={{ marginBottom: 12 }}>
-                    <div style={projectLabelStyle}>Deadline</div>
+                    <div style={projectLabelStyle}>{t('projects.table.deadline')}</div>
                     <div
                       style={{
                         fontSize: 12,
@@ -569,13 +570,13 @@ export const ProjectsListPage = () => {
             >
             <thead>
               <tr>
-                <th style={PROJECTS_TABLE_TH}>PROJECT</th>
-                <th style={PROJECTS_TABLE_TH}>CLIENT</th>
-                <th style={PROJECTS_TABLE_TH}>PRIORITY</th>
-                <th style={PROJECTS_TABLE_TH}>STATUS</th>
-                <th style={PROJECTS_TABLE_TH}>BUDGET</th>
-                <th style={PROJECTS_TABLE_TH}>DEADLINE</th>
-                <th style={{ ...PROJECTS_TABLE_TH, textAlign: 'right' }}>ACTIONS</th>
+                <th style={PROJECTS_TABLE_TH}>{t('projects.table.project')}</th>
+                <th style={PROJECTS_TABLE_TH}>{t('projects.table.client')}</th>
+                <th style={PROJECTS_TABLE_TH}>{t('projects.table.priority')}</th>
+                <th style={PROJECTS_TABLE_TH}>{t('projects.table.status')}</th>
+                <th style={PROJECTS_TABLE_TH}>{t('projects.table.budget')}</th>
+                <th style={PROJECTS_TABLE_TH}>{t('projects.table.deadline')}</th>
+                <th style={{ ...PROJECTS_TABLE_TH, textAlign: 'right' }}>{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>

@@ -1,11 +1,13 @@
 // Create invoice page
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useInvoices } from '../../hooks/useInvoices';
 import { InvoiceForm } from '../../components/invoices/InvoiceForm';
 import { type InvoiceFormData } from '../../utils/validation';
 
 export const CreateInvoicePage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { createInvoice } = useInvoices();
@@ -20,7 +22,7 @@ export const CreateInvoicePage = () => {
       await createInvoice(data);
       navigate('/invoices');
     } catch (err: any) {
-      alert(err.message || 'Failed to create invoice');
+      alert(err.message || t('invoices.create_failed'));
     } finally {
       setIsLoading(false);
     }
@@ -28,7 +30,7 @@ export const CreateInvoicePage = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text)' }}>Create New Invoice</h1>
+      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text)' }}>{t('invoices.create_title')}</h1>
       {proposalId && (
         <div
           style={{
@@ -40,7 +42,7 @@ export const CreateInvoicePage = () => {
             borderRadius: 8,
           }}
         >
-          Creating invoice from proposal...
+          {t('invoices.creating_from_proposal')}
         </div>
       )}
       <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24, maxWidth: 768 }}>

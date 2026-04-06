@@ -1,6 +1,7 @@
 // Invoice detail page
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { invoicesService } from '../../services/data.service';
 import { type Invoice, InvoiceStatus } from '../../types/invoice.types';
 import { type ApiError } from '../../types/common.types';
@@ -12,6 +13,7 @@ import { markInvoicePaidSchema, type MarkInvoicePaidFormData } from '../../utils
 import { useStore } from '../../hooks/useStore';
 
 export const InvoiceDetailPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { addNotification } = useStore();
@@ -48,7 +50,7 @@ export const InvoiceDetailPage = () => {
         });
       } catch (err) {
         const apiError = err as ApiError;
-        setError(apiError.message || 'Failed to load invoice');
+        setError(apiError.message || t('invoices.load_failed'));
       } finally {
         setLoading(false);
       }
@@ -69,7 +71,7 @@ export const InvoiceDetailPage = () => {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err: any) {
-      alert(err.message || 'Failed to generate PDF');
+      alert(err.message || t('invoices.pdf_failed'));
     }
   };
 
@@ -83,18 +85,18 @@ export const InvoiceDetailPage = () => {
       reset();
       addNotification({
         type: 'success',
-        title: 'Invoice updated',
+        title: t('invoices.updated'),
         message: `Invoice was marked as paid (${Number(data.amount).toFixed(2)}).`,
       });
     } catch (err: any) {
-      alert(err.message || 'Failed to mark invoice as paid');
+      alert(err.message || t('invoices.mark_paid_failed'));
     }
   };
 
   if (loading) {
     return (
       <div className="p-6">
-        <div className="text-center py-8">Loading invoice...</div>
+        <div className="text-center py-8">{t('invoices.detail_loading')}</div>
       </div>
     );
   }
@@ -111,7 +113,7 @@ export const InvoiceDetailPage = () => {
             borderRadius: 8,
           }}
         >
-          {error || 'Invoice not found'}
+          {error || t('invoices.not_found')}
         </div>
       </div>
     );
@@ -121,7 +123,7 @@ export const InvoiceDetailPage = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Invoice</h1>
+          <h1 className="text-2xl font-bold">{t('invoices.title')}</h1>
           <div className="mt-2">
             <InvoiceStatusBadge status={invoice.status} />
           </div>
@@ -143,7 +145,7 @@ export const InvoiceDetailPage = () => {
               letterSpacing: '.06em',
             }}
           >
-            Download PDF
+            {t('common.download_pdf')}
           </button>
           <button
             onClick={() => navigate(`/invoices/${invoice.id}/edit`)}
@@ -161,7 +163,7 @@ export const InvoiceDetailPage = () => {
               letterSpacing: '.06em',
             }}
           >
-            Edit
+            {t('common.edit')}
           </button>
           <button
             onClick={() => navigate('/invoices')}
@@ -179,7 +181,7 @@ export const InvoiceDetailPage = () => {
               letterSpacing: '.06em',
             }}
           >
-            Back to List
+            {t('common.back_to_list')}
           </button>
         </div>
       </div>
@@ -187,24 +189,24 @@ export const InvoiceDetailPage = () => {
       <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24, marginBottom: 16 }}>
         <div className="space-y-4">
           <div>
-            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Project</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.project')}</h3>
             <p style={{ marginTop: 4, color: 'var(--text)' }}>{invoice.project?.title || '—'}</p>
           </div>
           <div>
-            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Amount</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.amount')}</h3>
             <p style={{ marginTop: 4, fontSize: 18, fontWeight: 600, color: 'var(--text)' }}>{formatCurrency(Number(invoice.amount))}</p>
           </div>
           <div>
-            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Due Date</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.due_date')}</h3>
             <p style={{ marginTop: 4, color: 'var(--text)' }}>{formatDate(invoice.dueDate)}</p>
           </div>
           <div>
-            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Notes</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.notes')}</h3>
             <p style={{ marginTop: 4, color: 'var(--text)', whiteSpace: 'pre-wrap' }}>{invoice.notes || '—'}</p>
           </div>
           {invoice.payments && invoice.payments.length > 0 && (
             <div>
-              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 8 }}>Payments</h3>
+              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 8 }}>{t('invoices.payments')}</h3>
               <div className="space-y-2">
                 {invoice.payments.map((payment) => (
                   <div key={payment.id} style={{ borderLeft: '4px solid var(--success)', paddingLeft: 12 }}>
@@ -220,7 +222,7 @@ export const InvoiceDetailPage = () => {
 
       {invoice.status !== InvoiceStatus.PAID && (
         <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: 'var(--text)' }}>Mark as Paid</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: 'var(--text)' }}>{t('common.mark_as_paid')}</h2>
           {!showMarkPaidForm ? (
             <button
               onClick={() => setShowMarkPaidForm(true)}
@@ -233,13 +235,13 @@ export const InvoiceDetailPage = () => {
                 cursor: 'pointer',
               }}
             >
-              Mark as Paid
+              {t('common.mark_as_paid')}
             </button>
           ) : (
             <form onSubmit={handleSubmit(handleMarkPaid)} className="space-y-4">
               <div>
                 <label htmlFor="amount" className="block text-sm font-medium mb-1" style={{ color: 'var(--text)' }}>
-                  Amount <span style={{ color: 'var(--danger)' }}>*</span>
+                  {t('common.amount')} <span style={{ color: 'var(--danger)' }}>*</span>
                 </label>
                 <input
                   id="amount"
@@ -261,7 +263,7 @@ export const InvoiceDetailPage = () => {
               </div>
               <div>
                 <label htmlFor="method" className="block text-sm font-medium mb-1" style={{ color: 'var(--text)' }}>
-                  Payment Method <span style={{ color: 'var(--danger)' }}>*</span>
+                  {t('common.payment_method')} <span style={{ color: 'var(--danger)' }}>*</span>
                 </label>
                 <input
                   id="method"
@@ -281,7 +283,7 @@ export const InvoiceDetailPage = () => {
               </div>
               <div>
                 <label htmlFor="notes" className="block text-sm font-medium mb-1" style={{ color: 'var(--text)' }}>
-                  Notes
+                  {t('common.notes')}
                 </label>
                 <textarea
                   id="notes"
@@ -319,7 +321,7 @@ export const InvoiceDetailPage = () => {
                     letterSpacing: '.06em',
                   }}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -337,7 +339,7 @@ export const InvoiceDetailPage = () => {
                     letterSpacing: '.06em',
                   }}
                 >
-                  Mark as Paid
+                  {t('common.mark_as_paid')}
                 </button>
               </div>
             </form>

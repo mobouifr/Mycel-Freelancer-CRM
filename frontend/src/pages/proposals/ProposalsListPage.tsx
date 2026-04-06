@@ -1,11 +1,13 @@
 // Proposals list page
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useProposals } from '../../hooks/useProposals';
 import { type Proposal, ProposalStatus } from '../../types/proposal.types';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 
 export const ProposalsListPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { proposals, loading, error, deleteProposal } = useProposals();
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,11 +23,11 @@ export const ProposalsListPage = () => {
   });
 
   const handleDelete = async (proposal: Proposal) => {
-    if (window.confirm(`Are you sure you want to delete "${proposal.title}"?`)) {
+    if (window.confirm(t('proposals.confirm_delete', { name: proposal.title }))) {
       try {
         await deleteProposal(proposal.id);
       } catch (err) {
-        alert('Failed to delete proposal');
+        alert(t('proposals.delete_failed'));
       }
     }
   };
@@ -68,7 +70,7 @@ export const ProposalsListPage = () => {
   if (loading) {
     return (
       <div style={{ padding: '24px' }}>
-        <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text)' }}>Loading proposals...</div>
+        <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text)' }}>{t('proposals.loading')}</div>
       </div>
     );
   }
@@ -85,7 +87,7 @@ export const ProposalsListPage = () => {
             borderRadius: '8px',
           }}
         >
-          Error: {error}
+          {t('common.error', { message: error })}
         </div>
       </div>
     );
@@ -120,7 +122,7 @@ export const ProposalsListPage = () => {
               marginBottom: 4,
             }}
           >
-            Proposals
+            {t('proposals.title')}
           </h1>
           <p
             style={{
@@ -130,7 +132,7 @@ export const ProposalsListPage = () => {
               letterSpacing: '.04em',
             }}
           >
-            Create and track proposals for your clients
+            {t('proposals.subtitle')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -148,7 +150,7 @@ export const ProposalsListPage = () => {
               outline: 'none',
             }}
           >
-            <option value="ALL">All Statuses</option>
+            <option value="ALL">{t('common.all_statuses')}</option>
             {Object.values(ProposalStatus).map((status) => (
               <option key={status} value={status}>
                 {status}
@@ -177,7 +179,7 @@ export const ProposalsListPage = () => {
               e.currentTarget.style.backgroundColor = 'var(--accent)';
             }}
           >
-            + New Proposal
+            {t('proposals.new_proposal')}
           </button>
         </div>
       </div>
@@ -186,7 +188,7 @@ export const ProposalsListPage = () => {
       <div style={{ marginBottom: 20 }}>
         <input
           type="text"
-          placeholder="Search proposals by title, project, or status..."
+          placeholder={t('proposals.search_placeholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
@@ -216,7 +218,7 @@ export const ProposalsListPage = () => {
         {/* Table */}
         {filteredProposals.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-dim)' }}>
-            <p>No proposals found.</p>
+            <p>{t('common.no_results', { item: t('nav.proposals').toLowerCase() })}</p>
           </div>
         ) : (
           <table
@@ -239,7 +241,7 @@ export const ProposalsListPage = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  TITLE
+                  {t('proposals.table.title')}
                 </th>
                 <th
                   style={{
@@ -253,7 +255,7 @@ export const ProposalsListPage = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  PROJECT
+                  {t('proposals.table.project')}
                 </th>
                 <th
                   style={{
@@ -267,7 +269,7 @@ export const ProposalsListPage = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  STATUS
+                  {t('proposals.table.status')}
                 </th>
                 <th
                   style={{
@@ -281,7 +283,7 @@ export const ProposalsListPage = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  AMOUNT
+                  {t('proposals.table.amount')}
                 </th>
                 <th
                   style={{
@@ -295,7 +297,7 @@ export const ProposalsListPage = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  VALID UNTIL
+                  {t('proposals.table.valid_until')}
                 </th>
                 <th
                   style={{
@@ -309,7 +311,7 @@ export const ProposalsListPage = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  ACTIONS
+                  {t('common.actions')}
                 </th>
               </tr>
             </thead>
@@ -410,7 +412,7 @@ export const ProposalsListPage = () => {
                           e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
                         }}
                       >
-                        View
+                        {t('common.view')}
                       </button>
                       <button
                         onClick={() => navigate(`/proposals/${proposal.id}/edit`)}
@@ -436,7 +438,7 @@ export const ProposalsListPage = () => {
                           e.currentTarget.style.color = 'var(--accent)';
                         }}
                       >
-                        Edit
+                        {t('common.edit')}
                       </button>
                       <button
                         onClick={() => handleDelete(proposal)}
@@ -462,7 +464,7 @@ export const ProposalsListPage = () => {
                           e.currentTarget.style.color = 'var(--danger)';
                         }}
                       >
-                        Delete
+                        {t('common.delete')}
                       </button>
                     </div>
                   </td>

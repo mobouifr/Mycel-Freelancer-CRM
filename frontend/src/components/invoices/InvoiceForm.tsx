@@ -1,6 +1,7 @@
 // Invoice form component
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { invoiceSchema, type InvoiceFormData } from '../../utils/validation';
 import { type Invoice, InvoiceStatus } from '../../types/invoice.types';
 import { formatDateInput } from '../../utils/formatters';
@@ -14,6 +15,7 @@ interface InvoiceFormProps {
 }
 
 export const InvoiceForm = ({ invoice, onSubmit, onCancel, isLoading = false }: InvoiceFormProps) => {
+  const { t } = useTranslation();
   const { projects } = useProjects();
 
   const {
@@ -54,7 +56,7 @@ export const InvoiceForm = ({ invoice, onSubmit, onCancel, isLoading = false }: 
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div>
         <label htmlFor="projectId" className="block text-sm font-medium mb-1">
-          Project <span className="text-red-500">*</span>
+          {t('forms.invoice.project')} <span className="text-red-500">*</span>
         </label>
         <select
           id="projectId"
@@ -62,7 +64,7 @@ export const InvoiceForm = ({ invoice, onSubmit, onCancel, isLoading = false }: 
           className="w-full rounded-md focus:outline-none"
           style={fieldBoxStyle}
         >
-          <option value="">Select a project</option>
+          <option value="">{t('forms.invoice.select_project')}</option>
           {projects.map((project) => (
             <option key={project.id} value={project.id}>
               {project.title} - {project.client?.name || 'No client'}
@@ -75,7 +77,7 @@ export const InvoiceForm = ({ invoice, onSubmit, onCancel, isLoading = false }: 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="amount" className="block text-sm font-medium mb-1">
-            Amount <span className="text-red-500">*</span>
+            {t('forms.invoice.amount')} <span className="text-red-500">*</span>
           </label>
           <input
             id="amount"
@@ -91,7 +93,7 @@ export const InvoiceForm = ({ invoice, onSubmit, onCancel, isLoading = false }: 
 
         <div>
           <label htmlFor="status" className="block text-sm font-medium mb-1">
-            Status
+            {t('forms.invoice.status')}
           </label>
           <select
             id="status"
@@ -99,17 +101,17 @@ export const InvoiceForm = ({ invoice, onSubmit, onCancel, isLoading = false }: 
             className="w-full rounded-md focus:outline-none"
             style={fieldBoxStyle}
           >
-            <option value={InvoiceStatus.PENDING}>Pending</option>
-            <option value={InvoiceStatus.PAID}>Paid</option>
-            <option value={InvoiceStatus.OVERDUE}>Overdue</option>
-            <option value={InvoiceStatus.CANCELLED}>Cancelled</option>
+            <option value={InvoiceStatus.PENDING}>{t('forms.invoice.pending')}</option>
+            <option value={InvoiceStatus.PAID}>{t('forms.invoice.paid')}</option>
+            <option value={InvoiceStatus.OVERDUE}>{t('forms.invoice.overdue')}</option>
+            <option value={InvoiceStatus.CANCELLED}>{t('forms.invoice.cancelled')}</option>
           </select>
         </div>
       </div>
 
       <div>
         <label htmlFor="dueDate" className="block text-sm font-medium mb-1">
-          Due Date
+          {t('forms.invoice.due_date')}
         </label>
         <input
           id="dueDate"
@@ -123,7 +125,7 @@ export const InvoiceForm = ({ invoice, onSubmit, onCancel, isLoading = false }: 
 
       <div>
         <label htmlFor="notes" className="block text-sm font-medium mb-1">
-          Notes
+          {t('forms.invoice.notes')}
         </label>
         <textarea
           id="notes"
@@ -171,7 +173,7 @@ export const InvoiceForm = ({ invoice, onSubmit, onCancel, isLoading = false }: 
               e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
             }}
           >
-            Cancel
+            {t('common.cancel')}
           </button>
         )}
         <button
@@ -200,7 +202,7 @@ export const InvoiceForm = ({ invoice, onSubmit, onCancel, isLoading = false }: 
             e.currentTarget.style.color = 'var(--accent)';
           }}
         >
-          {isSubmitting || isLoading ? 'Saving...' : invoice ? 'Update Invoice' : 'Create Invoice'}
+          {isSubmitting || isLoading ? t('common.saving') : invoice ? t('forms.invoice.update') : t('forms.invoice.create')}
         </button>
       </div>
     </form>

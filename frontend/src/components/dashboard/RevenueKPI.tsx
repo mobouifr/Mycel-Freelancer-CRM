@@ -1,4 +1,5 @@
 import RevenueChart from '../RevenueChart';
+import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
 
 /* ─────────────────────────────────────────────
@@ -14,6 +15,7 @@ const PREVIOUS_REVENUE = 44_200;
 const TREND_PCT = Math.round(((CURRENT_REVENUE - PREVIOUS_REVENUE) / PREVIOUS_REVENUE) * 100);
 
 function RevenueKPI() {
+  const { t } = useTranslation();
   const isUp = TREND_PCT >= 0;
 
   return (
@@ -31,7 +33,7 @@ function RevenueKPI() {
             fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)',
             letterSpacing: '.04em', marginTop: 4,
           }}>
-            net revenue this month
+            {t('revenue.net_revenue')}
           </p>
         </div>
 
@@ -60,9 +62,9 @@ function RevenueKPI() {
       {/* Mini stat pills */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
         {[
-          { label: 'Avg / Month', value: `$${Math.round(MONTHLY_REVENUE.reduce((a, b) => a + b, 0) / MONTHLY_REVENUE.length)}k` },
-          { label: 'Best Month', value: `$${Math.max(...MONTHLY_REVENUE)}k` },
-          { label: 'Invoices Paid', value: '14' },
+          { label: t('revenue.avg_month'), value: `$${Math.round(MONTHLY_REVENUE.reduce((a, b) => a + b, 0) / MONTHLY_REVENUE.length)}k` },
+          { label: t('revenue.best_month'), value: `$${Math.max(...MONTHLY_REVENUE)}k` },
+          { label: t('revenue.invoices_paid'), value: '14' },
         ].map((s) => (
           <div key={s.label} style={{
             flex: 1,

@@ -1,27 +1,28 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Modal from '../Modal';
 import type { CalendarEvent, EventType, EventPriority } from '../../hooks/useStore';
 import { useTheme } from '../../hooks/useTheme';
 
-const EVENT_TYPES: { value: EventType; label: string }[] = [
-  { value: 'event', label: 'Event' },
-  { value: 'meeting', label: 'Meeting' },
-  { value: 'deadline', label: 'Deadline' },
-  { value: 'milestone', label: 'Milestone' },
-  { value: 'follow-up', label: 'Follow-up' },
+const EVENT_TYPE_KEYS: { value: EventType; key: string }[] = [
+  { value: 'event', key: 'event_modal.event' },
+  { value: 'meeting', key: 'event_modal.meeting' },
+  { value: 'deadline', key: 'event_modal.deadline' },
+  { value: 'milestone', key: 'event_modal.milestone' },
+  { value: 'follow-up', key: 'event_modal.follow_up' },
 ];
 
-const PRIORITIES: { value: EventPriority; label: string }[] = [
-  { value: 'low', label: 'Low' },
-  { value: 'normal', label: 'Normal' },
-  { value: 'high', label: 'High' },
+const PRIORITY_KEYS: { value: EventPriority; key: string }[] = [
+  { value: 'low', key: 'event_modal.low' },
+  { value: 'normal', key: 'event_modal.normal' },
+  { value: 'high', key: 'event_modal.high' },
 ];
 
-const RECURRENCE_OPTIONS = [
-  { value: 'none', label: 'No repeat' },
-  { value: 'daily', label: 'Daily' },
-  { value: 'weekly', label: 'Weekly' },
-  { value: 'monthly', label: 'Monthly' },
+const RECURRENCE_KEYS = [
+  { value: 'none', key: 'event_modal.no_repeat' },
+  { value: 'daily', key: 'event_modal.daily' },
+  { value: 'weekly', key: 'event_modal.weekly' },
+  { value: 'monthly', key: 'event_modal.monthly' },
 ];
 
 interface EventModalProps {
@@ -54,6 +55,7 @@ function EventModalInner({
   onClose, onSave, onDelete, onConvertToTodo,
   initialData, defaultDate, defaultTime,
 }: Omit<EventModalProps, 'isOpen'>) {
+  const { t } = useTranslation();
   const { mode } = useTheme();
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
@@ -91,13 +93,13 @@ function EventModalInner({
   const isEditing = !!initialData?.id;
 
   return (
-    <Modal isOpen onClose={onClose} title={isEditing ? 'Edit Event' : 'New Event'} width={520}>
+    <Modal isOpen onClose={onClose} title={isEditing ? t('event_modal.edit_event') : t('event_modal.new_event')} width={520}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {/* Title */}
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Event title"
+          placeholder={t('event_modal.event_title_placeholder')}
           autoFocus
           style={inputStyle}
         />
@@ -105,26 +107,26 @@ function EventModalInner({
         {/* Type & Priority row */}
         <div style={{ display: 'flex', gap: 10 }}>
           <div style={{ flex: 1 }}>
-            <label style={labelStyle}>Type</label>
+            <label style={labelStyle}>{t('event_modal.type')}</label>
             <select
               value={eventType}
               onChange={(e) => setEventType(e.target.value as EventType)}
               style={selectStyle}
             >
-              {EVENT_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>{t.label}</option>
+              {EVENT_TYPE_KEYS.map((et) => (
+                <option key={et.value} value={et.value}>{t(et.key)}</option>
               ))}
             </select>
           </div>
           <div style={{ flex: 1 }}>
-            <label style={labelStyle}>Priority</label>
+            <label style={labelStyle}>{t('event_modal.priority')}</label>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as EventPriority)}
               style={selectStyle}
             >
-              {PRIORITIES.map((p) => (
-                <option key={p.value} value={p.value}>{p.label}</option>
+              {PRIORITY_KEYS.map((p) => (
+                <option key={p.value} value={p.value}>{t(p.key)}</option>
               ))}
             </select>
           </div>
@@ -133,7 +135,7 @@ function EventModalInner({
         {/* Date/Time row */}
         <div style={{ display: 'flex', gap: 10 }}>
           <div style={{ flex: 1 }}>
-            <label style={labelStyle}>Start Date</label>
+            <label style={labelStyle}>{t('event_modal.start_date')}</label>
             <input
               type="date"
               value={date}
@@ -142,7 +144,7 @@ function EventModalInner({
             />
           </div>
           <div style={{ flex: 1 }}>
-            <label style={labelStyle}>Start Time</label>
+            <label style={labelStyle}>{t('event_modal.start_time')}</label>
             <input
               type="time"
               value={time}
@@ -154,7 +156,7 @@ function EventModalInner({
 
         <div style={{ display: 'flex', gap: 10 }}>
           <div style={{ flex: 1 }}>
-            <label style={labelStyle}>End Date</label>
+            <label style={labelStyle}>{t('event_modal.end_date')}</label>
             <input
               type="date"
               value={endDate}
@@ -163,7 +165,7 @@ function EventModalInner({
             />
           </div>
           <div style={{ flex: 1 }}>
-            <label style={labelStyle}>End Time</label>
+            <label style={labelStyle}>{t('event_modal.end_time')}</label>
             <input
               type="time"
               value={endTime}
@@ -175,11 +177,11 @@ function EventModalInner({
 
         {/* Description */}
         <div>
-          <label style={labelStyle}>Description</label>
+          <label style={labelStyle}>{t('event_modal.description')}</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Add details..."
+            placeholder={t('event_modal.add_details')}
             rows={3}
             style={{ ...inputStyle, resize: 'vertical', minHeight: 60 }}
           />
@@ -188,20 +190,20 @@ function EventModalInner({
         {/* Linked Project / Client */}
         <div style={{ display: 'flex', gap: 10 }}>
           <div style={{ flex: 1 }}>
-            <label style={labelStyle}>Project</label>
+            <label style={labelStyle}>{t('event_modal.project')}</label>
             <input
               value={projectTag}
               onChange={(e) => setProjectTag(e.target.value)}
-              placeholder="Project name"
+              placeholder={t('event_modal.project_placeholder')}
               style={inputStyle}
             />
           </div>
           <div style={{ flex: 1 }}>
-            <label style={labelStyle}>Client</label>
+            <label style={labelStyle}>{t('event_modal.client')}</label>
             <input
               value={clientTag}
               onChange={(e) => setClientTag(e.target.value)}
-              placeholder="Client name"
+              placeholder={t('event_modal.client_placeholder')}
               style={inputStyle}
             />
           </div>
@@ -210,29 +212,29 @@ function EventModalInner({
         {/* Reminder & Recurrence */}
         <div style={{ display: 'flex', gap: 10 }}>
           <div style={{ flex: 1 }}>
-            <label style={labelStyle}>Reminder (min before)</label>
+            <label style={labelStyle}>{t('event_modal.reminder')}</label>
             <select
               value={reminderOffset}
               onChange={(e) => setReminderOffset(Number(e.target.value))}
               style={selectStyle}
             >
-              <option value={0}>None</option>
-              <option value={5}>5 min</option>
-              <option value={15}>15 min</option>
-              <option value={30}>30 min</option>
-              <option value={60}>1 hour</option>
-              <option value={1440}>1 day</option>
+              <option value={0}>{t('event_modal.none')}</option>
+              <option value={5}>{t('event_modal.5_min')}</option>
+              <option value={15}>{t('event_modal.15_min')}</option>
+              <option value={30}>{t('event_modal.30_min')}</option>
+              <option value={60}>{t('event_modal.1_hour')}</option>
+              <option value={1440}>{t('event_modal.1_day')}</option>
             </select>
           </div>
           <div style={{ flex: 1 }}>
-            <label style={labelStyle}>Recurrence</label>
+            <label style={labelStyle}>{t('event_modal.recurrence')}</label>
             <select
               value={recurrence}
               onChange={(e) => setRecurrence(e.target.value)}
               style={selectStyle}
             >
-              {RECURRENCE_OPTIONS.map((r) => (
-                <option key={r.value} value={r.value}>{r.label}</option>
+              {RECURRENCE_KEYS.map((r) => (
+                <option key={r.value} value={r.value}>{t(r.key)}</option>
               ))}
             </select>
           </div>
@@ -245,18 +247,18 @@ function EventModalInner({
         }}>
           <div style={{ display: 'flex', gap: 8 }}>
             {isEditing && onDelete && (
-              <button onClick={onDelete} style={dangerBtn}>Delete</button>
+              <button onClick={onDelete} style={dangerBtn}>{t('common.delete')}</button>
             )}
             {isEditing && onConvertToTodo && (
               <button onClick={onConvertToTodo} style={secondaryBtn}>
-                Convert to Todo
+                {t('event_modal.convert_to_todo')}
               </button>
             )}
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={onClose} style={secondaryBtn}>Cancel</button>
+            <button onClick={onClose} style={secondaryBtn}>{t('common.cancel')}</button>
             <button onClick={handleSubmit} style={primaryBtn}>
-              {isEditing ? 'Update' : 'Create'}
+              {isEditing ? t('common.update') : t('common.create')}
             </button>
           </div>
         </div>

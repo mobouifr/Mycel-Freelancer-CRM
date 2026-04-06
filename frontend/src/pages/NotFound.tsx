@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
 import { LogoMark } from '../components';
 
 export default function NotFound() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { mode: themeMode, cycleQuickTheme, theme } = useTheme();
   const textRef = useRef<HTMLParagraphElement>(null);
@@ -16,7 +18,7 @@ export default function NotFound() {
 
   const startAnimation = () => {
     // Typewriter effect
-    const text = "404, page not found.";
+    const text = t('not_found.text');
     let currentText = "";
     let charIndex = 0;
     
@@ -152,7 +154,7 @@ export default function NotFound() {
                 textTransform: 'uppercase', // Uppercase text
               }}
             >
-              404, page not found.
+              {t('not_found.text')}
             </p>
             <span 
               className="handle" 
@@ -196,7 +198,7 @@ export default function NotFound() {
               e.currentTarget.style.boxShadow = 'none';
             }}
           >
-            GO HOME
+            {t('not_found.go_home')}
           </button>
         </div>
       </div>

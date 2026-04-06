@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { LogoMark } from '../components';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
@@ -75,13 +76,13 @@ interface NavEntry {
 }
 
 const NAV_ITEMS: NavEntry[] = [
-  { icon: 'dashboard',  label: 'Dashboard',  path: '/' },
-  { icon: 'clients',    label: 'Clients',    path: '/clients' },
-  { icon: 'projects',   label: 'Projects',   path: '/projects' },
-  { icon: 'proposals',  label: 'Proposals',  path: '/proposals' },
-  { icon: 'invoices',   label: 'Invoices',   path: '/invoices' },
-  { icon: 'reminders',  label: 'Reminders',  path: '/reminders' },
-  { icon: 'ecosystem',  label: 'Ecosystem',  path: '/ecosystem' },
+  { icon: 'dashboard',  label: 'nav.dashboard',  path: '/' },
+  { icon: 'clients',    label: 'nav.clients',    path: '/clients' },
+  { icon: 'projects',   label: 'nav.projects',   path: '/projects' },
+  { icon: 'proposals',  label: 'nav.proposals',  path: '/proposals' },
+  { icon: 'invoices',   label: 'nav.invoices',   path: '/invoices' },
+  { icon: 'reminders',  label: 'nav.reminders',  path: '/reminders' },
+  { icon: 'ecosystem',  label: 'nav.ecosystem',  path: '/ecosystem' },
 ];
 
 const COLLAPSED_W = 64;
@@ -100,6 +101,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { sidebarBehavior, sidebarManualWidth, setSidebarManualWidth } = useTheme();
+  const { t } = useTranslation();
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   const go = (path: string) => {
@@ -249,7 +251,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
           transition: 'opacity .25s var(--ease)',
         }}
       >
-        Menu
+        {t('nav.menu')}
       </div>
 
       {/* ── Nav items ── */}
@@ -308,7 +310,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
                 overflow: 'hidden',
               }}
             >
-              {n.label}
+              {t(n.label)}
             </span>
 
             {/* Tooltip (only when collapsed) */}
@@ -335,7 +337,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
                   boxShadow: '0 4px 12px rgba(0,0,0,.4)',
                 }}
               >
-                {n.label}
+                {t(n.label)}
               </span>
             )}
           </button>
@@ -404,7 +406,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
             overflow: 'hidden',
           }}
         >
-          Settings
+          {t('nav.settings')}
         </span>
       </button>
 
@@ -457,7 +459,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
             overflow: 'hidden',
           }}
         >
-          Sign out
+          {t('nav.sign_out')}
         </span>
       </button>
 

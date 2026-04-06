@@ -38,8 +38,8 @@ const ICON = {
 const REGISTRY: WidgetEntry[] = [
   {
     id: 'calendar',
-    label: 'Calendar + Upcoming',
-    description: 'Month view with event dots and upcoming events list',
+    label: 'widgets.calendar.label',
+    description: 'widgets.calendar.description',
     icon: ICON.calendar,
     defaultW: 6,
     defaultH: 5,
@@ -49,8 +49,8 @@ const REGISTRY: WidgetEntry[] = [
   },
   {
     id: 'notes',
-    label: 'Notes Quick-Capture',
-    description: 'Composer and 3 most recent notes',
+    label: 'widgets.notes.label',
+    description: 'widgets.notes.description',
     icon: ICON.notes,
     defaultW: 6,
     defaultH: 3,
@@ -60,8 +60,8 @@ const REGISTRY: WidgetEntry[] = [
   },
   {
     id: 'revenue',
-    label: 'Revenue KPI',
-    description: 'Big KPI number with mini sparkline chart',
+    label: 'widgets.revenue.label',
+    description: 'widgets.revenue.description',
     icon: ICON.revenue,
     defaultW: 4,
     defaultH: 3,
@@ -71,8 +71,8 @@ const REGISTRY: WidgetEntry[] = [
   },
   {
     id: 'invoices',
-    label: 'Invoices Due',
-    description: 'Unpaid invoices with quick reminder actions',
+    label: 'widgets.invoices.label',
+    description: 'widgets.invoices.description',
     icon: ICON.invoices,
     defaultW: 4,
     defaultH: 3,
@@ -82,8 +82,8 @@ const REGISTRY: WidgetEntry[] = [
   },
   {
     id: 'activity',
-    label: 'Activity Feed',
-    description: 'Recent activity stream with timestamps',
+    label: 'widgets.activity.label',
+    description: 'widgets.activity.description',
     icon: ICON.activity,
     defaultW: 8,
     defaultH: 3,
@@ -93,8 +93,8 @@ const REGISTRY: WidgetEntry[] = [
   },
   {
     id: 'projects',
-    label: 'Projects Progress',
-    description: 'Active projects with progress bars',
+    label: 'widgets.projects.label',
+    description: 'widgets.projects.description',
     icon: ICON.projects,
     defaultW: 4,
     defaultH: 3,
@@ -104,8 +104,8 @@ const REGISTRY: WidgetEntry[] = [
   },
   {
     id: 'suggestions',
-    label: 'Smart Suggestions',
-    description: 'AI-powered actionable insights for your workflow',
+    label: 'widgets.suggestions.label',
+    description: 'widgets.suggestions.description',
     icon: ICON.suggestions,
     defaultW: 4,
     defaultH: 3,
@@ -115,8 +115,8 @@ const REGISTRY: WidgetEntry[] = [
   },
   {
     id: 'ecosystem',
-    label: 'Living Ecosystem',
-    description: 'A generative plant that grows with your usage',
+    label: 'widgets.ecosystem.label',
+    description: 'widgets.ecosystem.description',
     icon: ICON.ecosystem,
     defaultW: 3,
     defaultH: 3,

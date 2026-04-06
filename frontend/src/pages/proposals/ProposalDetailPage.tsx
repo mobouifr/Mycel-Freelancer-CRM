@@ -1,6 +1,7 @@
 // Proposal detail page
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { proposalsService } from '../../services/data.service';
 import { type Proposal, ProposalStatus } from '../../types/proposal.types';
 import { type ApiError } from '../../types/common.types';
@@ -8,6 +9,7 @@ import { formatDate, formatCurrency } from '../../utils/formatters';
 import { useStore } from '../../hooks/useStore';
 
 export const ProposalDetailPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { addNotification } = useStore();
@@ -24,7 +26,7 @@ export const ProposalDetailPage = () => {
         setProposal(data);
       } catch (err) {
         const apiError = err as ApiError;
-        setError(apiError.message || 'Failed to load proposal');
+        setError(apiError.message || t('proposals.load_failed'));
       } finally {
         setLoading(false);
       }
@@ -40,12 +42,12 @@ export const ProposalDetailPage = () => {
         setProposal({ ...proposal, status: newStatus });
         addNotification({
           type: 'info',
-          title: 'Proposal updated',
+          title: t('proposals.updated'),
           message: `"${proposal.title}" status changed to ${newStatus}.`,
         });
       }
     } catch (err: any) {
-      alert(err.message || 'Failed to update status');
+      alert(err.message || t('proposals.update_failed'));
     }
   };
 
@@ -62,33 +64,33 @@ export const ProposalDetailPage = () => {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err: any) {
-      alert(err.message || 'Failed to generate PDF');
+      alert(err.message || t('proposals.pdf_failed'));
     }
   };
 
   const handleConvertToInvoice = async () => {
     if (!id) return;
-    const dueDate = prompt('Enter due date (YYYY-MM-DD):');
+    const dueDate = prompt(t('proposals.enter_due_date'));
     if (!dueDate) return;
     try {
       const invoice = await proposalsService.convertToInvoice(id, dueDate);
       addNotification({
         type: 'success',
-        title: 'Invoice created',
+        title: t('proposals.invoice_created'),
         message: proposal
           ? `Proposal "${proposal.title}" was converted to an invoice.`
           : 'A proposal was converted to an invoice.',
       });
       navigate(`/invoices/${invoice.id}`);
     } catch (err: any) {
-      alert(err.message || 'Failed to convert to invoice');
+      alert(err.message || t('proposals.convert_failed'));
     }
   };
 
   if (loading) {
     return (
       <div className="p-6">
-        <div className="text-center py-8">Loading proposal...</div>
+        <div className="text-center py-8">{t('proposals.detail_loading')}</div>
       </div>
     );
   }
@@ -105,7 +107,7 @@ export const ProposalDetailPage = () => {
             borderRadius: 8,
           }}
         >
-          {error || 'Proposal not found'}
+          {error || t('proposals.not_found')}
         </div>
       </div>
     );
@@ -170,7 +172,7 @@ export const ProposalDetailPage = () => {
               letterSpacing: '.06em',
             }}
           >
-            Download PDF
+            {t('common.download_pdf')}
           </button>
           <button
             onClick={() => navigate(`/proposals/${proposal.id}/edit`)}
@@ -188,7 +190,7 @@ export const ProposalDetailPage = () => {
               letterSpacing: '.06em',
             }}
           >
-            Edit
+            {t('common.edit')}
           </button>
           <button
             onClick={() => navigate('/proposals')}
@@ -206,7 +208,7 @@ export const ProposalDetailPage = () => {
               letterSpacing: '.06em',
             }}
           >
-            Back to List
+            {t('common.back_to_list')}
           </button>
         </div>
       </div>
@@ -214,26 +216,26 @@ export const ProposalDetailPage = () => {
       <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24, marginBottom: 16 }}>
         <div className="space-y-4">
           <div>
-            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Project</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.project')}</h3>
             <p style={{ marginTop: 4, color: 'var(--text)' }}>{proposal.project?.title || '—'}</p>
           </div>
           <div>
-            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Amount</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.amount')}</h3>
             <p style={{ marginTop: 4, fontSize: 18, fontWeight: 600, color: 'var(--text)' }}>{formatCurrency(Number(proposal.amount))}</p>
           </div>
           <div>
-            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Valid Until</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.valid_until')}</h3>
             <p style={{ marginTop: 4, color: 'var(--text)' }}>{formatDate(proposal.validUntil)}</p>
           </div>
           <div>
-            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Notes</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.notes')}</h3>
             <p style={{ marginTop: 4, color: 'var(--text)', whiteSpace: 'pre-wrap' }}>{proposal.notes || '—'}</p>
           </div>
         </div>
       </div>
 
       <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: 'var(--text)' }}>Actions</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: 'var(--text)' }}>{t('common.actions')}</h2>
         <div className="flex gap-3 flex-wrap items-center">
           <select
             value={proposal.status}
@@ -269,7 +271,7 @@ export const ProposalDetailPage = () => {
               letterSpacing: '.06em',
             }}
           >
-            Convert to Invoice
+            {t('common.convert_to_invoice')}
           </button>
         </div>
       </div>

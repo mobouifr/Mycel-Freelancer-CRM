@@ -1,9 +1,11 @@
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Footer from '../components/Footer';
 import { LogoMark } from '../components';
 import { useTheme } from '../hooks/useTheme';
 
 export default function TermsOfService() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { mode: themeMode, cycleQuickTheme, theme } = useTheme();
 
@@ -113,7 +115,7 @@ export default function TermsOfService() {
               padding: 0,
             }}
           >
-            ← Back
+            {t('common.back')}
           </button>
 
           <h1
@@ -126,7 +128,7 @@ export default function TermsOfService() {
               marginBottom: 8,
             }}
           >
-            Terms of Service
+            {t('terms_of_service.title')}
           </h1>
 
           <p

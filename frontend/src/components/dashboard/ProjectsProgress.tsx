@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
 
 /* ─────────────────────────────────────────────
@@ -23,13 +24,14 @@ const PROJECTS: ProjectData[] = [
   { id: '4', name: 'Marketing Campaign', client: 'Pixel Root',   progress: 15, status: 'paused', dueDate: 'Apr 30' },
 ];
 
-const STATUS_STYLE: Record<ProjectData['status'], { color: string; label: string }> = {
-  active: { color: 'var(--success)',  label: 'Active' },
-  review: { color: 'var(--info, #60a5fa)',   label: 'In Review' },
-  paused: { color: 'var(--text-dim)',  label: 'Paused' },
+const STATUS_STYLE: Record<ProjectData['status'], { color: string; labelKey: string }> = {
+  active: { color: 'var(--success)',  labelKey: 'projects_progress.active' },
+  review: { color: 'var(--info, #60a5fa)',   labelKey: 'projects_progress.in_review' },
+  paused: { color: 'var(--text-dim)',  labelKey: 'projects_progress.paused' },
 };
 
 function ProjectsProgress() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -66,7 +68,7 @@ function ProjectsProgress() {
                   <p style={{
                     fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
                   }}>
-                    {proj.client} · Due {proj.dueDate}
+                    {proj.client} · {t('projects_progress.due')} {proj.dueDate}
                   </p>
                 </div>
                 <span style={{
@@ -74,7 +76,7 @@ function ProjectsProgress() {
                   letterSpacing: '.06em', fontWeight: 500,
                   color: s.color, whiteSpace: 'nowrap', marginLeft: 8,
                 }}>
-                  ● {s.label}
+                  ● {t(s.labelKey)}
                 </span>
               </div>
 
@@ -123,7 +125,7 @@ function ProjectsProgress() {
             letterSpacing: '.04em',
           }}
         >
-          View all projects →
+          {t('projects_progress.view_all')}
         </button>
       </div>
     </div>

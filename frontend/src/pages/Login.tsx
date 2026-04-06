@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { authService } from '../services/auth';
@@ -31,6 +32,7 @@ type AuthMode = 'signin' | 'signup';
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const { login, register, forgotPassword, isLoading, error, clearError, isAuthenticated } = useAuth();
   const { mode: themeMode, cycleQuickTheme, theme } = useTheme();
   const isMobile = useIsMobile();
@@ -66,21 +68,21 @@ export default function Login() {
 
   const validateLogin = (): boolean => {
     const errs: typeof loginErrors = {};
-    if (!email.trim()) errs.email = 'Email is required';
-    else if (!EMAIL_RE.test(email.trim())) errs.email = 'Enter a valid email address';
-    if (!password) errs.password = 'Password is required';
+    if (!email.trim()) errs.email = t('auth.email_required');
+    else if (!EMAIL_RE.test(email.trim())) errs.email = t('auth.email_invalid');
+    if (!password) errs.password = t('auth.password_required');
     setLoginErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
   const validateSignup = (): boolean => {
     const errs: typeof regErrors = {};
-    if (!regUsername.trim()) errs.username = 'Username is required';
-    else if (regUsername.trim().length < 3) errs.username = 'Username must be at least 3 characters';
-    if (!regEmail.trim()) errs.email = 'Email is required';
-    else if (!EMAIL_RE.test(regEmail.trim())) errs.email = 'Enter a valid email address';
-    if (!regPassword) errs.password = 'Password is required';
-    else if (regPassword.length < 6) errs.password = 'Password must be at least 6 characters';
+    if (!regUsername.trim()) errs.username = t('auth.username_required');
+    else if (regUsername.trim().length < 3) errs.username = t('auth.username_min');
+    if (!regEmail.trim()) errs.email = t('auth.email_required');
+    else if (!EMAIL_RE.test(regEmail.trim())) errs.email = t('auth.email_invalid');
+    if (!regPassword) errs.password = t('auth.password_required');
+    else if (regPassword.length < 6) errs.password = t('auth.password_min_6');
     setRegErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -231,8 +233,8 @@ export default function Login() {
                 borderBottom: '1px solid var(--border)',
                 marginBottom: 24,
               }}>
-                <TabButton label="SIGN IN" active={authMode === 'signin'} onClick={() => switchMode('signin')} />
-                <TabButton label="SIGN UP" active={authMode === 'signup'} onClick={() => switchMode('signup')} />
+                <TabButton label={t('auth.sign_in')} active={authMode === 'signin'} onClick={() => switchMode('signin')} />
+                <TabButton label={t('auth.sign_up')} active={authMode === 'signup'} onClick={() => switchMode('signup')} />
               </div>
             </div>
 
@@ -251,12 +253,12 @@ export default function Login() {
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
                     <Input
-                      label="Email Address" type="email" placeholder="you@universe.com"
+                      label={t('auth.email_label')} type="email" placeholder="you@universe.com"
                       value={email} error={loginErrors.email}
                       onChange={(v) => { setEmail(v); setLoginErrors(p => ({ ...p, email: undefined })); }}
                     />
                     <Input
-                      label="Password" type="password" placeholder="••••••••"
+                      label={t('auth.password_label')} type="password" placeholder="••••••••"
                       value={password} error={loginErrors.password}
                       onChange={(v) => { setPassword(v); setLoginErrors(p => ({ ...p, password: undefined })); }}
                     />
@@ -274,7 +276,7 @@ export default function Login() {
                       <span style={{
                         fontFamily: 'var(--font-m)', fontSize: 10,
                         color: 'var(--text-dim)', letterSpacing: '.04em',
-                      }}>Remember me</span>
+                      }}>{t('auth.remember_me')}</span>
                     </label>
                     <button
                       onClick={() => { setShowForgot(true); setForgotMsg(''); setForgotEmail(email); }}
@@ -286,23 +288,23 @@ export default function Login() {
                       }}
                       onMouseEnter={e => { e.currentTarget.style.color = 'var(--white)'; }}
                       onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-dim)'; }}
-                    >Forgot password?</button>
+                    >{t('auth.forgot_password')}</button>
                   </div>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                   <Input
-                    label="Username" placeholder="montassir"
+                    label={t('auth.username_label')} placeholder="montassir"
                     value={regUsername} error={regErrors.username}
                     onChange={(v) => { setRegUsername(v); setRegErrors(p => ({ ...p, username: undefined })); }}
                   />
                   <Input
-                    label="Email Address" type="email" placeholder="you@universe.com"
+                    label={t('auth.email_label')} type="email" placeholder="you@universe.com"
                     value={regEmail} error={regErrors.email}
                     onChange={(v) => { setRegEmail(v); setRegErrors(p => ({ ...p, email: undefined })); }}
                   />
                   <Input
-                    label="Password" type="password" placeholder="Min. 6 characters"
+                    label={t('auth.password_label')} type="password" placeholder={t('auth.password_min')}
                     value={regPassword} error={regErrors.password}
                     onChange={(v) => { setRegPassword(v); setRegErrors(p => ({ ...p, password: undefined })); }}
                   />
@@ -341,8 +343,8 @@ export default function Login() {
                 }}
               >
                 {isLoading
-                  ? (authMode === 'signin' ? 'SIGNING IN...' : 'CREATING...')
-                  : (authMode === 'signin' ? 'SIGN IN' : 'SIGN UP')}
+                  ? (authMode === 'signin' ? t('auth.signing_in') : t('auth.creating'))
+                  : (authMode === 'signin' ? t('auth.sign_in') : t('auth.sign_up'))}
               </button>
 
               {/* 42 OAuth — only on sign-in (42 OAuth handles registration server-side) */}
@@ -357,7 +359,7 @@ export default function Login() {
                       fontFamily: 'var(--font-m)', fontSize: 9,
                       color: 'var(--text-dim)', letterSpacing: '.1em',
                       textTransform: 'uppercase', whiteSpace: 'nowrap',
-                    }}>or continue with</span>
+                    }}>{t('auth.or_continue_with')}</span>
                     <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
                   </div>
 
@@ -401,7 +403,7 @@ export default function Login() {
                 fontFamily: 'var(--font-m)', fontSize: 10,
                 color: 'var(--text-dim)', letterSpacing: '.04em',
               }}>
-                {authMode === 'signin' ? "Don't have an account?" : 'Already have an account?'}{' '}
+                {authMode === 'signin' ? t('auth.no_account') : t('auth.have_account')}{' '}
                 <button
                   onClick={() => switchMode(authMode === 'signin' ? 'signup' : 'signin')}
                   style={{
@@ -410,7 +412,7 @@ export default function Login() {
                     fontSize: 10, fontWeight: 500, cursor: 'pointer',
                     letterSpacing: '.04em',
                   }}
-                >{authMode === 'signin' ? 'Sign up' : 'Sign in'}</button>
+                >{authMode === 'signin' ? t('auth.sign_up_link') : t('auth.sign_in_link')}</button>
               </p>
 
               {/* Privacy and Terms links */}
@@ -428,7 +430,7 @@ export default function Login() {
                   }}
                   onMouseEnter={e => { e.currentTarget.style.color = 'var(--white)'; }}
                   onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-dim)'; }}
-                >Privacy</Link>
+                >{t('auth.privacy')}</Link>
                 <Link
                   to="/terms-of-service"
                   style={{
@@ -439,7 +441,7 @@ export default function Login() {
                   }}
                   onMouseEnter={e => { e.currentTarget.style.color = 'var(--white)'; }}
                   onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-dim)'; }}
-                >Terms</Link>
+                >{t('auth.terms')}</Link>
               </div>
             </div>
           </div>
@@ -487,6 +489,7 @@ function ForgotPasswordOverlay({
   msg: string; sending: boolean;
   onSend: () => void; onClose: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       style={{
@@ -508,11 +511,11 @@ function ForgotPasswordOverlay({
         <h2 style={{
           fontFamily: 'var(--font-m)', fontWeight: 500, fontSize: 16,
           color: 'var(--text)', letterSpacing: '.04em', marginBottom: 6,
-        }}>Reset password</h2>
+        }}>{t('auth.reset_password')}</h2>
         <p style={{
           fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)',
           lineHeight: 1.5, marginBottom: 24,
-        }}>Enter the email linked to your account and we'll send a reset link.</p>
+        }}>{t('auth.reset_description')}</p>
 
         {msg ? (
           <div>
@@ -521,19 +524,19 @@ function ForgotPasswordOverlay({
                 <circle cx="9" cy="9" r="9" fill="var(--accent-bg)" />
                 <path d="M5.5 9.5L7.8 11.8L12.5 6.5" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <span style={{ fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--accent)' }}>Email sent</span>
+              <span style={{ fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--accent)' }}>{t('auth.email_sent')}</span>
             </div>
             <p style={{
               fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)',
               lineHeight: 1.5, marginBottom: 20,
             }}>{msg}</p>
-            <button onClick={onClose} style={overlaySecondaryBtn}>BACK TO LOGIN</button>
+            <button onClick={onClose} style={overlaySecondaryBtn}>{t('auth.back_to_login')}</button>
           </div>
         ) : (
           <div>
             <Input label="Email" type="email" placeholder="you@universe.com" value={email} onChange={setEmail} />
             <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
-              <button onClick={onClose} style={overlaySecondaryBtn}>CANCEL</button>
+              <button onClick={onClose} style={overlaySecondaryBtn}>{t('common.cancel')}</button>
               <button
                 onClick={onSend}
                 disabled={sending || !email.trim()}
@@ -542,7 +545,7 @@ function ForgotPasswordOverlay({
                   opacity: sending || !email.trim() ? 0.5 : 1,
                   cursor: sending || !email.trim() ? 'not-allowed' : 'pointer',
                 }}
-              >{sending ? 'SENDING...' : 'SEND LINK'}</button>
+              >{sending ? t('auth.sending') : t('auth.send_link')}</button>
             </div>
           </div>
         )}

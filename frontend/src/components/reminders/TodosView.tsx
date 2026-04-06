@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useNotifications from '../../hooks/useNotifications';
 import TodoItem from './TodoItem';
 import type { TodoFlag } from '../../hooks/useStore';
@@ -8,6 +9,7 @@ type SortBy = 'newest' | 'dueDate' | 'flag';
 type FilterBy = 'all' | 'active' | 'done' | 'important' | 'follow-up';
 
 export default function TodosView() {
+  const { t } = useTranslation();
   const { todos, createTodo, editTodo, removeTodo } = useNotifications();
   const { mode } = useTheme();
   const [newText, setNewText] = useState('');
@@ -65,7 +67,7 @@ export default function TodosView() {
           fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)',
           letterSpacing: '.1em', textTransform: 'uppercase',
         }}>
-          Todos ({doneCount}/{todos.length})
+          {t('todos.title', { done: doneCount, total: todos.length })}
         </span>
         <div style={{ display: 'flex', gap: 6 }}>
           <select
@@ -73,20 +75,20 @@ export default function TodosView() {
             onChange={(e) => setFilterBy(e.target.value as FilterBy)}
             style={selectStyle}
           >
-            <option value="all">All</option>
-            <option value="active">Active</option>
-            <option value="done">Done</option>
-            <option value="important">Important</option>
-            <option value="follow-up">Follow-up</option>
+            <option value="all">{t('todos.all')}</option>
+            <option value="active">{t('todos.active')}</option>
+            <option value="done">{t('todos.done')}</option>
+            <option value="important">{t('todos.important')}</option>
+            <option value="follow-up">{t('todos.follow_up')}</option>
           </select>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortBy)}
             style={selectStyle}
           >
-            <option value="newest">Newest</option>
-            <option value="dueDate">Due Date</option>
-            <option value="flag">Flag</option>
+            <option value="newest">{t('todos.newest')}</option>
+            <option value="dueDate">{t('todos.due_date')}</option>
+            <option value="flag">{t('todos.flag')}</option>
           </select>
         </div>
       </div>
@@ -101,7 +103,7 @@ export default function TodosView() {
           value={newText}
           onChange={(e) => setNewText(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Add a todo..."
+          placeholder={t('todos.add_placeholder')}
           style={{
             flex: 1, background: 'transparent', border: 'none',
             color: 'var(--text)', fontFamily: 'var(--font-m)', fontSize: 11,
@@ -117,7 +119,7 @@ export default function TodosView() {
             color: 'var(--text-dim)', fontFamily: 'var(--font-m)', fontSize: 9,
             outline: 'none', width: 24, cursor: 'pointer', colorScheme: mode,
           }}
-          title="Set due date"
+          title={t('todos.set_due_date')}
         />
         <select
           value={newFlag}
@@ -127,7 +129,7 @@ export default function TodosView() {
             color: 'var(--text-dim)', fontFamily: 'var(--font-m)', fontSize: 9,
             outline: 'none', cursor: 'pointer', width: 20, padding: 0, colorScheme: mode,
           }}
-          title="Set flag"
+          title={t('todos.set_flag')}
         >
           <option value="none">○</option>
           <option value="important">!</option>
@@ -142,7 +144,7 @@ export default function TodosView() {
             cursor: 'pointer',
           }}
         >
-          Add
+          {t('common.add')}
         </button>
       </div>
 
@@ -152,7 +154,7 @@ export default function TodosView() {
           textAlign: 'center', padding: '16px 0',
           fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)',
         }}>
-          {filterBy === 'all' ? 'No todos yet.' : `No ${filterBy} todos.`}
+          {filterBy === 'all' ? t('todos.no_todos') : t('todos.no_filtered', { filter: filterBy })}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>

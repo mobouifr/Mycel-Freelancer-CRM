@@ -1,9 +1,11 @@
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Footer from '../components/Footer';
 import { LogoMark } from '../components';
 import { useTheme } from '../hooks/useTheme';
 
 export default function PrivacyPolicy() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { mode: themeMode, cycleQuickTheme, theme } = useTheme();
 
@@ -113,7 +115,7 @@ export default function PrivacyPolicy() {
               padding: 0,
             }}
           >
-            ← Back
+            {t('common.back')}
           </button>
 
           <h1
@@ -126,7 +128,7 @@ export default function PrivacyPolicy() {
               marginBottom: 8,
             }}
           >
-            Privacy Policy
+            {t('privacy_policy.title')}
           </h1>
 
           <p

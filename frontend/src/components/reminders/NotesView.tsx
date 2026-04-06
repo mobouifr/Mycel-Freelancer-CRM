@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useNotifications from '../../hooks/useNotifications';
 import StickyNote from './StickyNote';
 import type { Note, NoteColor } from '../../hooks/useStore';
@@ -8,6 +9,7 @@ interface NotesViewProps {
 }
 
 export default function NotesView({ onConvertToEvent }: NotesViewProps) {
+  const { t } = useTranslation();
   const { notes, createNote, editNote, removeNote } = useNotifications();
   const [showNew, setShowNew] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -44,7 +46,7 @@ export default function NotesView({ onConvertToEvent }: NotesViewProps) {
           fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)',
           letterSpacing: '.1em', textTransform: 'uppercase',
         }}>
-          Sticky Notes ({notes.length})
+          {t('notes.sticky_notes')} ({notes.length})
         </span>
         <button
           onClick={() => setShowNew(!showNew)}
@@ -54,7 +56,7 @@ export default function NotesView({ onConvertToEvent }: NotesViewProps) {
             fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--accent)',
           }}
         >
-          + New
+          {t('notes.new')}
         </button>
       </div>
 
@@ -67,14 +69,14 @@ export default function NotesView({ onConvertToEvent }: NotesViewProps) {
           <input
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
-            placeholder="Note title"
+            placeholder={t('notes.title_placeholder')}
             autoFocus
             style={inputStyle}
           />
           <textarea
             value={newBody}
             onChange={(e) => setNewBody(e.target.value)}
-            placeholder="Write something..."
+            placeholder={t('notes.content_placeholder')}
             rows={3}
             style={{ ...inputStyle, resize: 'vertical', minHeight: 40 }}
           />
@@ -83,10 +85,10 @@ export default function NotesView({ onConvertToEvent }: NotesViewProps) {
               onClick={() => setShowNew(false)}
               style={cancelBtn}
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button onClick={handleCreate} style={saveBtn}>
-              Create
+              {t('common.create')}
             </button>
           </div>
         </div>
@@ -98,7 +100,7 @@ export default function NotesView({ onConvertToEvent }: NotesViewProps) {
           textAlign: 'center', padding: '24px 0',
           fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)',
         }}>
-          No notes yet. Click "+ New" to create one.
+          {t('notes.empty')}
         </div>
       ) : (
         <div style={{

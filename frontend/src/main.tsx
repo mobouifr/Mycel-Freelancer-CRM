@@ -74,6 +74,7 @@ const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
+import './i18n';
 import './styles/index.css';
 
 createRoot(document.getElementById('root')!).render(

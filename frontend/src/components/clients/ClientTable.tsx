@@ -1,4 +1,5 @@
 // Client table component
+import { useTranslation } from 'react-i18next';
 import { type Client } from '../../types/client.types';
 import { formatDate } from '../../utils/formatters';
 
@@ -10,6 +11,7 @@ interface ClientTableProps {
 }
 
 export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTableProps) => {
+  const { t } = useTranslation();
   if (clients.length === 0) {
     return (
       <div
@@ -21,7 +23,7 @@ export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTablePr
           color: 'var(--text-dim)',
         }}
       >
-        No clients yet. Create your first client to get started.
+        {t('clients.table.empty')}
       </div>
     );
   }
@@ -56,12 +58,12 @@ export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTablePr
           borderBottom: '1px solid var(--border)',
         }}
       >
-        <span style={headerStyle}>Name</span>
-        <span style={headerStyle}>Email</span>
-        <span style={headerStyle}>Company</span>
-        <span style={headerStyle}>Phone</span>
-        <span style={headerStyle}>Created</span>
-        <span style={{ ...headerStyle, textAlign: 'right' }}>Actions</span>
+        <span style={headerStyle}>{t('clients.table.name')}</span>
+        <span style={headerStyle}>{t('clients.table.email')}</span>
+        <span style={headerStyle}>{t('clients.table.company')}</span>
+        <span style={headerStyle}>{t('clients.table.phone')}</span>
+        <span style={headerStyle}>{t('clients.table.created')}</span>
+        <span style={{ ...headerStyle, textAlign: 'right' }}>{t('clients.table.actions')}</span>
       </div>
 
       {/* Rows */}
@@ -148,7 +150,7 @@ export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTablePr
                     e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
                   }}
                 >
-                  View
+                  {t('common.view')}
                 </button>
               )}
               {onEdit && (
@@ -176,7 +178,7 @@ export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTablePr
                     e.currentTarget.style.color = 'var(--accent)';
                   }}
                 >
-                  Edit
+                  {t('common.edit')}
                 </button>
               )}
               {onDelete && (
@@ -204,7 +206,7 @@ export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTablePr
                     e.currentTarget.style.color = 'var(--danger)';
                   }}
                 >
-                  Delete
+                  {t('common.delete')}
                 </button>
               )}
             </div>

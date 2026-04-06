@@ -1,12 +1,14 @@
 // Client detail page
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { clientsService } from '../../services/data.service';
 import { type Client } from '../../types/client.types';
 import { type ApiError } from '../../types/common.types';
 import { formatDate } from '../../utils/formatters';
 
 export const ClientDetailPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [client, setClient] = useState<Client | null>(null);
@@ -23,7 +25,7 @@ export const ClientDetailPage = () => {
         setClient(data);
       } catch (err) {
         const apiError = err as ApiError;
-        setError(apiError.message || 'Failed to load client');
+        setError(apiError.message || t('clients.load_failed'));
       } finally {
         setLoading(false);
       }
@@ -34,7 +36,7 @@ export const ClientDetailPage = () => {
   if (loading) {
     return (
       <div className="p-6">
-        <div className="text-center py-8">Loading client...</div>
+        <div className="text-center py-8">{t('clients.detail_loading')}</div>
       </div>
     );
   }
@@ -43,7 +45,7 @@ export const ClientDetailPage = () => {
     return (
       <div className="p-6">
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          {error || 'Client not found'}
+          {error || t('clients.not_found')}
         </div>
       </div>
     );
@@ -94,7 +96,7 @@ export const ClientDetailPage = () => {
                   transition: 'all .15s',
                 }}
               >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tab === 'overview' ? t('common.overview') : t(`nav.${tab}`)}
               </button>
             ))}
           </nav>
@@ -105,27 +107,27 @@ export const ClientDetailPage = () => {
           {activeTab === 'overview' && (
             <div className="space-y-4">
               <div>
-                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Email</h3>
+                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.email')}</h3>
                 <p style={{ marginTop: 4, color: 'var(--text)' }}>{client.email || '—'}</p>
               </div>
               <div>
-                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Phone</h3>
+                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.phone')}</h3>
                 <p style={{ marginTop: 4, color: 'var(--text)' }}>{client.phone || '—'}</p>
               </div>
               <div>
-                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Company</h3>
+                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.company')}</h3>
                 <p style={{ marginTop: 4, color: 'var(--text)' }}>{client.company || '—'}</p>
               </div>
               <div>
-                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Notes</h3>
+                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.notes')}</h3>
                 <p style={{ marginTop: 4, color: 'var(--text)', whiteSpace: 'pre-wrap' }}>{client.notes || '—'}</p>
               </div>
               <div>
-                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Created</h3>
+                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.created')}</h3>
                 <p style={{ marginTop: 4, color: 'var(--text)' }}>{formatDate(client.createdAt)}</p>
               </div>
               <div>
-                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Last Updated</h3>
+                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.last_updated')}</h3>
                 <p style={{ marginTop: 4, color: 'var(--text)' }}>{formatDate(client.updatedAt)}</p>
               </div>
             </div>
@@ -176,7 +178,7 @@ export const ClientDetailPage = () => {
               letterSpacing: '.06em',
             }}
           >
-            Edit
+            {t('common.edit')}
           </button>
           <button
             onClick={() => navigate('/clients')}
@@ -194,7 +196,7 @@ export const ClientDetailPage = () => {
               letterSpacing: '.06em',
             }}
           >
-            Back to List
+            {t('common.back_to_list')}
           </button>
         </div>
       </div>

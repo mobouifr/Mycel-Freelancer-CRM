@@ -1,6 +1,7 @@
 // Edit proposal page
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { proposalsService } from '../../services/data.service';
 import { ProposalForm } from '../../components/proposals/ProposalForm';
 import { type ProposalFormData } from '../../utils/validation';
@@ -10,6 +11,7 @@ import apiClient from '../../api/client';
 import { useStore } from '../../hooks/useStore';
 
 export const EditProposalPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { addNotification } = useStore();
@@ -27,7 +29,7 @@ export const EditProposalPage = () => {
         setProposal(data);
       } catch (err) {
         const apiError = err as ApiError;
-        setError(apiError.message || 'Failed to load proposal');
+        setError(apiError.message || t('proposals.load_failed'));
       } finally {
         setLoading(false);
       }
@@ -41,10 +43,10 @@ export const EditProposalPage = () => {
         context: 'proposal',
         prompt: 'Generate a proposal title',
       });
-      alert('AI suggestion: ' + response.data.suggestion);
+      alert(t('proposals.ai_suggestion_prefix') + response.data.suggestion);
     } catch (err) {
       console.error('AI suggestion failed:', err);
-      alert('AI suggestion is not available');
+      alert(t('proposals.ai_unavailable'));
     }
   };
 
@@ -55,12 +57,12 @@ export const EditProposalPage = () => {
       const updatedProposal = await proposalsService.update(id, data as any);
       addNotification({
         type: 'info',
-        title: 'Proposal updated',
+        title: t('proposals.updated'),
         message: `"${updatedProposal.title}" was updated.`,
       });
       navigate('/proposals');
     } catch (err: any) {
-      alert(err.message || 'Failed to update proposal');
+      alert(err.message || t('proposals.update_failed'));
     } finally {
       setIsSaving(false);
     }
@@ -69,7 +71,7 @@ export const EditProposalPage = () => {
   if (loading) {
     return (
       <div className="p-6">
-        <div className="text-center py-8">Loading proposal...</div>
+        <div className="text-center py-8">{t('proposals.detail_loading')}</div>
       </div>
     );
   }
@@ -86,7 +88,7 @@ export const EditProposalPage = () => {
             borderRadius: 8,
           }}
         >
-          {error || 'Proposal not found'}
+          {error || t('proposals.not_found')}
         </div>
       </div>
     );
@@ -94,7 +96,7 @@ export const EditProposalPage = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text)' }}>Edit Proposal</h1>
+      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text)' }}>{t('proposals.edit_title')}</h1>
       <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24, maxWidth: 768 }}>
         <ProposalForm
           proposal={proposal}

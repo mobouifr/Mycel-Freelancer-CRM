@@ -1,33 +1,25 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { NotificationBell } from '../components';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 /* ─────────────────────────────────────────────
    TOPBAR — Breadcrumb + search + user avatar
 ───────────────────────────────────────────── */
 
-const ROUTE_LABELS: Record<string, string> = {
-  '/': 'Overview',
-  '/clients': 'Clients',
-  '/projects': 'Projects',
-  '/proposals': 'Proposals',
-  '/invoices': 'Invoices',
-  '/reminders': 'Reminders',
-  '/settings': 'Settings',
+const ROUTE_LABEL_KEYS: Record<string, string> = {
+  '/': 'topbar.overview',
+  '/clients': 'nav.clients',
+  '/projects': 'nav.projects',
+  '/proposals': 'nav.proposals',
+  '/invoices': 'nav.invoices',
+  '/reminders': 'nav.reminders',
+  '/settings': 'nav.settings',
 };
 
-/* Searchable items — pages + quick actions */
-const SEARCH_ITEMS = [
-  { label: 'Dashboard',  path: '/',          keywords: 'home overview stats revenue' },
-  { label: 'Clients',    path: '/clients',   keywords: 'people contacts customers' },
-  { label: 'Projects',   path: '/projects',  keywords: 'work tasks boards' },
-  { label: 'Proposals',  path: '/proposals', keywords: 'quotes offers bids' },
-  { label: 'Invoices',   path: '/invoices',  keywords: 'billing payments money' },
-  { label: 'Reminders',  path: '/reminders', keywords: 'alerts notifications schedule' },
-  { label: 'Settings',   path: '/settings',  keywords: 'profile preferences account security' },
-];
 
 interface TopbarProps {
   isMobile?: boolean;
@@ -42,13 +34,24 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { mode, cycleQuickTheme, theme } = useTheme();
+  const { t } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
   const menuTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
   // Get current page label from route
   const basePath = '/' + (location.pathname.split('/')[1] || '');
-  const label = ROUTE_LABELS[basePath] || 'Dashboard';
+  const label = t(ROUTE_LABEL_KEYS[basePath] || 'nav.dashboard');
+
+  const searchItems = useMemo(() => [
+    { label: t('nav.dashboard'),  path: '/',          keywords: 'home overview stats revenue' },
+    { label: t('nav.clients'),    path: '/clients',   keywords: 'people contacts customers' },
+    { label: t('nav.projects'),   path: '/projects',  keywords: 'work tasks boards' },
+    { label: t('nav.proposals'),  path: '/proposals', keywords: 'quotes offers bids' },
+    { label: t('nav.invoices'),   path: '/invoices',  keywords: 'billing payments money' },
+    { label: t('nav.reminders'),  path: '/reminders', keywords: 'alerts notifications schedule' },
+    { label: t('nav.settings'),   path: '/settings',  keywords: 'profile preferences account security' },
+  ], [t]);
 
   const initials = user?.username
     ? user.username
@@ -62,7 +65,7 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
   // Filter search results
   const q = query.toLowerCase().trim();
   const results = q
-    ? SEARCH_ITEMS.filter(
+    ? searchItems.filter(
         (item) =>
           item.label.toLowerCase().includes(q) ||
           item.keywords.includes(q)
@@ -182,7 +185,7 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setFocused(true)}
             onKeyDown={handleKeyDown}
-            placeholder="Search pages..."
+            placeholder={t('topbar.search_placeholder')}
             style={{
               background: 'var(--glass)',
               border: `1px solid ${focused ? 'var(--border-h)' : 'var(--border)'}`,
@@ -321,6 +324,7 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
         </button>
 
         {/* Notification bell */}
+        <LanguageSwitcher />
         <NotificationBell />
 
         {/* User avatar */}

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '../hooks/useStore';
 
 /* ─────────────────────────────────────────────
@@ -11,6 +12,7 @@ import { useStore } from '../hooks/useStore';
 export default function NotificationBell() {
   const { notifications, unreadCount, markAsRead, markAllAsRead, dismissNotification } = useStore();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -110,7 +112,7 @@ export default function NotificationBell() {
               fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-mid)',
               letterSpacing: '.1em', textTransform: 'uppercase',
             }}>
-              Notifications {unreadCount > 0 && `(${unreadCount})`}
+              {t('notifications.title')} {unreadCount > 0 && `(${unreadCount})`}
             </p>
             {unreadCount > 0 && (
               <button
@@ -121,7 +123,7 @@ export default function NotificationBell() {
                   letterSpacing: '.04em',
                 }}
               >
-                Mark all read
+                {t('notifications.mark_all_read')}
               </button>
             )}
           </div>
@@ -131,7 +133,7 @@ export default function NotificationBell() {
             {notifications.length === 0 ? (
               <div style={{ padding: '32px 16px', textAlign: 'center' }}>
                 <p style={{ fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)' }}>
-                  No notifications
+                  {t('notifications.empty')}
                 </p>
               </div>
             ) : (
@@ -171,7 +173,7 @@ export default function NotificationBell() {
                       </p>
                       <button
                         onClick={(e) => { e.stopPropagation(); dismissNotification(n.id); }}
-                        aria-label="Dismiss"
+                        aria-label={t('notifications.dismiss')}
                         style={{
                           background: 'none', border: 'none', cursor: 'pointer',
                           color: 'var(--text-dim)', fontSize: 10, padding: '0 2px',

@@ -1,6 +1,7 @@
 // Proposal form component
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { proposalSchema, type ProposalFormData } from '../../utils/validation';
 import { type Proposal, ProposalStatus } from '../../types/proposal.types';
 import { formatDateInput } from '../../utils/formatters';
@@ -21,6 +22,7 @@ export const ProposalForm = ({
   isLoading = false,
   onAISuggest,
 }: ProposalFormProps) => {
+  const { t } = useTranslation();
   const { projects } = useProjects();
 
   const {
@@ -62,7 +64,7 @@ export const ProposalForm = ({
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div>
         <label htmlFor="projectId" className="block text-sm font-medium mb-1">
-          Project <span className="text-red-500">*</span>
+          {t('forms.proposal.project')} <span className="text-red-500">*</span>
         </label>
         <select
           id="projectId"
@@ -70,7 +72,7 @@ export const ProposalForm = ({
           className="w-full rounded-md focus:outline-none"
           style={fieldBoxStyle}
         >
-          <option value="">Select a project</option>
+          <option value="">{t('forms.proposal.select_project')}</option>
           {projects.map((project) => (
             <option key={project.id} value={project.id}>
               {project.title} - {project.client?.name || 'No client'}
@@ -82,7 +84,7 @@ export const ProposalForm = ({
 
       <div>
         <label htmlFor="title" className="block text-sm font-medium mb-1">
-          Title <span className="text-red-500">*</span>
+          {t('forms.proposal.title')} <span className="text-red-500">*</span>
         </label>
         <div className="flex gap-2">
           <input
@@ -98,7 +100,7 @@ export const ProposalForm = ({
               onClick={onAISuggest}
               className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
             >
-              AI Suggest
+              {t('forms.proposal.ai_suggest')}
             </button>
           )}
         </div>
@@ -107,7 +109,7 @@ export const ProposalForm = ({
 
       <div>
         <label htmlFor="amount" className="block text-sm font-medium mb-1">
-          Amount <span className="text-red-500">*</span>
+          {t('forms.proposal.amount')} <span className="text-red-500">*</span>
         </label>
         <input
           id="amount"
@@ -124,7 +126,7 @@ export const ProposalForm = ({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="status" className="block text-sm font-medium mb-1">
-            Status
+            {t('forms.proposal.status')}
           </label>
           <select
             id="status"
@@ -132,16 +134,16 @@ export const ProposalForm = ({
             className="w-full rounded-md focus:outline-none"
             style={fieldBoxStyle}
           >
-            <option value={ProposalStatus.DRAFT}>Draft</option>
-            <option value={ProposalStatus.SENT}>Sent</option>
-            <option value={ProposalStatus.ACCEPTED}>Accepted</option>
-            <option value={ProposalStatus.REJECTED}>Rejected</option>
+            <option value={ProposalStatus.DRAFT}>{t('forms.proposal.draft')}</option>
+            <option value={ProposalStatus.SENT}>{t('forms.proposal.sent')}</option>
+            <option value={ProposalStatus.ACCEPTED}>{t('forms.proposal.accepted')}</option>
+            <option value={ProposalStatus.REJECTED}>{t('forms.proposal.rejected')}</option>
           </select>
         </div>
 
         <div>
           <label htmlFor="validUntil" className="block text-sm font-medium mb-1">
-            Valid Until
+            {t('forms.proposal.valid_until')}
           </label>
           <input
             id="validUntil"
@@ -155,7 +157,7 @@ export const ProposalForm = ({
 
       <div>
         <label htmlFor="notes" className="block text-sm font-medium mb-1">
-          Notes
+          {t('forms.proposal.notes')}
         </label>
         <textarea
           id="notes"
@@ -203,7 +205,7 @@ export const ProposalForm = ({
               e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
             }}
           >
-            Cancel
+            {t('common.cancel')}
           </button>
         )}
         <button
@@ -232,7 +234,7 @@ export const ProposalForm = ({
             e.currentTarget.style.color = 'var(--accent)';
           }}
         >
-          {isSubmitting || isLoading ? 'Saving...' : proposal ? 'Update Proposal' : 'Create Proposal'}
+          {isSubmitting || isLoading ? t('common.saving') : proposal ? t('forms.proposal.update') : t('forms.proposal.create')}
         </button>
       </div>
     </form>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
 
 /* ─────────────────────────────────────────────
@@ -8,20 +9,20 @@ import { setWidgetComponent } from './WidgetRegistry';
 interface ActivityItem {
   id: string;
   type: 'invoice' | 'proposal' | 'client' | 'project' | 'note';
-  title: string;
+  titleKey: string;
   detail: string;
-  time: string;
+  timeKey: string;
 }
 
 // Mock data — replace with API
 const ACTIVITIES: ActivityItem[] = [
-  { id: '1', type: 'invoice',  title: 'Invoice paid',        detail: 'Arca Studio — $3,200',   time: '2h ago' },
-  { id: '2', type: 'proposal', title: 'Proposal sent',       detail: 'Noma Labs — Web Redesign', time: '4h ago' },
-  { id: '3', type: 'client',   title: 'New client added',    detail: 'Vault Studio',            time: 'Yesterday' },
-  { id: '4', type: 'project',  title: 'Project completed',   detail: 'Drift Co. — Brand Identity', time: 'Yesterday' },
-  { id: '5', type: 'invoice',  title: 'Invoice created',     detail: 'Pixel Root — $1,800',     time: '2 days ago' },
-  { id: '6', type: 'note',     title: 'Note linked',         detail: 'Meeting notes → Q2 Planning', time: '3 days ago' },
-  { id: '7', type: 'proposal', title: 'Proposal accepted',   detail: 'Arca Studio — $5,400',    time: '4 days ago' },
+  { id: '1', type: 'invoice',  titleKey: 'activity.invoice_paid',      detail: 'Arca Studio — $3,200',   timeKey: 'activity.time_2h' },
+  { id: '2', type: 'proposal', titleKey: 'activity.proposal_sent',     detail: 'Noma Labs — Web Redesign', timeKey: 'activity.time_4h' },
+  { id: '3', type: 'client',   titleKey: 'activity.new_client_added',  detail: 'Vault Studio',            timeKey: 'activity.time_yesterday' },
+  { id: '4', type: 'project',  titleKey: 'activity.project_completed', detail: 'Drift Co. — Brand Identity', timeKey: 'activity.time_yesterday' },
+  { id: '5', type: 'invoice',  titleKey: 'activity.invoice_created',   detail: 'Pixel Root — $1,800',     timeKey: 'activity.time_2d' },
+  { id: '6', type: 'note',     titleKey: 'activity.note_linked',       detail: 'Meeting notes → Q2 Planning', timeKey: 'activity.time_3d' },
+  { id: '7', type: 'proposal', titleKey: 'activity.proposal_accepted', detail: 'Arca Studio — $5,400',    timeKey: 'activity.time_4d' },
 ];
 
 const TYPE_ICON: Record<ActivityItem['type'], { path: string; color: string }> = {
@@ -33,6 +34,7 @@ const TYPE_ICON: Record<ActivityItem['type'], { path: string; color: string }> =
 };
 
 function ActivityFeed() {
+  const { t } = useTranslation();
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ flex: 1, overflow: 'auto' }}>
@@ -73,14 +75,14 @@ function ActivityFeed() {
                     fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--white)',
                     lineHeight: 1.3,
                   }}>
-                    {item.title}
+                    {t(item.titleKey)}
                   </p>
                   <span style={{
                     fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
                     letterSpacing: '.04em', whiteSpace: 'nowrap', marginLeft: 8,
                     flexShrink: 0,
                   }}>
-                    {item.time}
+                    {t(item.timeKey)}
                   </span>
                 </div>
                 <p style={{
