@@ -1,4 +1,4 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './DTO/register.dto';
 import * as bcrypt from 'bcrypt';
@@ -49,6 +49,23 @@ export class AuthService {
 
     async updateUser(id: string, updateData: any): Promise<any> {
         return this.usersService.update(id, updateData);
+    }
+
+    async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+        const user = await this.usersService.findOne(userId);
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        if (user.passwordHash) {
+            const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+            if (!isMatch) {
+                throw new UnauthorizedException('Current password does not match');
+            }
+        }
+
+        const passwordHash = await bcrypt.hash(newPassword, 10);
+        await this.usersService.update(userId, { passwordHash });
     }
 
     async validateOAuthUser(provider: string, profile: any): Promise<any> {

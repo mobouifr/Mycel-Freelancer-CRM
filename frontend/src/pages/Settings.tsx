@@ -52,7 +52,12 @@ export default function Settings() {
           email,
         });
       } else if (activeTab === 'security') {
-        // Here you would implement password changing logic on your backend later
+        if (newPassword && newPassword !== confirmPassword) {
+          setError('New password and confirmation do not match');
+          setSaving(false);
+          return;
+        }
+        await authService.changePassword(currentPassword, newPassword);
         await new Promise((r) => setTimeout(r, 600)); 
       }
       setSuccess(true);
@@ -60,8 +65,8 @@ export default function Settings() {
         setSuccess(false);
         window.location.reload(); // Refresh the data across the app!
       }, 800);
-    } catch {
-      setError(t('settings.save_failed'));
+    } catch (err: any) {
+      setError(err?.message || t('settings.save_failed'));
     } finally {
       setSaving(false);
     }

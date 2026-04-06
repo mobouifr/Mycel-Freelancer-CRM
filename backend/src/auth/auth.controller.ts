@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, Request, Res, HttpCode, HttpStatus, Get, Put } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Request, Res, HttpCode, HttpStatus, Get, Put, BadRequestException } from '@nestjs/common';
 import { Response } from 'express'; // Ensure this is imported from 'express'
 import { RegisterDto } from './DTO/register.dto';
 import { LoginDto } from './DTO/login.dto';
@@ -60,6 +60,16 @@ export class AuthController {
       return result;
     }
     return req.user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  async changePassword(@Request() req: any, @Body() body: any) {
+    if (!body.currentPassword || !body.newPassword) {
+      throw new BadRequestException('Current password and new password are required');
+    }
+    await this.authService.changePassword(req.user.id, body.currentPassword, body.newPassword);
+    return { message: 'Password changed successfully' };
   }
 
   @UseGuards(JwtAuthGuard)
