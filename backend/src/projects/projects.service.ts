@@ -25,7 +25,18 @@ export class ProjectsService {
     } else if (createProjectDto.due_date) {
         data.deadline = new Date(createProjectDto.due_date);
     }
-    return await this.prisma.project.create({ data });
+    
+    const project = await this.prisma.project.create({ data });
+
+    await this.prisma.notification.create({
+      data: {
+        userId,
+        message: `New project created: ${project.title}`,
+        type: 'SUCCESS',
+      },
+    });
+
+    return project;
   }
 
   async findAll(userId: string) {
@@ -77,7 +88,17 @@ export class ProjectsService {
         Number(updatedProject.budget),
         priority
       );
+
+      this.gamificationService.checkAchievementsAndBadges(userId, updatedProject.id);
     }
+
+    await this.prisma.notification.create({
+      data: {
+        userId,
+        message: `Project updated: ${updatedProject.title}`,
+        type: 'INFO',
+      },
+    });
 
     return updatedProject;
   }
@@ -88,6 +109,15 @@ export class ProjectsService {
 
   async remove(userId: string, id: string) {
     const existingProject = await this.findOne(userId, id);
+    
+    await this.prisma.notification.create({
+      data: {
+        userId,
+        message: `Project deleted: ${existingProject.title}`,
+        type: 'WARNING',
+      },
+    });
+
     return await this.prisma.project.delete({ where: { id } });
   }
 }

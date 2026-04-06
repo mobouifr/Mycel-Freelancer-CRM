@@ -9,7 +9,7 @@ export class ClientsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(userId: string, createClientDto: CreateClientDto): Promise<Client> {
-    return this.prisma.client.create({
+    const client = await this.prisma.client.create({
       data: {
         name: createClientDto.name,
         email: createClientDto.email,
@@ -18,6 +18,16 @@ export class ClientsService {
         userId: userId,
       },
     });
+
+    await this.prisma.notification.create({
+      data: {
+        userId,
+        message: `New client created: ${client.name}`,
+        type: 'SUCCESS',
+      },
+    });
+
+    return client;
   }
 
   async findAll(userId: string): Promise<Client[]> {
@@ -38,14 +48,33 @@ export class ClientsService {
 
   async update(userId: string, id: string, updateClientDto: UpdateClientDto): Promise<Client> {
     await this.findOne(userId, id); // Check existence
-    return this.prisma.client.update({
+    const updatedClient = await this.prisma.client.update({
       where: { id },
       data: updateClientDto,
     });
+
+    await this.prisma.notification.create({
+      data: {
+        userId,
+        message: `Client updated: ${updatedClient.name}`,
+        type: 'INFO',
+      },
+    });
+
+    return updatedClient;
   }
 
   async remove(userId: string, id: string): Promise<Client> {
-    await this.findOne(userId, id); // Check existence
+    const client = await this.findOne(userId, id); // Check existence
+    
+    await this.prisma.notification.create({
+      data: {
+        userId,
+        message: `Client deleted: ${client.name}`,
+        type: 'WARNING',
+      },
+    });
+
     return this.prisma.client.delete({
       where: { id },
     });

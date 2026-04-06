@@ -18,11 +18,15 @@ describe('ProjectsService', () => {
       update: jest.fn(),
       delete: jest.fn(),
     },
+    notification: {
+      create: jest.fn(),
+    },
   };
 
   // Mock Gamification methods
   const mockGamificationService = {
     awardProjectCompletionXp: jest.fn(),
+    checkAchievementsAndBadges: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -48,7 +52,7 @@ describe('ProjectsService', () => {
   });
 
   describe('create', () => {
-    it('should create a new project', async () => {
+    it('should create a new project and send a notification', async () => {
       const userId = 'user-123';
       const dto = { title: 'New CRM Feature', status: 'ACTIVE', budget: 1000 };
       const mockResult = { id: 'proj-1', ...dto, userId };
@@ -58,6 +62,13 @@ describe('ProjectsService', () => {
       const result = await service.create(userId, dto);
       expect(result).toEqual(mockResult);
       expect(prisma.project.create).toHaveBeenCalled();
+      expect(prisma.notification.create).toHaveBeenCalledWith({
+        data: {
+          userId,
+          message: `New project created: ${mockResult.title}`,
+          type: 'SUCCESS',
+        },
+      });
     });
   });
 
@@ -80,9 +91,9 @@ describe('ProjectsService', () => {
   });
 
   describe('update & gamification', () => {
-    it('should award XP when status changes to COMPLETED', async () => {
+    it('should award XP and check achievements when status changes to COMPLETED', async () => {
       const userId = 'user-123';
-      const existingProject = { id: 'proj-1', userId, status: 'ACTIVE', budget: 1000 };
+      const existingProject = { id: 'proj-1', userId, status: 'ACTIVE', budget: 1000, title: 'Test' };
       const updatedProject = { ...existingProject, status: 'COMPLETED' };
 
       // Mock findOne to pass the ownership check
@@ -97,11 +108,20 @@ describe('ProjectsService', () => {
         1000,
         'HIGH'
       );
+      expect(gamification.checkAchievementsAndBadges).toHaveBeenCalledWith(userId, updatedProject.id);
+
+      expect(prisma.notification.create).toHaveBeenCalledWith({
+        data: {
+          userId,
+          message: `Project updated: ${updatedProject.title}`,
+          type: 'INFO',
+        },
+      });
     });
 
-    it('should NOT award XP if status is not changed to COMPLETED', async () => {
+    it('should update without XP but STILL trigger notification', async () => {
       const userId = 'user-123';
-      const existingProject = { id: 'proj-1', userId, status: 'ACTIVE', budget: 1000 };
+      const existingProject = { id: 'proj-1', userId, status: 'ACTIVE', budget: 1000, title: 'Test' };
       const updatedProject = { ...existingProject, status: 'IN_PROGRESS' };
 
       jest.spyOn(service, 'findOne').mockResolvedValue(existingProject as any);
@@ -110,6 +130,35 @@ describe('ProjectsService', () => {
       await service.update(userId, 'proj-1', { status: 'IN_PROGRESS' });
 
       expect(gamification.awardProjectCompletionXp).not.toHaveBeenCalled();
+      
+      expect(prisma.notification.create).toHaveBeenCalledWith({
+        data: {
+          userId,
+          message: `Project updated: ${updatedProject.title}`,
+          type: 'INFO',
+        },
+      });
+    });
+  });
+
+  describe('remove', () => {
+    it('should remove a project and send a WARNING notification', async () => {
+      const userId = 'user-123';
+      const mockProject = { id: 'proj-1', userId, title: 'To Be Deleted' };
+      
+      jest.spyOn(service, 'findOne').mockResolvedValue(mockProject as any);
+      mockPrismaService.project.delete.mockResolvedValue(mockProject);
+
+      await service.remove(userId, 'proj-1');
+
+      expect(prisma.project.delete).toHaveBeenCalledWith({ where: { id: 'proj-1' } });
+      expect(prisma.notification.create).toHaveBeenCalledWith({
+        data: {
+          userId,
+          message: `Project deleted: ${mockProject.title}`,
+          type: 'WARNING',
+        },
+      });
     });
   });
 });
