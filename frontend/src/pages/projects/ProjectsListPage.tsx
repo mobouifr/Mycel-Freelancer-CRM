@@ -569,7 +569,7 @@ export const ProjectsListPage = () => {
               }}
             >
             <thead>
-              <tr>
+              <tr style={{ borderBottom: '1px solid var(--border)' }}>
                 <th style={PROJECTS_TABLE_TH}>{t('projects.table.project')}</th>
                 <th style={PROJECTS_TABLE_TH}>{t('projects.table.client')}</th>
                 <th style={PROJECTS_TABLE_TH}>{t('projects.table.priority')}</th>
