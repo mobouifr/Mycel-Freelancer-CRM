@@ -75,88 +75,6 @@ export interface Project {
   updatedAt: string;
 }
 
-// ── Proposal ────────────────────────────────
-export type ProposalStatus = 'draft' | 'sent' | 'viewed' | 'accepted' | 'rejected';
-
-export interface ProposalLineItem {
-  id: string;
-  proposalId: string;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  amount: number;
-  order: number;
-}
-
-export interface Proposal {
-  id: string;
-  userId: string;
-  clientId: string;
-  projectId?: string;
-  proposalNumber: string;
-  title: string;
-  description?: string;
-  status: ProposalStatus;
-  subtotal: number;
-  taxRate: number;
-  taxAmount: number;
-  discount: number;
-  total: number;
-  validUntil?: string;
-  terms?: string;
-  notes?: string;
-  pdfUrl?: string;
-  sentAt?: string;
-  viewedAt?: string;
-  acceptedAt?: string;
-  rejectedAt?: string;
-  lineItems?: ProposalLineItem[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-// ── Invoice ─────────────────────────────────
-export type InvoiceStatus = 'draft' | 'sent' | 'viewed' | 'paid' | 'overdue' | 'cancelled';
-
-export interface InvoiceLineItem {
-  id: string;
-  invoiceId: string;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  amount: number;
-  order: number;
-}
-
-export interface Invoice {
-  id: string;
-  userId: string;
-  clientId: string;
-  projectId?: string;
-  proposalId?: string;
-  invoiceNumber: string;
-  status: InvoiceStatus;
-  issueDate: string;
-  dueDate: string;
-  paidDate?: string;
-  subtotal: number;
-  taxRate: number;
-  taxAmount: number;
-  discount: number;
-  total: number;
-  amountPaid: number;
-  balanceDue: number;
-  paymentTerms?: string;
-  paymentMethod?: string;
-  notes?: string;
-  pdfUrl?: string;
-  sentAt?: string;
-  viewedAt?: string;
-  lineItems?: InvoiceLineItem[];
-  createdAt: string;
-  updatedAt: string;
-}
-
 // ── Reminder ────────────────────────────────
 export type ReminderType = 'task' | 'follow_up' | 'payment' | 'deadline' | 'custom';
 export type ReminderStatus = 'pending' | 'completed' | 'dismissed';
@@ -165,8 +83,6 @@ export interface Reminder {
   id: string;
   userId: string;
   clientId?: string;
-  invoiceId?: string;
-  proposalId?: string;
   title: string;
   description?: string;
   reminderType: ReminderType;
@@ -198,14 +114,11 @@ export interface DashboardStats {
   revenueChange: number;
   activeClients: number;
   newClientsThisMonth: number;
-  pendingInvoices: number;
-  overdueCount: number;
-  totalBalance: number;
   revenueData: number[];
 }
 
 export interface RecentActivity {
-  type: 'Invoice' | 'Proposal';
+  type: 'Project' | 'Client';
   client: string;
   amount: string;
   status: string;

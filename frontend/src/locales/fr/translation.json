@@ -329,7 +329,8 @@
     "net_revenue": "revenu net ce mois-ci",
     "avg_month": "Moy. / Mois",
     "best_month": "Meilleur mois",
-    "invoices_paid": "Factures payées"
+    "invoices_paid": "Factures payées",
+    "projects_done": "Projets terminés"
   },
   "todos": {
     "title": "Tâches ({{done}}/{{total}})",

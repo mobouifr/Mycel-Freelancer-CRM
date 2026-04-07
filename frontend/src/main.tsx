@@ -18,8 +18,6 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Clients = lazy(() => import('./pages/Clients'));
 const Projects = lazy(() => import('./pages/Projects'));
-const Proposals = lazy(() => import('./pages/Proposals'));
-const Invoices = lazy(() => import('./pages/Invoices'));
 const ClientsListPage = lazy(() =>
   import('./pages/clients/ClientsListPage').then((module) => ({ default: module.ClientsListPage })),
 );
@@ -43,30 +41,6 @@ const EditProjectPage = lazy(() =>
 );
 const ProjectDetailPage = lazy(() =>
   import('./pages/projects/ProjectDetailPage').then((module) => ({ default: module.ProjectDetailPage })),
-);
-const ProposalsListPage = lazy(() =>
-  import('./pages/proposals/ProposalsListPage').then((module) => ({ default: module.ProposalsListPage })),
-);
-const CreateProposalPage = lazy(() =>
-  import('./pages/proposals/CreateProposalPage').then((module) => ({ default: module.CreateProposalPage })),
-);
-const EditProposalPage = lazy(() =>
-  import('./pages/proposals/EditProposalPage').then((module) => ({ default: module.EditProposalPage })),
-);
-const ProposalDetailPage = lazy(() =>
-  import('./pages/proposals/ProposalDetailPage').then((module) => ({ default: module.ProposalDetailPage })),
-);
-const InvoicesListPage = lazy(() =>
-  import('./pages/invoices/InvoicesListPage').then((module) => ({ default: module.InvoicesListPage })),
-);
-const CreateInvoicePage = lazy(() =>
-  import('./pages/invoices/CreateInvoicePage').then((module) => ({ default: module.CreateInvoicePage })),
-);
-const EditInvoicePage = lazy(() =>
-  import('./pages/invoices/EditInvoicePage').then((module) => ({ default: module.EditInvoicePage })),
-);
-const InvoiceDetailPage = lazy(() =>
-  import('./pages/invoices/InvoiceDetailPage').then((module) => ({ default: module.InvoiceDetailPage })),
 );
 const Reminders = lazy(() => import('./pages/Reminders'));
 const Ecosystem = lazy(() => import('./pages/Ecosystem'));
@@ -98,8 +72,6 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/clients/*" element={<Clients />} />
                   <Route path="/projects/*" element={<Projects />} />
-                  <Route path="/proposals/*" element={<Proposals />} />
-                  <Route path="/invoices/*" element={<Invoices />} />
                   <Route path="/reminders/*" element={<Reminders />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/ecosystem" element={<Ecosystem />} />
@@ -115,15 +87,7 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/projects/:id" element={<ProjectDetailPage />} />
                   <Route path="/projects/:id/edit" element={<EditProjectPage />} />
 
-                  <Route path="/proposals" element={<ProposalsListPage />} />
-                  <Route path="/proposals/new" element={<CreateProposalPage />} />
-                  <Route path="/proposals/:id" element={<ProposalDetailPage />} />
-                  <Route path="/proposals/:id/edit" element={<EditProposalPage />} />
 
-                  <Route path="/invoices" element={<InvoicesListPage />} />
-                  <Route path="/invoices/new" element={<CreateInvoicePage />} />
-                  <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
-                  <Route path="/invoices/:id/edit" element={<EditInvoicePage />} />
                 </Route>
               </Route>
 

@@ -165,7 +165,7 @@ export default function PrivacyPolicy() {
               company name, address, currency preference, and tax rate.
               <br /><br />
               <strong>Client and Project Data:</strong> Information you enter about your clients,
-              projects, proposals, invoices, reminders, and notes.
+              projects, reminders, and notes.
               <br /><br />
               <strong>Usage Data:</strong> We collect basic usage patterns such as login timestamps.
             </Section>
@@ -175,7 +175,6 @@ export default function PrivacyPolicy() {
               <ul style={{ marginTop: 8, paddingLeft: 20 }}>
                 <li>Provide and maintain the app</li>
                 <li>Authenticate and secure your account</li>
-                <li>Generate invoices and reports</li>
                 <li>Send reminders</li>
                 <li>Improve experience</li>
               </ul>

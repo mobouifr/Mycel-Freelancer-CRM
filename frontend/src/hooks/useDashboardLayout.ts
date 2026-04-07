@@ -37,24 +37,22 @@ const STORAGE_KEY = `mycel-dashboard-layout-v${LAYOUT_VERSION}`;
 /* ── Preset definitions ─────────────────────── */
 const PRESETS: Record<PresetId, () => Pick<DashboardState, 'layouts' | 'visible'>> = {
   default: () => ({
-    visible: ['calendar', 'revenue', 'activity', 'projects', 'notes', 'invoices', 'suggestions'],
+    visible: ['calendar', 'revenue', 'activity', 'projects', 'notes', 'suggestions'],
     layouts: [
       { i: 'calendar',    x: 8, y: 0, w: 4, h: 6, minW: 4, minH: 4, moved: false, static: false },
       { i: 'revenue',     x: 0, y: 0, w: 8, h: 3, minW: 3, minH: 2, moved: false, static: false },
       { i: 'activity',    x: 0, y: 6, w: 4, h: 3, minW: 4, minH: 2, moved: false, static: false },
       { i: 'projects',    x: 8, y: 6, w: 4, h: 3, minW: 3, minH: 2, moved: false, static: false },
       { i: 'notes',       x: 4, y: 3, w: 4, h: 3, minW: 3, minH: 2, moved: false, static: false },
-      { i: 'invoices',    x: 0, y: 3, w: 4, h: 3, minW: 3, minH: 2, moved: false, static: false },
       { i: 'suggestions', x: 4, y: 6, w: 4, h: 3, minW: 3, minH: 2, moved: false, static: false },
     ],
   }),
   compact: () => ({
-    visible: ['revenue', 'calendar', 'notes', 'invoices', 'activity'],
+    visible: ['revenue', 'calendar', 'notes', 'activity'],
     layouts: [
       { i: 'revenue',  x: 0, y: 0, w: 12, h: 2, minW: 3, minH: 2 },
       { i: 'calendar', x: 0, y: 2, w: 6,  h: 4, minW: 4, minH: 4 },
       { i: 'notes',    x: 6, y: 2, w: 6,  h: 3, minW: 3, minH: 2 },
-      { i: 'invoices', x: 6, y: 5, w: 6,  h: 3, minW: 3, minH: 2 },
       { i: 'activity', x: 0, y: 6, w: 6,  h: 3, minW: 4, minH: 2 },
     ],
   }),
@@ -67,10 +65,9 @@ const PRESETS: Record<PresetId, () => Pick<DashboardState, 'layouts' | 'visible'
     ],
   }),
   finance: () => ({
-    visible: ['revenue', 'invoices', 'activity', 'projects'],
+    visible: ['revenue', 'activity', 'projects'],
     layouts: [
-      { i: 'revenue',  x: 0, y: 0, w: 8, h: 4, minW: 3, minH: 2 },
-      { i: 'invoices', x: 8, y: 0, w: 4, h: 4, minW: 3, minH: 2 },
+      { i: 'revenue',  x: 0, y: 0, w: 12, h: 4, minW: 3, minH: 2 },
       { i: 'activity', x: 0, y: 4, w: 8, h: 3, minW: 4, minH: 2 },
       { i: 'projects', x: 8, y: 4, w: 4, h: 3, minW: 3, minH: 2 },
     ],
@@ -81,7 +78,7 @@ export const PRESET_OPTIONS: { id: PresetId; label: string; desc: string }[] = [
   { id: 'default', label: 'Default',  desc: 'Balanced overview with all widgets' },
   { id: 'compact', label: 'Compact',  desc: 'Condensed single-column stack' },
   { id: 'focus',   label: 'Focus',    desc: 'Calendar, notes, and suggestions only' },
-  { id: 'finance', label: 'Finance',  desc: 'Revenue and invoices first' },
+  { id: 'finance', label: 'Finance',  desc: 'Revenue and projects first' },
 ];
 
 /* ── Load / save ─────────────────────────────── */

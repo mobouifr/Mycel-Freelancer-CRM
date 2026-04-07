@@ -9,7 +9,6 @@ import QuickCreateFAB from '../components/dashboard/QuickCreateFAB';
 import '../components/dashboard/CalendarUpcoming';
 import '../components/dashboard/NotesCapture';
 import '../components/dashboard/RevenueKPI';
-import '../components/dashboard/InvoicesDue';
 import '../components/dashboard/ActivityFeed';
 import '../components/dashboard/ProjectsProgress';
 import '../components/dashboard/SmartSuggestions';

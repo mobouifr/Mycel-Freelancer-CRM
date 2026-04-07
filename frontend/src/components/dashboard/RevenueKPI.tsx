@@ -64,7 +64,7 @@ function RevenueKPI() {
         {[
           { label: t('revenue.avg_month'), value: `$${Math.round(MONTHLY_REVENUE.reduce((a, b) => a + b, 0) / MONTHLY_REVENUE.length)}k` },
           { label: t('revenue.best_month'), value: `$${Math.max(...MONTHLY_REVENUE)}k` },
-          { label: t('revenue.invoices_paid'), value: '14' },
+          { label: t('revenue.projects_done'), value: '14' },
         ].map((s) => (
           <div key={s.label} style={{
             flex: 1,

@@ -14,8 +14,6 @@ const ROUTE_LABEL_KEYS: Record<string, string> = {
   '/': 'topbar.overview',
   '/clients': 'nav.clients',
   '/projects': 'nav.projects',
-  '/proposals': 'nav.proposals',
-  '/invoices': 'nav.invoices',
   '/reminders': 'nav.reminders',
   '/settings': 'nav.settings',
 };
@@ -47,8 +45,6 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
     { label: t('nav.dashboard'),  path: '/',          keywords: 'home overview stats revenue' },
     { label: t('nav.clients'),    path: '/clients',   keywords: 'people contacts customers' },
     { label: t('nav.projects'),   path: '/projects',  keywords: 'work tasks boards' },
-    { label: t('nav.proposals'),  path: '/proposals', keywords: 'quotes offers bids' },
-    { label: t('nav.invoices'),   path: '/invoices',  keywords: 'billing payments money' },
     { label: t('nav.reminders'),  path: '/reminders', keywords: 'alerts notifications schedule' },
     { label: t('nav.settings'),   path: '/settings',  keywords: 'profile preferences account security' },
   ], [t]);

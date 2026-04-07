@@ -14,7 +14,7 @@ export const ClientDetailPage = () => {
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'proposals' | 'invoices'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'projects'>('overview');
 
   useEffect(() => {
     const fetchClient = async () => {
@@ -83,7 +83,7 @@ export const ClientDetailPage = () => {
         {/* Body - tabs */}
         <div style={{ borderBottom: '1px solid var(--border)', padding: '0 24px' }}>
           <nav className="flex -mb-px">
-            {(['overview', 'projects', 'proposals', 'invoices'] as const).map((tab) => (
+            {(['overview', 'projects'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -139,17 +139,7 @@ export const ClientDetailPage = () => {
             </div>
           )}
 
-          {activeTab === 'proposals' && (
-            <div>
-              <p style={{ color: 'var(--text-dim)' }}>Proposals will be displayed here once the backend endpoint is available.</p>
-            </div>
-          )}
 
-          {activeTab === 'invoices' && (
-            <div>
-              <p style={{ color: 'var(--text-dim)' }}>Invoices will be displayed here once the backend endpoint is available.</p>
-            </div>
-          )}
         </div>
 
         {/* Footer */}

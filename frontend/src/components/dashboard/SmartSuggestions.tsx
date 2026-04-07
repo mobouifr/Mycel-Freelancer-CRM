@@ -27,14 +27,6 @@ const SUGGESTIONS: Suggestion[] = [
     icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
   },
   {
-    id: '2',
-    titleKey: 'suggestions.proposal_ready_title',
-    descriptionKey: 'suggestions.proposal_ready_desc',
-    actionKey: 'suggestions.review_draft',
-    priority: 'medium',
-    icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z',
-  },
-  {
     id: '3',
     titleKey: 'suggestions.schedule_planning_title',
     descriptionKey: 'suggestions.schedule_planning_desc',

@@ -329,7 +329,8 @@
     "net_revenue": "net revenue this month",
     "avg_month": "Avg / Month",
     "best_month": "Best Month",
-    "invoices_paid": "Invoices Paid"
+    "invoices_paid": "Invoices Paid",
+    "projects_done": "Projects Done"
   },
   "todos": {
     "title": "Todos ({{done}}/{{total}})",

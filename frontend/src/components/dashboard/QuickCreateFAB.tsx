@@ -5,10 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '../../hooks/useIsMobile';
 
 const actions = [
-  { labelKey: 'quick_create.new_invoice',  icon: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2', path: '/invoices' },
   { labelKey: 'quick_create.new_client',   icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', path: '/clients' },
   { labelKey: 'quick_create.new_project',  icon: 'M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z', path: '/projects' },
-  { labelKey: 'quick_create.new_proposal', icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z', path: '/proposals' },
 ];
 
 export default function QuickCreateFAB() {

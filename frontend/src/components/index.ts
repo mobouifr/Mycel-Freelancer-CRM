@@ -24,7 +24,6 @@ export { default as WidgetPicker } from './dashboard/WidgetPicker';
 export { default as CalendarUpcoming } from './dashboard/CalendarUpcoming';
 export { default as NotesCapture } from './dashboard/NotesCapture';
 export { default as RevenueKPI } from './dashboard/RevenueKPI';
-export { default as InvoicesDue } from './dashboard/InvoicesDue';
 export { default as ActivityFeed } from './dashboard/ActivityFeed';
 export { default as ProjectsProgress } from './dashboard/ProjectsProgress';
 export { default as SmartSuggestions } from './dashboard/SmartSuggestions';

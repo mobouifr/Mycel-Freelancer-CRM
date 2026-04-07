@@ -159,7 +159,7 @@ export default function TermsOfService() {
             <Section title="2. Description of Service">
               Mycel is a web-based Customer Relationship Management tool designed for
               freelancers and small businesses. The Service allows users to manage clients,
-              track projects, create proposals, generate invoices, set reminders, and view
+              track projects, set reminders, and view
               business analytics through an interactive dashboard.
             </Section>
 
@@ -190,7 +190,7 @@ export default function TermsOfService() {
 
             <Section title="5. Your Data">
               You retain ownership of all data you enter into the Service (clients, projects,
-              invoices, etc.). We do not claim ownership of your content.
+              etc.). We do not claim ownership of your content.
               <br /><br />
               By using the Service, you grant us a limited license to store, process, and
               display your data solely for the purpose of providing the Service to you.
