@@ -113,7 +113,7 @@ export class GamificationService {
     const exists = await this.prisma.userAchievement.findUnique({ where: { userId_type: { userId, type } }});
     if (!exists) {
       await this.prisma.userAchievement.create({ data: { userId, type, name } });
-      await this.prisma.notification.create({ data: { userId, message: `🏆 Achievement Unlocked: ${name}`, type: 'ACHIEVEMENT' } });
+      await this.prisma.notification.create({ data: { userId, message: `🏆 Achievement Unlocked: ${name}`, type: 'achievement' } });
       this.logger.log(`User ${userId} earned achievement: ${name}`);
     }
   }
@@ -122,7 +122,7 @@ export class GamificationService {
     const exists = await this.prisma.userBadge.findUnique({ where: { userId_type: { userId, type } }});
     if (!exists) {
       await this.prisma.userBadge.create({ data: { userId, type, name } });
-      await this.prisma.notification.create({ data: { userId, message: `🏅 Badge Earned: ${name}`, type: 'BADGE' } });
+      await this.prisma.notification.create({ data: { userId, message: `🏅 Badge Earned: ${name}`, type: 'badge' } });
       this.logger.log(`User ${userId} earned badge: ${name}`);
     }
   }

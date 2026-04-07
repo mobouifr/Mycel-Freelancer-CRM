@@ -30,7 +30,7 @@ export class ClientsService {
       data: {
         userId,
         message: `New client created: ${client.name}`,
-        type: 'SUCCESS',
+        type: 'success',
       },
     });
 
@@ -81,7 +81,7 @@ export class ClientsService {
       data: {
         userId,
         message: `Client updated: ${updatedClient.name}`,
-        type: 'INFO',
+        type: 'info',
       },
     });
 
@@ -95,7 +95,7 @@ export class ClientsService {
       data: {
         userId,
         message: `Client deleted: ${client.name}`,
-        type: 'WARNING',
+        type: 'warning',
       },
     });
 
