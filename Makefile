@@ -2,7 +2,8 @@
 # FREELANCER CRM — Makefile
 # =============================================================================
 
-DOCKER_COMPOSE := $(shell if docker compose version > /dev/null 2>&1; then echo "docker compose"; else echo "docker-compose"; fi)
+SUDO := $(shell docker info > /dev/null 2>&1 || echo "sudo ")
+DOCKER_COMPOSE := $(shell if $(SUDO)docker compose version > /dev/null 2>&1; then echo "$(SUDO)docker compose"; else echo "$(SUDO)docker-compose"; fi)
 BACKEND_EXEC   := $(DOCKER_COMPOSE) exec backend
 FRONTEND_EXEC  := $(DOCKER_COMPOSE) exec frontend
 DB_EXEC        := $(DOCKER_COMPOSE) exec postgres
