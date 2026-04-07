@@ -5,65 +5,44 @@ interface ProjectStatusBadgeProps {
   status: ProjectStatus;
 }
 
-export const ProjectStatusBadge = ({ status }: ProjectStatusBadgeProps) => {
-  const statusStyles: Record<ProjectStatus, React.CSSProperties> = {
-    [ProjectStatus.ACTIVE]: {
-      backgroundColor: 'var(--success-bg)',
-      color: 'var(--success)',
-      border: '1px solid var(--success)',
-      padding: '4px 12px',
-      borderRadius: '12px',
-      fontSize: '11px',
-      fontWeight: 600,
-      textTransform: 'uppercase',
-      fontFamily: 'var(--font-m)',
-    },
-    [ProjectStatus.COMPLETED]: {
-      backgroundColor: 'var(--info-bg)',
-      color: 'var(--info)',
-      border: '1px solid var(--info)',
-      padding: '4px 12px',
-      borderRadius: '12px',
-      fontSize: '11px',
-      fontWeight: 600,
-      textTransform: 'uppercase',
-      fontFamily: 'var(--font-m)',
-    },
-    [ProjectStatus.PAUSED]: {
-      backgroundColor: 'var(--warning-bg)',
-      color: 'var(--warning)',
-      border: '1px solid var(--warning)',
-      padding: '4px 12px',
-      borderRadius: '12px',
-      fontSize: '11px',
-      fontWeight: 600,
-      textTransform: 'uppercase',
-      fontFamily: 'var(--font-m)',
-    },
-    [ProjectStatus.CANCELLED]: {
-      backgroundColor: 'var(--danger-bg)',
-      color: 'var(--danger)',
-      border: '1px solid var(--danger)',
-      padding: '4px 12px',
-      borderRadius: '12px',
-      fontSize: '11px',
-      fontWeight: 600,
-      textTransform: 'uppercase',
-      fontFamily: 'var(--font-m)',
-    },
-  };
+const STATUS_CONFIG: Record<ProjectStatus, { dot: string; label: string }> = {
+  [ProjectStatus.ACTIVE]:    { dot: 'var(--success)', label: 'Active' },
+  [ProjectStatus.COMPLETED]: { dot: 'var(--info)',    label: 'Completed' },
+  [ProjectStatus.PAUSED]:    { dot: 'var(--warning)', label: 'Paused' },
+  [ProjectStatus.CANCELLED]: { dot: 'var(--text-dim)', label: 'Cancelled' },
+};
 
-  const statusLabels = {
-    [ProjectStatus.ACTIVE]: 'ACTIVE',
-    [ProjectStatus.COMPLETED]: 'COMPLETED',
-    [ProjectStatus.PAUSED]: 'PENDING',
-    [ProjectStatus.CANCELLED]: 'DRAFT',
-  };
+export const ProjectStatusBadge = ({ status }: ProjectStatusBadgeProps) => {
+  const { dot, label } = STATUS_CONFIG[status] ?? STATUS_CONFIG[ProjectStatus.ACTIVE];
 
   return (
-    <span style={statusStyles[status]}>
-      {statusLabels[status]}
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
+        padding: '3px 8px 3px 6px',
+        borderRadius: 999,
+        background: 'rgba(255,255,255,0.04)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        fontFamily: 'var(--font-m)',
+        fontSize: 10,
+        fontWeight: 500,
+        letterSpacing: '.04em',
+        color: 'var(--text-mid)',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      <span
+        style={{
+          width: 5,
+          height: 5,
+          borderRadius: '50%',
+          background: dot,
+          flexShrink: 0,
+        }}
+      />
+      {label}
     </span>
   );
 };
-

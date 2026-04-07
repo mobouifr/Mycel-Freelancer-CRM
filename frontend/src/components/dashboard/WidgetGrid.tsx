@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useRef } from 'react';
+import { useMemo, useCallback, useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   GridLayout,
@@ -41,6 +41,24 @@ const GRID_CONFIG = {
 
 const RESIZE_HANDLES: readonly ['se'] = ['se'];
 
+/* Breakpoint for mobile layout (px). Uses window.innerWidth for
+   reliable detection regardless of container min-width constraints. */
+const MOBILE_BP = 768;
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < MOBILE_BP : false,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${MOBILE_BP - 1}px)`);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    setIsMobile(mq.matches);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return isMobile;
+}
+
 export default function WidgetGrid({
   layouts,
   visible,
@@ -50,6 +68,7 @@ export default function WidgetGrid({
 }: WidgetGridProps) {
   const { t } = useTranslation();
   const { width, containerRef, mounted } = useContainerWidth({ initialWidth: 1200 });
+  const isMobile = useIsMobile();
 
   /* ── Stable layout array ──
      Only rebuild when the underlying data actually changes.
@@ -99,15 +118,18 @@ export default function WidgetGrid({
     [onLayoutChange, visible],
   );
 
-  const isMobile = mounted && width > 0 && width < 640;
-
-  /* ── Mobile: simple stacked layout (no drag/resize) ── */
+  /* ── Mobile: 2-column CSS grid (no drag/resize) ── */
   if (isMobile) {
     return (
       <div
         ref={containerRef}
         className="widget-grid-container"
-        style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12 }}
+        style={{
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+        }}
       >
         {visible.map((widgetId) => {
           const entry = getWidgetEntry(widgetId);
@@ -117,7 +139,10 @@ export default function WidgetGrid({
           const minHeight = (layout?.h ?? 3) * ROW_HEIGHT;
 
           return (
-            <div key={widgetId} style={{ minHeight, width: '100%' }}>
+            <div
+              key={widgetId}
+              style={{ minHeight, width: '100%' }}
+            >
               <WidgetCard
                 title={t(entry.label)}
                 isEditing={false}
