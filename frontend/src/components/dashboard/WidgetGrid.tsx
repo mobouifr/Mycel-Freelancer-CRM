@@ -1,4 +1,5 @@
 import { useMemo, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   GridLayout,
   useContainerWidth,
@@ -47,6 +48,7 @@ export default function WidgetGrid({
   onRemoveWidget,
   isEditing,
 }: WidgetGridProps) {
+  const { t } = useTranslation();
   const { width, containerRef, mounted } = useContainerWidth({ initialWidth: 1200 });
 
   /* ── Stable layout array ──
@@ -126,7 +128,7 @@ export default function WidgetGrid({
                 className="widget-grid-item"
               >
                 <WidgetCard
-                  title={entry.label}
+                  title={t(entry.label)}
                   isEditing={isEditing}
                   onRemove={isEditing ? () => onRemoveWidget(widgetId) : undefined}
                   icon={

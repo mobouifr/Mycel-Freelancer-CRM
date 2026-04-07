@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useDashboardLayout, PRESET_OPTIONS } from '../hooks/useDashboardLayout';
 import WidgetGrid from '../components/dashboard/WidgetGrid';
 import WidgetPicker from '../components/dashboard/WidgetPicker';
-import QuickCreateFAB from '../components/dashboard/QuickCreateFAB';
 
 // ── Register all widget components (side-effect imports) ──
 import '../components/dashboard/CalendarUpcoming';
@@ -303,9 +302,6 @@ export default function Dashboard() {
         onExportLayout={exportLayout}
         onImportLayout={importLayout}
       />
-
-      {/* ── Quick Create FAB ── */}
-      <QuickCreateFAB />
     </div>
   );
 }

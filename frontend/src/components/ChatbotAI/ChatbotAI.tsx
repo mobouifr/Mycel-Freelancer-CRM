@@ -362,8 +362,8 @@ export default function ChatbotAI() {
       <style>{`
         .chatbot-ai-root {
           position: fixed;
-          right: max(35px, env(safe-area-inset-right, 0px));
-          bottom: max(170px, env(safe-area-inset-bottom, 0px));
+          right: max(32px, env(safe-area-inset-right, 0px));
+          bottom: max(104px, env(safe-area-inset-bottom, 0px));
           z-index: var(--z-fab);
           font-family: var(--font-m);
         }
@@ -697,7 +697,7 @@ export default function ChatbotAI() {
         @media (max-width: 1024px) {
           .chatbot-ai-root {
             right: max(32px, env(safe-area-inset-right, 0px));
-            bottom: max(168px, env(safe-area-inset-bottom, 0px));
+            bottom: max(104px, env(safe-area-inset-bottom, 0px));
           }
 
           .chatbot-ai-panel {
@@ -709,7 +709,7 @@ export default function ChatbotAI() {
         @media (max-width: 767px) {
           .chatbot-ai-root {
             right: max(20px, env(safe-area-inset-right, 0px));
-            bottom: max(138px, env(safe-area-inset-bottom, 0px));
+            bottom: max(84px, env(safe-area-inset-bottom, 0px));
           }
 
           .chatbot-ai-fab {

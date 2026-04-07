@@ -281,6 +281,8 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
           )}
         </div>}
 
+        <LanguageSwitcher />
+
         {/* Theme toggle */}
         <button
           onClick={cycleQuickTheme}
@@ -320,7 +322,6 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
         </button>
 
         {/* Notification bell */}
-        <LanguageSwitcher />
         <NotificationBell />
 
         {/* User avatar */}
@@ -400,6 +401,34 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
                   {user?.email || ''}
                 </p>
               </div>
+              <button
+                onClick={() => { setShowMenu(false); navigate('/settings'); }}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  background: 'none',
+                  border: 'none',
+                  padding: '8px 16px',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 11,
+                  color: 'var(--text-mid)',
+                  letterSpacing: '.04em',
+                  textAlign: 'left',
+                  transition: 'background .15s, color .15s',
+                  marginBottom: 4,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--glass)';
+                  e.currentTarget.style.color = 'var(--text)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'none';
+                  e.currentTarget.style.color = 'var(--text-mid)';
+                }}
+              >
+                {t('nav.settings')}
+              </button>
               <button
                 onClick={() => { logout(); navigate('/login'); }}
                 style={{
