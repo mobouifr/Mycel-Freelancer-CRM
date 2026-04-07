@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Input, Button } from '../components';
 import { LogoMark } from '../components';
 import { useTheme } from '../hooks/useTheme';
 
 export default function TwoFactorAuth() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +27,7 @@ export default function TwoFactorAuth() {
       await new Promise(resolve => setTimeout(resolve, 1000));
       // TODO: Navigate to dashboard on success
     } catch (err) {
-      setError('Invalid code. Please try again.');
+      setError(t('twofa.invalid_code'));
     } finally {
       setLoading(false);
     }
@@ -149,7 +151,7 @@ export default function TwoFactorAuth() {
                   borderBottom: '1px solid var(--white)',
                   marginBottom: -1,
                 }}>
-                  TWO-FACTOR AUTH
+                  {t('twofa.title')}
                 </div>
               </div>
             </div>
@@ -164,7 +166,7 @@ export default function TwoFactorAuth() {
                 marginBottom: 32,
                 textAlign: 'center',
               }}>
-                Enter the 6-digit code from your authenticator app to complete your login.
+                {t('twofa.description')}
               </p>
 
               {/* Error message */}
@@ -196,7 +198,7 @@ export default function TwoFactorAuth() {
                 {/* Code input */}
                 <div>
                   <Input
-                    label="Authentication Code"
+                    label={t('twofa.code_label')}
                     type="text"
                     placeholder="000000"
                     value={code}
@@ -223,7 +225,7 @@ export default function TwoFactorAuth() {
                     padding: '12px',
                   }}
                 >
-                  {loading ? 'Verifying...' : 'Verify & Continue'}
+                  {loading ? t('twofa.verifying') : t('twofa.verify_continue')}
                 </Button>
               </form>
 
@@ -240,7 +242,7 @@ export default function TwoFactorAuth() {
                   marginBottom: 12,
                   textAlign: 'center',
                 }}>
-                  Having trouble?
+                  {t('twofa.having_trouble')}
                 </p>
                 <div style={{
                   display: 'flex',
@@ -260,7 +262,7 @@ export default function TwoFactorAuth() {
                       padding: 0,
                     }}
                   >
-                    Can't access your authenticator app?
+                    {t('twofa.cant_access')}
                   </button>
                   <button
                     style={{
@@ -274,7 +276,7 @@ export default function TwoFactorAuth() {
                       padding: 0,
                     }}
                   >
-                    Use backup code
+                    {t('twofa.use_backup')}
                   </button>
                 </div>
               </div>
@@ -296,7 +298,7 @@ export default function TwoFactorAuth() {
                     padding: 0,
                   }}
                 >
-                  ← Back to login
+                  {t('twofa.back_to_login')}
                 </button>
               </div>
             </div>

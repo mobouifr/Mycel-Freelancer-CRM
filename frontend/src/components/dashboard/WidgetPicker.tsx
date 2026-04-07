@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { getWidgetMetas, type WidgetMeta } from './WidgetRegistry';
 import type { PresetId } from '../../hooks/useDashboardLayout';
 import { PRESET_OPTIONS } from '../../hooks/useDashboardLayout';
@@ -36,6 +37,7 @@ export default function WidgetPicker({
   onExportLayout,
   onImportLayout,
 }: WidgetPickerProps) {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -69,8 +71,8 @@ export default function WidgetPicker({
 
   const allWidgets = getWidgetMetas();
   const filtered = allWidgets.filter((w) =>
-    w.label.toLowerCase().includes(search.toLowerCase()) ||
-    w.description.toLowerCase().includes(search.toLowerCase())
+    t(w.label).toLowerCase().includes(search.toLowerCase()) ||
+    t(w.description).toLowerCase().includes(search.toLowerCase())
   );
 
   const portalRoot = document.getElementById('portal-root') || document.body;
@@ -132,7 +134,7 @@ export default function WidgetPicker({
               lineHeight: 1.3,
               margin: 0,
             }}>
-              Customize Dashboard
+              {t('widget_picker.title')}
             </h3>
             <p style={{
               fontFamily: 'var(--font-m)',
@@ -141,13 +143,13 @@ export default function WidgetPicker({
               letterSpacing: '.04em',
               marginTop: 2,
             }}>
-              Toggle widgets and apply presets
+              {t('widget_picker.subtitle')}
             </p>
           </div>
 
           <button
             onClick={onClose}
-            aria-label="Close widget picker"
+            aria-label={t('widget_picker.close')}
             style={{
               width: 28, height: 28, borderRadius: 6,
               background: 'none',
@@ -178,7 +180,7 @@ export default function WidgetPicker({
           <div style={{ marginBottom: 16 }}>
             <input
               type="text"
-              placeholder="Search widgets…"
+              placeholder={t('widget_picker.search_placeholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{
@@ -205,7 +207,7 @@ export default function WidgetPicker({
               color: 'var(--text-dim)', letterSpacing: '.12em',
               textTransform: 'uppercase', marginBottom: 8,
             }}>
-              Layout Presets
+              {t('widget_picker.layout_presets')}
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
               {PRESET_OPTIONS.map((p) => {
@@ -268,7 +270,7 @@ export default function WidgetPicker({
               onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--text-dim)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
             >
-              Reset Layout
+              {t('dashboard.reset_layout')}
             </button>
             <button
               onClick={onUndo}
@@ -287,7 +289,7 @@ export default function WidgetPicker({
                 transition: 'all .15s',
               }}
             >
-              Undo
+              {t('common.undo')}
             </button>
           </div>
 
@@ -330,7 +332,7 @@ export default function WidgetPicker({
                     <polyline points="7 10 12 15 17 10" />
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
-                  Export
+                  {t('common.export')}
                 </button>
               )}
               {onImportLayout && (
@@ -375,7 +377,7 @@ export default function WidgetPicker({
                     <polyline points="17 8 12 3 7 8" />
                     <line x1="12" y1="3" x2="12" y2="15" />
                   </svg>
-                  Import
+                  {t('common.import')}
                 </button>
               )}
             </div>
@@ -387,7 +389,7 @@ export default function WidgetPicker({
             color: 'var(--text-dim)', letterSpacing: '.12em',
             textTransform: 'uppercase', marginBottom: 8,
           }}>
-            Available Widgets
+            {t('widget_picker.available_widgets')}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {filtered.map((w) => (
@@ -404,7 +406,7 @@ export default function WidgetPicker({
                 color: 'var(--text-dim)', textAlign: 'center',
                 padding: '20px 0',
               }}>
-                No matching widgets
+                {t('widget_picker.no_matching')}
               </p>
             )}
           </div>
@@ -425,6 +427,7 @@ function WidgetToggleItem({
   isActive: boolean;
   onToggle: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <button
       onClick={onToggle}
@@ -473,14 +476,14 @@ function WidgetToggleItem({
           color: isActive ? 'var(--accent)' : 'var(--text)',
           marginBottom: 1,
         }}>
-          {widget.label}
+          {t(widget.label)}
         </p>
         <p style={{
           fontFamily: 'var(--font-m)', fontSize: 9,
           color: 'var(--text-dim)',
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}>
-          {widget.description}
+          {t(widget.description)}
         </p>
       </div>
 

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '../hooks/useIsMobile';
 import CalendarView from '../components/reminders/CalendarView';
 import NotesView from '../components/reminders/NotesView';
@@ -8,6 +9,7 @@ import type { Note } from '../hooks/useStore';
 type RightTab = 'notes' | 'todos';
 
 export default function Reminders() {
+  const { t } = useTranslation();
   const isMobile = useIsMobile(1100);
   const [rightTab, setRightTab] = useState<RightTab>('notes');
   const [convertingNote, setConvertingNote] = useState<Note | null>(null);
@@ -36,12 +38,12 @@ export default function Reminders() {
             fontFamily: 'var(--font-d)', fontWeight: 500, fontSize: 24,
             color: 'var(--text)', letterSpacing: '.04em', lineHeight: 1.3, marginBottom: 2,
           }}>
-            Reminders & Planner
+            {t('reminders.title')}
           </h2>
           <p style={{
             fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)', letterSpacing: '.04em',
           }}>
-            Calendar · Sticky Notes · Todos
+            {t('reminders.subtitle')}
           </p>
         </div>
       </div>
@@ -96,7 +98,7 @@ export default function Reminders() {
                   transition: 'all .12s',
                 }}
               >
-                {tab === 'notes' ? 'Notes' : 'Todos'}
+                {tab === 'notes' ? t('reminders.notes') : t('reminders.todos')}
               </button>
             ))}
           </div>

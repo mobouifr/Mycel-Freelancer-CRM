@@ -39,16 +39,5 @@ export const clientsApi = {
     return response.data;
   },
 
-  // Get client's proposals
-  getProposals: async (id: string) => {
-    const response = await apiClient.get(`/clients/${id}/proposals`);
-    return response.data;
-  },
-
-  // Get client's invoices
-  getInvoices: async (id: string) => {
-    const response = await apiClient.get(`/clients/${id}/invoices`);
-    return response.data;
-  },
 };
 

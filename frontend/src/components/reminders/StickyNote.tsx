@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Note, NoteColor } from '../../hooks/useStore';
 
 const COLOR_MAP: Record<NoteColor, string> = {
@@ -28,6 +29,7 @@ interface StickyNoteProps {
 }
 
 export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent }: StickyNoteProps) {
+  const { t, i18n } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(note.title);
   const [body, setBody] = useState(note.body);
@@ -51,14 +53,14 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button
           onClick={() => onUpdate(note.id, { pinned: !note.pinned })}
-          title={note.pinned ? 'Unpin' : 'Pin'}
+          title={note.pinned ? t('notes.pinned') : t('notes.pin')}
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
             fontSize: 12, color: note.pinned ? 'var(--accent)' : 'var(--text-dim)',
             padding: 0, transition: 'color .12s',
           }}
         >
-          {note.pinned ? 'Pinned' : 'Pin'}
+          {note.pinned ? t('notes.pinned') : t('notes.pin')}
         </button>
 
         <div style={{ display: 'flex', gap: 4 }}>
@@ -67,14 +69,14 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
             title="Change color"
             style={iconBtn}
           >
-            Color
+            {t('notes.color')}
           </button>
           <button
             onClick={() => onConvertToEvent(note)}
             title="Convert to event"
             style={iconBtn}
           >
-            Event
+            {t('notes.event')}
           </button>
           <button
             onClick={() => onDelete(note.id)}
@@ -110,7 +112,7 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title"
+            placeholder={t('notes.title_label')}
             style={{
               background: 'transparent', border: 'none', borderBottom: '1px solid var(--border)',
               color: 'var(--text)', fontFamily: 'var(--font-m)', fontSize: 12,
@@ -120,7 +122,7 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="Write something..."
+            placeholder={t('notes.content_placeholder')}
             rows={3}
             style={{
               background: 'transparent', border: 'none',
@@ -129,9 +131,9 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
             }}
           />
           <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-            <button onClick={() => setEditing(false)} style={smallBtn}>Cancel</button>
+            <button onClick={() => setEditing(false)} style={smallBtn}>{t('common.cancel')}</button>
             <button onClick={save} style={{ ...smallBtn, background: 'var(--accent)', color: 'var(--bg)' }}>
-              Save
+              {t('common.save')}
             </button>
           </div>
         </>
@@ -141,14 +143,14 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
             fontFamily: 'var(--font-m)', fontSize: 12, color: 'var(--text)',
             fontWeight: 600, marginBottom: 4,
           }}>
-            {note.title || 'Untitled'}
+            {note.title || t('notes.untitled')}
           </div>
           <div style={{
             fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-mid)',
             lineHeight: 1.5, whiteSpace: 'pre-wrap',
             overflow: 'hidden', maxHeight: 80,
           }}>
-            {note.body || 'Click to edit...'}
+            {note.body || t('notes.click_to_edit')}
           </div>
         </div>
       )}
@@ -188,7 +190,7 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
         fontFamily: 'var(--font-m)', fontSize: 8, color: 'var(--text-dim)',
         marginTop: 'auto', letterSpacing: '.04em',
       }}>
-        {new Date(note.updatedAt).toLocaleDateString('en-US', {
+        {new Date(note.updatedAt).toLocaleDateString(i18n.language, {
           month: 'short', day: 'numeric',
         })}
       </div>

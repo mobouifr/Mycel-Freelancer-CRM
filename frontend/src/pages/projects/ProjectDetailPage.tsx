@@ -1,6 +1,7 @@
 // Project detail page
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { projectsService } from '../../services/data.service';
 import { type Project, ProjectStatus } from '../../types/project.types';
 import { type ApiError } from '../../types/common.types';
@@ -9,6 +10,7 @@ import { ProjectStatusBadge } from '../../components/projects/ProjectStatusBadge
 import { useStore } from '../../hooks/useStore';
 
 export const ProjectDetailPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { addNotification } = useStore();
@@ -25,7 +27,7 @@ export const ProjectDetailPage = () => {
         setProject(data);
       } catch (err) {
         const apiError = err as ApiError;
-        setError(apiError.message || 'Failed to load project');
+        setError(apiError.message || t('projects.load_failed'));
       } finally {
         setLoading(false);
       }
@@ -41,19 +43,19 @@ export const ProjectDetailPage = () => {
         setProject({ ...project, status: newStatus });
         addNotification({
           type: 'info',
-          title: 'Project updated',
+          title: t('projects.updated'),
           message: `"${project.title}" status changed to ${newStatus}.`,
         });
       }
     } catch (err: any) {
-      alert(err.message || 'Failed to update status');
+      alert(err.message || t('projects.update_failed'));
     }
   };
 
   if (loading) {
     return (
       <div className="p-6">
-        <div className="text-center py-8">Loading project...</div>
+        <div className="text-center py-8">{t('projects.detail_loading')}</div>
       </div>
     );
   }
@@ -70,7 +72,7 @@ export const ProjectDetailPage = () => {
             borderRadius: 8,
           }}
         >
-          {error || 'Project not found'}
+          {error || t('projects.not_found')}
         </div>
       </div>
     );
@@ -102,7 +104,7 @@ export const ProjectDetailPage = () => {
               letterSpacing: '.06em',
             }}
           >
-            Edit
+            {t('common.edit')}
           </button>
           <button
             onClick={() => navigate('/projects')}
@@ -120,7 +122,7 @@ export const ProjectDetailPage = () => {
               letterSpacing: '.06em',
             }}
           >
-            Back to List
+            {t('common.back_to_list')}
           </button>
         </div>
       </div>
@@ -128,30 +130,30 @@ export const ProjectDetailPage = () => {
       <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24 }}>
         <div className="space-y-4">
           <div>
-            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Client</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('event_modal.client')}</h3>
             <p style={{ marginTop: 4, color: 'var(--text)' }}>{project.client?.name || '—'}</p>
           </div>
           <div>
-            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Description</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.description')}</h3>
             <p style={{ marginTop: 4, color: 'var(--text)', whiteSpace: 'pre-wrap' }}>{project.description || '—'}</p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Budget</h3>
+              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.budget')}</h3>
               <p style={{ marginTop: 4, color: 'var(--text)' }}>{formatCurrency(Number(project.budget))}</p>
             </div>
             <div>
-              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Deadline</h3>
+              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.deadline')}</h3>
               <p style={{ marginTop: 4, color: 'var(--text)' }}>{formatDate(project.deadline)}</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Created</h3>
+              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.created')}</h3>
               <p style={{ marginTop: 4, color: 'var(--text)' }}>{formatDate(project.createdAt)}</p>
             </div>
             <div>
-              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>Last Updated</h3>
+              <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-dim)' }}>{t('common.last_updated')}</h3>
               <p style={{ marginTop: 4, color: 'var(--text)' }}>{formatDate(project.updatedAt)}</p>
             </div>
           </div>
@@ -159,7 +161,7 @@ export const ProjectDetailPage = () => {
       </div>
 
       <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24, marginTop: 16 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: 'var(--text)' }}>Actions</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: 'var(--text)' }}>{t('common.actions')}</h2>
         <div className="flex gap-2 flex-wrap">
           <select
             value={project.status}

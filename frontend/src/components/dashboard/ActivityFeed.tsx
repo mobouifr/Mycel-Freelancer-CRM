@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
 
 /* ─────────────────────────────────────────────
@@ -7,32 +8,27 @@ import { setWidgetComponent } from './WidgetRegistry';
 
 interface ActivityItem {
   id: string;
-  type: 'invoice' | 'proposal' | 'client' | 'project' | 'note';
-  title: string;
+  type: 'client' | 'project' | 'note';
+  titleKey: string;
   detail: string;
-  time: string;
+  timeKey: string;
 }
 
 // Mock data — replace with API
 const ACTIVITIES: ActivityItem[] = [
-  { id: '1', type: 'invoice',  title: 'Invoice paid',        detail: 'Arca Studio — $3,200',   time: '2h ago' },
-  { id: '2', type: 'proposal', title: 'Proposal sent',       detail: 'Noma Labs — Web Redesign', time: '4h ago' },
-  { id: '3', type: 'client',   title: 'New client added',    detail: 'Vault Studio',            time: 'Yesterday' },
-  { id: '4', type: 'project',  title: 'Project completed',   detail: 'Drift Co. — Brand Identity', time: 'Yesterday' },
-  { id: '5', type: 'invoice',  title: 'Invoice created',     detail: 'Pixel Root — $1,800',     time: '2 days ago' },
-  { id: '6', type: 'note',     title: 'Note linked',         detail: 'Meeting notes → Q2 Planning', time: '3 days ago' },
-  { id: '7', type: 'proposal', title: 'Proposal accepted',   detail: 'Arca Studio — $5,400',    time: '4 days ago' },
+  { id: '3', type: 'client',   titleKey: 'activity.new_client_added',  detail: 'Vault Studio',            timeKey: 'activity.time_2h' },
+  { id: '4', type: 'project',  titleKey: 'activity.project_completed', detail: 'Drift Co. — Brand Identity', timeKey: 'activity.time_yesterday' },
+  { id: '6', type: 'note',     titleKey: 'activity.note_linked',       detail: 'Meeting notes → Q2 Planning', timeKey: 'activity.time_3d' },
 ];
 
 const TYPE_ICON: Record<ActivityItem['type'], { path: string; color: string }> = {
-  invoice:  { path: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2', color: 'var(--success)' },
-  proposal: { path: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z', color: 'var(--info, #60a5fa)' },
   client:   { path: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', color: 'var(--accent)' },
   project:  { path: 'M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z', color: 'var(--warning, #f59e0b)' },
   note:     { path: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8', color: 'var(--text-mid)' },
 };
 
 function ActivityFeed() {
+  const { t } = useTranslation();
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ flex: 1, overflow: 'auto' }}>
@@ -73,14 +69,14 @@ function ActivityFeed() {
                     fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--white)',
                     lineHeight: 1.3,
                   }}>
-                    {item.title}
+                    {t(item.titleKey)}
                   </p>
                   <span style={{
                     fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
                     letterSpacing: '.04em', whiteSpace: 'nowrap', marginLeft: 8,
                     flexShrink: 0,
                   }}>
-                    {item.time}
+                    {t(item.timeKey)}
                   </span>
                 </div>
                 <p style={{

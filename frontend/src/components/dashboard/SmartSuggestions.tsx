@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
 
 /* ─────────────────────────────────────────────
@@ -8,9 +9,9 @@ import { setWidgetComponent } from './WidgetRegistry';
 
 interface Suggestion {
   id: string;
-  title: string;
-  description: string;
-  action: string;
+  titleKey: string;
+  descriptionKey: string;
+  actionKey: string;
   priority: 'high' | 'medium' | 'low';
   icon: string; // SVG path
 }
@@ -19,33 +20,25 @@ interface Suggestion {
 const SUGGESTIONS: Suggestion[] = [
   {
     id: '1',
-    title: 'Follow up with Pixel Root',
-    description: 'Invoice #042 is due in 2 days. Send a friendly reminder.',
-    action: 'Send Reminder',
+    titleKey: 'suggestions.follow_up_title',
+    descriptionKey: 'suggestions.follow_up_desc',
+    actionKey: 'suggestions.send_reminder',
     priority: 'high',
     icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
   },
   {
-    id: '2',
-    title: 'Proposal ready to send',
-    description: 'Drift Co. proposal has been in draft for 5 days.',
-    action: 'Review Draft',
-    priority: 'medium',
-    icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z',
-  },
-  {
     id: '3',
-    title: 'Schedule Q2 planning',
-    description: 'No events scheduled for next week. Block time for planning.',
-    action: 'Add Event',
+    titleKey: 'suggestions.schedule_planning_title',
+    descriptionKey: 'suggestions.schedule_planning_desc',
+    actionKey: 'suggestions.add_event',
     priority: 'low',
     icon: 'M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z',
   },
   {
     id: '4',
-    title: 'Revenue goal on track',
-    description: 'You\'re at 87% of your monthly goal. Keep it up!',
-    action: 'View Stats',
+    titleKey: 'suggestions.revenue_on_track_title',
+    descriptionKey: 'suggestions.revenue_on_track_desc',
+    actionKey: 'suggestions.view_stats',
     priority: 'low',
     icon: 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
   },
@@ -58,6 +51,7 @@ const PRIORITY_STYLE: Record<Suggestion['priority'], { dot: string; border: stri
 };
 
 function SmartSuggestions() {
+  const { t } = useTranslation();
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
 
   const activeSuggestions = SUGGESTIONS.filter((s) => !dismissed.has(s.id));
@@ -81,7 +75,7 @@ function SmartSuggestions() {
             fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)',
             textAlign: 'center',
           }}>
-            All caught up! No pending suggestions.
+            {t('suggestions.all_caught_up')}
           </p>
         </div>
       ) : (
@@ -126,13 +120,13 @@ function SmartSuggestions() {
                       fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--white)',
                       marginBottom: 2, lineHeight: 1.3,
                     }}>
-                      {s.title}
+                      {t(s.titleKey)}
                     </p>
                     <p style={{
                       fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)',
                       lineHeight: 1.4, marginBottom: 6,
                     }}>
-                      {s.description}
+                      {t(s.descriptionKey)}
                     </p>
 
                     {/* Actions */}
@@ -156,7 +150,7 @@ function SmartSuggestions() {
                           e.currentTarget.style.color = 'var(--accent)';
                         }}
                       >
-                        {s.action}
+                        {t(s.actionKey)}
                       </button>
                       <button
                         onClick={() => handleDismiss(s.id)}
@@ -171,7 +165,7 @@ function SmartSuggestions() {
                         onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--text-dim)'; }}
                         onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
                       >
-                        Dismiss
+                        {t('suggestions.dismiss')}
                       </button>
                     </div>
                   </div>

@@ -1,6 +1,7 @@
 // Client form component
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { clientSchema, type ClientFormData } from '../../utils/validation';
 import { type Client } from '../../types/client.types';
 
@@ -12,6 +13,7 @@ interface ClientFormProps {
 }
 
 export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: ClientFormProps) => {
+  const { t } = useTranslation();
   const {
     register,
     handleSubmit,
@@ -50,7 +52,7 @@ export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: Cl
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div>
         <label htmlFor="name" className="block text-sm font-medium mb-1">
-          Name <span className="text-red-500">*</span>
+          {t('forms.client.name')} <span className="text-red-500">*</span>
         </label>
         <input
           id="name"
@@ -64,7 +66,7 @@ export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: Cl
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium mb-1">
-          Email
+          {t('forms.client.email')}
         </label>
         <input
           id="email"
@@ -78,7 +80,7 @@ export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: Cl
 
       <div>
         <label htmlFor="phone" className="block text-sm font-medium mb-1">
-          Phone
+          {t('forms.client.phone')}
         </label>
         <input
           id="phone"
@@ -92,7 +94,7 @@ export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: Cl
 
       <div>
         <label htmlFor="company" className="block text-sm font-medium mb-1">
-          Company
+          {t('forms.client.company')}
         </label>
         <input
           id="company"
@@ -106,7 +108,7 @@ export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: Cl
 
       <div>
         <label htmlFor="notes" className="block text-sm font-medium mb-1">
-          Notes
+          {t('forms.client.notes')}
         </label>
         <textarea
           id="notes"
@@ -154,7 +156,7 @@ export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: Cl
               e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
             }}
           >
-            Cancel
+            {t('common.cancel')}
           </button>
         )}
         <button
@@ -183,7 +185,7 @@ export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: Cl
             e.currentTarget.style.color = 'var(--accent)';
           }}
         >
-          {isSubmitting || isLoading ? 'Saving...' : client ? 'Update Client' : 'Create Client'}
+          {isSubmitting || isLoading ? t('common.saving') : client ? t('forms.client.update') : t('forms.client.create')}
         </button>
       </div>
     </form>

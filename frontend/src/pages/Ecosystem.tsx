@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 /* ─────────────────────────────────────────────
@@ -21,6 +22,7 @@ function seededRandom(seed: number) {
 }
 
 export default function Ecosystem() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [hours, setHours] = useState(getGrowthHours);
 
@@ -35,12 +37,12 @@ export default function Ecosystem() {
   const progress = ((growth % 10) / 10) * 100;
 
   const milestones = useMemo(() => [
-    { level: 1, label: 'Seedling',     icon: '🌱', unlocked: level >= 1 },
-    { level: 3, label: 'Sprouting',    icon: '🌿', unlocked: level >= 3 },
-    { level: 5, label: 'Blooming',     icon: '🌸', unlocked: level >= 5 },
-    { level: 8, label: 'Flourishing',  icon: '🌳', unlocked: level >= 8 },
-    { level: 10, label: 'Ancient',     icon: '🍄', unlocked: level >= 10 },
-    { level: 15, label: 'Mythical',    icon: '✨', unlocked: level >= 15 },
+    { level: 1, label: t('ecosystem.seedling'),     icon: '🌱', unlocked: level >= 1 },
+    { level: 3, label: t('ecosystem.sprouting'),    icon: '🌿', unlocked: level >= 3 },
+    { level: 5, label: t('ecosystem.blooming'),     icon: '🌸', unlocked: level >= 5 },
+    { level: 8, label: t('ecosystem.flourishing'),  icon: '🌳', unlocked: level >= 8 },
+    { level: 10, label: t('ecosystem.ancient'),     icon: '🍄', unlocked: level >= 10 },
+    { level: 15, label: t('ecosystem.mythical'),    icon: '✨', unlocked: level >= 15 },
   ], [level]);
 
   // Generate scene elements
@@ -79,7 +81,7 @@ export default function Ecosystem() {
             lineHeight: 1.3,
             marginBottom: 4,
           }}>
-            Ecosystem
+            {t('ecosystem.title')}
           </h2>
           <p style={{
             fontFamily: 'var(--font-m)',
@@ -87,7 +89,7 @@ export default function Ecosystem() {
             color: 'var(--text-dim)',
             letterSpacing: '.04em',
           }}>
-            Your workspace grows as you work · Level {level}
+            {t('ecosystem.subtitle', { level })}
           </p>
         </div>
 
@@ -108,7 +110,7 @@ export default function Ecosystem() {
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--text-dim)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
         >
-          ← Back to Dashboard
+          {t('ecosystem.back_to_dashboard')}
         </button>
       </div>
 
@@ -180,7 +182,7 @@ export default function Ecosystem() {
               fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
               letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 12,
             }}>
-              Growth Stats
+              {t('ecosystem.growth_stats')}
             </p>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -193,7 +195,7 @@ export default function Ecosystem() {
                   {level}
                 </p>
                 <p style={{ fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)' }}>
-                  Current Level
+                  {t('ecosystem.current_level')}
                 </p>
               </div>
               <div style={{ textAlign: 'right' }}>
@@ -205,7 +207,7 @@ export default function Ecosystem() {
                   {Math.floor(hours)}h
                 </p>
                 <p style={{ fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)' }}>
-                  Total Growth
+                  {t('ecosystem.total_growth')}
                 </p>
               </div>
             </div>
@@ -214,10 +216,10 @@ export default function Ecosystem() {
             <div style={{ marginBottom: 6 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                 <span style={{ fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)' }}>
-                  Next level
+                  {t('ecosystem.next_level')}
                 </span>
                 <span style={{ fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)', fontVariantNumeric: 'tabular-nums' }}>
-                  {Math.floor(nextLevelHours - hours)}h remaining
+                  {t('ecosystem.remaining', { hours: Math.floor(nextLevelHours - hours) })}
                 </span>
               </div>
               <div style={{
@@ -247,7 +249,7 @@ export default function Ecosystem() {
               fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
               letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 12,
             }}>
-              Milestones
+              {t('ecosystem.milestones')}
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -279,7 +281,7 @@ export default function Ecosystem() {
                       fontFamily: 'var(--font-m)', fontSize: 9,
                       color: 'var(--text-dim)',
                     }}>
-                      Level {m.level}
+                      {t('ecosystem.level', { level: m.level })}
                     </p>
                   </div>
                   {m.unlocked && (

@@ -1,6 +1,7 @@
 // Edit client page
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { clientsService } from '../../services/data.service';
 import { ClientForm } from '../../components/clients/ClientForm';
 import { type ClientFormData } from '../../utils/validation';
@@ -10,6 +11,7 @@ import CenteredModal from '../../components/modals/CenteredModal';
 import { useStore } from '../../hooks/useStore';
 
 export const EditClientPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { addNotification } = useStore();
@@ -27,7 +29,7 @@ export const EditClientPage = () => {
         setClient(data);
       } catch (err) {
         const apiError = err as ApiError;
-        setError(apiError.message || 'Failed to load client');
+        setError(apiError.message || t('clients.load_failed'));
       } finally {
         setLoading(false);
       }
@@ -42,12 +44,12 @@ export const EditClientPage = () => {
       const updatedClient = await clientsService.update(id, data);
       addNotification({
         type: 'info',
-        title: 'Client updated',
+        title: t('clients.updated'),
         message: `"${updatedClient.name}" was updated.`,
       });
       navigate('/clients');
     } catch (err: any) {
-      alert(err.message || 'Failed to update client');
+      alert(err.message || t('clients.update_failed'));
     } finally {
       setIsSaving(false);
     }
@@ -55,9 +57,9 @@ export const EditClientPage = () => {
 
   if (loading) {
     return (
-      <CenteredModal title="Edit Client" onClose={() => navigate('/clients')}>
+      <CenteredModal title={t('clients.edit_title')} onClose={() => navigate('/clients')}>
         <div className="text-center py-8" style={{ color: 'var(--text-mid)' }}>
-          Loading client...
+          {t('clients.detail_loading')}
         </div>
       </CenteredModal>
     );
@@ -65,7 +67,7 @@ export const EditClientPage = () => {
 
   if (error || !client) {
     return (
-      <CenteredModal title="Edit Client" onClose={() => navigate('/clients')}>
+      <CenteredModal title={t('clients.edit_title')} onClose={() => navigate('/clients')}>
         <div
           style={{
             background: 'rgba(230, 90, 90, 0.08)',
@@ -78,14 +80,14 @@ export const EditClientPage = () => {
             letterSpacing: '.04em',
           }}
         >
-          {error || 'Client not found'}
+          {error || t('clients.not_found')}
         </div>
       </CenteredModal>
     );
   }
 
   return (
-    <CenteredModal title="Edit Client" onClose={() => navigate('/clients')}>
+    <CenteredModal title={t('clients.edit_title')} onClose={() => navigate('/clients')}>
       <ClientForm
         client={client}
         onSubmit={handleSubmit}

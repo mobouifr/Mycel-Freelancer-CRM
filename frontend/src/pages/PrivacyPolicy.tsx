@@ -1,9 +1,11 @@
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Footer from '../components/Footer';
 import { LogoMark } from '../components';
 import { useTheme } from '../hooks/useTheme';
 
 export default function PrivacyPolicy() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { mode: themeMode, cycleQuickTheme, theme } = useTheme();
 
@@ -113,7 +115,7 @@ export default function PrivacyPolicy() {
               padding: 0,
             }}
           >
-            ← Back
+            {t('common.back')}
           </button>
 
           <h1
@@ -126,7 +128,7 @@ export default function PrivacyPolicy() {
               marginBottom: 8,
             }}
           >
-            Privacy Policy
+            {t('privacy_policy.title')}
           </h1>
 
           <p
@@ -163,7 +165,7 @@ export default function PrivacyPolicy() {
               company name, address, currency preference, and tax rate.
               <br /><br />
               <strong>Client and Project Data:</strong> Information you enter about your clients,
-              projects, proposals, invoices, reminders, and notes.
+              projects, reminders, and notes.
               <br /><br />
               <strong>Usage Data:</strong> We collect basic usage patterns such as login timestamps.
             </Section>
@@ -173,7 +175,6 @@ export default function PrivacyPolicy() {
               <ul style={{ marginTop: 8, paddingLeft: 20 }}>
                 <li>Provide and maintain the app</li>
                 <li>Authenticate and secure your account</li>
-                <li>Generate invoices and reports</li>
                 <li>Send reminders</li>
                 <li>Improve experience</li>
               </ul>

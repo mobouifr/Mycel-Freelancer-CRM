@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '../../hooks/useIsMobile';
 
 type MessageRole = 'user' | 'assistant';
-type PendingFormType = 'CLIENT' | 'PROJECT' | 'INVOICE';
+type PendingFormType = 'CLIENT' | 'PROJECT';
 
 interface ActionResponse {
   action?: string;
@@ -27,6 +28,7 @@ const getUsername = (): string => {
 };
 
 export default function ChatbotAI() {
+  const { t } = useTranslation();
   const username = getUsername();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
@@ -115,17 +117,6 @@ export default function ChatbotAI() {
     return null;
   };
 
-  const getProjects = async (): Promise<any[]> => {
-    try {
-      const response = await fetch('/api/projects', { headers: getAuthHeaders() });
-      if (!response.ok) return [];
-      const payload = await response.json();
-      return Array.isArray(payload) ? payload : (payload.data ?? []);
-    } catch {
-      return [];
-    }
-  };
-
   const fetchEntityList = async (path: string): Promise<any[]> => {
     try {
       const response = await fetch(path, { headers: getAuthHeaders() });
@@ -138,16 +129,14 @@ export default function ChatbotAI() {
   };
 
   const refreshCrmContext = async (): Promise<string> => {
-    const [clients, projects, invoices] = await Promise.all([
+    const [clients, projects] = await Promise.all([
       fetchEntityList('/api/clients'),
       fetchEntityList('/api/projects'),
-      fetchEntityList('/api/invoices'),
     ]);
 
     const summary = [
       `Clients (${clients.length}): ${clients.map((c: any) => c.name).join(', ') || 'none'}`,
       `Projects (${projects.length}): ${projects.map((p: any) => `${p.title} [${p.status}]`).join(', ') || 'none'}`,
-      `Invoices (${invoices.length}): ${invoices.map((i: any) => `${i.invoiceNumber ?? `#${i.id}`} ${i.total ?? i.amount} [${i.status}]`).join(', ') || 'none'}`,
     ].join('\n');
 
     setCrmContext(summary);
@@ -200,52 +189,6 @@ export default function ChatbotAI() {
 
         await postWithFallback(['/api/projects'], payload);
         setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: `✅ Project "${title}" has been created.` }]);
-      }
-
-      if (pendingForm === 'INVOICE') {
-        const clientName = (formData.clientName ?? '').trim();
-        const total = Number(formData.total ?? '0');
-        const dueDate = (formData.dueDate ?? '').trim();
-
-        if (!clientName || !Number.isFinite(total) || total <= 0) {
-          setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: 'Please provide client name and a valid total amount.' }]);
-          return;
-        }
-
-        const matchedClient = await findClientByName(clientName);
-        const projects = await getProjects();
-        const candidateProject = projects.find((project: any) => {
-          const projectClientName = (project?.client?.name ?? '').toLowerCase();
-          const clientId = project?.clientId;
-          return (
-            projectClientName === clientName.toLowerCase() ||
-            (matchedClient?.id && clientId === matchedClient.id)
-          );
-        });
-
-        if (!candidateProject?.id) {
-          setMessages((prev: ChatMessage[]) => [
-            ...prev,
-            {
-              role: 'assistant',
-              content: `I could not find a project for \"${clientName}\". Please create/select a project first, then try invoice creation again.`,
-            },
-          ]);
-          return;
-        }
-
-        const payload: Record<string, unknown> = {
-          amount: total,
-          status: 'PENDING',
-          projectId: candidateProject.id,
-        };
-
-        if (dueDate) {
-          payload.dueDate = dueDate;
-        }
-
-        await postWithFallback(['/api/invoices'], payload);
-        setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: `✅ Invoice of ${total} for "${clientName}" added.` }]);
       }
 
       setPendingForm(null);
@@ -312,7 +255,7 @@ export default function ChatbotAI() {
 
     const prompt = {
       role: 'system' as const,
-      content: `You are a smart assistant for ${username} inside their freelancer CRM. Always address them as ${username}. Be concise and practical.\n\nUse the live CRM snapshot below as the source of truth for questions about clients, projects, invoices, and plans. This snapshot is fetched from the database for each user message.\n\nYou are a smart CRM assistant. When answering questions about projects, clients, invoices, or plans, prefer structured visual answers over plain text when it helps clarity. Use:\n\n- Markdown tables for comparisons, status summaries, or lists of data\n- ASCII flowcharts (→ ↓ ├ └) for processes or decision flows\n- Numbered steps with clear hierarchy for action plans\n- Tree diagrams for relationships between clients, projects, and invoices\n\nExample: if asked \"what are my active projects?\" reply with a table. If asked \"how should I follow up with a client?\" reply with a step-by-step flow.\n\nOnly add diagrams when they genuinely improve the answer. Short factual answers stay as plain text.\n\nYou can also perform CRM actions. When the user wants to create something, respond ONLY with a JSON block in this exact format - no extra text:\n\n{\"action\":\"CREATE_CLIENT\",\"data\":{\"name\":\"...\",\"email\":\"...\",\"phone\":\"...\",\"company\":\"...\"}}\n{\"action\":\"CREATE_PROJECT\",\"data\":{\"title\":\"...\",\"clientName\":\"...\",\"status\":\"ACTIVE\",\"budget\":0}}\n{\"action\":\"CREATE_INVOICE\",\"data\":{\"clientName\":\"...\",\"total\":0,\"status\":\"UNPAID\",\"dueDate\":\"YYYY-MM-DD\"}}\n\nRules:\n- Use \"action\" key always in UPPERCASE with underscore\n- Fill only the fields the user mentioned - leave others as empty string or 0\n- If critical fields are missing (name for client, title for project, clientName+total for invoice), set \"action\":\"NEEDS_FORM\" and include \"type\":\"CLIENT\"|\"PROJECT\"|\"INVOICE\"\n- For normal questions, answer as usual with no JSON\n\nHere is their current CRM data:\n${latestCrmContext}`,
+      content: `You are a smart assistant for ${username} inside their freelancer CRM. Always address them as ${username}. Be concise and practical.\n\nUse the live CRM snapshot below as the source of truth for questions about clients, projects, and plans. This snapshot is fetched from the database for each user message.\n\nYou are a smart CRM assistant. When answering questions about projects, clients, or plans, prefer structured visual answers over plain text when it helps clarity. Use:\n\n- Markdown tables for comparisons, status summaries, or lists of data\n- ASCII flowcharts (→ ↓ ├ └) for processes or decision flows\n- Numbered steps with clear hierarchy for action plans\n- Tree diagrams for relationships between clients and projects\n\nExample: if asked \"what are my active projects?\" reply with a table. If asked \"how should I follow up with a client?\" reply with a step-by-step flow.\n\nOnly add diagrams when they genuinely improve the answer. Short factual answers stay as plain text.\n\nYou can also perform CRM actions. When the user wants to create something, respond ONLY with a JSON block in this exact format - no extra text:\n\n{\"action\":\"CREATE_CLIENT\",\"data\":{\"name\":\"...\",\"email\":\"...\",\"phone\":\"...\",\"company\":\"...\"}}\n{\"action\":\"CREATE_PROJECT\",\"data\":{\"title\":\"...\",\"clientName\":\"...\",\"status\":\"ACTIVE\",\"budget\":0}}\n\nRules:\n- Use \"action\" key always in UPPERCASE with underscore\n- Fill only the fields the user mentioned - leave others as empty string or 0\n- If critical fields are missing (name for client, title for project), set \"action\":\"NEEDS_FORM\" and include \"type\":\"CLIENT\"|\"PROJECT\"\n- For normal questions, answer as usual with no JSON\n\nHere is their current CRM data:\n${latestCrmContext}`,
     };
 
     let reply = '';
@@ -394,56 +337,9 @@ export default function ChatbotAI() {
           setFormData({});
           reply = `✅ Project "${title}" has been created.`;
         }
-      } else if (action === 'CREATE_INVOICE') {
-        const clientName = String(dataPayload.clientName ?? '').trim();
-        const totalNum = Number(dataPayload.total ?? 0);
-        const total = Number.isFinite(totalNum) ? totalNum : 0;
-        const dueDate = String(dataPayload.dueDate ?? '').trim();
-
-        if (!clientName || total <= 0) {
-          setPendingForm('INVOICE');
-          setFormData({
-            clientName,
-            total: total > 0 ? String(total) : '',
-            dueDate,
-          });
-          reply = 'I need a few more details. Please fill in the form below.';
-        } else {
-          const matchedClient = await findClientByName(clientName);
-          const projects = await getProjects();
-          const candidateProject = projects.find((project: any) => {
-            const projectClientName = (project?.client?.name ?? '').toLowerCase();
-            const clientId = project?.clientId;
-            return (
-              projectClientName === clientName.toLowerCase() ||
-              (matchedClient?.id && clientId === matchedClient.id)
-            );
-          });
-
-          if (!candidateProject?.id) {
-            setPendingForm('INVOICE');
-            setFormData({ clientName, total: String(total), dueDate });
-            reply = `I could not find a project for \"${clientName}\". Please complete the form below.`;
-          } else {
-            const payload: Record<string, unknown> = {
-              amount: total,
-              status: 'PENDING',
-              projectId: candidateProject.id,
-            };
-
-            if (dueDate) {
-              payload.dueDate = dueDate;
-            }
-
-            await postWithFallback(['/api/invoices'], payload);
-            setPendingForm(null);
-            setFormData({});
-            reply = `✅ Invoice of ${total} for "${clientName}" added.`;
-          }
-        }
       } else if (action === 'NEEDS_FORM') {
         const type = parsed?.type;
-        if (type === 'CLIENT' || type === 'PROJECT' || type === 'INVOICE') {
+        if (type === 'CLIENT' || type === 'PROJECT') {
           setPendingForm(type);
           const prefillEntries = Object.entries(dataPayload).reduce<Record<string, string>>((acc, [key, value]) => {
             acc[key] = String(value ?? '');
@@ -868,14 +764,14 @@ export default function ChatbotAI() {
         {isOpen && (
           <section className={`chatbot-ai-panel ${fullscreenActive ? 'fullscreen' : ''}`} aria-label="AI Assistant chat panel">
             <header className="chatbot-ai-header">
-              <h3 className="chatbot-ai-title">AI Assistant</h3>
+              <h3 className="chatbot-ai-title">{t('chatbot.title')}</h3>
               <div className="chatbot-ai-header-actions">
                 {!isMobile && (
                   <button
                     className="chatbot-ai-fullscreen"
                     type="button"
                     onClick={() => setIsFullscreen(!isFullscreen)}
-                    aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                    aria-label={isFullscreen ? t('chatbot.exit_fullscreen') : t('chatbot.enter_fullscreen')}
                   >
                     {isFullscreen ? (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -899,7 +795,7 @@ export default function ChatbotAI() {
                   className="chatbot-ai-close"
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  aria-label="Close chat"
+                  aria-label={t('chatbot.close')}
                 >
                   ×
                 </button>
@@ -909,7 +805,7 @@ export default function ChatbotAI() {
             <div className="chatbot-ai-messages">
               {messages.length === 0 && !loading && (
                 <p className="chatbot-ai-empty">
-                  Ask anything to get started.
+                  {t('chatbot.empty_state')}
                 </p>
               )}
 
@@ -934,30 +830,29 @@ export default function ChatbotAI() {
               {pendingForm && (
                 <div className="cb-inline-form" role="group" aria-label="Pending CRM form">
                   <p className="cb-form-label">
-                    {pendingForm === 'CLIENT' && 'New Client'}
-                    {pendingForm === 'PROJECT' && 'New Project'}
-                    {pendingForm === 'INVOICE' && 'New Invoice'}
+                    {pendingForm === 'CLIENT' && t('chatbot.new_client')}
+                    {pendingForm === 'PROJECT' && t('chatbot.new_project')}
                   </p>
 
                   {pendingForm === 'CLIENT' && (
                     <>
                       <input
-                        placeholder="Name *"
+                        placeholder={t('chatbot.placeholder_name')}
                         value={formData.name ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, name: e.target.value }))}
                       />
                       <input
-                        placeholder="Email"
+                        placeholder={t('chatbot.placeholder_email')}
                         value={formData.email ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, email: e.target.value }))}
                       />
                       <input
-                        placeholder="Phone"
+                        placeholder={t('chatbot.placeholder_phone')}
                         value={formData.phone ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, phone: e.target.value }))}
                       />
                       <input
-                        placeholder="Company"
+                        placeholder={t('chatbot.placeholder_company')}
                         value={formData.company ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, company: e.target.value }))}
                       />
@@ -967,17 +862,17 @@ export default function ChatbotAI() {
                   {pendingForm === 'PROJECT' && (
                     <>
                       <input
-                        placeholder="Title *"
+                        placeholder={t('chatbot.placeholder_title')}
                         value={formData.title ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, title: e.target.value }))}
                       />
                       <input
-                        placeholder="Client name *"
+                        placeholder={t('chatbot.placeholder_client_name')}
                         value={formData.clientName ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, clientName: e.target.value }))}
                       />
                       <input
-                        placeholder="Budget"
+                        placeholder={t('chatbot.placeholder_budget')}
                         type="number"
                         value={formData.budget ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, budget: e.target.value }))}
@@ -985,30 +880,9 @@ export default function ChatbotAI() {
                     </>
                   )}
 
-                  {pendingForm === 'INVOICE' && (
-                    <>
-                      <input
-                        placeholder="Client name *"
-                        value={formData.clientName ?? ''}
-                        onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, clientName: e.target.value }))}
-                      />
-                      <input
-                        placeholder="Total *"
-                        type="number"
-                        value={formData.total ?? ''}
-                        onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, total: e.target.value }))}
-                      />
-                      <input
-                        placeholder="Due date (YYYY-MM-DD)"
-                        value={formData.dueDate ?? ''}
-                        onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, dueDate: e.target.value }))}
-                      />
-                    </>
-                  )}
-
                   <div className="cb-form-actions">
                     <button className="cb-form-btn primary" type="button" disabled={formSubmitting} onClick={() => { void submitForm(); }}>
-                      {formSubmitting ? 'Submitting...' : 'Submit'}
+                      {formSubmitting ? t('chatbot.submitting') : t('chatbot.submit')}
                     </button>
                     <button
                       className="cb-form-btn"
@@ -1019,7 +893,7 @@ export default function ChatbotAI() {
                         setFormData({});
                       }}
                     >
-                      Cancel
+                      {t('common.cancel')}
                     </button>
                   </div>
                 </div>
@@ -1039,7 +913,7 @@ export default function ChatbotAI() {
                 className="chatbot-ai-input"
                 value={input}
                 onChange={(e: any) => setInput(e.target.value)}
-                placeholder="Type your message..."
+                placeholder={t('chatbot.input_placeholder')}
                 disabled={loading}
                 enterKeyHint="send"
                 autoComplete="off"
@@ -1050,13 +924,13 @@ export default function ChatbotAI() {
                 type="submit"
                 disabled={loading || !input.trim()}
               >
-                Send
+                {t('chatbot.send')}
               </button>
             </form>
           </section>
         )}
 
-        <button className="chatbot-ai-fab" type="button" onClick={() => setIsOpen((prev: boolean) => !prev)} aria-label={isOpen ? 'Close AI Assistant' : 'Open AI Assistant'}>
+        <button className="chatbot-ai-fab" type="button" onClick={() => setIsOpen((prev: boolean) => !prev)} aria-label={isOpen ? t('chatbot.close_assistant') : t('chatbot.open_assistant')}>
           <svg width={isMobile ? 18 : 22} height={isMobile ? 18 : 22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
             <path d="M8.5 10.5h.01" />

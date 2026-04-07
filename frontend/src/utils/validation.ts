@@ -25,35 +25,4 @@ export const projectSchema = z.object({
 
 export type ProjectFormData = z.infer<typeof projectSchema>;
 
-// Proposal validation
-export const proposalSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(255, 'Title must be less than 255 characters'),
-  amount: z.number().min(0, 'Amount must be positive'),
-  status: z.enum(['DRAFT', 'SENT', 'ACCEPTED', 'REJECTED']).optional(),
-  notes: z.string().optional(),
-  validUntil: z.string().optional(),
-  projectId: z.string().min(1, 'Project is required'),
-});
-
-export type ProposalFormData = z.infer<typeof proposalSchema>;
-
-// Invoice validation
-export const invoiceSchema = z.object({
-  amount: z.number().min(0, 'Amount must be positive'),
-  status: z.enum(['PENDING', 'PAID', 'OVERDUE', 'CANCELLED']).optional(),
-  dueDate: z.string().optional(),
-  notes: z.string().optional(),
-  projectId: z.string().min(1, 'Project is required'),
-});
-
-export type InvoiceFormData = z.infer<typeof invoiceSchema>;
-
-// Mark invoice paid validation
-export const markInvoicePaidSchema = z.object({
-  amount: z.number().min(0.01, 'Amount must be greater than 0'),
-  method: z.string().min(1, 'Payment method is required'),
-  notes: z.string().optional(),
-});
-
-export type MarkInvoicePaidFormData = z.infer<typeof markInvoicePaidSchema>;
 

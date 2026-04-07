@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface FooterProps {
   className?: string;
@@ -6,6 +7,7 @@ interface FooterProps {
 }
 
 export default function Footer({ className, style }: FooterProps = {}) {
+  const { t } = useTranslation();
   return (
     <footer
       className={className}
@@ -27,10 +29,10 @@ export default function Footer({ className, style }: FooterProps = {}) {
       </p>
       <div style={{ display: 'flex', gap: 16 }}>
         <Link to="/privacy-policy" style={{ fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)', textDecoration: 'none', letterSpacing: '.04em' }}>
-          Privacy Policy
+          {t('footer.privacy_policy')}
         </Link>
         <Link to="/terms-of-service" style={{ fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)', textDecoration: 'none', letterSpacing: '.04em' }}>
-          Terms of Service
+          {t('footer.terms_of_service')}
         </Link>
       </div>
     </footer>

@@ -1,6 +1,7 @@
 // Project form component
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { projectSchema, type ProjectFormData } from '../../utils/validation';
 import { type Project, ProjectPriority, ProjectStatus } from '../../types/project.types';
 import { formatDateInput } from '../../utils/formatters';
@@ -14,6 +15,7 @@ interface ProjectFormProps {
 }
 
 export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: ProjectFormProps) => {
+  const { t } = useTranslation();
   const { clients } = useClients();
 
   const {
@@ -56,7 +58,7 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div>
         <label htmlFor="title" className="block text-sm font-medium mb-1">
-          Title <span className="text-red-500">*</span>
+          {t('forms.project.title')} <span className="text-red-500">*</span>
         </label>
         <input
           id="title"
@@ -70,7 +72,7 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
 
       <div>
         <label htmlFor="clientId" className="block text-sm font-medium mb-1">
-          Client <span className="text-red-500">*</span>
+          {t('forms.project.client')} <span className="text-red-500">*</span>
         </label>
         <select
           id="clientId"
@@ -78,7 +80,7 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
           className="w-full rounded-md focus:outline-none"
           style={fieldBoxStyle}
         >
-          <option value="">Select a client</option>
+          <option value="">{t('forms.project.select_client')}</option>
           {clients.map((client) => (
             <option key={client.id} value={client.id}>
               {client.name} {client.company ? `(${client.company})` : ''}
@@ -90,7 +92,7 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
 
       <div>
         <label htmlFor="description" className="block text-sm font-medium mb-1">
-          Description
+          {t('forms.project.description')}
         </label>
         <textarea
           id="description"
@@ -105,7 +107,7 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="status" className="block text-sm font-medium mb-1">
-            Status
+            {t('forms.project.status')}
           </label>
           <select
             id="status"
@@ -113,16 +115,16 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
             className="w-full rounded-md focus:outline-none"
             style={fieldBoxStyle}
           >
-            <option value={ProjectStatus.ACTIVE}>Active</option>
-            <option value={ProjectStatus.COMPLETED}>Completed</option>
-            <option value={ProjectStatus.PAUSED}>Paused</option>
-            <option value={ProjectStatus.CANCELLED}>Cancelled</option>
+            <option value={ProjectStatus.ACTIVE}>{t('forms.project.active')}</option>
+            <option value={ProjectStatus.COMPLETED}>{t('forms.project.completed')}</option>
+            <option value={ProjectStatus.PAUSED}>{t('forms.project.paused')}</option>
+            <option value={ProjectStatus.CANCELLED}>{t('forms.project.cancelled')}</option>
           </select>
         </div>
 
         <div>
           <label htmlFor="priority" className="block text-sm font-medium mb-1">
-            Priority
+            {t('forms.project.priority')}
           </label>
           <select
             id="priority"
@@ -130,15 +132,15 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
             className="w-full rounded-md focus:outline-none"
             style={fieldBoxStyle}
           >
-            <option value={ProjectPriority.HIGH}>HIGH</option>
-            <option value={ProjectPriority.MEDIUM}>MEDIUM</option>
-            <option value={ProjectPriority.LOW}>LOW</option>
+            <option value={ProjectPriority.HIGH}>{t('forms.project.high')}</option>
+            <option value={ProjectPriority.MEDIUM}>{t('forms.project.medium')}</option>
+            <option value={ProjectPriority.LOW}>{t('forms.project.low')}</option>
           </select>
         </div>
 
         <div>
           <label htmlFor="budget" className="block text-sm font-medium mb-1">
-            Budget <span className="text-red-500">*</span>
+            {t('forms.project.budget')} <span className="text-red-500">*</span>
           </label>
           <input
             id="budget"
@@ -155,7 +157,7 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
 
       <div>
         <label htmlFor="deadline" className="block text-sm font-medium mb-1">
-          Deadline
+          {t('forms.project.deadline')}
         </label>
         <input
           id="deadline"
@@ -203,7 +205,7 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
               e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
             }}
           >
-            Cancel
+            {t('common.cancel')}
           </button>
         )}
         <button
@@ -232,7 +234,7 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
             e.currentTarget.style.color = 'var(--accent)';
           }}
         >
-          {isSubmitting || isLoading ? 'Saving...' : project ? 'Update Project' : 'Create Project'}
+          {isSubmitting || isLoading ? t('common.saving') : project ? t('forms.project.update') : t('forms.project.create')}
         </button>
       </div>
     </form>

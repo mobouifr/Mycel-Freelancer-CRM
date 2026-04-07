@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDashboardLayout, PRESET_OPTIONS } from '../hooks/useDashboardLayout';
 import WidgetGrid from '../components/dashboard/WidgetGrid';
 import WidgetPicker from '../components/dashboard/WidgetPicker';
@@ -8,7 +9,6 @@ import QuickCreateFAB from '../components/dashboard/QuickCreateFAB';
 import '../components/dashboard/CalendarUpcoming';
 import '../components/dashboard/NotesCapture';
 import '../components/dashboard/RevenueKPI';
-import '../components/dashboard/InvoicesDue';
 import '../components/dashboard/ActivityFeed';
 import '../components/dashboard/ProjectsProgress';
 import '../components/dashboard/SmartSuggestions';
@@ -21,6 +21,7 @@ import '../components/dashboard/LivingWidget';
 ───────────────────────────────────────────── */
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const {
     layouts,
     visible,
@@ -64,7 +65,7 @@ export default function Dashboard() {
             lineHeight: 1.3,
             marginBottom: 4,
           }}>
-            Dashboard
+            {t('dashboard.title')}
           </h2>
           <p style={{
             fontFamily: 'var(--font-m)',
@@ -72,7 +73,7 @@ export default function Dashboard() {
             color: 'var(--text-dim)',
             letterSpacing: '.04em',
           }}>
-            {currentPreset?.label} layout · {visible.length} widget{visible.length !== 1 ? 's' : ''}
+            {visible.length !== 1 ? t('dashboard.layout_info_plural', { preset: currentPreset?.label, count: visible.length }) : t('dashboard.layout_info', { preset: currentPreset?.label, count: visible.length })}
           </p>
         </div>
 
@@ -82,7 +83,7 @@ export default function Dashboard() {
             <button
               onClick={undo}
               aria-label="Undo last layout change"
-              title="Undo"
+              title={t('common.undo')}
               style={{
                 width: 32, height: 32, borderRadius: 6,
                 background: 'var(--surface-2)',
@@ -112,7 +113,7 @@ export default function Dashboard() {
             <button
               onClick={clearLayout}
               aria-label="Reset layout to preset default"
-              title="Reset Layout"
+              title={t('dashboard.reset_layout')}
               style={{
                 padding: '7px 12px',
                 borderRadius: 6,
@@ -141,7 +142,7 @@ export default function Dashboard() {
                 <polyline points="1 4 1 10 7 10" />
                 <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
               </svg>
-              Reset
+              {t('common.reset')}
             </button>
           )}
 
@@ -182,7 +183,7 @@ export default function Dashboard() {
                 : <><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></>
               }
             </svg>
-            {isEditing ? 'Done Editing' : 'Edit Layout'}
+            {isEditing ? t('dashboard.done_editing') : t('dashboard.edit_layout')}
           </button>
 
           {/* Customize button */}
@@ -218,7 +219,7 @@ export default function Dashboard() {
               <rect x="3" y="14" width="7" height="7" />
               <rect x="14" y="14" width="7" height="7" />
             </svg>
-            Customize
+            {t('dashboard.customize')}
           </button>
         </div>
       </div>
@@ -242,9 +243,9 @@ export default function Dashboard() {
           </svg>
           <p style={{
             fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--accent)',
-          }}>
-            Drag widgets to rearrange · Resize from corners · Click <strong>Done Editing</strong> when finished
-          </p>
+          }}
+            dangerouslySetInnerHTML={{ __html: t('dashboard.editing_notice') }}
+          />
         </div>
       )}
 
@@ -263,7 +264,7 @@ export default function Dashboard() {
           <p style={{
             fontFamily: 'var(--font-m)', fontSize: 13, color: 'var(--text-dim)',
           }}>
-            No widgets visible
+            {t('dashboard.no_widgets')}
           </p>
           <button
             onClick={() => setPickerOpen(true)}
@@ -275,7 +276,7 @@ export default function Dashboard() {
               cursor: 'pointer',
             }}
           >
-            Add Widgets
+            {t('dashboard.add_widgets')}
           </button>
         </div>
       ) : (

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import { LoadingSpinner } from '../components';
 
@@ -11,6 +12,7 @@ import { LoadingSpinner } from '../components';
 ───────────────────────────────────────────── */
 
 export default function OAuthCallback() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { checkSession } = useAuth();
 
@@ -47,7 +49,7 @@ export default function OAuthCallback() {
             letterSpacing: '.06em',
           }}
         >
-          Authenticating with 42…
+          {t('auth.authenticating_42')}
         </p>
       </div>
     </div>

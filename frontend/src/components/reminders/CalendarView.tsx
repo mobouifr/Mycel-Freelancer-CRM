@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import useCalendar from '../../hooks/useCalendar';
 import type { CalendarViewMode } from '../../hooks/useCalendar';
 import useNotifications from '../../hooks/useNotifications';
@@ -10,16 +11,17 @@ import CalendarDayView from './CalendarDayView';
 import EventModal from './EventModal';
 import type { CalendarEvent } from '../../hooks/useStore';
 
-const VIEW_OPTIONS: { value: CalendarViewMode; label: string }[] = [
-  { value: 'month', label: 'Month' },
-  { value: 'week', label: 'Week' },
-  { value: 'day', label: 'Day' },
+const VIEW_OPTIONS: { value: CalendarViewMode; labelKey: string }[] = [
+  { value: 'month', labelKey: 'calendar.month' },
+  { value: 'week', labelKey: 'calendar.week' },
+  { value: 'day', labelKey: 'calendar.day' },
 ];
 
 export default function CalendarView() {
   const calendar = useCalendar();
   const { events, createEvent, editEvent, removeEvent, addTodo, addNotification } = useNotifications();
   const isMobile = useIsMobile(1100);
+  const { t } = useTranslation();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
@@ -117,9 +119,9 @@ export default function CalendarView() {
       }}>
         {/* Left: nav */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button onClick={calendar.goPrev} style={navBtn} aria-label="Previous">‹</button>
-          <button onClick={calendar.goNext} style={navBtn} aria-label="Next">›</button>
-          <button onClick={calendar.goToday} style={todayBtn}>Today</button>
+          <button onClick={calendar.goPrev} style={navBtn} aria-label={t('calendar.previous')}>‹</button>
+          <button onClick={calendar.goNext} style={navBtn} aria-label={t('calendar.next')}>›</button>
+          <button onClick={calendar.goToday} style={todayBtn}>{t('calendar.today')}</button>
           <span style={{
             fontFamily: 'var(--font-m)', fontSize: 13, color: 'var(--text)',
             fontWeight: 500, letterSpacing: '.02em',
@@ -155,7 +157,7 @@ export default function CalendarView() {
                   margin: 1,
                 }}
               >
-                {v.label}
+                {t(v.labelKey)}
               </button>
             ))}
           </div>
