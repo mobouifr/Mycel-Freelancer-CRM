@@ -3,6 +3,7 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { GamificationService } from '../gamification/gamification.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { ProjectStatus } from '@prisma/client';
 
 @Injectable()
 export class ProjectsService {
@@ -11,21 +12,35 @@ export class ProjectsService {
     private readonly prisma: PrismaService
   ) {}
 
+  private parseDeadline(value?: string): Date | null | undefined {
+    if (value === undefined) return undefined;
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    const parsed = new Date(trimmed);
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+  }
+
+  private normalizeStatus(status?: string): ProjectStatus | undefined {
+    if (!status) return undefined;
+    const normalized = status.toUpperCase();
+    if (normalized === 'ACTIVE' || normalized === 'COMPLETED' || normalized === 'PAUSED' || normalized === 'CANCELLED') {
+      return normalized as ProjectStatus;
+    }
+    return undefined;
+  }
+
   async create(userId: string, createProjectDto: CreateProjectDto | any) {
+    const resolvedDeadline = this.parseDeadline(createProjectDto.deadline ?? createProjectDto.due_date);
     const data: any = {
       title: createProjectDto.title || '',
-      description: createProjectDto.description || null,
-      status: createProjectDto.status || 'ACTIVE',
+      description: createProjectDto.description?.trim() || null,
+      status: this.normalizeStatus(createProjectDto.status) ?? ProjectStatus.ACTIVE,
       budget: createProjectDto.budget !== undefined ? createProjectDto.budget : 0,
-      userId: userId,
+      userId,
       clientId: createProjectDto.clientId,
+      ...(resolvedDeadline !== undefined ? { deadline: resolvedDeadline } : {}),
     };
-    if (createProjectDto.deadline) {
-        data.deadline = new Date(createProjectDto.deadline);
-    } else if (createProjectDto.due_date) {
-        data.deadline = new Date(createProjectDto.due_date);
-    }
-    
+
     const project = await this.prisma.project.create({ data });
 
     await this.prisma.notification.create({
@@ -62,15 +77,19 @@ export class ProjectsService {
 
     const oldStatus = existingProject.status;
 
+    const resolvedDeadline = this.parseDeadline(updateProjectDto.deadline ?? updateProjectDto.due_date);
+    const normalizedStatus = this.normalizeStatus(updateProjectDto.status);
+
     const data: any = {
-      ...updateProjectDto
+      ...(updateProjectDto.title !== undefined ? { title: updateProjectDto.title } : {}),
+      ...(updateProjectDto.description !== undefined
+        ? { description: updateProjectDto.description?.trim() || null }
+        : {}),
+      ...(updateProjectDto.budget !== undefined ? { budget: updateProjectDto.budget } : {}),
+      ...(updateProjectDto.clientId !== undefined ? { clientId: updateProjectDto.clientId } : {}),
+      ...(normalizedStatus !== undefined ? { status: normalizedStatus } : {}),
+      ...(resolvedDeadline !== undefined ? { deadline: resolvedDeadline } : {}),
     };
-    if (updateProjectDto.deadline) {
-        data.deadline = new Date(updateProjectDto.deadline);
-    } else if (updateProjectDto.due_date) {
-        data.deadline = new Date(updateProjectDto.due_date);
-        delete data.due_date;
-    }
 
     const updatedProject = await this.prisma.project.update({
       where: { id },

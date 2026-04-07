@@ -8,13 +8,20 @@ import { Client } from '@prisma/client';
 export class ClientsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private normalizeOptionalString(value?: string): string | null {
+    if (value === undefined) return null;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+
   async create(userId: string, createClientDto: CreateClientDto): Promise<Client> {
     const client = await this.prisma.client.create({
       data: {
         name: createClientDto.name,
-        email: createClientDto.email,
-        phone: createClientDto.phone,
-        company: createClientDto.company,
+        email: this.normalizeOptionalString(createClientDto.email),
+        phone: this.normalizeOptionalString(createClientDto.phone),
+        company: this.normalizeOptionalString(createClientDto.company),
+        notes: this.normalizeOptionalString(createClientDto.notes),
         userId: userId,
       },
     });
@@ -48,9 +55,26 @@ export class ClientsService {
 
   async update(userId: string, id: string, updateClientDto: UpdateClientDto): Promise<Client> {
     await this.findOne(userId, id); // Check existence
+
+    const data: UpdateClientDto = {
+      ...updateClientDto,
+      ...(updateClientDto.email !== undefined
+        ? { email: this.normalizeOptionalString(updateClientDto.email) ?? undefined }
+        : {}),
+      ...(updateClientDto.phone !== undefined
+        ? { phone: this.normalizeOptionalString(updateClientDto.phone) ?? undefined }
+        : {}),
+      ...(updateClientDto.company !== undefined
+        ? { company: this.normalizeOptionalString(updateClientDto.company) ?? undefined }
+        : {}),
+      ...(updateClientDto.notes !== undefined
+        ? { notes: this.normalizeOptionalString(updateClientDto.notes) ?? undefined }
+        : {}),
+    };
+
     const updatedClient = await this.prisma.client.update({
       where: { id },
-      data: updateClientDto,
+      data,
     });
 
     await this.prisma.notification.create({
