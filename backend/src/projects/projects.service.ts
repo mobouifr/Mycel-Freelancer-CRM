@@ -32,7 +32,7 @@ export class ProjectsService {
       data: {
         userId,
         message: `New project created: ${project.title}`,
-        type: 'SUCCESS',
+        type: 'success',
       },
     });
 
@@ -96,7 +96,7 @@ export class ProjectsService {
       data: {
         userId,
         message: `Project updated: ${updatedProject.title}`,
-        type: 'INFO',
+        type: 'info',
       },
     });
 
@@ -114,7 +114,7 @@ export class ProjectsService {
       data: {
         userId,
         message: `Project deleted: ${existingProject.title}`,
-        type: 'WARNING',
+        type: 'warning',
       },
     });
 

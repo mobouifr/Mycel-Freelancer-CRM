@@ -3,8 +3,6 @@ import { UsersService } from '../users/users.service';
 import { RegisterDto } from './DTO/register.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../prisma/prisma.service';
-
 
 @Injectable()
 export class AuthService {
@@ -24,7 +22,6 @@ export class AuthService {
 
     async register(registerDto: RegisterDto) {
         if (await this.usersService.findByEmail(registerDto.email)) {
-            // Throwing an Error here is okay for now, walakin in NestJS there us built-in HTTP Exceptions!
             throw new ConflictException('Email already in use'); 
         }
         
