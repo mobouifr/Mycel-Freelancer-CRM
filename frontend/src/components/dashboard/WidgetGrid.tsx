@@ -99,6 +99,44 @@ export default function WidgetGrid({
     [onLayoutChange, visible],
   );
 
+  const isMobile = mounted && width > 0 && width < 640;
+
+  /* ── Mobile: simple stacked layout (no drag/resize) ── */
+  if (isMobile) {
+    return (
+      <div
+        ref={containerRef}
+        className="widget-grid-container"
+        style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12 }}
+      >
+        {visible.map((widgetId) => {
+          const entry = getWidgetEntry(widgetId);
+          if (!entry) return null;
+          const Widget = entry.component;
+          const layout = layouts.find((l: LayoutItem) => l.i === widgetId);
+          const minHeight = (layout?.h ?? 3) * ROW_HEIGHT;
+
+          return (
+            <div key={widgetId} style={{ minHeight, width: '100%' }}>
+              <WidgetCard
+                title={t(entry.label)}
+                isEditing={false}
+                icon={
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <path d={entry.icon} />
+                  </svg>
+                }
+              >
+                <Widget />
+              </WidgetCard>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  /* ── Desktop: drag-and-drop grid ── */
   return (
     <div
       ref={containerRef}

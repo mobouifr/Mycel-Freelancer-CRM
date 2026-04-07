@@ -53,7 +53,7 @@ export default function Dashboard() {
       position: 'relative',
     }}>
       {/* ── Header row ── */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 10 }}>
         <div>
           <h2 style={{
             fontFamily: 'var(--font-d)',
@@ -76,7 +76,7 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           {/* Undo button */}
           {canUndo && (
             <button
