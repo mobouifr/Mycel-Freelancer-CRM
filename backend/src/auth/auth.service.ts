@@ -3,6 +3,9 @@ import { UsersService } from '../users/users.service';
 import { RegisterDto } from './DTO/register.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from '../prisma/prisma.service';
+const { authenticator } = require('otplib');
+import * as qrcode from 'qrcode';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +21,25 @@ export class AuthService {
         return {
             access_token: this.jwtService.sign(payload),
         };
+    }
+
+    async generateTwoFactorSecret(user: any) {
+        const secret = authenticator.generateSecret();
+        const otpauthUrl = authenticator.keyuri(user.email, 'Mycel', secret);
+        await this.usersService.update(user.id, { twoFactorSecret: secret });
+        return qrcode.toDataURL(otpauthUrl);
+    }
+
+    async turnOnTwoFactorAuth(userId: string, code: string) {
+        const user = await this.usersService.findOne(userId);
+        if (!user || !user.twoFactorSecret) throw new UnauthorizedException('2FA not configured');
+        const isValid = authenticator.verify({ secret: user.twoFactorSecret, token: code });
+        if (!isValid) throw new UnauthorizedException('Invalid 2FA code');
+        await this.usersService.update(userId, { isTwoFactorEnabled: true });
+    }
+
+    async turnOffTwoFactorAuth(userId: string) {
+        await this.usersService.update(userId, { isTwoFactorEnabled: false, twoFactorSecret: undefined });
     }
 
     async register(registerDto: RegisterDto) {
@@ -90,5 +112,3 @@ export class AuthService {
         return result;
     }
 }
-
-

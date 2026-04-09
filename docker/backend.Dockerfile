@@ -2,7 +2,9 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache openssl
 COPY package*.json ./
-RUN npm ci --legacy-peer-deps
+# Install dependencies using `npm install` on the temporary folder (avoids volume overwriting issues)
+RUN npm install --legacy-peer-deps
+# it also could be RUN npm ci --legacy-peer-deps, i need to investigate it more, but for now it works fine with npm install
 COPY prisma ./prisma
 RUN npx prisma generate
 COPY . .

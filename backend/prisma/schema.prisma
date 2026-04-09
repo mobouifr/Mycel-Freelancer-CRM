@@ -28,6 +28,8 @@ model User {
   password     String?
   passwordHash String?
   intraId      String?  @unique
+  isTwoFactorEnabled Boolean @default(false)
+  twoFactorSecret String?
   xp           Int      @default(0)
   level        Int      @default(1)
   createdAt    DateTime @default(now()) @map("created_at")

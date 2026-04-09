@@ -21,6 +21,14 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK) // Logins are usually 200 OK, not 201 Created
   async login(@Body() loginDto: LoginDto, @Request() req: any, @Res({ passthrough: true }) res: Response) {
+    if (req.user.isTwoFactorEnabled) {
+      return { 
+        message: '2FA required', 
+        isTwoFactorRequired: true,
+        userId: req.user.id 
+      };
+    }
+
     // 1. Generate the JWT
     const { access_token } = await this.authService.login(req.user);
 
@@ -107,8 +115,11 @@ export class AuthController {
   @UseGuards(AuthGuard('42'))
   @Get('42/callback')
   async fortytwoAuthRedirect(@Request() req: any, @Res({ passthrough: true }) res: Response) {
-    // The FortyTwoStrategy validates the user, creates them if necessary, and attaches them to req.user
-    
+    if (req.user.isTwoFactorEnabled) {
+       // redirect to a 2fa page in frontend passing the userId
+       return res.redirect(`http://localhost:3089/auth/2fa?userId=${req.user.id}`);
+    }
+
     // Generate our own JWT cookie for the rest of the application
     const { access_token } = await this.authService.login(req.user);
 
@@ -122,5 +133,55 @@ export class AuthController {
 
     // Redirect to the frontend OAuth callback page so it can handle the session
     return res.redirect('http://localhost:3089/auth/callback');
+  }
+
+  // --- 2FA Routes ---
+
+  @UseGuards(JwtAuthGuard)
+  @Post('2fa/generate')
+  async generateTwoFactorSecret(@Request() req: any) {
+    const qrCodeUrl = await this.authService.generateTwoFactorSecret(req.user);
+    return { qrCodeUrl };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('2fa/turn-on')
+  @HttpCode(HttpStatus.OK)
+  async turnOnTwoFactorAuth(@Request() req: any, @Body() body: any) {
+    if (!body.code) throw new BadRequestException('2FA code is required');
+    await this.authService.turnOnTwoFactorAuth(req.user.id, body.code);
+    return { message: '2FA enabled successfully' };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('2fa/turn-off')
+  @HttpCode(HttpStatus.OK)
+  async turnOffTwoFactorAuth(@Request() req: any) {
+    await this.authService.turnOffTwoFactorAuth(req.user.id);
+    return { message: '2FA disabled successfully' };
+  }
+
+  // This route is NOT guarded by JwtAuthGuard because the user is only partially logged in
+  @Post('2fa/authenticate')
+  @HttpCode(HttpStatus.OK)
+  async authenticateTwoFactor(@Body() body: any, @Res({ passthrough: true }) res: Response) {
+    if (!body.userId || !body.code) throw new BadRequestException('userId and code are required');
+    
+    // Validate 2FA
+    await this.authService.turnOnTwoFactorAuth(body.userId, body.code);
+    
+    // Get user back to set the cookie
+    const user = await this.authService.validateUserById(body.userId);
+    if (!user) throw new BadRequestException('User not found');
+
+    const { access_token } = await this.authService.login(user);
+    res.cookie('jwt', access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
+    return { message: 'Logged in successfully', user };
   }
 }
