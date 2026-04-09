@@ -69,7 +69,7 @@ describe('ClientsService', () => {
         data: {
           userId,
           message: `New client created: ${mockClient.name}`,
-          type: 'SUCCESS',
+          type: 'success',
         },
       });
     });
@@ -91,7 +91,7 @@ describe('ClientsService', () => {
         data: {
           userId,
           message: `Client updated: ${updatedClient.name}`,
-          type: 'INFO',
+          type: 'info',
         },
       });
     });
@@ -110,7 +110,7 @@ describe('ClientsService', () => {
         data: {
           userId,
           message: `Client deleted: ${mockClient.name}`,
-          type: 'WARNING',
+          type: 'warning',
         },
       });
     });
