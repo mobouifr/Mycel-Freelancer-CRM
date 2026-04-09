@@ -3,13 +3,15 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { GamificationService } from '../gamification/gamification.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { ProjectStatus } from '@prisma/client';
 
 @Injectable()
 export class ProjectsService {
   constructor(
     private readonly gamificationService: GamificationService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService
   ) {}
 
   private parseDeadline(value?: string): Date | null | undefined {
@@ -43,12 +45,12 @@ export class ProjectsService {
 
     const project = await this.prisma.project.create({ data });
 
-    await this.prisma.notification.create({
-      data: {
-        userId,
-        message: `New project created: ${project.title}`,
-        type: 'success',
-      },
+    await this.notificationsService.create(userId, {
+      title: 'Project Created',
+      message: `New project created: ${project.title}`,
+      type: 'success',
+      targetType: 'project',
+      targetId: project.id,
     });
 
     return project;
@@ -111,12 +113,12 @@ export class ProjectsService {
       this.gamificationService.checkAchievementsAndBadges(userId, updatedProject.id);
     }
 
-    await this.prisma.notification.create({
-      data: {
-        userId,
-        message: `Project updated: ${updatedProject.title}`,
-        type: 'info',
-      },
+    await this.notificationsService.create(userId, {
+      title: 'Project Updated',
+      message: `Project updated: ${updatedProject.title}`,
+      type: 'info',
+      targetType: 'project',
+      targetId: updatedProject.id,
     });
 
     return updatedProject;
@@ -129,12 +131,10 @@ export class ProjectsService {
   async remove(userId: string, id: string) {
     const existingProject = await this.findOne(userId, id);
     
-    await this.prisma.notification.create({
-      data: {
-        userId,
-        message: `Project deleted: ${existingProject.title}`,
-        type: 'warning',
-      },
+    await this.notificationsService.create(userId, {
+      title: 'Project Deleted',
+      message: `Project deleted: ${existingProject.title}`,
+      type: 'warning',
     });
 
     return await this.prisma.project.delete({ where: { id } });

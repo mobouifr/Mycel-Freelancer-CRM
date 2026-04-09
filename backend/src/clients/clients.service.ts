@@ -2,11 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { Client } from '@prisma/client';
 
 @Injectable()
 export class ClientsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService
+  ) {}
 
   private normalizeOptionalString(value?: string): string | null {
     if (value === undefined) return null;
@@ -26,12 +30,12 @@ export class ClientsService {
       },
     });
 
-    await this.prisma.notification.create({
-      data: {
-        userId,
-        message: `New client created: ${client.name}`,
-        type: 'success',
-      },
+    await this.notificationsService.create(userId, {
+      title: 'Client Created',
+      message: `New client created: ${client.name}`,
+      type: 'success',
+      targetType: 'client',
+      targetId: client.id,
     });
 
     return client;
@@ -77,12 +81,12 @@ export class ClientsService {
       data,
     });
 
-    await this.prisma.notification.create({
-      data: {
-        userId,
-        message: `Client updated: ${updatedClient.name}`,
-        type: 'info',
-      },
+    await this.notificationsService.create(userId, {
+      title: 'Client Updated',
+      message: `Client updated: ${updatedClient.name}`,
+      type: 'info',
+      targetType: 'client',
+      targetId: updatedClient.id,
     });
 
     return updatedClient;
@@ -91,12 +95,10 @@ export class ClientsService {
   async remove(userId: string, id: string): Promise<Client> {
     const client = await this.findOne(userId, id); // Check existence
     
-    await this.prisma.notification.create({
-      data: {
-        userId,
-        message: `Client deleted: ${client.name}`,
-        type: 'warning',
-      },
+    await this.notificationsService.create(userId, {
+      title: 'Client Deleted',
+      message: `Client deleted: ${client.name}`,
+      type: 'warning',
     });
 
     return this.prisma.client.delete({
