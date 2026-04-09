@@ -23,24 +23,6 @@ export class UsersService {
         return newUser;
     }
 
-    // createUser(username: string, email: string, passwordHash?: string, intraId?: string): User {
-    //     const user: User = {
-    //         id: Date.now(),
-    //         username,
-    //         email,
-    //         createdAt: new Date(),
-    //         // added xp and level for gamification
-    //         xp: 0,
-    //         level: 1,
-    //     };
-    //     // Only attach these if they exist
-    //     if (passwordHash) user.passwordHash = passwordHash;
-    //     if (intraId) user.intraId = intraId;
-        
-    //     this.userbase.push(user);
-    //     return user;
-    // }
-    
     async findByEmail(email: string): Promise<User | null> {
         return this.prisma.user.findUnique({ where: { email } });
     }

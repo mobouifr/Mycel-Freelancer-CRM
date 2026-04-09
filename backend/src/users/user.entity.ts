@@ -8,6 +8,8 @@ export class User {
     passwordHash?: string;
     createdAt: Date;
     intraId?: string;
+    isTwoFactorEnabled?: boolean;
+    twoFactorSecret?: string;
     // added these two vars for gamification
     xp: number;
     level: number;
