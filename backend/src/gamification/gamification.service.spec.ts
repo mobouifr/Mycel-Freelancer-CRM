@@ -116,7 +116,7 @@ describe('GamificationService', () => {
         data: { userId, type: 'FIRST_PROJECT', name: 'First Project Completed' }
       });
       expect(mockPrismaService.notification.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({ type: 'ACHIEVEMENT' })
+        data: expect.objectContaining({ type: 'achievement' })
       });
     });
 

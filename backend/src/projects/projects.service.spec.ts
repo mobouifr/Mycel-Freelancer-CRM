@@ -66,7 +66,7 @@ describe('ProjectsService', () => {
         data: {
           userId,
           message: `New project created: ${mockResult.title}`,
-          type: 'SUCCESS',
+          type: 'success',
         },
       });
     });
@@ -114,7 +114,7 @@ describe('ProjectsService', () => {
         data: {
           userId,
           message: `Project updated: ${updatedProject.title}`,
-          type: 'INFO',
+          type: 'info',
         },
       });
     });
@@ -135,7 +135,7 @@ describe('ProjectsService', () => {
         data: {
           userId,
           message: `Project updated: ${updatedProject.title}`,
-          type: 'INFO',
+          type: 'info',
         },
       });
     });
@@ -156,7 +156,7 @@ describe('ProjectsService', () => {
         data: {
           userId,
           message: `Project deleted: ${mockProject.title}`,
-          type: 'WARNING',
+          type: 'warning',
         },
       });
     });
