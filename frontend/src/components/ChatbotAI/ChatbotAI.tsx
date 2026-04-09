@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '../../hooks/useIsMobile';
+import { useAuth } from '../../hooks/useAuth';
 
 type MessageRole = 'user' | 'assistant';
-type PendingFormType = 'CLIENT' | 'PROJECT';
+type PendingFormType = 'CLIENT' | 'PROJECT' | 'DELETE_CLIENT' | 'DELETE_PROJECT';
 
-interface ActionResponse {
-  action?: string;
-  type?: PendingFormType;
-  data?: Record<string, unknown>;
+interface ParsedActionResult {
+  text: string;
+  action?: Record<string, unknown>;
 }
 
 interface ChatMessage {
@@ -16,20 +16,10 @@ interface ChatMessage {
   content: string;
 }
 
-const getUsername = (): string => {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return 'User';
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.username ?? payload.name ?? payload.email ?? 'User';
-  } catch {
-    return 'User';
-  }
-};
-
 export default function ChatbotAI() {
   const { t } = useTranslation();
-  const username = getUsername();
+  const { user } = useAuth();
+  const username = user?.name || user?.username || user?.email || 'User';
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -39,6 +29,7 @@ export default function ChatbotAI() {
   const [crmContext, setCrmContext] = useState<string>('');
   const [pendingForm, setPendingForm] = useState<PendingFormType | null>(null);
   const [formData, setFormData] = useState<Record<string, string>>({});
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [formSubmitting, setFormSubmitting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const fullscreenActive = isOpen && (isMobile || isFullscreen);
@@ -55,16 +46,30 @@ export default function ChatbotAI() {
     return headers;
   };
 
-  const parseActionResponse = (rawReply: string): ActionResponse | null => {
-    try {
-      const fencedJson = rawReply.match(/```json\s*([\s\S]*?)```/i)?.[1]?.trim();
-      const candidate = fencedJson || rawReply;
-      const jsonMatch = candidate.match(/\{[\s\S]*"action"[\s\S]*\}/);
-      if (!jsonMatch) return null;
-      return JSON.parse(jsonMatch[0]) as ActionResponse;
-    } catch {
-      return null;
+  const parseActionBlock = (response: string): ParsedActionResult => {
+    const match = response.match(/```action\n([\s\S]*?)```/);
+    if (!match) {
+      return { text: response };
     }
+
+    try {
+      const action = JSON.parse(match[1]) as Record<string, unknown>;
+      const text = response.replace(/```action[\s\S]*?```/, '').trim();
+      return { text, action };
+    } catch {
+      return { text: response };
+    }
+  };
+
+  const normalizeActionPayload = (payload: unknown): Record<string, string> => {
+    if (!payload || typeof payload !== 'object') {
+      return {};
+    }
+
+    return Object.entries(payload as Record<string, unknown>).reduce<Record<string, string>>((acc, [key, value]) => {
+      acc[key] = value == null ? '' : String(value);
+      return acc;
+    }, {});
   };
 
   const postWithFallback = async (paths: string[], payload: unknown) => {
@@ -90,6 +95,62 @@ export default function ChatbotAI() {
     }
 
     throw new Error(lastError || 'Request failed');
+  };
+
+  const deleteWithFallback = async (paths: string[]) => {
+    let lastError: string | null = null;
+
+    for (const path of paths) {
+      try {
+        const response = await fetch(path, {
+          method: 'DELETE',
+          headers: getAuthHeaders(),
+        });
+
+        if (response.ok) {
+          return;
+        }
+
+        const message = await response.text();
+        lastError = message || `Request failed with status ${response.status}`;
+      } catch (error) {
+        lastError = error instanceof Error ? error.message : 'Network error';
+      }
+    }
+
+    throw new Error(lastError || 'Request failed');
+  };
+
+  const openActionModal = (actionObj: Record<string, unknown>): boolean => {
+    const actionType = String(actionObj.action ?? '').toUpperCase();
+    const rawPayload = actionObj.payload ?? actionObj.data;
+    const payload = normalizeActionPayload(rawPayload);
+
+    if (actionType === 'CREATE_CLIENT') {
+      setPendingForm('CLIENT');
+      setFormData(payload);
+      return true;
+    }
+
+    if (actionType === 'CREATE_PROJECT') {
+      setPendingForm('PROJECT');
+      setFormData(payload);
+      return true;
+    }
+
+    if (actionType === 'DELETE_CLIENT') {
+      setPendingForm('DELETE_CLIENT');
+      setFormData(payload);
+      return true;
+    }
+
+    if (actionType === 'DELETE_PROJECT') {
+      setPendingForm('DELETE_PROJECT');
+      setFormData(payload);
+      return true;
+    }
+
+    return false;
   };
 
   const findClientByName = async (clientName: string): Promise<{ id: string; name?: string } | null> => {
@@ -134,68 +195,156 @@ export default function ChatbotAI() {
       fetchEntityList('/api/projects'),
     ]);
 
+    const clientLines = clients.length
+      ? clients.map((c: any) =>
+          `- ${c.name} | email: ${c.email ?? 'N/A'} | phone: ${c.phone ?? 'N/A'} | company: ${c.company ?? 'N/A'} | notes: ${c.notes ?? 'none'} | id: ${c.id}`
+        ).join('\n')
+      : '  (no clients yet)';
+
+    const projectLines = projects.length
+      ? projects.map((p: any) =>
+          `- ${p.title} | client: ${p.client?.name ?? p.clientId ?? 'N/A'} | status: ${p.status} | priority: ${p.priority ?? 'N/A'} | budget: $${p.budget ?? 0} | deadline: ${p.deadline ?? 'N/A'} | description: ${p.description ?? 'none'} | id: ${p.id}`
+        ).join('\n')
+      : '  (no projects yet)';
+
     const summary = [
-      `Clients (${clients.length}): ${clients.map((c: any) => c.name).join(', ') || 'none'}`,
-      `Projects (${projects.length}): ${projects.map((p: any) => `${p.title} [${p.status}]`).join(', ') || 'none'}`,
+      `Clients (${clients.length}):`,
+      clientLines,
+      '',
+      `Projects (${projects.length}):`,
+      projectLines,
     ].join('\n');
 
     setCrmContext(summary);
     return summary;
   };
 
+  const isValidEmail = (value: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  const isValidDate = (value: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(value);
+
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (pendingForm === 'CLIENT') {
+      const name = (formData.name ?? '').trim();
+      if (!name) errors.name = t('chatbot.validation_name_required');
+      else if (name.length > 200) errors.name = t('validation.name_max');
+
+      const email = (formData.email ?? '').trim();
+      if (email && !isValidEmail(email)) errors.email = t('chatbot.validation_email_invalid');
+    }
+
+    if (pendingForm === 'PROJECT') {
+      const title = (formData.title ?? '').trim();
+      if (!title) errors.title = t('chatbot.validation_title_required');
+      else if (title.length > 255) errors.title = t('validation.title_max');
+
+      const clientId = (formData.clientId ?? '').trim();
+      const clientName = (formData.clientName ?? '').trim();
+      if (!clientId && !clientName) errors.clientName = t('chatbot.validation_client_required');
+
+      const budgetValue = Number(formData.budget ?? '0');
+      if (formData.budget && (!Number.isFinite(budgetValue) || budgetValue < 0)) {
+        errors.budget = t('chatbot.validation_budget_invalid');
+      }
+
+      const deadline = (formData.deadline ?? '').trim();
+      if (deadline && !isValidDate(deadline)) errors.deadline = t('chatbot.validation_deadline_invalid');
+    }
+
+    if (pendingForm === 'DELETE_CLIENT') {
+      if (!(formData.clientId ?? '').trim()) errors.clientId = t('chatbot.validation_id_required');
+    }
+
+    if (pendingForm === 'DELETE_PROJECT') {
+      if (!(formData.projectId ?? '').trim()) errors.projectId = t('chatbot.validation_id_required');
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const submitForm = async () => {
     if (!pendingForm || formSubmitting) return;
+    if (!validateForm()) return;
 
     setFormSubmitting(true);
 
     try {
       if (pendingForm === 'CLIENT') {
         const name = (formData.name ?? '').trim();
-        if (!name) {
-          setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: 'Please provide a client name.' }]);
-          return;
-        }
 
         const payload = {
           name,
           email: (formData.email ?? '').trim(),
           phone: (formData.phone ?? '').trim(),
           company: (formData.company ?? '').trim(),
+          notes: (formData.notes ?? '').trim(),
         };
 
         await postWithFallback(['/api/clients', '/api/customers'], payload);
-        setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: `✅ Client "${name}" has been added successfully.` }]);
+        setMessages((prev: ChatMessage[]) => [
+          ...prev,
+          { role: 'assistant', content: `Great news, ${username}! I've added "${name}" to your clients. 🎉 Would you like me to set up a project for them?` },
+        ]);
       }
 
       if (pendingForm === 'PROJECT') {
         const title = (formData.title ?? '').trim();
         const clientName = (formData.clientName ?? '').trim();
-        if (!title || !clientName) {
-          setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: 'Please provide both project title and client name.' }]);
-          return;
-        }
+        const clientId = (formData.clientId ?? '').trim();
 
-        const matchedClient = await findClientByName(clientName);
         const budgetValue = Number(formData.budget ?? '0');
         const payload: Record<string, unknown> = {
           title,
-          status: 'ACTIVE',
+          status: (formData.status ?? 'ACTIVE').toUpperCase(),
           budget: Number.isFinite(budgetValue) ? budgetValue : 0,
+          description: (formData.description ?? '').trim() || undefined,
+          deadline: (formData.deadline ?? '').trim() || undefined,
         };
 
-        if (matchedClient?.id) {
-          payload.clientId = matchedClient.id;
+        if (clientId) {
+          payload.clientId = clientId;
+        } else if (clientName) {
+          const matchedClient = await findClientByName(clientName);
+          if (matchedClient?.id) {
+            payload.clientId = matchedClient.id;
+          }
         }
 
         await postWithFallback(['/api/projects'], payload);
-        setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: `✅ Project "${title}" has been created.` }]);
+        setMessages((prev: ChatMessage[]) => [
+          ...prev,
+          { role: 'assistant', content: `All set, ${username}! "${title}" is now live and ready to go. 🚀 Want me to draft an invoice for it?` },
+        ]);
+      }
+
+      if (pendingForm === 'DELETE_CLIENT') {
+        const clientId = (formData.clientId ?? '').trim();
+
+        await deleteWithFallback([`/api/clients/${clientId}`]);
+        setMessages((prev: ChatMessage[]) => [
+          ...prev,
+          { role: 'assistant', content: `Done, ${username} — that client has been removed. Let me know if you need anything else! 👍` },
+        ]);
+      }
+
+      if (pendingForm === 'DELETE_PROJECT') {
+        const projectId = (formData.projectId ?? '').trim();
+
+        await deleteWithFallback([`/api/projects/${projectId}`]);
+        setMessages((prev: ChatMessage[]) => [
+          ...prev,
+          { role: 'assistant', content: `Done, ${username} — project removed. Want me to summarize your remaining active projects?` },
+        ]);
       }
 
       setPendingForm(null);
       setFormData({});
+      setFormErrors({});
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to submit the form right now.';
-      setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: `Could not complete this action: ${message}` }]);
+      setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: `Oops, something went wrong: ${message}. Want me to try again, ${username}?` }]);
     } finally {
       setFormSubmitting(false);
     }
@@ -255,7 +404,40 @@ export default function ChatbotAI() {
 
     const prompt = {
       role: 'system' as const,
-      content: `You are a smart assistant for ${username} inside their freelancer CRM. Always address them as ${username}. Be concise and practical.\n\nUse the live CRM snapshot below as the source of truth for questions about clients, projects, and plans. This snapshot is fetched from the database for each user message.\n\nYou are a smart CRM assistant. When answering questions about projects, clients, or plans, prefer structured visual answers over plain text when it helps clarity. Use:\n\n- Markdown tables for comparisons, status summaries, or lists of data\n- ASCII flowcharts (→ ↓ ├ └) for processes or decision flows\n- Numbered steps with clear hierarchy for action plans\n- Tree diagrams for relationships between clients and projects\n\nExample: if asked \"what are my active projects?\" reply with a table. If asked \"how should I follow up with a client?\" reply with a step-by-step flow.\n\nOnly add diagrams when they genuinely improve the answer. Short factual answers stay as plain text.\n\nYou can also perform CRM actions. When the user wants to create something, respond ONLY with a JSON block in this exact format - no extra text:\n\n{\"action\":\"CREATE_CLIENT\",\"data\":{\"name\":\"...\",\"email\":\"...\",\"phone\":\"...\",\"company\":\"...\"}}\n{\"action\":\"CREATE_PROJECT\",\"data\":{\"title\":\"...\",\"clientName\":\"...\",\"status\":\"ACTIVE\",\"budget\":0}}\n\nRules:\n- Use \"action\" key always in UPPERCASE with underscore\n- Fill only the fields the user mentioned - leave others as empty string or 0\n- If critical fields are missing (name for client, title for project), set \"action\":\"NEEDS_FORM\" and include \"type\":\"CLIENT\"|\"PROJECT\"\n- For normal questions, answer as usual with no JSON\n\nHere is their current CRM data:\n${latestCrmContext}`,
+      content: `You are a friendly, warm CRM assistant helping ${username} manage their freelance business. Think of yourself as a helpful colleague who genuinely cares about ${username}'s success.
+
+Personality guidelines:
+- Always address the user as "${username}" naturally in your responses
+- Be conversational, supportive, and encouraging — like a kind human colleague
+- Use light emoji where it feels natural (✅ 📋 💡 🎉) but don't overdo it
+- Celebrate small wins ("Nice, your client list is growing!")
+- Offer helpful follow-ups ("Want me to dig deeper?" or "I can help with that next!")
+- Keep answers concise but warm — no robotic or overly formal language
+
+When answering questions about projects, clients, or plans:
+- Use markdown tables for comparisons and data summaries
+- Use numbered steps for action plans
+- Use plain text for short factual answers
+- Always pull details from the CRM snapshot below — it's your source of truth
+
+The CRM snapshot includes full details: names, emails, phones, companies, budgets, deadlines, priorities, descriptions, and IDs. Use these details to give ${username} precise, helpful answers.
+
+CRM Actions — when ${username} wants to create or delete something, respond ONLY with a JSON block:
+\`\`\`action
+{"action":"CREATE_CLIENT","data":{"name":"...","email":"...","phone":"...","company":""}}
+\`\`\`
+\`\`\`action
+{"action":"CREATE_PROJECT","data":{"title":"...","clientName":"...","status":"ACTIVE","budget":0}}
+\`\`\`
+
+Action rules:
+- Use "action" key always in UPPERCASE with underscore
+- Fill only the fields the user mentioned — leave others as empty string or 0
+- If critical fields are missing (name for client, title for project), ask ${username} nicely for the missing info instead of using NEEDS_FORM
+- For normal questions, answer as usual with no JSON
+
+Here is ${username}'s current CRM data:
+${latestCrmContext}`,
     };
 
     let reply = '';
@@ -282,72 +464,14 @@ export default function ChatbotAI() {
       const data = await response.json();
       reply = data.choices?.[0]?.message?.content ?? 'Sorry, no response received.';
 
-      const parsed = parseActionResponse(reply);
-      const action = parsed?.action?.toUpperCase();
-      const dataPayload = parsed?.data ?? {};
+      const parsed = parseActionBlock(reply);
+      reply = parsed.text || reply;
 
-      if (action === 'CREATE_CLIENT') {
-        const name = String(dataPayload.name ?? '').trim();
-        const email = String(dataPayload.email ?? '').trim();
-        const phone = String(dataPayload.phone ?? '').trim();
-        const company = String(dataPayload.company ?? '').trim();
-
-        if (!name) {
-          setPendingForm('CLIENT');
-          setFormData({ email, phone, company });
-          reply = 'I need a few more details. Please fill in the form below.';
-        } else {
-          await postWithFallback(['/api/clients', '/api/customers'], { name, email, phone, company });
-          setPendingForm(null);
-          setFormData({});
-          reply = `✅ Client "${name}" has been added successfully.`;
+      if (parsed.action) {
+        const opened = openActionModal(parsed.action);
+        if (opened && !reply) {
+          reply = 'Action prepared. Review the details and submit the form.';
         }
-      } else if (action === 'CREATE_PROJECT') {
-        const title = String(dataPayload.title ?? '').trim();
-        const clientName = String(dataPayload.clientName ?? '').trim();
-        const statusRaw = String(dataPayload.status ?? 'ACTIVE').toUpperCase();
-        const normalizedStatus = ['ACTIVE', 'COMPLETED', 'PAUSED', 'CANCELLED'].includes(statusRaw) ? statusRaw : 'ACTIVE';
-        const budgetNum = Number(dataPayload.budget ?? 0);
-        const budget = Number.isFinite(budgetNum) ? budgetNum : 0;
-
-        if (!title) {
-          setPendingForm('PROJECT');
-          setFormData({
-            title,
-            clientName,
-            budget: String(budget),
-          });
-          reply = 'I need a few more details. Please fill in the form below.';
-        } else {
-          const payload: Record<string, unknown> = {
-            title,
-            status: normalizedStatus,
-            budget,
-          };
-
-          if (clientName) {
-            const matchedClient = await findClientByName(clientName);
-            if (matchedClient?.id) {
-              payload.clientId = matchedClient.id;
-            }
-          }
-
-          await postWithFallback(['/api/projects'], payload);
-          setPendingForm(null);
-          setFormData({});
-          reply = `✅ Project "${title}" has been created.`;
-        }
-      } else if (action === 'NEEDS_FORM') {
-        const type = parsed?.type;
-        if (type === 'CLIENT' || type === 'PROJECT') {
-          setPendingForm(type);
-          const prefillEntries = Object.entries(dataPayload).reduce<Record<string, string>>((acc, [key, value]) => {
-            acc[key] = String(value ?? '');
-            return acc;
-          }, {});
-          setFormData(prefillEntries);
-        }
-        reply = 'I need a few more details. Please fill in the form below.';
       }
     } catch {
       reply = 'Something went wrong. Please try again.';
@@ -633,18 +757,32 @@ export default function ChatbotAI() {
           font-size: 13.5px;
         }
 
-        .cb-inline-form {
-          background: var(--surface-2);
-          border: 1px solid var(--border);
-          border-radius: 10px;
-          padding: 12px;
+        .cb-action-modal-backdrop {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.55);
           display: flex;
-          flex-direction: column;
-          gap: 8px;
-          margin: 4px 0;
+          align-items: center;
+          justify-content: center;
+          padding: 16px;
+          z-index: 3;
         }
 
-        .cb-inline-form input {
+        .cb-action-modal {
+          width: min(420px, calc(100vw - 36px));
+          max-height: calc(100dvh - 180px);
+          overflow-y: auto;
+          background: var(--surface-2);
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          padding: 14px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          box-shadow: 0 16px 44px rgba(0, 0, 0, 0.42);
+        }
+
+        .cb-action-modal input {
           border-radius: 7px;
           border: 1px solid var(--border);
           background: var(--surface);
@@ -654,7 +792,7 @@ export default function ChatbotAI() {
           outline: none;
         }
 
-        .cb-inline-form input:focus {
+        .cb-action-modal input:focus {
           border-color: var(--accent);
         }
 
@@ -665,6 +803,17 @@ export default function ChatbotAI() {
           letter-spacing: 0.07em;
           color: var(--accent);
           margin: 0;
+        }
+
+        .cb-field-error {
+          font-size: 10px;
+          color: #f87171;
+          margin: -4px 0 0 2px;
+          line-height: 1.3;
+        }
+
+        .cb-action-modal input.has-error {
+          border-color: #f87171;
         }
 
         .cb-form-actions {
@@ -805,7 +954,7 @@ export default function ChatbotAI() {
             <div className="chatbot-ai-messages">
               {messages.length === 0 && !loading && (
                 <p className="chatbot-ai-empty">
-                  {t('chatbot.empty_state')}
+                  {t('chatbot.empty_state_greeting', { name: username })}
                 </p>
               )}
 
@@ -827,25 +976,43 @@ export default function ChatbotAI() {
                 </div>
               )}
 
-              {pendingForm && (
-                <div className="cb-inline-form" role="group" aria-label="Pending CRM form">
+              <div ref={messagesEndRef} aria-hidden="true" />
+            </div>
+
+            {pendingForm && (
+              <div
+                className="cb-action-modal-backdrop"
+                onClick={() => {
+                  if (!formSubmitting) {
+                    setPendingForm(null);
+                    setFormData({});
+                  }
+                }}
+              >
+                <div className="cb-action-modal" role="dialog" aria-modal="true" onClick={(e: any) => e.stopPropagation()}>
                   <p className="cb-form-label">
-                    {pendingForm === 'CLIENT' && t('chatbot.new_client')}
-                    {pendingForm === 'PROJECT' && t('chatbot.new_project')}
+                    {pendingForm === 'CLIENT' && 'Create client'}
+                    {pendingForm === 'PROJECT' && 'Create project'}
+                    {pendingForm === 'DELETE_CLIENT' && 'Delete client'}
+                    {pendingForm === 'DELETE_PROJECT' && 'Delete project'}
                   </p>
 
                   {pendingForm === 'CLIENT' && (
                     <>
                       <input
+                        className={formErrors.name ? 'has-error' : ''}
                         placeholder={t('chatbot.placeholder_name')}
                         value={formData.name ?? ''}
-                        onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, name: e.target.value }))}
+                        onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, name: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { name: _, ...rest } = prev; return rest; }); }}
                       />
+                      {formErrors.name && <p className="cb-field-error">{formErrors.name}</p>}
                       <input
+                        className={formErrors.email ? 'has-error' : ''}
                         placeholder={t('chatbot.placeholder_email')}
                         value={formData.email ?? ''}
-                        onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, email: e.target.value }))}
+                        onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, email: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { email: _, ...rest } = prev; return rest; }); }}
                       />
+                      {formErrors.email && <p className="cb-field-error">{formErrors.email}</p>}
                       <input
                         placeholder={t('chatbot.placeholder_phone')}
                         value={formData.phone ?? ''}
@@ -856,27 +1023,85 @@ export default function ChatbotAI() {
                         value={formData.company ?? ''}
                         onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, company: e.target.value }))}
                       />
+                      <input
+                        placeholder="Notes"
+                        value={formData.notes ?? ''}
+                        onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, notes: e.target.value }))}
+                      />
                     </>
                   )}
 
                   {pendingForm === 'PROJECT' && (
                     <>
                       <input
+                        className={formErrors.title ? 'has-error' : ''}
                         placeholder={t('chatbot.placeholder_title')}
                         value={formData.title ?? ''}
-                        onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, title: e.target.value }))}
+                        onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, title: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { title: _, ...rest } = prev; return rest; }); }}
+                      />
+                      {formErrors.title && <p className="cb-field-error">{formErrors.title}</p>}
+                      <input
+                        className={formErrors.clientId ? 'has-error' : ''}
+                        placeholder="Client ID"
+                        value={formData.clientId ?? ''}
+                        onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, clientId: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { clientName: _, ...rest } = prev; return rest; }); }}
                       />
                       <input
+                        className={formErrors.clientName ? 'has-error' : ''}
                         placeholder={t('chatbot.placeholder_client_name')}
                         value={formData.clientName ?? ''}
-                        onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, clientName: e.target.value }))}
+                        onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, clientName: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { clientName: _, ...rest } = prev; return rest; }); }}
                       />
+                      {formErrors.clientName && <p className="cb-field-error">{formErrors.clientName}</p>}
                       <input
+                        className={formErrors.budget ? 'has-error' : ''}
                         placeholder={t('chatbot.placeholder_budget')}
                         type="number"
                         value={formData.budget ?? ''}
-                        onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, budget: e.target.value }))}
+                        onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, budget: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { budget: _, ...rest } = prev; return rest; }); }}
                       />
+                      {formErrors.budget && <p className="cb-field-error">{formErrors.budget}</p>}
+                      <input
+                        placeholder="Status"
+                        value={formData.status ?? 'ACTIVE'}
+                        onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, status: e.target.value }))}
+                      />
+                      <input
+                        className={formErrors.deadline ? 'has-error' : ''}
+                        placeholder="Deadline (YYYY-MM-DD)"
+                        value={formData.deadline ?? ''}
+                        onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, deadline: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { deadline: _, ...rest } = prev; return rest; }); }}
+                      />
+                      {formErrors.deadline && <p className="cb-field-error">{formErrors.deadline}</p>}
+                      <input
+                        placeholder="Description"
+                        value={formData.description ?? ''}
+                        onChange={(e: any) => setFormData((prev: Record<string, string>) => ({ ...prev, description: e.target.value }))}
+                      />
+                    </>
+                  )}
+
+                  {pendingForm === 'DELETE_CLIENT' && (
+                    <>
+                      <input
+                        className={formErrors.clientId ? 'has-error' : ''}
+                        placeholder="Client ID"
+                        value={formData.clientId ?? ''}
+                        onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, clientId: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { clientId: _, ...rest } = prev; return rest; }); }}
+                      />
+                      {formErrors.clientId && <p className="cb-field-error">{formErrors.clientId}</p>}
+                    </>
+                  )}
+
+                  {pendingForm === 'DELETE_PROJECT' && (
+                    <>
+                      <input
+                        className={formErrors.projectId ? 'has-error' : ''}
+                        placeholder="Project ID"
+                        value={formData.projectId ?? ''}
+                        onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, projectId: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { projectId: _, ...rest } = prev; return rest; }); }}
+                      />
+                      {formErrors.projectId && <p className="cb-field-error">{formErrors.projectId}</p>}
                     </>
                   )}
 
@@ -897,10 +1122,8 @@ export default function ChatbotAI() {
                     </button>
                   </div>
                 </div>
-              )}
-
-              <div ref={messagesEndRef} aria-hidden="true" />
-            </div>
+              </div>
+            )}
 
             <form
               className="chatbot-ai-input-wrap"

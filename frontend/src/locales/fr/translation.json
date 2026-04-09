@@ -476,6 +476,7 @@
     "enter_fullscreen": "Plein écran",
     "exit_fullscreen": "Quitter le plein écran",
     "empty_state": "Posez une question pour commencer.",
+    "empty_state_greeting": "Salut {{name}} ! 👋 Je suis votre assistant CRM. Posez-moi n'importe quelle question sur vos clients, projets, ou laissez-moi vous aider à créer de nouveaux enregistrements.",
     "new_client": "Nouveau client",
     "new_project": "Nouveau projet",
     "new_invoice": "Nouvelle facture",
@@ -493,7 +494,14 @@
     "input_placeholder": "Tapez votre message...",
     "send": "Envoyer",
     "close_assistant": "Fermer l'assistant IA",
-    "open_assistant": "Ouvrir l'assistant IA"
+    "open_assistant": "Ouvrir l'assistant IA",
+    "validation_name_required": "Le nom du client est requis",
+    "validation_email_invalid": "Veuillez saisir une adresse e-mail valide",
+    "validation_title_required": "Le titre du projet est requis",
+    "validation_client_required": "L'ID ou le nom du client est requis",
+    "validation_budget_invalid": "Le budget doit être un nombre positif",
+    "validation_deadline_invalid": "L'échéance doit être au format AAAA-MM-JJ",
+    "validation_id_required": "L'ID est requis pour continuer"
   },
   "language_switcher": {
     "en": "English",

@@ -476,6 +476,7 @@
     "enter_fullscreen": "Pantalla completa",
     "exit_fullscreen": "Salir de pantalla completa",
     "empty_state": "Pregunta lo que quieras para empezar.",
+    "empty_state_greeting": "¡Hola {{name}}! 👋 Soy tu asistente CRM. Pregúntame lo que quieras sobre tus clientes, proyectos, o déjame ayudarte a crear nuevos registros.",
     "new_client": "Nuevo cliente",
     "new_project": "Nuevo proyecto",
     "new_invoice": "Nueva factura",
@@ -493,7 +494,14 @@
     "input_placeholder": "Escribe tu mensaje...",
     "send": "Enviar",
     "close_assistant": "Cerrar asistente IA",
-    "open_assistant": "Abrir asistente IA"
+    "open_assistant": "Abrir asistente IA",
+    "validation_name_required": "El nombre del cliente es obligatorio",
+    "validation_email_invalid": "Por favor, introduce una dirección de correo válida",
+    "validation_title_required": "El título del proyecto es obligatorio",
+    "validation_client_required": "Se requiere el ID o nombre del cliente",
+    "validation_budget_invalid": "El presupuesto debe ser un número positivo",
+    "validation_deadline_invalid": "La fecha límite debe tener el formato AAAA-MM-DD",
+    "validation_id_required": "Se requiere el ID para continuar"
   },
   "language_switcher": {
     "en": "English",

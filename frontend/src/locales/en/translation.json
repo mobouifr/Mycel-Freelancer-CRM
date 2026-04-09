@@ -476,6 +476,7 @@
     "enter_fullscreen": "Enter fullscreen",
     "exit_fullscreen": "Exit fullscreen",
     "empty_state": "Ask anything to get started.",
+    "empty_state_greeting": "Hey {{name}}! 👋 I'm your CRM assistant. Ask me anything about your clients, projects, or let me help you create new records.",
     "new_client": "New Client",
     "new_project": "New Project",
     "new_invoice": "New Invoice",
@@ -493,7 +494,14 @@
     "input_placeholder": "Type your message...",
     "send": "Send",
     "close_assistant": "Close AI Assistant",
-    "open_assistant": "Open AI Assistant"
+    "open_assistant": "Open AI Assistant",
+    "validation_name_required": "Client name is required",
+    "validation_email_invalid": "Please enter a valid email address",
+    "validation_title_required": "Project title is required",
+    "validation_client_required": "Client ID or name is required",
+    "validation_budget_invalid": "Budget must be a positive number",
+    "validation_deadline_invalid": "Deadline must be in YYYY-MM-DD format",
+    "validation_id_required": "ID is required to proceed"
   },
   "language_switcher": {
     "en": "English",
