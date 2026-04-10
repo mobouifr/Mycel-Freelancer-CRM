@@ -386,6 +386,70 @@ export default function ChatbotAI() {
     void loadContext();
   }, []);
 
+  const detectLocalIntent = (text: string): PendingFormType | null => {
+    const lower = text.toLowerCase();
+
+    const deleteClientPatterns = [
+      /delete\s+(a\s+)?client/,
+      /remove\s+(a\s+)?client/,
+      /supprimer\s+(un\s+)?client/,
+      /eliminar\s+(un\s+)?cliente/,
+    ];
+    if (deleteClientPatterns.some(p => p.test(lower))) return 'DELETE_CLIENT';
+
+    const deleteProjectPatterns = [
+      /delete\s+(a\s+)?project/,
+      /remove\s+(a\s+)?project/,
+      /supprimer\s+(un\s+)?projet/,
+      /eliminar\s+(un\s+)?proyecto/,
+    ];
+    if (deleteProjectPatterns.some(p => p.test(lower))) return 'DELETE_PROJECT';
+
+    const createClientPatterns = [
+      /add\s+(a\s+)?client/,
+      /create\s+(a\s+)?client/,
+      /new\s+client/,
+      /ajouter\s+(un\s+)?client/,
+      /créer\s+(un\s+)?client/,
+      /añadir\s+(un\s+)?cliente/,
+      /crear\s+(un\s+)?cliente/,
+    ];
+    if (createClientPatterns.some(p => p.test(lower))) return 'CLIENT';
+
+    const createProjectPatterns = [
+      /add\s+(a\s+)?project/,
+      /create\s+(a\s+)?project/,
+      /new\s+project/,
+      /ajouter\s+(un\s+)?projet/,
+      /créer\s+(un\s+)?projet/,
+      /añadir\s+(un\s+)?proyecto/,
+      /crear\s+(un\s+)?proyecto/,
+    ];
+    if (createProjectPatterns.some(p => p.test(lower))) return 'PROJECT';
+
+    const modifyClientPatterns = [
+      /modify\s+(a\s+)?client/,
+      /edit\s+(a\s+)?client/,
+      /update\s+(a\s+)?client/,
+      /change\s+(a\s+)?client/,
+      /modifier\s+(un\s+)?client/,
+      /modificar\s+(un\s+)?cliente/,
+    ];
+    if (modifyClientPatterns.some(p => p.test(lower))) return 'CLIENT';
+
+    const modifyProjectPatterns = [
+      /modify\s+(a\s+)?project/,
+      /edit\s+(a\s+)?project/,
+      /update\s+(a\s+)?project/,
+      /change\s+(a\s+)?project/,
+      /modifier\s+(un\s+)?projet/,
+      /modificar\s+(un\s+)?proyecto/,
+    ];
+    if (modifyProjectPatterns.some(p => p.test(lower))) return 'PROJECT';
+
+    return null;
+  };
+
   const sendMessage = async () => {
     const trimmed = input.trim();
     if (!trimmed || loading) return;
@@ -394,6 +458,9 @@ export default function ChatbotAI() {
     setMessages((prev: ChatMessage[]) => [...prev, userMessage]);
     setInput('');
     setLoading(true);
+
+    // Detect intent locally first
+    const localIntent = detectLocalIntent(trimmed);
 
     let latestCrmContext = crmContext;
     try {
@@ -422,18 +489,24 @@ When answering questions about projects, clients, or plans:
 
 The CRM snapshot includes full details: names, emails, phones, companies, budgets, deadlines, priorities, descriptions, and IDs. Use these details to give ${username} precise, helpful answers.
 
-CRM Actions — when ${username} wants to create or delete something, respond ONLY with a JSON block:
+CRM Actions — when ${username} wants to create, modify, edit, update, or delete something, you MUST ALWAYS respond with a JSON block:
 \`\`\`action
 {"action":"CREATE_CLIENT","data":{"name":"...","email":"...","phone":"...","company":""}}
 \`\`\`
 \`\`\`action
 {"action":"CREATE_PROJECT","data":{"title":"...","clientName":"...","status":"ACTIVE","budget":0}}
 \`\`\`
+\`\`\`action
+{"action":"DELETE_CLIENT","data":{"clientId":"..."}}
+\`\`\`
+\`\`\`action
+{"action":"DELETE_PROJECT","data":{"projectId":"..."}}
+\`\`\`
 
 Action rules:
 - Use "action" key always in UPPERCASE with underscore
+- ALWAYS respond with an action JSON block when the user asks to add, create, modify, edit, update, change, or delete a client or project — NEVER skip this
 - Fill only the fields the user mentioned — leave others as empty string or 0
-- If critical fields are missing (name for client, title for project), ask ${username} nicely for the missing info instead of using NEEDS_FORM
 - For normal questions, answer as usual with no JSON
 
 Here is ${username}'s current CRM data:
@@ -477,6 +550,16 @@ ${latestCrmContext}`,
       reply = 'Something went wrong. Please try again.';
     }
 
+    // Fallback: if AI didn't open a form but we detected CRUD intent, open it
+    if (localIntent && !pendingForm) {
+      setPendingForm(localIntent);
+      setFormData({});
+      setFormErrors({});
+      if (!reply || reply === 'Something went wrong. Please try again.') {
+        reply = `Sure, ${username}! Please fill in the details below.`;
+      }
+    }
+
     setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: reply }]);
     setLoading(false);
   };
@@ -487,7 +570,7 @@ ${latestCrmContext}`,
         .chatbot-ai-root {
           position: fixed;
           right: max(32px, env(safe-area-inset-right, 0px));
-          bottom: max(104px, env(safe-area-inset-bottom, 0px));
+          bottom: max(32px, env(safe-area-inset-bottom, 0px));
           z-index: var(--z-fab);
           font-family: var(--font-m);
         }
@@ -846,7 +929,7 @@ ${latestCrmContext}`,
         @media (max-width: 1024px) {
           .chatbot-ai-root {
             right: max(32px, env(safe-area-inset-right, 0px));
-            bottom: max(104px, env(safe-area-inset-bottom, 0px));
+            bottom: max(32px, env(safe-area-inset-bottom, 0px));
           }
 
           .chatbot-ai-panel {
@@ -858,7 +941,7 @@ ${latestCrmContext}`,
         @media (max-width: 767px) {
           .chatbot-ai-root {
             right: max(20px, env(safe-area-inset-right, 0px));
-            bottom: max(84px, env(safe-area-inset-bottom, 0px));
+            bottom: max(24px, env(safe-area-inset-bottom, 0px));
           }
 
           .chatbot-ai-fab {
