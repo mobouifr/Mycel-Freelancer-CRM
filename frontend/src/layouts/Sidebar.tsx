@@ -39,7 +39,7 @@ const icons = {
       <path d="M13.73 21a2 2 0 0 1-3.46 0" />
     </svg>
   ),
-  ecosystem: (
+  growth: (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 22V8M12 8C9 8 5 6 5 2M12 8c3 0 7-2 7-6M7 14c-3 0-5 1-5 3M17 14c3 0 5 1 5 3" />
     </svg>
@@ -65,7 +65,7 @@ const NAV_ITEMS: NavEntry[] = [
   { icon: 'clients',    label: 'nav.clients',    path: '/clients' },
   { icon: 'projects',   label: 'nav.projects',   path: '/projects' },
   { icon: 'reminders',  label: 'nav.reminders',  path: '/reminders' },
-  { icon: 'ecosystem',  label: 'nav.growth',     path: '/ecosystem' },
+  { icon: 'growth',     label: 'nav.growth',     path: '/growth' },
 ];
 
 const COLLAPSED_W = 64;

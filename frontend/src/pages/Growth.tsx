@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { gamificationService } from '../services/gamification';
 import type { GamificationStats } from '../services/gamification';
 
@@ -25,7 +24,7 @@ interface RewardDef {
   name: string;
   hint: string;
   color: string;
-  iconPath: string; // SVG path(s) for the reward icon
+  iconPath: string;
 }
 
 const ACHIEVEMENT_DEFS: RewardDef[] = [
@@ -79,12 +78,11 @@ function xpProgress(xp: number, level: number): number {
 
 // ── Component ──
 
-export default function Ecosystem() {
+export default function Growth() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [stats, setStats] = useState<GamificationStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
+  const [animReady, setAnimReady] = useState(false);
 
   useEffect(() => {
     gamificationService.fetchStats()
@@ -92,8 +90,7 @@ export default function Ecosystem() {
       .catch(() => {})
       .finally(() => {
         setLoading(false);
-        // Trigger stagger animations after data is painted
-        requestAnimationFrame(() => setMounted(true));
+        requestAnimationFrame(() => setAnimReady(true));
       });
   }, []);
 
@@ -115,10 +112,10 @@ export default function Ecosystem() {
   const achievementsEarned = ACHIEVEMENT_DEFS.filter(d => earnedAchievementTypes.has(d.type)).length;
   const badgesEarned = BADGE_DEFS.filter(d => earnedBadgeTypes.has(d.type)).length;
 
-  // SVG ring math
+  // SVG ring
   const RING_R = 58;
   const RING_CIRC = 2 * Math.PI * RING_R;
-  const ringOffset = RING_CIRC * (1 - (mounted ? progress : 0));
+  const ringOffset = RING_CIRC * (1 - (animReady ? progress : 0));
 
   if (loading) {
     return (
@@ -140,59 +137,43 @@ export default function Ecosystem() {
     <div style={{
       display: 'flex', flexDirection: 'column', gap: 28,
       animation: 'fadeUp .35s var(--ease) both',
-      maxWidth: 960, width: '100%',
+      width: '100%',
     }}>
       {/* ═══ Header ═══ */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <div>
-          <h2 style={{
-            fontFamily: 'var(--font-d)', fontWeight: 500, fontSize: 26,
-            color: 'var(--text)', letterSpacing: '.06em', lineHeight: 1.3,
-            marginBottom: 4,
-          }}>
-            {t('growth.title')}
-          </h2>
-          <p style={{
-            fontFamily: 'var(--font-m)', fontSize: 11,
-            color: 'var(--text-dim)', letterSpacing: '.04em',
-          }}>
-            {t('growth.subtitle')}
-          </p>
-        </div>
-        <button
-          onClick={() => navigate('/')}
-          style={{
-            padding: '7px 14px', borderRadius: 6,
-            background: 'var(--surface-2)', border: '1px solid var(--border)',
-            fontFamily: 'var(--font-m)', fontSize: 11, fontWeight: 500,
-            color: 'var(--text-mid)', cursor: 'pointer', transition: 'all .15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--text-dim)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; }}
-        >
-          {t('growth.back')}
-        </button>
+      <div>
+        <h2 style={{
+          fontFamily: 'var(--font-d)', fontWeight: 500, fontSize: 26,
+          color: 'var(--text)', letterSpacing: '.06em', lineHeight: 1.3,
+          marginBottom: 4,
+        }}>
+          {t('growth.title')}
+        </h2>
+        <p style={{
+          fontFamily: 'var(--font-m)', fontSize: 11,
+          color: 'var(--text-dim)', letterSpacing: '.04em',
+        }}>
+          {t('growth.subtitle')}
+        </p>
       </div>
 
       {/* ═══ Hero: Ring + Stats ═══ */}
       <div style={{
-        display: 'grid', gridTemplateColumns: '200px 1fr', gap: 24,
+        display: 'flex', flexWrap: 'wrap', gap: 28,
         background: 'var(--surface-2)', border: '1px solid var(--border)',
         borderRadius: 12, padding: '32px 36px',
         animation: 'fadeUp .4s var(--ease) .05s both',
+        alignItems: 'center',
       }}>
         {/* XP Ring */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          position: 'relative',
+          position: 'relative', flexShrink: 0,
         }}>
           <svg width="160" height="160" viewBox="0 0 140 140">
-            {/* Track */}
             <circle
               cx="70" cy="70" r={RING_R}
               fill="none" stroke="var(--border)" strokeWidth="6"
             />
-            {/* Progress arc */}
             <circle
               cx="70" cy="70" r={RING_R}
               fill="none" stroke="var(--accent)" strokeWidth="6"
@@ -205,13 +186,11 @@ export default function Ecosystem() {
                 transition: 'stroke-dashoffset 1.2s var(--ease)',
               }}
             />
-            {/* Glow */}
             <circle
               cx="70" cy="70" r={RING_R - 8}
               fill="var(--accent)" opacity="0.03"
             />
           </svg>
-          {/* Center text */}
           <div style={{
             position: 'absolute', inset: 0,
             display: 'flex', flexDirection: 'column',
@@ -238,12 +217,13 @@ export default function Ecosystem() {
         <div style={{
           display: 'flex', flexDirection: 'column',
           justifyContent: 'center', gap: 20,
+          flex: '1 1 280px', minWidth: 0,
         }}>
           {/* XP bar */}
           <div>
             <div style={{
               display: 'flex', justifyContent: 'space-between',
-              alignItems: 'baseline', marginBottom: 8,
+              alignItems: 'baseline', marginBottom: 8, flexWrap: 'wrap', gap: 4,
             }}>
               <p style={{
                 fontFamily: 'var(--font-d)', fontSize: 22, fontWeight: 500,
@@ -266,7 +246,7 @@ export default function Ecosystem() {
             }}>
               <div style={{
                 height: '100%',
-                width: `${mounted ? progress * 100 : 0}%`,
+                width: `${animReady ? progress * 100 : 0}%`,
                 background: 'var(--accent)', borderRadius: 3,
                 transition: 'width 1.2s var(--ease)',
               }} />
@@ -274,7 +254,11 @@ export default function Ecosystem() {
           </div>
 
           {/* Stat chips */}
-          <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+            gap: 10,
+          }}>
             <StatChip label={t('growth.level')} value={String(level)} color="var(--text)" />
             <StatChip label={t('growth.total_xp')} value={xp.toLocaleString()} color="var(--accent)" />
             <StatChip
@@ -297,7 +281,11 @@ export default function Ecosystem() {
         count={`${achievementsEarned}/${ACHIEVEMENT_DEFS.length}`}
         delay=".1s"
       >
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: 14,
+        }}>
           {ACHIEVEMENT_DEFS.map((def, i) => {
             const earned = stats?.achievements.find(a => a.type === def.type);
             return (
@@ -307,7 +295,6 @@ export default function Ecosystem() {
                 earned={!!earned}
                 earnedAt={earned?.earnedAt}
                 index={i}
-                mounted={mounted}
               />
             );
           })}
@@ -320,7 +307,11 @@ export default function Ecosystem() {
         count={`${badgesEarned}/${BADGE_DEFS.length}`}
         delay=".15s"
       >
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: 14,
+        }}>
           {BADGE_DEFS.map((def, i) => {
             const earned = stats?.badges.find(b => b.type === def.type);
             return (
@@ -330,7 +321,6 @@ export default function Ecosystem() {
                 earned={!!earned}
                 earnedAt={earned?.earnedAt}
                 index={i}
-                mounted={mounted}
               />
             );
           })}
@@ -344,7 +334,7 @@ export default function Ecosystem() {
 function StatChip({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div style={{
-      flex: 1, padding: '10px 12px',
+      padding: '10px 12px',
       background: 'var(--surface)', borderRadius: 8,
       border: '1px solid var(--border)',
     }}>
@@ -400,9 +390,9 @@ function Section({
 
 /* ── Reward Card (achievement or badge) ── */
 function RewardCard({
-  def, earned, earnedAt, index, mounted,
+  def, earned, earnedAt, index,
 }: {
-  def: RewardDef; earned: boolean; earnedAt?: string; index: number; mounted: boolean;
+  def: RewardDef; earned: boolean; earnedAt?: string; index: number;
 }) {
   const [hovered, setHovered] = useState(false);
 
@@ -417,17 +407,12 @@ function RewardCard({
       style={{
         padding: '20px 22px',
         borderRadius: 10,
-        border: `1px solid ${earned
-          ? (hovered ? def.color : 'var(--border)')
-          : 'var(--border)'}`,
-        background: earned
-          ? (hovered ? `${def.color.replace(/[\d.]+\)$/, '0.06)')}` : 'var(--surface-2)')
-          : 'var(--surface-2)',
+        borderWidth: 1,
+        borderStyle: 'solid',
+        borderColor: earned && hovered ? def.color : 'var(--border)',
+        backgroundColor: earned && hovered ? def.color.replace(/[\d.]+\)$/, '0.06)') : 'var(--surface-2)',
         display: 'flex', gap: 16, alignItems: 'flex-start',
-        transition: 'all .2s var(--ease)',
-        opacity: mounted ? 1 : 0,
-        transform: mounted ? 'translateY(0)' : 'translateY(12px)',
-        transitionDelay: `${0.2 + index * 0.08}s`,
+        animation: `fadeUp .35s var(--ease) ${0.12 + index * 0.06}s both`,
       }}
     >
       {/* Icon */}
@@ -441,7 +426,6 @@ function RewardCard({
           : 'var(--border)'}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexShrink: 0,
-        transition: 'all .2s var(--ease)',
       }}>
         {earned ? (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"

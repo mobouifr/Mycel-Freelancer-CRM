@@ -43,7 +43,7 @@ const ProjectDetailPage = lazy(() =>
   import('./pages/projects/ProjectDetailPage').then((module) => ({ default: module.ProjectDetailPage })),
 );
 const Reminders = lazy(() => import('./pages/Reminders'));
-const Ecosystem = lazy(() => import('./pages/Ecosystem'));
+const Growth = lazy(() => import('./pages/Growth'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const NotFound = lazy(() => import('./pages/NotFound'));
@@ -74,7 +74,7 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/projects/*" element={<Projects />} />
                   <Route path="/reminders/*" element={<Reminders />} />
                   <Route path="/settings" element={<Settings />} />
-                  <Route path="/ecosystem" element={<Ecosystem />} />
+                  <Route path="/growth" element={<Growth />} />
 
                   {/* Migrated Hiba pages */}
                   <Route path="/clients" element={<ClientsListPage />} />
