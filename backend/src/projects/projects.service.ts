@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { GamificationService } from '../gamification/gamification.service';
@@ -8,6 +8,8 @@ import { ProjectStatus } from '@prisma/client';
 
 @Injectable()
 export class ProjectsService {
+  private readonly logger = new Logger(ProjectsService.name);
+
   constructor(
     private readonly gamificationService: GamificationService,
     private readonly prisma: PrismaService,
@@ -45,13 +47,13 @@ export class ProjectsService {
 
     const project = await this.prisma.project.create({ data });
 
-    await this.notificationsService.create(userId, {
+    this.notificationsService.create(userId, {
       title: 'Project Created',
       message: `New project created: ${project.title}`,
       type: 'success',
       targetType: 'project',
       targetId: project.id,
-    });
+    }).catch(() => {});
 
     return project;
   }
@@ -108,18 +110,19 @@ export class ProjectsService {
         userId,
         Number(updatedProject.budget),
         priority
-      );
+      ).catch((err) => this.logger.error('Gamification XP error', err));
 
-      this.gamificationService.checkAchievementsAndBadges(userId, updatedProject.id);
+      this.gamificationService.checkAchievementsAndBadges(userId, updatedProject.id)
+        .catch((err) => this.logger.error('Gamification badges error', err));
     }
 
-    await this.notificationsService.create(userId, {
+    this.notificationsService.create(userId, {
       title: 'Project Updated',
       message: `Project updated: ${updatedProject.title}`,
       type: 'info',
       targetType: 'project',
       targetId: updatedProject.id,
-    });
+    }).catch(() => {});
 
     return updatedProject;
   }
@@ -131,11 +134,11 @@ export class ProjectsService {
   async remove(userId: string, id: string) {
     const existingProject = await this.findOne(userId, id);
     
-    await this.notificationsService.create(userId, {
+    this.notificationsService.create(userId, {
       title: 'Project Deleted',
       message: `Project deleted: ${existingProject.title}`,
       type: 'warning',
-    });
+    }).catch(() => {});
 
     return await this.prisma.project.delete({ where: { id } });
   }

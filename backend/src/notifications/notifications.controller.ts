@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Delete, Query, UseGuards, Request } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -8,8 +8,19 @@ export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Get()
-  findAll(@Request() req: any) {
-    return this.notificationsService.findAll(req.user.id || req.user.sub);
+  findAll(
+    @Request() req: any,
+    @Query('take') take?: string,
+    @Query('cursor') cursor?: string,
+  ) {
+    const limit = take ? Math.min(parseInt(take, 10) || 50, 100) : 50;
+    return this.notificationsService.findAll(req.user.id || req.user.sub, limit, cursor);
+  }
+
+  @Get('unread-count')
+  async unreadCount(@Request() req: any) {
+    const count = await this.notificationsService.countUnread(req.user.id || req.user.sub);
+    return { count };
   }
 
   @Patch('read-all')

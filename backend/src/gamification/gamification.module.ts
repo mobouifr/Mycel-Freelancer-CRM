@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { GamificationService } from './gamification.service';
 import { GamificationController } from './gamification.controller';
-import { PrismaModule } from '../prisma/prisma.module'; // Import PrismaModule
+import { PrismaModule } from '../prisma/prisma.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [PrismaModule], // Replace UsersModule with PrismaModule
+  imports: [PrismaModule, NotificationsModule],
   controllers: [GamificationController],
   providers: [GamificationService],
-  exports: [GamificationService], // Makes the XP logic available to Projects
+  exports: [GamificationService],
 })
 export class GamificationModule {}

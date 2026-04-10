@@ -1,11 +1,15 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class GamificationService {
   private readonly logger = new Logger(GamificationService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   // XP needed to *reach* a given level (cumulative curve)
   // Example: L1 -> 0, L2 -> 100, L3 -> 400, L4 -> 900, ...
@@ -113,7 +117,11 @@ export class GamificationService {
     const exists = await this.prisma.userAchievement.findUnique({ where: { userId_type: { userId, type } }});
     if (!exists) {
       await this.prisma.userAchievement.create({ data: { userId, type, name } });
-      await this.prisma.notification.create({ data: { userId, message: `🏆 Achievement Unlocked: ${name}`, type: 'achievement' } });
+      this.notificationsService.create(userId, {
+        title: 'Achievement Unlocked',
+        message: `🏆 Achievement Unlocked: ${name}`,
+        type: 'achievement',
+      }).catch(() => {});
       this.logger.log(`User ${userId} earned achievement: ${name}`);
     }
   }
@@ -122,7 +130,11 @@ export class GamificationService {
     const exists = await this.prisma.userBadge.findUnique({ where: { userId_type: { userId, type } }});
     if (!exists) {
       await this.prisma.userBadge.create({ data: { userId, type, name } });
-      await this.prisma.notification.create({ data: { userId, message: `🏅 Badge Earned: ${name}`, type: 'badge' } });
+      this.notificationsService.create(userId, {
+        title: 'Badge Earned',
+        message: `🏅 Badge Earned: ${name}`,
+        type: 'badge',
+      }).catch(() => {});
       this.logger.log(`User ${userId} earned badge: ${name}`);
     }
   }

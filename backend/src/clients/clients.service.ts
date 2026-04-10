@@ -30,13 +30,13 @@ export class ClientsService {
       },
     });
 
-    await this.notificationsService.create(userId, {
+    this.notificationsService.create(userId, {
       title: 'Client Created',
       message: `New client created: ${client.name}`,
       type: 'success',
       targetType: 'client',
       targetId: client.id,
-    });
+    }).catch(() => {});
 
     return client;
   }
@@ -81,13 +81,13 @@ export class ClientsService {
       data,
     });
 
-    await this.notificationsService.create(userId, {
+    this.notificationsService.create(userId, {
       title: 'Client Updated',
       message: `Client updated: ${updatedClient.name}`,
       type: 'info',
       targetType: 'client',
       targetId: updatedClient.id,
-    });
+    }).catch(() => {});
 
     return updatedClient;
   }
@@ -95,11 +95,11 @@ export class ClientsService {
   async remove(userId: string, id: string): Promise<Client> {
     const client = await this.findOne(userId, id); // Check existence
     
-    await this.notificationsService.create(userId, {
+    this.notificationsService.create(userId, {
       title: 'Client Deleted',
       message: `Client deleted: ${client.name}`,
       type: 'warning',
-    });
+    }).catch(() => {});
 
     return this.prisma.client.delete({
       where: { id },
