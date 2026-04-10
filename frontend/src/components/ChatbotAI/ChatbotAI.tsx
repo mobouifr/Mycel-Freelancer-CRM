@@ -16,6 +16,16 @@ interface ChatMessage {
   content: string;
 }
 
+type StatusBadgeType = 'done' | 'pending' | 'critical' | 'warning';
+
+type FormattedBlock =
+  | { type: 'paragraph'; lines: string[] }
+  | { type: 'ul'; items: string[] }
+  | { type: 'ol'; items: string[] }
+  | { type: 'table'; headers: string[]; rows: string[][] }
+  | { type: 'diagram'; lines: string[] }
+  | { type: 'suggestions'; items: string[] };
+
 export default function ChatbotAI() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -31,8 +41,215 @@ export default function ChatbotAI() {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [formSubmitting, setFormSubmitting] = useState(false);
+  const [hasSentFirstMessage, setHasSentFirstMessage] = useState(false);
+  const [panelSize, setPanelSize] = useState<{ width: number; height: number } | null>(null);
+  const [isResizing, setIsResizing] = useState(false);
+  const [copiedMessageKey, setCopiedMessageKey] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const panelRef = useRef<HTMLElement | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const fullscreenActive = isOpen && (isMobile || isFullscreen);
+  const quickActions = [
+    { label: '✉️ Write Email', prompt: 'Write a professional email' },
+    { label: '📄 Write Report', prompt: 'Write a full structured report' },
+    { label: '👥 Active Users', prompt: 'Show a table of active users with name, role, status, and last active date' },
+    { label: '✅ Task List', prompt: 'Create a task list table with task name, owner, priority, due date, and status' },
+    { label: '📊 Compare Options', prompt: 'Compare two options in a structured table' },
+    { label: '📢 Announcement', prompt: 'Draft a professional internal announcement' },
+  ];
+
+  const formalKeywords = [
+    'Subject:',
+    'Dear',
+    'Hi ',
+    'Best regards',
+    'Report:',
+    'Title:',
+    'Overview',
+    'Prepared by',
+    'Recommendations',
+    'Conclusion',
+    '━━━',
+  ];
+
+  const statusPatterns: Array<{ regex: RegExp; type: StatusBadgeType; label: string }> = [
+    { regex: /^\[(?:✅\s*)?DONE\]$/i, type: 'done', label: 'DONE' },
+    { regex: /^\[(?:⏳\s*)?PENDING\]$/i, type: 'pending', label: 'PENDING' },
+    { regex: /^\[(?:🚨\s*)?CRITICAL\]$/i, type: 'critical', label: 'CRITICAL' },
+    { regex: /^\[(?:⚠️?\s*)?WARNING\]$/i, type: 'warning', label: 'WARNING' },
+  ];
+
+  const isDiagramLine = (line: string): boolean => /[→▶│┌└┐┘]/.test(line) || /--/.test(line);
+
+  const isTableSeparatorLine = (line: string): boolean => /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(line);
+
+  const splitTableRow = (line: string): string[] =>
+    line
+      .trim()
+      .replace(/^\|/, '')
+      .replace(/\|$/, '')
+      .split('|')
+      .map((cell: string) => cell.trim());
+
+  const containsFormalDocument = (text: string): boolean => {
+    const lower = text.toLowerCase();
+    return formalKeywords.some((keyword) => lower.includes(keyword.toLowerCase()));
+  };
+
+  const parseBlocks = (text: string): FormattedBlock[] => {
+    const lines = text.replace(/\r\n/g, '\n').split('\n');
+    const blocks: FormattedBlock[] = [];
+    let i = 0;
+
+    while (i < lines.length) {
+      const rawLine = lines[i];
+      const line = rawLine.trim();
+
+      if (!line) {
+        i += 1;
+        continue;
+      }
+
+      if ((line.startsWith('|') || line.includes('|')) && i + 1 < lines.length && isTableSeparatorLine(lines[i + 1])) {
+        const headers = splitTableRow(lines[i]);
+        const rows: string[][] = [];
+        i += 2;
+        while (i < lines.length && lines[i].trim().includes('|')) {
+          rows.push(splitTableRow(lines[i]));
+          i += 1;
+        }
+        blocks.push({ type: 'table', headers, rows });
+        continue;
+      }
+
+      if (isDiagramLine(rawLine)) {
+        const diagramLines: string[] = [];
+        while (i < lines.length && lines[i].trim() && isDiagramLine(lines[i])) {
+          diagramLines.push(lines[i]);
+          i += 1;
+        }
+        blocks.push({ type: 'diagram', lines: diagramLines });
+        continue;
+      }
+
+      if (/^(-|•)\s+/.test(line)) {
+        const items: string[] = [];
+        while (i < lines.length && /^(-|•)\s+/.test(lines[i].trim())) {
+          items.push(lines[i].trim().replace(/^(-|•)\s+/, ''));
+          i += 1;
+        }
+        blocks.push({ type: 'ul', items });
+        continue;
+      }
+
+      if (/^\d+\.\s+/.test(line)) {
+        const items: string[] = [];
+        while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) {
+          items.push(lines[i].trim().replace(/^\d+\.\s+/, ''));
+          i += 1;
+        }
+        blocks.push({ type: 'ol', items });
+        continue;
+      }
+
+      if (/^(→|->)\s+/.test(line)) {
+        const items: string[] = [];
+        while (i < lines.length && /^(→|->)\s+/.test(lines[i].trim())) {
+          items.push(lines[i].trim().replace(/^(→|->)\s+/, '').replace(/^"|"$/g, ''));
+          i += 1;
+        }
+        blocks.push({ type: 'suggestions', items });
+        continue;
+      }
+
+      const paragraphLines: string[] = [];
+      while (
+        i < lines.length &&
+        lines[i].trim() &&
+        !(/^(-|•)\s+/.test(lines[i].trim()) ||
+          /^\d+\.\s+/.test(lines[i].trim()) ||
+          /^(→|->)\s+/.test(lines[i].trim()) ||
+          isDiagramLine(lines[i]) ||
+          ((lines[i].trim().startsWith('|') || lines[i].includes('|')) && i + 1 < lines.length && isTableSeparatorLine(lines[i + 1])))
+      ) {
+        paragraphLines.push(lines[i]);
+        i += 1;
+      }
+      blocks.push({ type: 'paragraph', lines: paragraphLines });
+    }
+
+    return blocks;
+  };
+
+  const startResize = (clientX: number, clientY: number) => {
+    if (fullscreenActive || isMobile || !panelRef.current) return;
+
+    const rect = panelRef.current.getBoundingClientRect();
+    const startWidth = rect.width;
+    const startHeight = rect.height;
+
+    setIsResizing(true);
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'nwse-resize';
+
+    const onMove = (moveX: number, moveY: number) => {
+      const width = Math.max(320, Math.min(window.innerWidth * 0.98, startWidth + (moveX - clientX)));
+      const height = Math.max(380, Math.min(window.innerHeight * 0.92, startHeight + (moveY - clientY)));
+      setPanelSize({ width, height });
+    };
+
+    const handleMouseMove = (event: MouseEvent) => onMove(event.clientX, event.clientY);
+    const handleTouchMove = (event: TouchEvent) => {
+      if (!event.touches[0]) return;
+      onMove(event.touches[0].clientX, event.touches[0].clientY);
+    };
+
+    const stopResize = () => {
+      setIsResizing(false);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', stopResize);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', stopResize);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', stopResize);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', stopResize);
+  };
+
+  const renderInlineContent = (text: string, keyPrefix: string) => {
+    const tokens = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\])/g);
+    return tokens.filter(Boolean).map((token, idx) => {
+      const boldMatch = token.match(/^\*\*(.+)\*\*$/);
+      if (boldMatch) {
+        return <strong key={`${keyPrefix}-b-${idx}`}>{boldMatch[1]}</strong>;
+      }
+
+      const badgeRule = statusPatterns.find((rule) => rule.regex.test(token.trim()));
+      if (badgeRule) {
+        return (
+          <span key={`${keyPrefix}-s-${idx}`} className={`cb-status-badge ${badgeRule.type}`}>
+            {badgeRule.label}
+          </span>
+        );
+      }
+
+      return <span key={`${keyPrefix}-t-${idx}`}>{token}</span>;
+    });
+  };
+
+  const copyMessageText = async (key: string, text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedMessageKey(key);
+      window.setTimeout(() => setCopiedMessageKey((current: string | null) => (current === key ? null : current)), 2000);
+    } catch {
+      setCopiedMessageKey(null);
+    }
+  };
 
   const getAuthHeaders = (json = false): Record<string, string> => {
     const token = localStorage.getItem('token');
@@ -448,10 +665,11 @@ export default function ChatbotAI() {
     return null;
   };
 
-  const sendMessage = async () => {
-    const trimmed = input.trim();
+  const sendMessage = async (overrideText?: string) => {
+    const trimmed = (overrideText ?? input).trim();
     if (!trimmed || loading) return;
 
+    setHasSentFirstMessage(true);
     const userMessage: ChatMessage = { role: 'user', content: trimmed };
     setMessages((prev: ChatMessage[]) => [...prev, userMessage]);
     setInput('');
@@ -469,23 +687,46 @@ export default function ChatbotAI() {
 
     const prompt = {
       role: 'system' as const,
-      content: `You are a friendly, warm CRM assistant helping ${username} manage their freelance business. Think of yourself as a helpful colleague who genuinely cares about ${username}'s success.
+      content: `You are a professional AI assistant helping ${username} manage CRM work.
 
-Personality guidelines:
-- Always address the user as "${username}" naturally in your responses
-- Be conversational, supportive, and encouraging — like a kind human colleague
-- Use light emoji where it feels natural (✅ 📋 💡 🎉) but don't overdo it
-- Celebrate small wins ("Nice, your client list is growing!")
-- Offer helpful follow-ups ("Want me to dig deeper?" or "I can help with that next!")
-- Keep answers concise but warm — no robotic or overly formal language
+STRUCTURE:
+- Always organize replies with clear sections.
+- Use bold-style section titles in markdown.
+- Never produce a wall of text; split content into readable chunks.
 
-When answering questions about projects, clients, or plans:
-- Use markdown tables for comparisons and data summaries
-- Use numbered steps for action plans
-- Use plain text for short factual answers
-- Always pull details from the CRM snapshot below — it's your source of truth
+TABLES:
+- When comparing options, listing structured data, specs, or summaries, use a markdown table with a header row.
 
-The CRM snapshot includes full details: names, emails, phones, companies, budgets, deadlines, priorities, descriptions, and IDs. Use these details to give ${username} precise, helpful answers.
+DIAGRAMS:
+- For any process, system, architecture, or flow explanation, include a compact ASCII diagram.
+
+EMAILS AND REPORTS:
+- For any email/report/letter/formal document request, return a copy-ready block.
+- Start with a clear label like "--- EMAIL ---" or "--- REPORT ---".
+- Include full sections: subject, greeting, body, and sign-off.
+- After the block, add exactly: "You can copy the text above."
+
+LISTS:
+- Use bullet points for features/options.
+- Use numbered lists for sequences/instructions.
+
+STATUS LABELS:
+- Tag relevant key terms with: [DONE] [PENDING] [CRITICAL] [INFO] [WARNING].
+
+TONE AND LENGTH:
+- Be concise, professional, and warm.
+- Avoid filler phrases.
+- Match response length to request complexity.
+- Ensure each sentence adds value.
+
+QUICK SUGGESTIONS:
+- At the end of relevant responses, add 2-3 short follow-up suggestions.
+- Format each on its own line as:
+  -> "Ask me to expand the budget section"
+
+CRM data usage:
+- Always use the CRM snapshot below as source of truth for client/project details.
+- Use names, budgets, deadlines, priorities, descriptions, and IDs accurately from the snapshot when available.
 
 CRM Actions — when ${username} wants to create, modify, edit, update, or delete something, you MUST ALWAYS respond with a JSON block:
 \`\`\`action
@@ -563,6 +804,114 @@ ${latestCrmContext}`,
     setLoading(false);
   };
 
+  const renderMessageContent = (message: ChatMessage, messageKey: string) => {
+    const blocks = parseBlocks(message.content);
+    const isFormalDoc = message.role === 'assistant' && containsFormalDocument(message.content);
+
+    const content = (
+      <div className="cb-rich-content">
+        {blocks.map((block, blockIndex) => {
+          if (block.type === 'paragraph') {
+            return (
+              <p key={`${messageKey}-p-${blockIndex}`} className="cb-paragraph">
+                {renderInlineContent(block.lines.join(' '), `${messageKey}-p-${blockIndex}`)}
+              </p>
+            );
+          }
+
+          if (block.type === 'ul') {
+            return (
+              <ul key={`${messageKey}-ul-${blockIndex}`} className="cb-list cb-list-ul">
+                {block.items.map((item, idx) => (
+                  <li key={`${messageKey}-ul-${blockIndex}-${idx}`}>{renderInlineContent(item, `${messageKey}-uli-${blockIndex}-${idx}`)}</li>
+                ))}
+              </ul>
+            );
+          }
+
+          if (block.type === 'ol') {
+            return (
+              <ol key={`${messageKey}-ol-${blockIndex}`} className="cb-list cb-list-ol">
+                {block.items.map((item, idx) => (
+                  <li key={`${messageKey}-ol-${blockIndex}-${idx}`}>{renderInlineContent(item, `${messageKey}-oli-${blockIndex}-${idx}`)}</li>
+                ))}
+              </ol>
+            );
+          }
+
+          if (block.type === 'diagram') {
+            return (
+              <div key={`${messageKey}-d-${blockIndex}`} className="cb-diagram-wrap">
+                <p className="cb-diagram-label">Diagram</p>
+                <pre className="cb-diagram-block">{block.lines.join('\n')}</pre>
+              </div>
+            );
+          }
+
+          if (block.type === 'suggestions') {
+            return (
+              <div key={`${messageKey}-s-${blockIndex}`} className="cb-suggestions-wrap">
+                {block.items.map((item, idx) => (
+                  <button
+                    key={`${messageKey}-sbtn-${blockIndex}-${idx}`}
+                    type="button"
+                    className="cb-suggestion-btn"
+                    onClick={() => { void sendMessage(item); }}
+                    disabled={loading}
+                  >
+                    {`-> "${item}"`}
+                  </button>
+                ))}
+              </div>
+            );
+          }
+
+          if (block.type === 'table') {
+            return (
+              <div key={`${messageKey}-t-${blockIndex}`} className="cb-table-wrap">
+                <table className="cb-table">
+                  <thead>
+                    <tr>
+                      {block.headers.map((header, idx) => (
+                        <th key={`${messageKey}-th-${blockIndex}-${idx}`} title={header}>{header}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {block.rows.map((row, rowIdx) => (
+                      <tr key={`${messageKey}-tr-${blockIndex}-${rowIdx}`}>
+                        {row.map((cell, cellIdx) => (
+                          <td key={`${messageKey}-td-${blockIndex}-${rowIdx}-${cellIdx}`} title={cell}>{renderInlineContent(cell, `${messageKey}-cell-${blockIndex}-${rowIdx}-${cellIdx}`)}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          }
+
+          return null;
+        })}
+      </div>
+    );
+
+    if (!isFormalDoc) return content;
+
+    return (
+      <div className="cb-copy-block">
+        <button
+          type="button"
+          className="cb-copy-btn"
+          onClick={() => { void copyMessageText(messageKey, message.content); }}
+        >
+          {copiedMessageKey === messageKey ? '✓ Copied!' : 'Copy'}
+        </button>
+        {content}
+      </div>
+    );
+  };
+
   return (
     <>
       <style>{`
@@ -612,6 +961,37 @@ ${latestCrmContext}`,
           overflow: hidden;
           box-shadow: 0 16px 40px rgba(0, 0, 0, 0.42);
           animation: chatbot-ai-pop 0.2s var(--ease);
+        }
+
+        .chatbot-ai-panel.resizing {
+          user-select: none;
+        }
+
+        .chatbot-ai-resize-handle {
+          position: absolute;
+          right: 4px;
+          bottom: 4px;
+          width: 16px;
+          height: 16px;
+          border: 0;
+          background: transparent;
+          color: var(--text-dim);
+          opacity: 0.5;
+          cursor: nwse-resize;
+          z-index: 4;
+          padding: 0;
+          transition: opacity 0.2s var(--ease), color 0.2s var(--ease);
+        }
+
+        .chatbot-ai-resize-handle:hover {
+          opacity: 0.95;
+          color: var(--accent);
+        }
+
+        .chatbot-ai-resize-handle svg {
+          display: block;
+          width: 16px;
+          height: 16px;
         }
 
         .chatbot-ai-header {
@@ -693,6 +1073,9 @@ ${latestCrmContext}`,
         .chatbot-ai-row {
           display: flex;
           width: 100%;
+          align-items: flex-end;
+          gap: 8px;
+          animation: chatbot-ai-bubble-in 0.2s var(--ease);
         }
 
         .chatbot-ai-row.user {
@@ -724,6 +1107,227 @@ ${latestCrmContext}`,
           background: var(--surface-2);
           border-color: var(--border);
           color: var(--text);
+        }
+
+        .chatbot-ai-avatar {
+          width: 24px;
+          height: 24px;
+          border-radius: 999px;
+          font-size: 11px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid var(--border);
+          background: var(--surface-2);
+          color: var(--text-mid);
+          flex-shrink: 0;
+        }
+
+        .chatbot-ai-avatar.user {
+          background: var(--accent-bg);
+          color: var(--white);
+          border-color: var(--accent-hover);
+        }
+
+        .cb-rich-content {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .cb-paragraph {
+          margin: 0;
+        }
+
+        .cb-list {
+          margin: 0;
+          padding-left: 18px;
+          display: grid;
+          gap: 4px;
+        }
+
+        .cb-status-badge {
+          display: inline-flex;
+          align-items: center;
+          border-radius: 999px;
+          padding: 1px 7px;
+          font-size: 10px;
+          font-weight: 700;
+          margin: 0 2px;
+          border: 1px solid transparent;
+          vertical-align: middle;
+        }
+
+        .cb-status-badge.done {
+          color: #14532d;
+          background: #dcfce7;
+          border-color: #86efac;
+        }
+
+        .cb-status-badge.pending {
+          color: #92400e;
+          background: #fef3c7;
+          border-color: #fcd34d;
+        }
+
+        .cb-status-badge.critical {
+          color: #7f1d1d;
+          background: #fee2e2;
+          border-color: #fca5a5;
+        }
+
+        .cb-status-badge.warning {
+          color: #9a3412;
+          background: #ffedd5;
+          border-color: #fdba74;
+        }
+
+        .cb-diagram-wrap {
+          display: grid;
+          gap: 4px;
+        }
+
+        .cb-diagram-label {
+          margin: 0;
+          font-size: 10px;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: var(--text-dim);
+        }
+
+        .cb-diagram-block {
+          margin: 0;
+          padding: 8px;
+          border-radius: 8px;
+          background: color-mix(in srgb, var(--surface-2) 84%, white 16%);
+          border: 1px solid var(--border);
+          font-size: 10.5px;
+          line-height: 1.5;
+          overflow-x: auto;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+        }
+
+        .cb-table-wrap {
+          overflow-x: auto;
+          border-radius: 8px;
+          border: 0.5px solid var(--border);
+        }
+
+        .cb-table {
+          width: 100%;
+          min-width: 420px;
+          border-collapse: separate;
+          border-spacing: 0;
+          table-layout: fixed;
+          font-size: 10.5px;
+        }
+
+        .cb-table th,
+        .cb-table td {
+          border-right: 0.5px solid var(--border);
+          border-bottom: 0.5px solid var(--border);
+          padding: 6px 8px;
+          text-align: left;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 180px;
+        }
+
+        .cb-table th:last-child,
+        .cb-table td:last-child {
+          border-right: 0;
+        }
+
+        .cb-table thead th {
+          background: color-mix(in srgb, var(--accent-bg) 40%, var(--surface-2) 60%);
+          color: var(--text);
+          font-weight: 700;
+        }
+
+        .cb-table tbody tr:nth-child(odd) td {
+          background: color-mix(in srgb, var(--surface) 90%, black 10%);
+        }
+
+        .cb-table tbody tr:nth-child(even) td {
+          background: var(--surface-2);
+        }
+
+        .cb-copy-block {
+          position: relative;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          background: color-mix(in srgb, var(--surface-2) 82%, white 18%);
+          padding: 10px;
+        }
+
+        .cb-copy-btn {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          background: var(--surface);
+          color: var(--text);
+          font-size: 10px;
+          font-weight: 600;
+          padding: 4px 7px;
+          cursor: pointer;
+        }
+
+        .cb-copy-btn:hover {
+          border-color: var(--accent);
+        }
+
+        .cb-suggestions-wrap {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+
+        .cb-suggestion-btn {
+          border: 1px solid var(--border);
+          border-radius: 999px;
+          background: var(--surface);
+          color: var(--text);
+          font-size: 10px;
+          padding: 5px 8px;
+          cursor: pointer;
+        }
+
+        .cb-suggestion-btn:hover {
+          border-color: var(--accent);
+          background: var(--accent-bg);
+        }
+
+        .chatbot-ai-quick-actions {
+          display: flex;
+          gap: 6px;
+          overflow-x: auto;
+          padding: 0 14px 10px;
+          border-top: 1px solid var(--border);
+          background: var(--surface);
+          scrollbar-width: thin;
+        }
+
+        .chatbot-ai-quick-actions::-webkit-scrollbar {
+          height: 4px;
+        }
+
+        .chatbot-ai-quick-chip {
+          border: 1px solid var(--border);
+          border-radius: 999px;
+          background: var(--surface-2);
+          color: var(--text);
+          padding: 6px 10px;
+          font-size: 10px;
+          white-space: nowrap;
+          cursor: pointer;
+        }
+
+        .chatbot-ai-quick-chip:hover {
+          border-color: var(--accent);
+          background: var(--accent-bg);
         }
 
         .chatbot-ai-empty {
@@ -776,8 +1380,13 @@ ${latestCrmContext}`,
           color: var(--text);
           padding: 9px 10px;
           font-size: max(16px, 13px);
+          font-family: inherit;
+          resize: none;
+          min-height: 40px;
+          max-height: 132px;
           outline: none;
           transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+          overflow-y: auto;
         }
 
         .chatbot-ai-input::placeholder {
@@ -935,6 +1544,10 @@ ${latestCrmContext}`,
             width: min(360px, calc(100vw - 20px));
             height: min(520px, calc(100vh - 130px));
           }
+
+          .chatbot-ai-resize-handle {
+            display: none;
+          }
         }
 
         @media (max-width: 767px) {
@@ -966,6 +1579,25 @@ ${latestCrmContext}`,
           }
         }
 
+        @media (max-width: 479px) {
+          .chatbot-ai-root {
+            right: 0;
+            bottom: 0;
+          }
+
+          .chatbot-ai-panel {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100dvh;
+            max-width: 100vw;
+            max-height: 100dvh;
+            border-radius: 0;
+            right: auto;
+            bottom: auto;
+          }
+        }
+
         @keyframes chatbot-ai-pop {
           from {
             opacity: 0;
@@ -989,11 +1621,29 @@ ${latestCrmContext}`,
             transform: translateY(-1px);
           }
         }
+
+        @keyframes chatbot-ai-bubble-in {
+          from {
+            opacity: 0;
+            transform: translateY(4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
       `}</style>
 
       <div className="chatbot-ai-root">
         {isOpen && (
-          <section className={`chatbot-ai-panel ${fullscreenActive ? 'fullscreen' : ''}`} aria-label="AI Assistant chat panel">
+          <section
+            ref={(el: HTMLElement | null) => {
+              panelRef.current = el;
+            }}
+            className={`chatbot-ai-panel ${fullscreenActive ? 'fullscreen' : ''} ${isResizing ? 'resizing' : ''}`}
+            aria-label="AI Assistant chat panel"
+            style={panelSize && !fullscreenActive ? { width: `${panelSize.width}px`, height: `${panelSize.height}px` } : undefined}
+          >
             <header className="chatbot-ai-header">
               <h3 className="chatbot-ai-title">{t('chatbot.title')}</h3>
               <div className="chatbot-ai-header-actions">
@@ -1042,7 +1692,9 @@ ${latestCrmContext}`,
 
               {messages.map((message: ChatMessage, index: number) => (
                 <div key={`${message.role}-${index}`} className={`chatbot-ai-row ${message.role}`}>
-                  <div className={`chatbot-ai-bubble ${message.role}`}>{message.content}</div>
+                  {message.role === 'assistant' && <span className="chatbot-ai-avatar assistant" aria-hidden="true">AI</span>}
+                  <div className={`chatbot-ai-bubble ${message.role}`}>{renderMessageContent(message, `${message.role}-${index}`)}</div>
+                  {message.role === 'user' && <span className="chatbot-ai-avatar user" aria-hidden="true">{(username?.[0] ?? 'U').toUpperCase()}</span>}
                 </div>
               ))}
 
@@ -1060,6 +1712,22 @@ ${latestCrmContext}`,
 
               <div ref={messagesEndRef} aria-hidden="true" />
             </div>
+
+            {!hasSentFirstMessage && (
+              <div className="chatbot-ai-quick-actions" aria-label="Quick actions">
+                {quickActions.map((action) => (
+                  <button
+                    key={action.label}
+                    type="button"
+                    className="chatbot-ai-quick-chip"
+                    disabled={loading}
+                    onClick={() => { void sendMessage(action.prompt); }}
+                  >
+                    {action.label}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {pendingForm && (
               <div
@@ -1208,15 +1876,28 @@ ${latestCrmContext}`,
                 void sendMessage();
               }}
             >
-              <input
+              <textarea
+                ref={inputRef}
                 className="chatbot-ai-input"
                 value={input}
-                onChange={(e: any) => setInput(e.target.value)}
+                onChange={(e: any) => {
+                  setInput(e.target.value);
+                  const el = e.target as HTMLTextAreaElement;
+                  el.style.height = 'auto';
+                  el.style.height = `${Math.min(el.scrollHeight, 132)}px`;
+                }}
+                onKeyDown={(e: any) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    void sendMessage();
+                  }
+                }}
                 placeholder={t('chatbot.input_placeholder')}
                 disabled={loading}
                 enterKeyHint="send"
                 autoComplete="off"
                 autoCorrect="off"
+                rows={1}
               />
               <button
                 className="chatbot-ai-send"
@@ -1226,6 +1907,28 @@ ${latestCrmContext}`,
                 {t('chatbot.send')}
               </button>
             </form>
+
+            {!fullscreenActive && !isMobile && (
+              <button
+                type="button"
+                className="chatbot-ai-resize-handle"
+                aria-label="Resize chat window"
+                onMouseDown={(e: any) => {
+                  e.preventDefault();
+                  startResize(e.clientX, e.clientY);
+                }}
+                onTouchStart={(e: any) => {
+                  if (!e.touches[0]) return;
+                  startResize(e.touches[0].clientX, e.touches[0].clientY);
+                }}
+              >
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+                  <path d="M6 14L14 6" />
+                  <path d="M9 14L14 9" />
+                  <path d="M12 14L14 12" />
+                </svg>
+              </button>
+            )}
           </section>
         )}
 
