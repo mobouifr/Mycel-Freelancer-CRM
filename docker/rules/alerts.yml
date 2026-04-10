@@ -20,6 +20,18 @@ groups:
           description: "The target {{ $labels.instance }} in job {{ $labels.job }} has been unreachable for more than 1 minute."
 
       # -----------------------------------------------------------------------
+      # Backend Down — backend service specifically unreachable
+      # -----------------------------------------------------------------------
+      - alert: BackendDown
+        expr: up{job="backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend is down"
+          description: "The backend service has been unreachable for more than 1 minute."
+
+      # -----------------------------------------------------------------------
       # High HTTP Error Rate — >5% of requests returning 5xx
       # -----------------------------------------------------------------------
       - alert: HighErrorRate

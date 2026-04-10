@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
-import { Request, Response } from 'express';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -15,7 +14,6 @@ async function bootstrap() {
     app.useGlobalPipes(new ValidationPipe());
     app.use(cookieParser());
     app.setGlobalPrefix('api');
-    app.use('/api/health', (_req: Request, res: Response) => res.json({ status: 'ok' }));
     await app.listen(3001);
-    }
+}
 bootstrap();
