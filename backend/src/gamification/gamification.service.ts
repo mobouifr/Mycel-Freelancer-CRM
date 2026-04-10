@@ -11,10 +11,10 @@ export class GamificationService {
     private readonly notificationsService: NotificationsService,
   ) {}
 
-  // XP needed to *reach* a given level (cumulative curve)
-  // Example: L1 -> 0, L2 -> 100, L3 -> 400, L4 -> 900, ...
+  // XP needed to *reach* a given level (cumulative RPG curve)
+  // Example: L1 -> 0, L2 -> 500, L3 -> 2000, L4 -> 4500, ...
   private getLevelFromXp(totalXp: number): number {
-    const xpForLevel = (level: number) => 100 * level * level; // quadratic growth
+    const xpForLevel = (level: number) => 500 * level * level; // slower quadratic growth so you don't level too fast
 
     let level = 1;
     while (totalXp >= xpForLevel(level)) {
@@ -25,26 +25,26 @@ export class GamificationService {
   }
 
   async awardProjectCompletionXp(userId: string, budget: number, priority: string) {
-    const baseXP = 250;
+    const baseXP = 500;
 
     let multiplier = 1.0;
     switch (priority) {
       case 'low':
-        multiplier = 0.8;
+        multiplier = 0.5; 
         break;
       case 'medium':
-        multiplier = 1.0;
+        multiplier = 0.8; 
         break;
       case 'high':
-        multiplier = 1.5;
+        multiplier = 1.1; 
         break;
       case 'urgent':
-        multiplier = 2.0;
+        multiplier = 1.5; 
         break;
     }
 
-    const budgetBonus = Math.floor(budget / 100);
-    const xpAwarded = Math.floor(baseXP * multiplier + budgetBonus);
+    // Level XP is now scaled strictly according to priority, not budget.
+    const xpAwarded = Math.floor(baseXP * multiplier);
 
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
