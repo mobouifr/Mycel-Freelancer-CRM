@@ -1,21 +1,46 @@
 import RevenueChart from '../RevenueChart';
 import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
+import { useState, useEffect } from 'react';
+import api from '../../services/api';
 
 /* ─────────────────────────────────────────────
    REVENUE KPI — Big headline number, trend
    indicator, and a compact sparkline chart
 ───────────────────────────────────────────── */
 
-// Mock data — replace with API when backend ready
-const MONTHLY_REVENUE = [12, 19, 8, 25, 18, 31, 24, 38, 29, 44, 35, 52];
-const LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const CURRENT_REVENUE = 52_400;
-const PREVIOUS_REVENUE = 44_200;
-const TREND_PCT = Math.round(((CURRENT_REVENUE - PREVIOUS_REVENUE) / PREVIOUS_REVENUE) * 100);
-
 function RevenueKPI() {
   const { t } = useTranslation();
+  const [dashboardData, setDashboardData] = useState({
+    chartData: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    currentRevenue: 0,
+    previousRevenue: 0,
+    projectsDone: 0
+  });
+
+  useEffect(() => {
+    let isTerminated = false;
+    api.get('/dashboard/revenue?timeframe=monthly')
+      .then(res => {
+        if (!isTerminated && res.data) {
+          setDashboardData(res.data);
+        }
+      })
+      .catch(console.error);
+    return () => { isTerminated = true; };
+  }, []);
+
+  const MONTHLY_REVENUE = dashboardData.chartData;
+  const LABELS = dashboardData.labels;
+  const CURRENT_REVENUE = dashboardData.currentRevenue;
+  const PREVIOUS_REVENUE = dashboardData.previousRevenue;
+  
+  // Prevent division by zero if there was no previous revenue
+  const TREND_PCT = PREVIOUS_REVENUE === 0 
+    ? (CURRENT_REVENUE > 0 ? 100 : 0) 
+    : Math.round(((CURRENT_REVENUE - PREVIOUS_REVENUE) / PREVIOUS_REVENUE) * 100);
+
   const isUp = TREND_PCT >= 0;
 
   return (
@@ -62,9 +87,9 @@ function RevenueKPI() {
       {/* Mini stat pills */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
         {[
-          { label: t('revenue.avg_month'), value: `$${Math.round(MONTHLY_REVENUE.reduce((a, b) => a + b, 0) / MONTHLY_REVENUE.length)}k` },
-          { label: t('revenue.best_month'), value: `$${Math.max(...MONTHLY_REVENUE)}k` },
-          { label: t('revenue.projects_done'), value: '14' },
+          { label: t('revenue.avg_month'), value: `$${Math.round(MONTHLY_REVENUE.reduce((a, b) => a + Number(b), 0) / (MONTHLY_REVENUE.length || 1))}k` },
+          { label: t('revenue.best_month'), value: `$${Math.max(...MONTHLY_REVENUE, 0)}k` },
+          { label: t('revenue.projects_done'), value: dashboardData.projectsDone.toString() },
         ].map((s) => (
           <div key={s.label} style={{
             flex: 1,
