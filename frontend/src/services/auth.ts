@@ -64,7 +64,12 @@ export const authService = {
 
   /** Verify the 6-digit code and enable 2FA on the account */
   async enable2FA(code: string): Promise<void> {
-    await api.post('/auth/2fa/turn-on', { code });
+    const res = await api.post('/auth/2fa/turn-on', { code }, {
+      validateStatus: (s: number) => s < 500,
+    });
+    if (res.status !== 200) {
+      throw { message: (res.data as any)?.message || 'Invalid 2FA code', status: res.status };
+    }
   },
 
   /** Disable 2FA on the account */
@@ -74,8 +79,17 @@ export const authService = {
 
   /** Verify 2FA during login — backend sets JWT cookie on success */
   async verify2FA(userId: string, code: string): Promise<AuthResponse> {
-    const { data } = await api.post<AuthResponse>('/auth/2fa/authenticate', { userId, code });
-    return data;
+    // Use validateStatus so 401 (wrong code) doesn't hit the global
+    // interceptor which would redirect to /login before we can show
+    // the inline error on the 2FA page.
+    const res = await api.post<AuthResponse>('/auth/2fa/authenticate',
+      { userId, code },
+      { validateStatus: (s: number) => s < 500 },
+    );
+    if (res.status !== 200) {
+      throw { message: (res.data as any)?.message || 'Invalid 2FA code', status: res.status };
+    }
+    return res.data;
   },
 
   // ── 42 OAuth ───────────────────────────────
