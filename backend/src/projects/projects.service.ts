@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { GamificationService } from '../gamification/gamification.service';
@@ -34,6 +34,18 @@ export class ProjectsService {
   }
 
   async create(userId: string, createProjectDto: CreateProjectDto | any) {
+    if (!createProjectDto.clientId) {
+      throw new BadRequestException('clientId is required to create a project');
+    }
+
+    const clientExists = await this.prisma.client.findFirst({
+      where: { id: createProjectDto.clientId, userId }
+    });
+
+    if (!clientExists) {
+      throw new BadRequestException('The provided clientId is invalid or does not belong to your account');
+    }
+
     const resolvedDeadline = this.parseDeadline(createProjectDto.deadline ?? createProjectDto.due_date);
     const data: any = {
       title: createProjectDto.title || '',
