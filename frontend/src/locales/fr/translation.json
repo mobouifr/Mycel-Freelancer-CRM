@@ -51,7 +51,7 @@
     "proposals": "Propositions",
     "invoices": "Factures",
     "reminders": "Rappels",
-    "ecosystem": "Écosystème",
+    "growth": "Progression",
     "settings": "Paramètres",
     "sign_out": "Déconnexion",
     "menu": "Menu"
@@ -280,23 +280,17 @@
       "valid_until": "VALIDE JUSQU'AU"
     }
   },
-  "ecosystem": {
-    "title": "Écosystème",
-    "subtitle": "Votre espace de travail grandit au fil de votre activité · Niveau {{level}}",
-    "back_to_dashboard": "← Retour au tableau de bord",
-    "growth_stats": "Statistiques de croissance",
-    "current_level": "Niveau actuel",
-    "total_growth": "Croissance totale",
-    "next_level": "Niveau suivant",
-    "remaining": "{{hours}}h restantes",
-    "milestones": "Jalons",
-    "level": "Niveau {{level}}",
-    "seedling": "Pousse",
-    "sprouting": "Germination",
-    "blooming": "Floraison",
-    "flourishing": "Épanouissement",
-    "ancient": "Ancien",
-    "mythical": "Mythique"
+  "growth": {
+    "title": "Progression",
+    "subtitle": "Suivez vos progrès, débloquez des succès, gagnez des badges",
+    "back": "Retour au tableau de bord",
+    "to_next": "XP pour le niveau suivant",
+    "level": "Niveau",
+    "total_xp": "XP total",
+    "achievements": "Succès",
+    "badges": "Badges",
+    "achievements_title": "Succès",
+    "badges_title": "Badges"
   },
   "reminders": {
     "title": "Rappels et planificateur",

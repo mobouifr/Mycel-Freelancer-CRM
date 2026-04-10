@@ -51,7 +51,7 @@
     "proposals": "Proposals",
     "invoices": "Invoices",
     "reminders": "Reminders",
-    "ecosystem": "Ecosystem",
+    "growth": "Growth",
     "settings": "Settings",
     "sign_out": "Sign out",
     "menu": "Menu"
@@ -280,23 +280,17 @@
       "valid_until": "VALID UNTIL"
     }
   },
-  "ecosystem": {
-    "title": "Ecosystem",
-    "subtitle": "Your workspace grows as you work · Level {{level}}",
-    "back_to_dashboard": "← Back to Dashboard",
-    "growth_stats": "Growth Stats",
-    "current_level": "Current Level",
-    "total_growth": "Total Growth",
-    "next_level": "Next level",
-    "remaining": "{{hours}}h remaining",
-    "milestones": "Milestones",
-    "level": "Level {{level}}",
-    "seedling": "Seedling",
-    "sprouting": "Sprouting",
-    "blooming": "Blooming",
-    "flourishing": "Flourishing",
-    "ancient": "Ancient",
-    "mythical": "Mythical"
+  "growth": {
+    "title": "Growth",
+    "subtitle": "Track your progress, unlock achievements, earn badges",
+    "back": "Back to Dashboard",
+    "to_next": "XP to next level",
+    "level": "Level",
+    "total_xp": "Total XP",
+    "achievements": "Achievements",
+    "badges": "Badges",
+    "achievements_title": "Achievements",
+    "badges_title": "Badges"
   },
   "reminders": {
     "title": "Reminders & Planner",

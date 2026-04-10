@@ -65,7 +65,7 @@ const NAV_ITEMS: NavEntry[] = [
   { icon: 'clients',    label: 'nav.clients',    path: '/clients' },
   { icon: 'projects',   label: 'nav.projects',   path: '/projects' },
   { icon: 'reminders',  label: 'nav.reminders',  path: '/reminders' },
-  { icon: 'ecosystem',  label: 'nav.ecosystem',  path: '/ecosystem' },
+  { icon: 'ecosystem',  label: 'nav.growth',     path: '/ecosystem' },
 ];
 
 const COLLAPSED_W = 64;

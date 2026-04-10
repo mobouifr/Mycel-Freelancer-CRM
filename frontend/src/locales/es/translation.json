@@ -51,7 +51,7 @@
     "proposals": "Propuestas",
     "invoices": "Facturas",
     "reminders": "Recordatorios",
-    "ecosystem": "Ecosistema",
+    "growth": "Progreso",
     "settings": "Ajustes",
     "sign_out": "Cerrar sesión",
     "menu": "Menú"
@@ -280,23 +280,17 @@
       "valid_until": "VÁLIDO HASTA"
     }
   },
-  "ecosystem": {
-    "title": "Ecosistema",
-    "subtitle": "Tu espacio de trabajo crece mientras trabajas · Nivel {{level}}",
-    "back_to_dashboard": "← Volver al panel",
-    "growth_stats": "Estadísticas de crecimiento",
-    "current_level": "Nivel actual",
-    "total_growth": "Crecimiento total",
-    "next_level": "Siguiente nivel",
-    "remaining": "{{hours}}h restantes",
-    "milestones": "Hitos",
-    "level": "Nivel {{level}}",
-    "seedling": "Plántula",
-    "sprouting": "Brotando",
-    "blooming": "Floreciendo",
-    "flourishing": "Prosperando",
-    "ancient": "Ancestral",
-    "mythical": "Mítico"
+  "growth": {
+    "title": "Progreso",
+    "subtitle": "Sigue tu progreso, desbloquea logros, gana insignias",
+    "back": "Volver al panel",
+    "to_next": "XP para el siguiente nivel",
+    "level": "Nivel",
+    "total_xp": "XP total",
+    "achievements": "Logros",
+    "badges": "Insignias",
+    "achievements_title": "Logros",
+    "badges_title": "Insignias"
   },
   "reminders": {
     "title": "Recordatorios y planificador",
