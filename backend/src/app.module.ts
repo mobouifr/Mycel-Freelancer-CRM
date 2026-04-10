@@ -7,12 +7,16 @@ import { ProjectsModule } from './projects/projects.module';
 import { GamificationModule } from './gamification/gamification.module';
 import { PrismaModule} from './prisma/prisma.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { MetricsModule } from './metrics/metrics.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, 
-      envFilePath: '../../.env', // Pointing to the root .env
+      isGlobal: true,
+      // In Docker, env vars are injected by docker-compose env_file.
+      // Locally, .env is loaded from CWD (backend/) or ignored if not present.
+      envFilePath: process.env.NODE_ENV === 'production' ? undefined : ['.env', '../.env'],
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
     PrismaModule,
     AuthModule,
@@ -21,6 +25,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     ProjectsModule,
     GamificationModule,
     NotificationsModule,
+    MetricsModule,
   ],
 })
 export class AppModule {}
