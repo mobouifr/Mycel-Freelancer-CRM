@@ -40,8 +40,9 @@ api.interceptors.response.use(
 
       // Auto-redirect on 401 (cookie expired / not set)
       if (error.response.status === 401) {
-        // Avoid redirect loop if already on login
-        if (!window.location.pathname.startsWith('/login')) {
+        // Avoid redirect loop if already on login, signup, or 2fa pages
+        const path = window.location.pathname;
+        if (!path.startsWith('/login') && !path.startsWith('/2fa') && !path.startsWith('/signup') && !path.startsWith('/auth/callback')) {
           window.location.href = '/login';
         }
       }
