@@ -92,7 +92,12 @@ export default function Login() {
     try {
       await login({ email: email.trim(), password });
       navigate('/');
-    } catch { /* auth context handles error */ }
+    } catch (err: any) {
+      if (err?.isTwoFactorRequired) {
+        navigate(`/2fa?userId=${err.userId}`);
+      }
+      // other errors handled by auth context
+    }
   };
 
   const handleSignup = async () => {

@@ -15,10 +15,14 @@ export interface RegisterPayload {
   password: string;
 }
 
-/** Backend sets JWT in HttpOnly cookie — no token in response body */
+/** Backend sets JWT in HttpOnly cookie — no token in response body.
+ *  When 2FA is enabled the login endpoint returns isTwoFactorRequired
+ *  instead of a user — the frontend must redirect to the 2FA page. */
 export interface AuthResponse {
   message?: string;
-  user: User;
+  user?: User;
+  isTwoFactorRequired?: boolean;
+  userId?: string;
 }
 
 // ── User ────────────────────────────────────
@@ -31,6 +35,7 @@ export interface User {
   intraId?: string;
   isActive?: boolean;
   emailVerified?: boolean;
+  isTwoFactorEnabled?: boolean;
   updatedAt?: string;
 }
 

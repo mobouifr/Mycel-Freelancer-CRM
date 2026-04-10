@@ -54,6 +54,30 @@ export const authService = {
     return data;
   },
 
+  // ── 2FA ────────────────────────────────────
+
+  /** Ask backend to generate a TOTP secret + QR code data URL */
+  async generate2FA(): Promise<{ qrCodeUrl: string }> {
+    const { data } = await api.post<{ qrCodeUrl: string }>('/auth/2fa/generate');
+    return data;
+  },
+
+  /** Verify the 6-digit code and enable 2FA on the account */
+  async enable2FA(code: string): Promise<void> {
+    await api.post('/auth/2fa/turn-on', { code });
+  },
+
+  /** Disable 2FA on the account */
+  async disable2FA(): Promise<void> {
+    await api.post('/auth/2fa/turn-off');
+  },
+
+  /** Verify 2FA during login — backend sets JWT cookie on success */
+  async verify2FA(userId: string, code: string): Promise<AuthResponse> {
+    const { data } = await api.post<AuthResponse>('/auth/2fa/authenticate', { userId, code });
+    return data;
+  },
+
   // ── 42 OAuth ───────────────────────────────
   get oauthUrl(): string {
     return `${BACKEND_URL}/api/auth/42`;

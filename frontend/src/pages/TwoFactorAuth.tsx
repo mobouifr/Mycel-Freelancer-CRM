@@ -1,13 +1,18 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Input, Button } from '../components';
 import { LogoMark } from '../components';
 import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../hooks/useAuth';
+import { authService } from '../services/auth';
 
 export default function TwoFactorAuth() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const userId = searchParams.get('userId');
   const { t } = useTranslation();
+  const { checkSession } = useAuth();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,14 +24,18 @@ export default function TwoFactorAuth() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!userId) {
+      setError('Missing user session. Please log in again.');
+      return;
+    }
     setLoading(true);
     setError(null);
-    
+
     try {
-      // TODO: Verify 2FA code with API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // TODO: Navigate to dashboard on success
-    } catch (err) {
+      await authService.verify2FA(userId, code);
+      await checkSession();
+      navigate('/');
+    } catch {
       setError(t('twofa.invalid_code'));
     } finally {
       setLoading(false);

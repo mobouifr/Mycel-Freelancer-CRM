@@ -36,9 +36,12 @@ export default function Settings() {
   const [confirmPassword, setConfirmPassword] = useState('');
   
   // ── 2FA state ────────────────────────────────
-  const [twoFactorEnabled] = useState(false);
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(user?.isTwoFactorEnabled ?? false);
   const [twoFactorCode, setTwoFactorCode] = useState('');
   const [showTwoFactorSetup, setShowTwoFactorSetup] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [twoFaLoading, setTwoFaLoading] = useState(false);
+  const [twoFaError, setTwoFaError] = useState<string | null>(null);
 
   const handleSave = async () => {
     setSaving(true);
@@ -261,7 +264,22 @@ export default function Settings() {
                     </p>
                   </div>
                   <button
-                    onClick={() => setShowTwoFactorSetup(!showTwoFactorSetup)}
+                    onClick={async () => {
+                      if (!showTwoFactorSetup && !twoFactorEnabled) {
+                        // Generate QR code when opening the setup panel
+                        setTwoFaLoading(true);
+                        setTwoFaError(null);
+                        try {
+                          const { qrCodeUrl: url } = await authService.generate2FA();
+                          setQrCodeUrl(url);
+                        } catch {
+                          setTwoFaError(t('settings.twofa_generate_failed') || 'Failed to generate QR code');
+                        } finally {
+                          setTwoFaLoading(false);
+                        }
+                      }
+                      setShowTwoFactorSetup(!showTwoFactorSetup);
+                    }}
                     style={{
                       padding: '8px 16px',
                       borderRadius: 6,
@@ -278,6 +296,25 @@ export default function Settings() {
                     {twoFactorEnabled ? t('settings.disable') : t('settings.enable')}
                   </button>
                 </div>
+
+                {/* 2FA error */}
+                {twoFaError && (
+                  <div style={{
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    borderRadius: 6,
+                    padding: '12px',
+                  }}>
+                    <p style={{
+                      fontFamily: 'var(--font-m)',
+                      fontSize: 12,
+                      color: '#ef4444',
+                      margin: 0,
+                    }}>
+                      {twoFaError}
+                    </p>
+                  </div>
+                )}
 
                 {/* 2FA Setup */}
                 {showTwoFactorSetup && (
@@ -319,7 +356,7 @@ export default function Settings() {
                           </ol>
                         </div>
 
-                        {/* QR Code Placeholder */}
+                        {/* QR Code — real image from backend */}
                         <div style={{
                           display: 'flex',
                           justifyContent: 'center',
@@ -328,64 +365,36 @@ export default function Settings() {
                           border: '1px solid var(--border)',
                           borderRadius: 6,
                         }}>
-                          <div style={{
-                            width: 120,
-                            height: 120,
-                            background: 'var(--surface-2)',
-                            border: '1px solid var(--border)',
-                            borderRadius: 4,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexDirection: 'column',
-                            gap: 8,
-                          }}>
-                            <div style={{
-                              width: 80,
-                              height: 80,
-                              background: 'var(--text-dim)',
-                              borderRadius: 4,
-                            }} />
-                            <span style={{
+                          {twoFaLoading ? (
+                            <p style={{
                               fontFamily: 'var(--font-m)',
-                              fontSize: 9,
+                              fontSize: 11,
+                              color: 'var(--text-dim)',
+                            }}>
+                              {t('common.loading') || 'Loading...'}
+                            </p>
+                          ) : qrCodeUrl ? (
+                            <img
+                              src={qrCodeUrl}
+                              alt="2FA QR Code"
+                              style={{
+                                width: 180,
+                                height: 180,
+                                borderRadius: 4,
+                              }}
+                            />
+                          ) : (
+                            <p style={{
+                              fontFamily: 'var(--font-m)',
+                              fontSize: 11,
                               color: 'var(--text-dim)',
                             }}>
                               {t('settings.qr_code')}
-                            </span>
-                          </div>
+                            </p>
+                          )}
                         </div>
 
-                        {/* Secret Key */}
-                        <div style={{
-                          background: 'var(--surface-1)',
-                          border: '1px solid var(--border)',
-                          borderRadius: 6,
-                          padding: '12px',
-                          textAlign: 'center',
-                        }}>
-                          <p style={{
-                            fontFamily: 'var(--font-m)',
-                            fontSize: 10,
-                            color: 'var(--text-dim)',
-                            margin: '0 0 8px 0',
-                          }}>
-                            {t('settings.manual_key')}
-                          </p>
-                          <code style={{
-                            fontFamily: 'monospace',
-                            fontSize: 12,
-                            color: 'var(--text)',
-                            background: 'var(--bg)',
-                            padding: '4px 8px',
-                            borderRadius: 4,
-                            letterSpacing: '0.05em',
-                          }}>
-                            JBSWY3DPEHPK3PXP
-                          </code>
-                        </div>
-
-                        {/* Verification Code */}
+                        {/* Verification Code + Enable button */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                           <div>
                             <Input
@@ -396,7 +405,27 @@ export default function Settings() {
                             />
                           </div>
                           <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                            <Button variant="primary" size="md">
+                            <Button
+                              variant="primary"
+                              size="md"
+                              loading={twoFaLoading}
+                              disabled={twoFactorCode.length !== 6}
+                              onClick={async () => {
+                                setTwoFaLoading(true);
+                                setTwoFaError(null);
+                                try {
+                                  await authService.enable2FA(twoFactorCode);
+                                  setTwoFactorEnabled(true);
+                                  setShowTwoFactorSetup(false);
+                                  setTwoFactorCode('');
+                                  setQrCodeUrl(null);
+                                } catch {
+                                  setTwoFaError(t('twofa.invalid_code') || 'Invalid code. Please try again.');
+                                } finally {
+                                  setTwoFaLoading(false);
+                                }
+                              }}
+                            >
                               {t('settings.enable_2fa')}
                             </Button>
                           </div>
@@ -421,19 +450,27 @@ export default function Settings() {
                           </p>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                          <div>
-                            <Input
-                              label={t('settings.confirm_password')}
-                              type="password"
-                              placeholder={t('settings.enter_password')}
-                            />
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                            <Button variant="danger" size="md">
-                              {t('settings.disable_2fa')}
-                            </Button>
-                          </div>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                          <Button
+                            variant="danger"
+                            size="md"
+                            loading={twoFaLoading}
+                            onClick={async () => {
+                              setTwoFaLoading(true);
+                              setTwoFaError(null);
+                              try {
+                                await authService.disable2FA();
+                                setTwoFactorEnabled(false);
+                                setShowTwoFactorSetup(false);
+                              } catch {
+                                setTwoFaError(t('settings.twofa_disable_failed') || 'Failed to disable 2FA');
+                              } finally {
+                                setTwoFaLoading(false);
+                              }
+                            }}
+                          >
+                            {t('settings.disable_2fa')}
+                          </Button>
                         </div>
                       </>
                     )}

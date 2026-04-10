@@ -56,9 +56,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-      const { user: loggedInUser } = await authService.login(payload);
-      setUser(loggedInUser);
+      const response = await authService.login(payload);
+      if (response.isTwoFactorRequired) {
+        // Signal the caller to redirect to /2fa — not an error, just a redirect
+        throw { isTwoFactorRequired: true, userId: response.userId };
+      }
+      setUser(response.user!);
     } catch (err: unknown) {
+      // Re-throw 2FA redirect signals as-is for Login.tsx to handle
+      if (err && typeof err === 'object' && 'isTwoFactorRequired' in err) throw err;
       const message =
         err && typeof err === 'object' && 'message' in err
           ? (err as { message: string }).message
