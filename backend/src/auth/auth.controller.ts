@@ -117,7 +117,7 @@ export class AuthController {
   async fortytwoAuthRedirect(@Request() req: any, @Res({ passthrough: true }) res: Response) {
     if (req.user.isTwoFactorEnabled) {
        // redirect to a 2fa page in frontend passing the userId
-       return res.redirect(`http://localhost:3089/auth/2fa?userId=${req.user.id}`);
+       return res.redirect(`http://localhost:3089/2fa?userId=${req.user.id}`);
     }
 
     // Generate our own JWT cookie for the rest of the application
@@ -168,7 +168,7 @@ export class AuthController {
     if (!body.userId || !body.code) throw new BadRequestException('userId and code are required');
     
     // Validate 2FA
-    await this.authService.turnOnTwoFactorAuth(body.userId, body.code);
+    await this.authService.verifyTwoFactorCode(body.userId, body.code);
     
     // Get user back to set the cookie
     const user = await this.authService.validateUserById(body.userId);
