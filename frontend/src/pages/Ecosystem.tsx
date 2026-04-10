@@ -69,11 +69,12 @@ function xpForLevel(level: number) {
 }
 
 function xpProgress(xp: number, level: number): number {
-  const currentLevelXp = xpForLevel(level - 1);
-  const nextLevelXp = xpForLevel(level);
+  const safeLvl = Math.max(level, 1);
+  const currentLevelXp = xpForLevel(safeLvl - 1);
+  const nextLevelXp = xpForLevel(safeLvl);
   const range = nextLevelXp - currentLevelXp;
-  if (range <= 0) return 1;
-  return Math.min((xp - currentLevelXp) / range, 1);
+  if (range <= 0) return 0;
+  return Math.min(Math.max((xp - currentLevelXp) / range, 0), 1);
 }
 
 // ── Component ──
@@ -89,12 +90,14 @@ export default function Ecosystem() {
     gamificationService.fetchStats()
       .then(setStats)
       .catch(() => {})
-      .finally(() => setLoading(false));
-    // Trigger mount animations after first paint
-    requestAnimationFrame(() => setMounted(true));
+      .finally(() => {
+        setLoading(false);
+        // Trigger stagger animations after data is painted
+        requestAnimationFrame(() => setMounted(true));
+      });
   }, []);
 
-  const level = stats?.level ?? 1;
+  const level = Math.max(stats?.level ?? 1, 1);
   const xp = stats?.xp ?? 0;
   const xpToNext = stats?.xpToNextLevel ?? 0;
   const progress = stats ? xpProgress(xp, level) : 0;
