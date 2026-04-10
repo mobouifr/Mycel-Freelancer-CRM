@@ -239,9 +239,8 @@ export default function ChatbotAI() {
       if (!title) errors.title = t('chatbot.validation_title_required');
       else if (title.length > 255) errors.title = t('validation.title_max');
 
-      const clientId = (formData.clientId ?? '').trim();
       const clientName = (formData.clientName ?? '').trim();
-      if (!clientId && !clientName) errors.clientName = t('chatbot.validation_client_required');
+      if (!clientName) errors.clientName = t('chatbot.validation_client_required');
 
       const budgetValue = Number(formData.budget ?? '0');
       if (formData.budget && (!Number.isFinite(budgetValue) || budgetValue < 0)) {
@@ -292,7 +291,6 @@ export default function ChatbotAI() {
       if (pendingForm === 'PROJECT') {
         const title = (formData.title ?? '').trim();
         const clientName = (formData.clientName ?? '').trim();
-        const clientId = (formData.clientId ?? '').trim();
 
         const budgetValue = Number(formData.budget ?? '0');
         const payload: Record<string, unknown> = {
@@ -303,13 +301,13 @@ export default function ChatbotAI() {
           deadline: (formData.deadline ?? '').trim() || undefined,
         };
 
-        if (clientId) {
-          payload.clientId = clientId;
-        } else if (clientName) {
-          const matchedClient = await findClientByName(clientName);
-          if (matchedClient?.id) {
-            payload.clientId = matchedClient.id;
-          }
+        const matchedClient = await findClientByName(clientName);
+        if (matchedClient?.id) {
+          payload.clientId = matchedClient.id;
+        } else {
+            setFormErrors((prev: Record<string, string>) => ({ ...prev, clientName: 'Client is required.' }));
+            setFormSubmitting(false);
+            return;
         }
 
         await postWithFallback(['/api/projects'], payload);
@@ -506,6 +504,7 @@ CRM Actions — when ${username} wants to create, modify, edit, update, or delet
 Action rules:
 - Use "action" key always in UPPERCASE with underscore
 - ALWAYS respond with an action JSON block when the user asks to add, create, modify, edit, update, change, or delete a client or project — NEVER skip this
+- For project creation, use "clientName" and do not ask the user for a client ID
 - Fill only the fields the user mentioned — leave others as empty string or 0
 - For normal questions, answer as usual with no JSON
 
@@ -1123,12 +1122,6 @@ ${latestCrmContext}`,
                         onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, title: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { title: _, ...rest } = prev; return rest; }); }}
                       />
                       {formErrors.title && <p className="cb-field-error">{formErrors.title}</p>}
-                      <input
-                        className={formErrors.clientId ? 'has-error' : ''}
-                        placeholder="Client ID"
-                        value={formData.clientId ?? ''}
-                        onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, clientId: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { clientName: _, ...rest } = prev; return rest; }); }}
-                      />
                       <input
                         className={formErrors.clientName ? 'has-error' : ''}
                         placeholder={t('chatbot.placeholder_client_name')}
