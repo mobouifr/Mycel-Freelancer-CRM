@@ -41,10 +41,8 @@ api.interceptors.response.use(
       // Auto-redirect on 401 (cookie expired / not set)
       // Skip on /2fa — a 401 there means wrong code, not expired session
       if (error.response.status === 401) {
-        if (
-          !window.location.pathname.startsWith('/login') &&
-          !window.location.pathname.startsWith('/2fa')
-        ) {
+        const path = window.location.pathname;
+        if (!path.startsWith('/login') && !path.startsWith('/2fa') && !path.startsWith('/signup') && !path.startsWith('/auth/callback')) {
           window.location.href = '/login';
         }
       }
