@@ -71,9 +71,11 @@ export interface AppNotification {
   title: string;
   message: string;
   isRead: boolean;
-  targetType?: 'event' | 'note' | 'todo';
+  targetType?: 'event' | 'note' | 'todo' | 'project' | 'client';
   targetId?: string;
   createdAt: string;
+  /** 'backend' = synced with API; 'local' (default) = localStorage only */
+  source?: 'local' | 'backend';
 }
 
 interface StoreState {
