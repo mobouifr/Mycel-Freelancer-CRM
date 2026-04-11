@@ -402,10 +402,8 @@ interface ThemeContextType {
   theme: ThemePresetId;
   /** Current preset metadata */
   preset: ThemePresetMeta;
-  sidebarBehavior: SidebarBehavior;
   /** Set the active theme preset */
   setTheme: (id: ThemePresetId) => void;
-  setSidebarBehavior: (b: SidebarBehavior) => void;
   /** Cycle quick-toggle: Default Dark ↔ Default Light (or snap to dark from custom) */
   cycleQuickTheme: () => void;
   /** Backward compat — returns preset.family */
@@ -471,9 +469,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const setSidebarBehavior = useCallback((sidebarBehavior: SidebarBehavior) => {
-    setState((s) => ({ ...s, sidebarBehavior }));
-  }, []);
 
   /** Quick-toggle: dark ↔ light */
   const cycleQuickTheme = useCallback(() => {
@@ -492,9 +487,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const ctx: ThemeContextType = {
     theme: state.theme,
     preset,
-    sidebarBehavior: state.sidebarBehavior,
     setTheme,
-    setSidebarBehavior,
     cycleQuickTheme,
     // Backward compat
     mode: preset.family,

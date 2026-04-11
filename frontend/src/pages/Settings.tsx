@@ -526,7 +526,6 @@ function SectionTitle({ title, sub }: { title: string; sub: string }) {
 function PreferencesPanel() {
   const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
-  const isMobile = useIsMobile();
 
   return (
     <div
