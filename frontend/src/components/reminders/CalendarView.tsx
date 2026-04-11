@@ -9,6 +9,7 @@ import CalendarMonthView from './CalendarMonthView';
 import CalendarWeekView from './CalendarWeekView';
 import CalendarDayView from './CalendarDayView';
 import EventModal from './EventModal';
+import DailyEventsView from './DailyEventsView';
 import type { CalendarEvent } from '../../hooks/useStore';
 import api from '../../services/api';
 
@@ -264,6 +265,25 @@ export default function CalendarView() {
             />
           )}
         </div>
+
+        {/* Right side: Daily Events */}
+        {(!isMobile || calendar.viewMode === 'day') && (
+          <div style={{
+            width: isMobile ? '100%' : 260,
+            flexShrink: 0,
+            borderLeft: '1px solid var(--border)',
+            background: 'var(--surface)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}>
+            <DailyEventsView 
+              date={calendar.currentDate} 
+              events={events} 
+              onEventClick={handleEventClick} 
+            />
+          </div>
+        )}
       </div>
 
       {/* Event modal */}
