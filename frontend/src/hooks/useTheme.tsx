@@ -27,8 +27,6 @@ export type ThemePresetId =
   | 'arctic-blue'
   | 'black-and-white';
 
-export type SidebarBehavior = 'automatic' | 'manual';
-
 /** Backward-compat re-exports (kept for consumer compatibility) */
 export type ThemeMode = 'dark' | 'light';
 export type PalettePreset = string;
@@ -327,8 +325,6 @@ interface ThemeState {
   theme: ThemePresetId;
   lastDarkTheme?: ThemePresetId;
   lastLightTheme?: ThemePresetId;
-  sidebarBehavior: SidebarBehavior;
-  sidebarManualWidth: number;
 }
 
 const STORAGE_KEY = 'mycel-theme';
@@ -337,8 +333,6 @@ const DEFAULT_STATE: ThemeState = {
   theme: 'default-dark',
   lastDarkTheme: 'default-dark',
   lastLightTheme: 'default-light',
-  sidebarBehavior: 'automatic',
-  sidebarManualWidth: 210,
 };
 
 // ── Apply CSS custom properties to :root ─────
@@ -409,11 +403,9 @@ interface ThemeContextType {
   /** Current preset metadata */
   preset: ThemePresetMeta;
   sidebarBehavior: SidebarBehavior;
-  sidebarManualWidth: number;
   /** Set the active theme preset */
   setTheme: (id: ThemePresetId) => void;
   setSidebarBehavior: (b: SidebarBehavior) => void;
-  setSidebarManualWidth: (w: number) => void;
   /** Cycle quick-toggle: Default Dark ↔ Default Light (or snap to dark from custom) */
   cycleQuickTheme: () => void;
   /** Backward compat — returns preset.family */
@@ -483,10 +475,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, sidebarBehavior }));
   }, []);
 
-  const setSidebarManualWidth = useCallback((sidebarManualWidth: number) => {
-    setState((s) => ({ ...s, sidebarManualWidth }));
-  }, []);
-
   /** Quick-toggle: dark ↔ light */
   const cycleQuickTheme = useCallback(() => {
     setState((s) => {
@@ -505,10 +493,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     theme: state.theme,
     preset,
     sidebarBehavior: state.sidebarBehavior,
-    sidebarManualWidth: state.sidebarManualWidth,
     setTheme,
     setSidebarBehavior,
-    setSidebarManualWidth,
     cycleQuickTheme,
     // Backward compat
     mode: preset.family,

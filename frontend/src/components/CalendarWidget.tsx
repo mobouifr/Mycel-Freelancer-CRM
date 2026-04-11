@@ -139,13 +139,17 @@ export default function CalendarWidget() {
   const grid = buildGrid(viewYear, viewMonth);
   const numRows = grid.length / 7;
 
-  // Square cells from available height
+  // Square cells from available height — also constrained by width so the
+  // 7-column grid never overflows a narrow container.
   const headerH = 32;
   const dayHeadH = 22;
   const pad = 24;
   const availH = ch - headerH - dayHeadH - pad;
   const cellFromH = availH > 0 ? availH / numRows : 20;
-  const cellSize = Math.max(Math.min(cellFromH, 44), 16);
+  // 7 cells + 6 gaps (worst-case gap = 3px) must fit in the container width
+  // minus horizontal padding (20px from rootStyle '12px 10px').
+  const maxCellFromW = Math.max(Math.floor((cw - 20 - 6 * 3) / 7), 16);
+  const cellSize = Math.max(Math.min(cellFromH, 44, maxCellFromW), 16);
   const gridGap = Math.max(Math.min(cellSize * 0.08, 3), 1);
   const gridW = cellSize * 7 + gridGap * 6;
   const gridH = cellSize * numRows + gridGap * (numRows - 1);

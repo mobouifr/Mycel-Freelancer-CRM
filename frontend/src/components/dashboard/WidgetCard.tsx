@@ -121,7 +121,8 @@ export default function WidgetCard({
       {/* Content */}
       <div style={{
         flex: 1,
-        overflow: 'auto',
+        minHeight: 0,
+        overflow: 'hidden',
         padding: noPadding ? 0 : '0 16px 16px',
       }}>
         {children}

@@ -31,39 +31,39 @@ export interface DashboardState {
 }
 
 /** Bump this version when layout shape changes to invalidate stale caches */
-const LAYOUT_VERSION = 10;
+const LAYOUT_VERSION = 13;
 const STORAGE_KEY = `mycel-dashboard-layout-v${LAYOUT_VERSION}`;
 
 /* ── Preset definitions ─────────────────────── */
 const PRESETS: Record<PresetId, () => Pick<DashboardState, 'layouts' | 'visible'>> = {
   /* ── Default: everything, well-balanced ──
-     revenue  + heatmap left | calendar right (tall)
+     revenue config + heatmap + calendar top row
      status + deadline below | dataGraph + activity bottom */
   default: () => ({
     visible: ['revenue', 'calendar', 'heatmap', 'statusBar', 'deadline', 'dataGraph', 'activity', 'notes'],
     layouts: [
-      { i: 'revenue',     x: 0, y: 0, w: 8, h: 2, minW: 6, minH: 2 },
-      { i: 'calendar',    x: 8, y: 0, w: 4, h: 5, minW: 4, minH: 4 },
-      { i: 'heatmap',     x: 0, y: 2, w: 8, h: 2, minW: 6, minH: 2 },
-      { i: 'statusBar',   x: 0, y: 4, w: 4, h: 2, minW: 3, minH: 2 },
-      { i: 'deadline',    x: 4, y: 4, w: 4, h: 2, minW: 4, minH: 2, maxW: 4, maxH: 2, isResizable: false },
-      { i: 'dataGraph',   x: 0, y: 6, w: 8, h: 4, minW: 4, minH: 3 },
-      { i: 'activity',    x: 8, y: 5, w: 4, h: 5, minW: 3, minH: 2 },
-      { i: 'notes',       x: 0, y: 10, w: 8, h: 3, minW: 3, minH: 2 },
+      { i: 'revenue',   x: 0, y: 0, w: 4, h: 3, minW: 3, minH: 2 },
+      { i: 'statusBar', x: 4, y: 0, w: 4, h: 2, minW: 3, minH: 2 },
+      { i: 'calendar',  x: 8, y: 0, w: 4, h: 6, minW: 4, minH: 4 },
+      { i: 'deadline',  x: 4, y: 2, w: 4, h: 2, minW: 4, minH: 2, maxW: 4, maxH: 2, isResizable: false },
+      { i: 'dataGraph', x: 0, y: 4, w: 4, h: 3, minW: 4, minH: 3 },
+      { i: 'notes',     x: 4, y: 4, w: 4, h: 2, minW: 3, minH: 2 },
+      { i: 'heatmap',   x: 0, y: 8, w: 8, h: 3, minW: 3, minH: 2 },
+      { i: 'activity',  x: 8, y: 8, w: 4, h: 3, minW: 3, minH: 2 },
     ],
   }),
 
   /* ── Compact: essentials in tight space ──
-     revenue full-width | small cards row | calendar + activity */
+     revenue + deadline + statusBar top row | notes + calendar + activity */
   compact: () => ({
     visible: ['revenue', 'deadline', 'statusBar', 'calendar', 'activity', 'notes'],
     layouts: [
-      { i: 'revenue',   x: 0, y: 0, w: 12, h: 2, minW: 6, minH: 2 },
-      { i: 'deadline',  x: 0, y: 2, w: 4,  h: 2, minW: 4, minH: 2, maxW: 4, maxH: 2, isResizable: false },
-      { i: 'statusBar', x: 4, y: 2, w: 4,  h: 2, minW: 3, minH: 2 },
-      { i: 'notes',     x: 8, y: 2, w: 4,  h: 2, minW: 3, minH: 2 },
-      { i: 'calendar',  x: 0, y: 4, w: 6,  h: 5, minW: 4, minH: 4 },
-      { i: 'activity',  x: 6, y: 4, w: 6,  h: 4, minW: 4, minH: 2 },
+      { i: 'revenue',   x: 0, y: 0, w: 4, h: 2, minW: 3, minH: 2 },
+      { i: 'deadline',  x: 4, y: 0, w: 4, h: 2, minW: 4, minH: 2, maxW: 4, maxH: 2, isResizable: false },
+      { i: 'statusBar', x: 8, y: 0, w: 4, h: 2, minW: 3, minH: 2 },
+      { i: 'notes',     x: 0, y: 2, w: 4, h: 4, minW: 3, minH: 2 },
+      { i: 'calendar',  x: 4, y: 2, w: 4, h: 5, minW: 4, minH: 4 },
+      { i: 'activity',  x: 8, y: 2, w: 4, h: 4, minW: 3, minH: 2 },
     ],
   }),
 
@@ -80,16 +80,16 @@ const PRESETS: Record<PresetId, () => Pick<DashboardState, 'layouts' | 'visible'
   }),
 
   /* ── Finance: revenue, charts, status ──
-     revenue full | dataGraph + status/deadline | heatmap full */
+     revenue + status + deadline top row | dataGraph + heatmap/activity */
   finance: () => ({
     visible: ['revenue', 'dataGraph', 'statusBar', 'deadline', 'heatmap', 'activity'],
     layouts: [
-      { i: 'revenue',   x: 0, y: 0, w: 12, h: 2, minW: 6, minH: 2 },
+      { i: 'revenue',   x: 0, y: 0, w: 4,  h: 2, minW: 3, minH: 2 },
+      { i: 'statusBar', x: 4, y: 0, w: 4,  h: 2, minW: 3, minH: 2 },
+      { i: 'deadline',  x: 8, y: 0, w: 4,  h: 2, minW: 4, minH: 2, maxW: 4, maxH: 2, isResizable: false },
       { i: 'dataGraph', x: 0, y: 2, w: 8,  h: 4, minW: 4, minH: 3 },
-      { i: 'statusBar', x: 8, y: 2, w: 4,  h: 2, minW: 3, minH: 2 },
-      { i: 'deadline',  x: 8, y: 4, w: 4,  h: 2, minW: 4, minH: 2, maxW: 4, maxH: 2, isResizable: false },
-      { i: 'heatmap',   x: 0, y: 6, w: 8,  h: 2, minW: 6, minH: 2 },
-      { i: 'activity',  x: 8, y: 6, w: 4,  h: 3, minW: 3, minH: 2 },
+      { i: 'heatmap',   x: 8, y: 2, w: 4,  h: 2, minW: 3, minH: 2 },
+      { i: 'activity',  x: 8, y: 4, w: 4,  h: 4, minW: 3, minH: 2 },
     ],
   }),
 };
