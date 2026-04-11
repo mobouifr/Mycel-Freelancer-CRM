@@ -18,13 +18,6 @@ const PRIORITY_KEYS: { value: EventPriority; key: string }[] = [
   { value: 'high', key: 'event_modal.high' },
 ];
 
-const RECURRENCE_KEYS = [
-  { value: 'none', key: 'event_modal.no_repeat' },
-  { value: 'daily', key: 'event_modal.daily' },
-  { value: 'weekly', key: 'event_modal.weekly' },
-  { value: 'monthly', key: 'event_modal.monthly' },
-];
-
 interface EventModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -67,8 +60,6 @@ function EventModalInner({
   const [priority, setPriority] = useState<EventPriority>(initialData?.priority || 'normal');
   const [projectTag, setProjectTag] = useState(initialData?.projectTag || '');
   const [clientTag, setClientTag] = useState(initialData?.clientTag || '');
-  const [reminderOffset, setReminderOffset] = useState(initialData?.reminderOffset ?? 15);
-  const [recurrence, setRecurrence] = useState(initialData?.recurrence || 'none');
 
   const handleSubmit = () => {
     if (!title.trim()) return;
@@ -80,12 +71,9 @@ function EventModalInner({
       time,
       endDate: endDate || date,
       endTime,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       priority,
       projectTag: projectTag || undefined,
       clientTag: clientTag || undefined,
-      reminderOffset,
-      recurrence,
     });
     onClose();
   };
@@ -206,37 +194,6 @@ function EventModalInner({
               placeholder={t('event_modal.client_placeholder')}
               style={inputStyle}
             />
-          </div>
-        </div>
-
-        {/* Reminder & Recurrence */}
-        <div style={{ display: 'flex', gap: 10 }}>
-          <div style={{ flex: 1 }}>
-            <label style={labelStyle}>{t('event_modal.reminder')}</label>
-            <select
-              value={reminderOffset}
-              onChange={(e) => setReminderOffset(Number(e.target.value))}
-              style={selectStyle}
-            >
-              <option value={0}>{t('event_modal.none')}</option>
-              <option value={5}>{t('event_modal.5_min')}</option>
-              <option value={15}>{t('event_modal.15_min')}</option>
-              <option value={30}>{t('event_modal.30_min')}</option>
-              <option value={60}>{t('event_modal.1_hour')}</option>
-              <option value={1440}>{t('event_modal.1_day')}</option>
-            </select>
-          </div>
-          <div style={{ flex: 1 }}>
-            <label style={labelStyle}>{t('event_modal.recurrence')}</label>
-            <select
-              value={recurrence}
-              onChange={(e) => setRecurrence(e.target.value)}
-              style={selectStyle}
-            >
-              {RECURRENCE_KEYS.map((r) => (
-                <option key={r.value} value={r.value}>{t(r.key)}</option>
-              ))}
-            </select>
           </div>
         </div>
 

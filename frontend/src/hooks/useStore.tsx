@@ -51,7 +51,6 @@ export interface CalendarEvent {
   time: string;           // HH:mm
   endDate?: string;       // ISO date string  (YYYY-MM-DD)
   endTime?: string;       // HH:mm
-  timezone: string;
   description: string;
   eventType: EventType;
   priority: EventPriority;
@@ -59,8 +58,6 @@ export interface CalendarEvent {
   projectTag?: string;
   linkedProjectId?: string;
   linkedClientId?: string;
-  reminderOffset: number; // minutes before
-  recurrence: string;     // 'none' | 'daily' | 'weekly' | 'monthly'
   noteId?: string;
   createdAt: string;
 }
@@ -128,7 +125,6 @@ function loadStore(): StoreState {
         events: (parsed.events || []).map((e: Record<string, unknown>) => ({
           eventType: 'event' as EventType,
           priority: 'normal' as EventPriority,
-          recurrence: 'none',
           ...e,
         })) as CalendarEvent[],
         todos: (parsed.todos || []) as TodoItem[],
