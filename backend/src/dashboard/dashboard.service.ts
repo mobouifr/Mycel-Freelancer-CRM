@@ -141,7 +141,7 @@ export class DashboardService {
   async getNotes(userId: string) {
     return this.prisma.note.findMany({
       where: { userId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { updatedAt: 'desc' },
       take: 20 // Let's limit dashboards to the last 20 notes
     });
   }
@@ -153,6 +153,20 @@ export class DashboardService {
         content,
         tags,
         userId,
+      }
+    });
+  }
+
+  async updateNote(userId: string, noteId: string, title: string, content: string, tags: string[]) {
+    return this.prisma.note.updateMany({
+      where: {
+        id: noteId,
+        userId: userId, // Ensure ownership!
+      },
+      data: {
+        title,
+        content,
+        tags,
       }
     });
   }
