@@ -26,7 +26,7 @@ RESET  := \033[0m
 up:
 	@$(DOCKER_COMPOSE) up -d --build
 	@printf "$(GREEN)Services running$(RESET)\n"
-	@printf "  Frontend  -> http://localhost:3089\n"
+	@printf "  Frontend  -> $(CYAN)https://localhost$(RESET)  (accept self-signed cert on first visit)\n"
 	@printf "  Backend   -> http://localhost:3001\n"
 	@printf "  Adminer   -> http://localhost:8080\n"
 	@printf "  Grafana   -> http://localhost:3002\n"

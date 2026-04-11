@@ -120,13 +120,13 @@ services:
       - .env
 
     environment:
-      # Vite needs to know the API URL for proxy config
-      VITE_API_URL: http://localhost:${PORT:-3001}/api
-      VITE_WS_URL: http://localhost:${PORT:-3001}
+      # /api is handled by Vite's built-in proxy (see vite.config.ts → server.proxy)
+      VITE_API_URL: /api
 
     ports:
-      # Vite dev server with HMR
-      - "3089:3089"
+      # HTTPS dev server — https://localhost  (443 → container 3089)
+      # @vitejs/plugin-basic-ssl provides the self-signed cert automatically
+      - "443:3089"
 
     volumes:
       # Mount source code for hot module replacement
