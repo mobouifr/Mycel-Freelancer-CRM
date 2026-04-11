@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const { user: newUser } = await authService.register(payload);
-      setUser(newUser || null);
+      setUser(newUser ?? null);
     } catch (err: unknown) {
       const message =
         err && typeof err === 'object' && 'message' in err
