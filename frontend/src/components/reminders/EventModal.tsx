@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import Modal from '../Modal';
 import type { CalendarEvent, EventType, EventPriority } from '../../hooks/useStore';
 import { useTheme } from '../../hooks/useTheme';
+import { useClients } from '../../hooks/useClients';
+import { useProjects } from '../../hooks/useProjects';
 
 const EVENT_TYPE_KEYS: { value: EventType; key: string }[] = [
   { value: 'event', key: 'event_modal.event' },
@@ -60,6 +62,9 @@ function EventModalInner({
   const [priority, setPriority] = useState<EventPriority>(initialData?.priority || 'normal');
   const [projectTag, setProjectTag] = useState(initialData?.projectTag || '');
   const [clientTag, setClientTag] = useState(initialData?.clientTag || '');
+
+  const { clients } = useClients();
+  const { projects } = useProjects();
 
   const handleSubmit = () => {
     if (!title.trim()) return;
@@ -184,7 +189,13 @@ function EventModalInner({
               onChange={(e) => setProjectTag(e.target.value)}
               placeholder={t('event_modal.project_placeholder')}
               style={inputStyle}
+              list="project-list"
             />
+            <datalist id="project-list">
+              {projects.map((p) => (
+                <option key={p.id} value={p.title} />
+              ))}
+            </datalist>
           </div>
           <div style={{ flex: 1 }}>
             <label style={labelStyle}>{t('event_modal.client')}</label>
@@ -193,7 +204,13 @@ function EventModalInner({
               onChange={(e) => setClientTag(e.target.value)}
               placeholder={t('event_modal.client_placeholder')}
               style={inputStyle}
+              list="client-list"
             />
+            <datalist id="client-list">
+              {clients.map((c) => (
+                <option key={c.id} value={c.name} />
+              ))}
+            </datalist>
           </div>
         </div>
 
