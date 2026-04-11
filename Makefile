@@ -2,11 +2,13 @@
 # FREELANCER CRM — Makefile (Evaluation-focused)
 # =============================================================================
 
-SUDO := $(shell docker info > /dev/null 2>&1 || echo "sudo ")
+SUDO           := $(shell docker info > /dev/null 2>&1 || echo "sudo ")
 DOCKER_COMPOSE := $(shell if $(SUDO)docker compose version > /dev/null 2>&1; then echo "$(SUDO)docker compose"; else echo "$(SUDO)docker-compose"; fi)
+COMPOSE_PROD   := $(DOCKER_COMPOSE) -f docker-compose.prod.yml
 BACKEND_EXEC   := $(DOCKER_COMPOSE) exec backend
 DB_EXEC        := $(DOCKER_COMPOSE) exec postgres
 TIMESTAMP      := $(shell date +%Y%m%d_%H%M%S)
+DOMAIN         ?= $(shell grep '^DOMAIN=' .env 2>/dev/null | cut -d= -f2)
 
 # Colors
 GREEN  := \033[0;32m
@@ -52,6 +54,62 @@ clean:
 	@printf "$(RED)Remove containers and volumes? [y/N] $(RESET)" && read ans && [ $${ans:-N} = y ]
 	@$(DOCKER_COMPOSE) down -v --remove-orphans
 	@printf "$(GREEN)Cleaned$(RESET)\n"
+
+# =============================================================================
+# PRODUCTION
+# =============================================================================
+
+## prod-up        : Build and start production stack (requires .env with DOMAIN)
+prod-up:
+	@if [ -z "$(DOMAIN)" ]; then printf "$(RED)Set DOMAIN in .env first$(RESET)\n"; exit 1; fi
+	@DOMAIN=$(DOMAIN) $(COMPOSE_PROD) up -d --build
+	@printf "$(GREEN)Production stack running$(RESET)\n"
+	@printf "  HTTPS -> https://$(DOMAIN)\n"
+
+## prod-down      : Stop production stack
+prod-down:
+	@$(COMPOSE_PROD) down
+	@printf "$(GREEN)Production stopped$(RESET)\n"
+
+## prod-restart   : Rebuild and restart production stack
+prod-restart:
+	@DOMAIN=$(DOMAIN) $(COMPOSE_PROD) down && DOMAIN=$(DOMAIN) $(COMPOSE_PROD) up -d --build
+	@printf "$(GREEN)Production restarted$(RESET)\n"
+
+## prod-logs      : Tail production logs
+prod-logs:
+	@$(COMPOSE_PROD) logs -f
+
+## prod-status    : Show production container status
+prod-status:
+	@$(COMPOSE_PROD) ps
+
+# =============================================================================
+# SSL / HTTPS
+# =============================================================================
+
+## ssl-init       : Bootstrap HTTPS — first-time Let's Encrypt certificate
+##                  Usage: make ssl-init DOMAIN=example.com EMAIL=admin@example.com
+##                         make ssl-init DOMAIN=example.com EMAIL=admin@example.com STAGING=staging
+ssl-init:
+	@if [ -z "$(DOMAIN)" ] || [ -z "$(EMAIL)" ]; then \
+		printf "$(RED)Usage: make ssl-init DOMAIN=example.com EMAIL=admin@example.com$(RESET)\n"; \
+		exit 1; \
+	fi
+	@chmod +x scripts/init-letsencrypt.sh
+	@./scripts/init-letsencrypt.sh "$(DOMAIN)" "$(EMAIL)" "$(STAGING)"
+
+## ssl-renew      : Force certificate renewal + reload nginx
+ssl-renew:
+	@printf "$(CYAN)Renewing certificates for $(DOMAIN)...$(RESET)\n"
+	@$(COMPOSE_PROD) exec certbot certbot renew --force-renewal \
+		--webroot -w /var/www/certbot --quiet
+	@docker exec freelancer-crm-nginx nginx -s reload
+	@printf "$(GREEN)Certificate renewed and nginx reloaded$(RESET)\n"
+
+## ssl-status     : Show certificate expiry information
+ssl-status:
+	@$(COMPOSE_PROD) exec certbot certbot certificates
 
 # =============================================================================
 # DATABASE
@@ -117,6 +175,8 @@ help:
 .DEFAULT_GOAL := help
 
 .PHONY: up down restart logs status clean \
+		prod-up prod-down prod-restart prod-logs prod-status \
+		ssl-init ssl-renew ssl-status \
 		db-shell db-backup db-restore \
 		up-monitoring down-monitoring \
 		shell-backend help
