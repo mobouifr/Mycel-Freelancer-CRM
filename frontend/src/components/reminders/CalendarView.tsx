@@ -10,8 +10,12 @@ import CalendarWeekView from './CalendarWeekView';
 import CalendarDayView from './CalendarDayView';
 import EventModal from './EventModal';
 import DailyEventsView from './DailyEventsView';
+import NotesView from './NotesView';
+import TodosView from './TodosView';
 import type { CalendarEvent } from '../../hooks/useStore';
 import api from '../../services/api';
+
+type RightTab = 'events' | 'notes' | 'todos';
 
 const VIEW_OPTIONS: { value: CalendarViewMode; labelKey: string }[] = [
   { value: 'month', labelKey: 'calendar.month' },
@@ -30,6 +34,23 @@ export default function CalendarView() {
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [defaultDate, setDefaultDate] = useState('');
   const [defaultTime, setDefaultTime] = useState('');
+  const [rightTab, setRightTab] = useState<RightTab>('events');
+
+  const handleConvertNoteToEvent = (note: any) => {
+    setEditingEvent({
+      id: '', // new event
+      title: note.title || 'Note Event',
+      date: new Date().toISOString().split('T')[0],
+      time: '09:00',
+      description: note.content || '',
+      createdAt: new Date().toISOString(),
+      priority: note.tags?.includes('urgent') ? 'high' : 'normal',
+      eventType: 'event',
+    } as CalendarEvent);
+    setDefaultDate(new Date().toISOString().split('T')[0]);
+    setDefaultTime('09:00');
+    setModalOpen(true);
+  };
 
   const fetchEvents = () => {
     api.get('/dashboard/events')
@@ -266,10 +287,10 @@ export default function CalendarView() {
           )}
         </div>
 
-        {/* Right side: Daily Events */}
+        {/* Right side: Tabs (Events, Notes, Todos) */}
         {(!isMobile || calendar.viewMode === 'day') && (
           <div style={{
-            width: isMobile ? '100%' : 260,
+            width: isMobile ? '100%' : 280,
             flexShrink: 0,
             borderLeft: '1px solid var(--border)',
             background: 'var(--surface)',
@@ -277,11 +298,52 @@ export default function CalendarView() {
             flexDirection: 'column',
             overflow: 'hidden'
           }}>
-            <DailyEventsView 
-              date={calendar.currentDate} 
-              events={events} 
-              onEventClick={handleEventClick} 
-            />
+            {/* Tab switcher */}
+            <div style={{
+              display: 'flex', borderBottom: '1px solid var(--border)',
+              padding: '0 10px', flexShrink: 0,
+            }}>
+              {(['events', 'notes', 'todos'] as RightTab[]).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setRightTab(tab)}
+                  style={{
+                    flex: 1,
+                    fontFamily: 'var(--font-m)', fontSize: 10,
+                    padding: '10px 0', border: 'none', cursor: 'pointer',
+                    background: 'transparent',
+                    color: rightTab === tab ? 'var(--accent)' : 'var(--text-dim)',
+                    borderBottom: rightTab === tab ? '2px solid var(--accent)' : '2px solid transparent',
+                    fontWeight: rightTab === tab ? 600 : 400,
+                    letterSpacing: '.06em', textTransform: 'uppercase',
+                    transition: 'all .12s',
+                  }}
+                >
+                  {tab === 'events' ? t('calendar.events', 'Events') : tab === 'notes' ? t('reminders.notes', 'Notes') : t('reminders.todos', 'Todos')}
+                </button>
+              ))}
+            </div>
+
+            {/* Content */}
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              {rightTab === 'events' && (
+                <DailyEventsView 
+                  date={calendar.currentDate} 
+                  events={events} 
+                  onEventClick={handleEventClick} 
+                />
+              )}
+              {rightTab === 'notes' && (
+                <div style={{ padding: 12 }}>
+                  <NotesView onConvertToEvent={handleConvertNoteToEvent} />
+                </div>
+              )}
+              {rightTab === 'todos' && (
+                <div style={{ padding: 12 }}>
+                  <TodosView />
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

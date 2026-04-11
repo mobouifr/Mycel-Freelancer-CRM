@@ -34,23 +34,8 @@ export default function Reminders() {
       </div>
 
       {/* Main layout */}
-      <div style={{
-        flex: 1, display: 'flex',
-        flexDirection: isMobile ? 'column' : 'row',
-        gap: isMobile ? 12 : 16, overflow: 'hidden',
-      }}>
-        {/* Full-width Calendar Container */}
-        <div style={{
-          flex: 1,
-          minWidth: 0,
-          height: isMobile ? 500 : '100%',
-          display: 'flex', flexDirection: 'column',
-          border: '1px solid var(--border)', borderRadius: 12,
-          background: 'var(--surface)',
-          overflow: 'hidden',
-        }}>
-          <CalendarView />
-        </div>
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <CalendarView />
       </div>
     </div>
   );

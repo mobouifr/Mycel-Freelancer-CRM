@@ -120,7 +120,7 @@ function CalendarUpcoming() {
 }
 
 /* Upcoming events sub-component */
-function UpcomingList({ upcoming }: { upcoming: Array<{ id: string; date: string; time: string; title: string; timezone: string }> }) {
+function UpcomingList({ upcoming }: { upcoming: Array<{ id: string; date: string; time: string; title: string }> }) {
   const { t, i18n } = useTranslation();
   return (
     <div style={{ padding: '0', minWidth: 0, overflow: 'hidden' }}>
@@ -186,7 +186,7 @@ function UpcomingList({ upcoming }: { upcoming: Array<{ id: string; date: string
                   fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
                 }}>
-                  {evt.time} · {evt.timezone}
+                  {evt.time}
                 </p>
               </div>
             </div>

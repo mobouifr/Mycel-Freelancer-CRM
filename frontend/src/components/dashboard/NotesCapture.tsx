@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { setWidgetComponent } from './WidgetRegistry';
 import api from '../../services/api';
 
@@ -19,6 +20,7 @@ const TAG_COLORS: Record<string, string> = {
 
 function NotesCapture() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [notes, setNotes] = useState<any[]>([]);
   const [composerOpen, setComposerOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -339,12 +341,16 @@ function NotesCapture() {
 
       {/* View all link */}
       <div style={{ borderTop: '1px solid var(--border)', paddingTop: 8, marginTop: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{
-          fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)',
-          letterSpacing: '.04em',
-        }}>
-          {notes.length} recent note{notes.length !== 1 && 's'}
-        </span>
+        <button
+          onClick={() => navigate('/reminders')}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--accent)',
+            padding: 0, textDecoration: 'underline',
+          }}
+        >
+          {t('notes_capture.view_all', 'View all notes')}
+        </button>
         <span style={{
           fontFamily: 'var(--font-m)', fontSize: 8, color: 'var(--text-dim)',
           opacity: 0.5,
