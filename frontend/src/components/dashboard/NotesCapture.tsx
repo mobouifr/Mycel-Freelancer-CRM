@@ -153,6 +153,28 @@ function NotesCapture() {
               resize: 'none',
             }}
           />
+          <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+            {['urgent', 'work', 'personal', 'client'].map(tOption => (
+              <button
+                key={tOption}
+                onClick={() => setTag(tag === tOption ? '' : tOption)}
+                style={{
+                  padding: '2px 8px',
+                  borderRadius: 12,
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 9,
+                  cursor: 'pointer',
+                  background: tag === tOption ? TAG_COLORS[tOption] || 'var(--glass)' : 'transparent',
+                  color: tag === tOption ? 'var(--white)' : 'var(--text-dim)',
+                  border: `1px solid ${tag === tOption ? 'transparent' : 'var(--border)'}`,
+                  fontWeight: tag === tOption ? 600 : 400,
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {tOption}
+              </button>
+            ))}
+          </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6, marginTop: 6 }}>
             <button
               onClick={() => { setComposerOpen(false); setEditingId(null); setTitle(''); setBody(''); setTag(''); }}
@@ -290,18 +312,19 @@ function NotesCapture() {
                 <p style={{
                   fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)',
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  marginBottom: 3,
+                  marginBottom: 4,
                 }}>
                   {note.content ? note.content.slice(0, 60) : t('notes_capture.empty_note')}
                 </p>
                 {note.tags.length > 0 && (
-                  <div style={{ display: 'flex', gap: 3 }}>
-                    {note.tags.slice(0, 3).map((t: string) => (
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    {note.tags.map((t: string) => (
                       <span key={t} style={{
-                        fontFamily: 'var(--font-m)', fontSize: 7, letterSpacing: '.06em',
-                        padding: '1px 5px', borderRadius: 3,
+                        fontFamily: 'var(--font-m)', fontSize: 8, letterSpacing: '.04em',
+                        padding: '2px 6px', borderRadius: 4,
                         background: TAG_COLORS[t] || 'var(--glass)',
-                        color: 'var(--text-mid)',
+                        color: t === 'urgent' ? 'var(--white)' : 'var(--text-mid)',
+                        fontWeight: t === 'urgent' ? 'bold' : 'normal'
                       }}>
                         {t}
                       </span>
