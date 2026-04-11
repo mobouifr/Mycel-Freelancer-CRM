@@ -43,6 +43,7 @@ model User {
   achievements UserAchievement[]
   badges       UserBadge[]
   notes        Note[]
+  events       Event[]
 
   @@map("users")
 }
@@ -153,6 +154,29 @@ model Note {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notes")
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  date        String
+  time        String
+  endDate     String?  @map("end_date")
+  endTime     String?  @map("end_time")
+  timezone    String?
+  description String?
+  eventType   String?  @map("event_type")
+  priority    String?
+  location    String?
+  externalLink String? @map("external_link")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt      @map("updated_at")
+
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("events")
 }
 
 // =============================================================================

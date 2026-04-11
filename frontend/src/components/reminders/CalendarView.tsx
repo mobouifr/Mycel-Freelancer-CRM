@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import useCalendar from '../../hooks/useCalendar';
 import type { CalendarViewMode } from '../../hooks/useCalendar';
@@ -10,6 +10,7 @@ import CalendarWeekView from './CalendarWeekView';
 import CalendarDayView from './CalendarDayView';
 import EventModal from './EventModal';
 import type { CalendarEvent } from '../../hooks/useStore';
+import api from '../../services/api';
 
 const VIEW_OPTIONS: { value: CalendarViewMode; labelKey: string }[] = [
   { value: 'month', labelKey: 'calendar.month' },
@@ -19,14 +20,27 @@ const VIEW_OPTIONS: { value: CalendarViewMode; labelKey: string }[] = [
 
 export default function CalendarView() {
   const calendar = useCalendar();
-  const { events, createEvent, editEvent, removeEvent, addTodo, addNotification } = useNotifications();
+  const { addTodo, addNotification } = useNotifications(); // using standard local wrapper minus events
   const isMobile = useIsMobile(1100);
   const { t } = useTranslation();
 
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [defaultDate, setDefaultDate] = useState('');
   const [defaultTime, setDefaultTime] = useState('');
+
+  const fetchEvents = () => {
+    api.get('/dashboard/events')
+      .then(res => {
+        if (res.data) setEvents(res.data);
+      })
+      .catch(console.error);
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
 
   // Responsive mini calendar width
   const miniCalendarWidth = useMemo(() => {
@@ -72,25 +86,35 @@ export default function CalendarView() {
     setModalOpen(true);
   };
 
-  const handleSave = (data: Omit<CalendarEvent, 'id' | 'createdAt'>) => {
+  const handleSave = async (data: Omit<CalendarEvent, 'id' | 'createdAt'>) => {
+    try {
+      if (editingEvent) {
+        await api.put(`/dashboard/events/${editingEvent.id}`, data);
+      } else {
+        await api.post('/dashboard/events', data);
+      }
+      fetchEvents();
+      setModalOpen(false);
+      setEditingEvent(null);
+    } catch (error) {
+      console.error('Failed to save event', error);
+    }
+  };
+
+  const handleDelete = async () => {
     if (editingEvent) {
-      editEvent(editingEvent.id, data);
-    } else {
-      createEvent(data);
+      try {
+        await api.delete(`/dashboard/events/${editingEvent.id}`);
+        fetchEvents();
+      } catch (error) {
+        console.error('Failed to delete event', error);
+      }
     }
     setModalOpen(false);
     setEditingEvent(null);
   };
 
-  const handleDelete = () => {
-    if (editingEvent) {
-      removeEvent(editingEvent.id, editingEvent.title);
-    }
-    setModalOpen(false);
-    setEditingEvent(null);
-  };
-
-  const handleConvertToTodo = () => {
+  const handleConvertToTodo = async () => {
     if (!editingEvent) return;
     addTodo({
       text: editingEvent.title,
@@ -104,7 +128,12 @@ export default function CalendarView() {
       message: `"${editingEvent.title}" is now a todo`,
       targetType: 'todo',
     });
-    removeEvent(editingEvent.id, editingEvent.title);
+    try {
+      await api.delete(`/dashboard/events/${editingEvent.id}`);
+      fetchEvents();
+    } catch (error) {
+      console.error('Failed to delete event after conversion', error);
+    }
     setModalOpen(false);
     setEditingEvent(null);
   };

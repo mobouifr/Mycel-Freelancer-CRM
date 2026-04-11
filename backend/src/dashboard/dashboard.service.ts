@@ -179,4 +179,65 @@ export class DashboardService {
       }
     });
   }
+
+  // --- EVENTS ---
+  async getEvents(userId: string) {
+    return this.prisma.event.findMany({
+      where: { userId },
+      orderBy: { date: 'asc' }, // usually you want upcoming events first
+    });
+  }
+
+  async createEvent(userId: string, data: any) {
+    return this.prisma.event.create({
+      data: {
+        title: data.title,
+        date: data.date,
+        time: data.time,
+        endDate: data.endDate,
+        endTime: data.endTime,
+        timezone: data.timezone,
+        description: data.description,
+        eventType: data.eventType,
+        priority: data.priority,
+        location: data.location,
+        externalLink: data.externalLink,
+        userId,
+      }
+    });
+  }
+
+  // Note: similar to Notes, we use updateMany to verify userId securely
+  async updateEvent(userId: string, eventId: string, data: any) {
+    await this.prisma.event.updateMany({
+      where: {
+        id: eventId,
+        userId: userId,
+      },
+      data: {
+        title: data.title,
+        date: data.date,
+        time: data.time,
+        endDate: data.endDate,
+        endTime: data.endTime,
+        timezone: data.timezone,
+        description: data.description,
+        eventType: data.eventType,
+        priority: data.priority,
+        location: data.location,
+        externalLink: data.externalLink,
+      }
+    });
+    // return the actual updated record securely
+    return this.prisma.event.findFirst({ where: { id: eventId, userId } });
+  }
+
+  async deleteEvent(userId: string, eventId: string) {
+    return this.prisma.event.deleteMany({
+      where: {
+        id: eventId,
+        userId: userId
+      }
+    });
+  }
 }
