@@ -368,7 +368,7 @@ export default function CalendarWidget() {
             selectedEvents.map((evt) => (
               <div key={evt.id} style={{ marginBottom: 8 }}>
                 <p style={{ fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--white)', marginBottom: 2 }}>{evt.title}</p>
-                <p style={{ fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--accent)', letterSpacing: '.04em' }}>{evt.time} · {evt.timezone}</p>
+                <p style={{ fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--accent)', letterSpacing: '.04em' }}>{evt.time}</p>
                 {evt.description && (
                   <p style={{ fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)', marginTop: 2 }}>
                     {evt.description.slice(0, 60)}{evt.description.length > 60 ? '…' : ''}

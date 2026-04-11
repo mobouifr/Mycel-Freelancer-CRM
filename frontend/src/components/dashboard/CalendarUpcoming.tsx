@@ -115,7 +115,7 @@ function CalendarUpcoming() {
                       fontFamily: 'var(--font-m)', fontSize: 8, color: 'var(--text-dim)',
                       overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     }}>
-                      {evt.time} · {evt.timezone}
+                      {evt.time}
                     </p>
                   </div>
                 </div>

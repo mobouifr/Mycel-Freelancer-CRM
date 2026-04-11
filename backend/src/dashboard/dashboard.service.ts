@@ -63,4 +63,183 @@ export class DashboardService {
       projectsDone: projects.length
     };
   }
+
+  async getActivityFeed(userId: string) {
+    // Fetch recent items from different tables
+    const [recentClients, recentProjects, recentAchievements] = await Promise.all([
+      this.prisma.client.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        select: { id: true, name: true, createdAt: true },
+      }),
+      this.prisma.project.findMany({
+        where: { userId },
+        orderBy: { updatedAt: 'desc' },
+        take: 5,
+        select: { id: true, title: true, status: true, client: { select: { name: true } }, updatedAt: true },
+      }),
+      this.prisma.userAchievement.findMany({
+        where: { userId },
+        orderBy: { earnedAt: 'desc' },
+        take: 5,
+        select: { id: true, name: true, type: true, earnedAt: true },
+      }),
+    ]);
+
+    // Map to a unified Activity interface
+    const activities = [
+      ...recentClients.map(c => ({
+        id: `client-${c.id}`,
+        type: 'client',
+        title: `New Client: ${c.name}`,
+        detail: `Joined on ${new Date(c.createdAt).toLocaleDateString()}`,
+        timestamp: c.createdAt.getTime(),
+      })),
+      ...recentProjects.map(p => ({
+        id: `project-${p.id}`,
+        type: 'project',
+        title: p.title, // Actually using the project name!
+        detail: `Status: ${p.status.toLowerCase()} • Client: ${p.client.name}`,
+        timestamp: p.updatedAt.getTime(),
+      })),
+      ...recentAchievements.map(a => ({
+        id: `achieve-${a.id}`,
+        type: 'note', 
+        title: `Achievement: ${a.name}`,
+        detail: `Unlocked!`,
+        timestamp: a.earnedAt.getTime(),
+      })),
+    ];
+
+    // Sort combined feed by timestamp descending, pick top 5
+    activities.sort((a, b) => b.timestamp - a.timestamp);
+    
+    return activities.slice(0, 5).map(act => {
+      // Calculate exact time dynamically
+      const diffMs = Date.now() - act.timestamp;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffH = Math.floor(diffMins / 60);
+      const diffD = Math.floor(diffH / 24);
+
+      let timeString = 'Just now';
+      if (diffMins > 0 && diffH === 0) timeString = `${diffMins}m ago`;
+      else if (diffH > 0 && diffD === 0) timeString = `${diffH}h ago`;
+      else if (diffD === 1) timeString = `Yesterday`;
+      else if (diffD > 1) timeString = `${diffD}d ago`;
+      
+      return {
+        id: act.id,
+        type: act.type,
+        title: act.title,
+        detail: act.detail,
+        time: timeString,
+      }
+    });
+  }
+
+  async getNotes(userId: string) {
+    return this.prisma.note.findMany({
+      where: { userId },
+      orderBy: { updatedAt: 'desc' },
+      take: 20 // Let's limit dashboards to the last 20 notes
+    });
+  }
+
+  async createNote(userId: string, title: string, content: string, tags: string[]) {
+    return this.prisma.note.create({
+      data: {
+        title,
+        content,
+        tags,
+        userId,
+      }
+    });
+  }
+
+  async updateNote(userId: string, noteId: string, title: string, content: string, tags: string[]) {
+    return this.prisma.note.updateMany({
+      where: {
+        id: noteId,
+        userId: userId, // Ensure ownership!
+      },
+      data: {
+        title,
+        content,
+        tags,
+      }
+    });
+  }
+
+  async deleteNote(userId: string,  noteId: string) {
+    return this.prisma.note.deleteMany({
+      where: {
+        id: noteId,
+        userId: userId // Security: ensuring user owns the note!
+      }
+    });
+  }
+
+  // --- EVENTS ---
+  async getEvents(userId: string) {
+    return this.prisma.event.findMany({
+      where: { userId },
+      orderBy: { date: 'asc' }, // usually you want upcoming events first
+    });
+  }
+
+  async createEvent(userId: string, data: any) {
+    return this.prisma.event.create({
+      data: {
+        title: data.title,
+        date: data.date,
+        time: data.time,
+        endDate: data.endDate,
+        endTime: data.endTime,
+        description: data.description,
+        eventType: data.eventType,
+        priority: data.priority,
+        location: data.location,
+        externalLink: data.externalLink,
+        projectTag: data.projectTag,
+        clientTag: data.clientTag,
+        userId,
+      }
+    });
+  }
+
+  // Note: similar to Notes, we use updateMany to verify userId securely
+  async updateEvent(userId: string, eventId: string, data: any) {
+    await this.prisma.event.updateMany({
+      where: {
+        id: eventId,
+        userId: userId,
+      },
+      data: {
+        title: data.title,
+        date: data.date,
+        time: data.time,
+        endDate: data.endDate,
+        endTime: data.endTime,
+        description: data.description,
+        eventType: data.eventType,
+        priority: data.priority,
+        location: data.location,
+        externalLink: data.externalLink,
+        projectTag: data.projectTag,
+        clientTag: data.clientTag,
+      }
+    });
+    // return the actual updated record securely
+    return this.prisma.event.findFirst({ where: { id: eventId, userId } });
+  }
+
+  async deleteEvent(userId: string, eventId: string) {
+    return this.prisma.event.deleteMany({
+      where: {
+        id: eventId,
+        userId: userId
+      }
+    });
+  }
 }

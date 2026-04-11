@@ -1,40 +1,76 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import useNotifications from '../../hooks/useNotifications';
+import api from '../../services/api';
 import StickyNote from './StickyNote';
-import type { Note, NoteColor } from '../../hooks/useStore';
+
+const TAG_COLORS: Record<string, string> = {
+  personal: 'var(--info-bg)',
+  work: 'var(--success-bg)',
+  urgent: 'var(--danger-bg)',
+  client: 'var(--tag-client)',
+  project: 'var(--tag-project)',
+  'follow-up': 'var(--glass)',
+};
 
 interface NotesViewProps {
-  onConvertToEvent?: (note: Note) => void;
+  onConvertToEvent?: (note: any) => void;
 }
 
 export default function NotesView({ onConvertToEvent }: NotesViewProps) {
   const { t } = useTranslation();
-  const { notes, createNote, editNote, removeNote } = useNotifications();
+  const [notes, setNotes] = useState<any[]>([]);
   const [showNew, setShowNew] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newBody, setNewBody] = useState('');
+  const [newTag, setNewTag] = useState('');
 
-  const pinned = notes.filter((n) => n.pinned);
-  const unpinned = notes.filter((n) => !n.pinned);
-  const sorted = [...pinned, ...unpinned];
-
-  const handleCreate = () => {
-    if (!newTitle.trim() && !newBody.trim()) return;
-    createNote({
-      title: newTitle.trim() || 'Untitled',
-      body: newBody,
-      tags: [],
-      pinned: false,
-      color: 'default' as NoteColor,
-      todos: [],
-    });
-    setNewTitle('');
-    setNewBody('');
-    setShowNew(false);
+  const fetchNotes = () => {
+    api.get('/dashboard/notes')
+      .then(res => setNotes(res.data))
+      .catch(console.error);
   };
 
-  const handleConvert = (note: Note) => {
+  useEffect(() => {
+    fetchNotes();
+  }, []);
+
+  const handleCreate = async () => {
+    if (!newTitle.trim() && !newBody.trim()) return;
+    try {
+      await api.post('/dashboard/notes', {
+        title: newTitle.trim() || 'Untitled',
+        content: newBody,
+        tags: newTag ? [newTag] : []
+      });
+      fetchNotes();
+      setNewTitle('');
+      setNewBody('');
+      setNewTag('');
+      setShowNew(false);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleUpdate = async (id: string, updates: any) => {
+    try {
+      await api.put(`/dashboard/notes/${id}`, updates);
+      fetchNotes();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await api.delete(`/dashboard/notes/${id}`);
+      fetchNotes();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleConvert = (note: any) => {
     if (onConvertToEvent) onConvertToEvent(note);
   };
 
@@ -80,6 +116,28 @@ export default function NotesView({ onConvertToEvent }: NotesViewProps) {
             rows={3}
             style={{ ...inputStyle, resize: 'vertical', minHeight: 40 }}
           />
+          <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+            {['urgent', 'work', 'personal', 'client'].map(tOption => (
+              <button
+                key={tOption}
+                onClick={() => setNewTag(newTag === tOption ? '' : tOption)}
+                style={{
+                  padding: '2px 8px',
+                  borderRadius: 12,
+                  fontFamily: 'var(--font-m)',
+                  fontSize: 9,
+                  cursor: 'pointer',
+                  background: newTag === tOption ? TAG_COLORS[tOption] || 'var(--glass)' : 'transparent',
+                  color: newTag === tOption ? 'var(--white)' : 'var(--text-dim)',
+                  border: `1px solid ${newTag === tOption ? 'transparent' : 'var(--border)'}`,
+                  fontWeight: newTag === tOption ? 600 : 400,
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {tOption}
+              </button>
+            ))}
+          </div>
           <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
             <button
               onClick={() => setShowNew(false)}
@@ -95,7 +153,7 @@ export default function NotesView({ onConvertToEvent }: NotesViewProps) {
       )}
 
       {/* Notes grid */}
-      {sorted.length === 0 ? (
+      {notes.length === 0 ? (
         <div style={{
           textAlign: 'center', padding: '24px 0',
           fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)',
@@ -108,12 +166,12 @@ export default function NotesView({ onConvertToEvent }: NotesViewProps) {
           gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
           gap: 10,
         }}>
-          {sorted.map((note) => (
+          {notes.map((note) => (
             <StickyNote
               key={note.id}
               note={note}
-              onUpdate={editNote}
-              onDelete={(id) => removeNote(id, note.title)}
+              onUpdate={handleUpdate}
+              onDelete={(id) => handleDelete(id)}
               onConvertToEvent={handleConvert}
             />
           ))}
