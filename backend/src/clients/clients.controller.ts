@@ -20,21 +20,6 @@ export class ClientsController {
     return this.clientsService.create(req.user.id, createClientDto);
   }
 
-  @Get(':id')
-  async findOne(@Request() req: any, @Param('id') id: string) {
-    return this.clientsService.findOne(req.user.id, id);
-  }
-
-  @Put(':id')
-  async update(@Request() req: any, @Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
-    return this.clientsService.update(req.user.id, id, updateClientDto);
-  }
-
-  @Delete(':id')
-  async remove(@Request() req: any, @Param('id') id: string) {
-    return this.clientsService.remove(req.user.id, id);
-  }
-
   @Get(':id/projects')
   async getProjects(@Request() req: any, @Param('id') id: string) {
     const data = await this.clientsService.getProjects(req.user.id, id);
@@ -51,5 +36,20 @@ export class ClientsController {
   async getInvoices(@Request() req: any, @Param('id') id: string) {
     const data = await this.clientsService.getInvoices(req.user.id, id);
     return { data };
+  }
+
+  @Get(':id')
+  async findOne(@Request() req: any, @Param('id') id: string) {
+    return this.clientsService.findOne(req.user.id, id);
+  }
+
+  @Put(':id')
+  async update(@Request() req: any, @Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
+    return this.clientsService.update(req.user.id, id, updateClientDto);
+  }
+
+  @Delete(':id')
+  async remove(@Request() req: any, @Param('id') id: string) {
+    return this.clientsService.remove(req.user.id, id);
   }
 }

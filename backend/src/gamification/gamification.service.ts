@@ -38,9 +38,6 @@ export class GamificationService {
       case 'high':
         multiplier = 1.1; 
         break;
-      case 'urgent':
-        multiplier = 1.5; 
-        break;
     }
 
     // Level XP is now scaled strictly according to priority, not budget.
