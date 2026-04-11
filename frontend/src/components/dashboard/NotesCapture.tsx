@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
 import api from '../../services/api';
@@ -20,7 +19,6 @@ const TAG_COLORS: Record<string, string> = {
 
 function NotesCapture() {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
   const [notes, setNotes] = useState<any[]>([]);
   const [composerOpen, setComposerOpen] = useState(false);
   const [title, setTitle] = useState('');
@@ -197,14 +195,9 @@ function NotesCapture() {
             {recent.map((note, i) => (
               <div
                 key={note.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => navigate('/reminders')}
-                onKeyDown={(e) => { if (e.key === 'Enter') navigate('/reminders'); }}
                 style={{
                   padding: '8px 6px',
                   borderBottom: i < recent.length - 1 ? '1px solid var(--border)' : 'none',
-                  cursor: 'pointer',
                   borderRadius: 4,
                   transition: 'background .12s',
                 }}
@@ -254,20 +247,12 @@ function NotesCapture() {
 
       {/* View all link */}
       <div style={{ borderTop: '1px solid var(--border)', paddingTop: 8, marginTop: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button
-          onClick={() => navigate('/reminders')}
-          style={{
-            background: 'none', border: 'none',
-            fontFamily: 'var(--font-m)', fontSize: 10,
-            color: 'var(--accent)', cursor: 'pointer',
-            letterSpacing: '.04em',
-            transition: 'opacity .15s',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-        >
-          {t('notes_capture.view_all')}
-        </button>
+        <span style={{
+          fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)',
+          letterSpacing: '.04em',
+        }}>
+          {notes.length} recent note{notes.length !== 1 && 's'}
+        </span>
         <span style={{
           fontFamily: 'var(--font-m)', fontSize: 8, color: 'var(--text-dim)',
           opacity: 0.5,
