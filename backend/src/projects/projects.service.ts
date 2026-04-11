@@ -51,6 +51,7 @@ export class ProjectsService {
       title: createProjectDto.title || '',
       description: createProjectDto.description?.trim() || null,
       status: this.normalizeStatus(createProjectDto.status) ?? ProjectStatus.ACTIVE,
+      priority: createProjectDto.priority ?? 'MEDIUM',
       budget: createProjectDto.budget !== undefined ? createProjectDto.budget : 0,
       userId,
       clientId: createProjectDto.clientId,
@@ -103,6 +104,7 @@ export class ProjectsService {
         : {}),
       ...(updateProjectDto.budget !== undefined ? { budget: updateProjectDto.budget } : {}),
       ...(updateProjectDto.clientId !== undefined ? { clientId: updateProjectDto.clientId } : {}),
+      ...(updateProjectDto.priority !== undefined ? { priority: updateProjectDto.priority } : {}),
       ...(normalizedStatus !== undefined ? { status: normalizedStatus } : {}),
       ...(resolvedDeadline !== undefined ? { deadline: resolvedDeadline } : {}),
     };
@@ -116,7 +118,7 @@ export class ProjectsService {
     const newStatus = updatedProject.status;
 
     if (oldStatus !== 'COMPLETED' && newStatus === 'COMPLETED') {
-      const priority = updateProjectDto.priority || 'MEDIUM';
+      const priority = updateProjectDto.priority || updatedProject.priority || 'MEDIUM';
       
       this.gamificationService.awardProjectCompletionXp(
         userId,
