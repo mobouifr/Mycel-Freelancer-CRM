@@ -15,4 +15,9 @@ export class DashboardController {
     const userId = req.user.id;
     return this.dashboardService.getRevenueData(userId, timeframe || 'monthly');
   }
+
+  @Get('activity')
+  async getActivityFeed(@Req() req: any) {
+    return this.dashboardService.getActivityFeed(req.user.id);
+  }
 }

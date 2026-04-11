@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
+import { useState, useEffect } from 'react';
+import api from '../../services/api';
 
 /* ─────────────────────────────────────────────
    ACTIVITY FEED — Recent activity stream
@@ -14,12 +16,7 @@ interface ActivityItem {
   timeKey: string;
 }
 
-// Mock data — replace with API
-const ACTIVITIES: ActivityItem[] = [
-  { id: '3', type: 'client',   titleKey: 'activity.new_client_added',  detail: 'Vault Studio',            timeKey: 'activity.time_2h' },
-  { id: '4', type: 'project',  titleKey: 'activity.project_completed', detail: 'Drift Co. — Brand Identity', timeKey: 'activity.time_yesterday' },
-  { id: '6', type: 'note',     titleKey: 'activity.note_linked',       detail: 'Meeting notes → Q2 Planning', timeKey: 'activity.time_3d' },
-];
+// Mock data removed — replaced with real API data
 
 const TYPE_ICON: Record<ActivityItem['type'], { path: string; color: string }> = {
   client:   { path: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', color: 'var(--accent)' },
@@ -29,10 +26,33 @@ const TYPE_ICON: Record<ActivityItem['type'], { path: string; color: string }> =
 
 function ActivityFeed() {
   const { t } = useTranslation();
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+
+  useEffect(() => {
+    let isTerminated = false;
+    api.get('/dashboard/activity')
+      .then((res) => {
+        if (!isTerminated && res.data) {
+          setActivities(res.data);
+        }
+      })
+      .catch(console.error);
+
+    return () => {
+      isTerminated = true;
+    };
+  }, []);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ flex: 1, overflow: 'auto' }}>
-        {ACTIVITIES.map((item, i) => {
+        {activities.length === 0 && (
+           <p style={{ textAlign: 'center', color: 'var(--text-dim)', fontSize: 11, marginTop: 20 }}>
+             {/* Fallback string if not in translation files */}
+             {t('activity.no_activity', 'No recent activity')}
+           </p>
+        )}
+        {activities.map((item, i) => {
           const icon = TYPE_ICON[item.type];
           return (
             <div
@@ -42,7 +62,7 @@ function ActivityFeed() {
                 alignItems: 'flex-start',
                 gap: 10,
                 padding: '8px 4px',
-                borderBottom: i < ACTIVITIES.length - 1 ? '1px solid var(--border)' : 'none',
+                borderBottom: i < activities.length - 1 ? '1px solid var(--border)' : 'none',
                 transition: 'background .12s',
                 borderRadius: 4,
               }}
