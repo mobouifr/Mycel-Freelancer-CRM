@@ -11,9 +11,9 @@ import api from '../../services/api';
 interface ActivityItem {
   id: string;
   type: 'client' | 'project' | 'note';
-  titleKey: string;
+  title: string;
   detail: string;
-  timeKey: string;
+  time: string;
 }
 
 // Mock data removed — replaced with real API data
@@ -89,14 +89,14 @@ function ActivityFeed() {
                     fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--white)',
                     lineHeight: 1.3,
                   }}>
-                    {t(item.titleKey)}
+                    {item.title}
                   </p>
                   <span style={{
                     fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--text-dim)',
                     letterSpacing: '.04em', whiteSpace: 'nowrap', marginLeft: 8,
                     flexShrink: 0,
                   }}>
-                    {t(item.timeKey)}
+                    {item.time}
                   </span>
                 </div>
                 <p style={{

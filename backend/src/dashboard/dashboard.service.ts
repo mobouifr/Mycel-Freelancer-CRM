@@ -92,22 +92,22 @@ export class DashboardService {
       ...recentClients.map(c => ({
         id: `client-${c.id}`,
         type: 'client',
-        title: `activity.new_client_added`, // Will be localized in frontend
-        detail: c.name,
+        title: `New Client: ${c.name}`,
+        detail: `Joined on ${new Date(c.createdAt).toLocaleDateString()}`,
         timestamp: c.createdAt.getTime(),
       })),
       ...recentProjects.map(p => ({
         id: `project-${p.id}`,
         type: 'project',
-        title: p.status === 'COMPLETED' ? 'activity.project_completed' : 'activity.project_created',
-        detail: `${p.title} (${p.client.name})`,
+        title: p.title, // Actually using the project name!
+        detail: `Status: ${p.status.toLowerCase()} • Client: ${p.client.name}`,
         timestamp: p.createdAt.getTime(),
       })),
       ...recentAchievements.map(a => ({
         id: `achieve-${a.id}`,
-        type: 'note', // Using note icon for achievements as placeholder
-        title: `Achievement Unlocked!`,
-        detail: a.name,
+        type: 'note', 
+        title: `Achievement: ${a.name}`,
+        detail: `Unlocked!`,
         timestamp: a.earnedAt.getTime(),
       })),
     ];
@@ -115,22 +115,25 @@ export class DashboardService {
     // Sort combined feed by timestamp descending, pick top 5
     activities.sort((a, b) => b.timestamp - a.timestamp);
     
-    // We format the time slightly here but the frontend currently uses translation keys.
-    // For now we will return the direct strings for ease.
     return activities.slice(0, 5).map(act => {
-      // Format a simple time ago string. Realistically, we'd send ISO date and do it in JS
-      const hoursAgo = Math.floor((Date.now() - act.timestamp) / (1000 * 60 * 60));
-      let timeKey = 'activity.time_recently';
-      if (hoursAgo > 0 && hoursAgo < 24) timeKey = `${hoursAgo}h ago`;
-      else if (hoursAgo >= 24 && hoursAgo < 48) timeKey = `Yesterday`;
-      else if (hoursAgo >= 48) timeKey = `${Math.floor(hoursAgo / 24)}d ago`;
+      // Calculate exact time dynamically
+      const diffMs = Date.now() - act.timestamp;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffH = Math.floor(diffMins / 60);
+      const diffD = Math.floor(diffH / 24);
+
+      let timeString = 'Just now';
+      if (diffMins > 0 && diffH === 0) timeString = `${diffMins}m ago`;
+      else if (diffH > 0 && diffD === 0) timeString = `${diffH}h ago`;
+      else if (diffD === 1) timeString = `Yesterday`;
+      else if (diffD > 1) timeString = `${diffD}d ago`;
       
       return {
         id: act.id,
         type: act.type,
-        titleKey: act.title,
+        title: act.title,
         detail: act.detail,
-        timeKey: timeKey,
+        time: timeString,
       }
     });
   }
