@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import useCalendar from '../../hooks/useCalendar';
 import type { CalendarViewMode } from '../../hooks/useCalendar';
-import useNotifications from '../../hooks/useNotifications';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import MiniCalendar from './MiniCalendar';
 import CalendarMonthView from './CalendarMonthView';
@@ -26,7 +25,6 @@ interface CalendarViewProps {
 
 export default function CalendarView({ events, onEventsChange, onDateChange }: CalendarViewProps) {
   const calendar = useCalendar();
-  const { addTodo, addNotification } = useNotifications();
   const isMobile = useIsMobile(1100);
   const { t } = useTranslation();
 
@@ -122,29 +120,7 @@ export default function CalendarView({ events, onEventsChange, onDateChange }: C
     setEditingEvent(null);
   };
 
-  const handleConvertToTodo = async () => {
-    if (!editingEvent) return;
-    addTodo({
-      text: editingEvent.title,
-      done: false,
-      dueAt: editingEvent.date,
-      flag: editingEvent.priority === 'high' ? 'important' : 'none',
-    });
-    addNotification({
-      type: 'success',
-      title: 'Converted to todo',
-      message: `"${editingEvent.title}" is now a todo`,
-      targetType: 'todo',
-    });
-    try {
-      await api.delete(`/dashboard/events/${editingEvent.id}`);
-      onEventsChange();
-    } catch (error) {
-      console.error('Failed to delete event after conversion', error);
-    }
-    setModalOpen(false);
-    setEditingEvent(null);
-  };
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -280,7 +256,6 @@ export default function CalendarView({ events, onEventsChange, onDateChange }: C
         onClose={() => { setModalOpen(false); setEditingEvent(null); }}
         onSave={handleSave}
         onDelete={editingEvent ? handleDelete : undefined}
-        onConvertToTodo={editingEvent ? handleConvertToTodo : undefined}
         initialData={editingEvent || undefined}
         defaultDate={defaultDate}
         defaultTime={defaultTime}

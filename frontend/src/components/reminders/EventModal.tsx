@@ -25,14 +25,13 @@ interface EventModalProps {
   onClose: () => void;
   onSave: (data: Omit<CalendarEvent, 'id' | 'createdAt'>) => void;
   onDelete?: () => void;
-  onConvertToTodo?: () => void;
   initialData?: Partial<CalendarEvent>;
   defaultDate?: string;
   defaultTime?: string;
 }
 
 export default function EventModal({
-  isOpen, onClose, onSave, onDelete, onConvertToTodo,
+  isOpen, onClose, onSave, onDelete,
   initialData, defaultDate, defaultTime,
 }: EventModalProps) {
   if (!isOpen) return null;
@@ -40,14 +39,13 @@ export default function EventModal({
     <EventModalInner
       key={initialData?.id || `new-${defaultDate}-${defaultTime}`}
       onClose={onClose} onSave={onSave} onDelete={onDelete}
-      onConvertToTodo={onConvertToTodo}
       initialData={initialData} defaultDate={defaultDate} defaultTime={defaultTime}
     />
   );
 }
 
 function EventModalInner({
-  onClose, onSave, onDelete, onConvertToTodo,
+  onClose, onSave, onDelete,
   initialData, defaultDate, defaultTime,
 }: Omit<EventModalProps, 'isOpen'>) {
   const { t } = useTranslation();
@@ -222,11 +220,6 @@ function EventModalInner({
           <div style={{ display: 'flex', gap: 8 }}>
             {isEditing && onDelete && (
               <button onClick={onDelete} style={dangerBtn}>{t('common.delete')}</button>
-            )}
-            {isEditing && onConvertToTodo && (
-              <button onClick={onConvertToTodo} style={secondaryBtn}>
-                {t('event_modal.convert_to_todo')}
-              </button>
             )}
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
