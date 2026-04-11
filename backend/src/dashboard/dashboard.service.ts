@@ -75,9 +75,9 @@ export class DashboardService {
       }),
       this.prisma.project.findMany({
         where: { userId },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { updatedAt: 'desc' },
         take: 5,
-        select: { id: true, title: true, status: true, client: { select: { name: true } }, createdAt: true },
+        select: { id: true, title: true, status: true, client: { select: { name: true } }, updatedAt: true },
       }),
       this.prisma.userAchievement.findMany({
         where: { userId },
@@ -101,7 +101,7 @@ export class DashboardService {
         type: 'project',
         title: p.title, // Actually using the project name!
         detail: `Status: ${p.status.toLowerCase()} • Client: ${p.client.name}`,
-        timestamp: p.createdAt.getTime(),
+        timestamp: p.updatedAt.getTime(),
       })),
       ...recentAchievements.map(a => ({
         id: `achieve-${a.id}`,
