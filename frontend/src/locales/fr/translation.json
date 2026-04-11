@@ -557,29 +557,6 @@
     "due": "Échéance",
     "view_all": "Voir toutes les factures →"
   },
-  "projects_progress": {
-    "active": "Actif",
-    "in_review": "En révision",
-    "paused": "En pause",
-    "due": "Échéance",
-    "view_all": "Voir tous les projets →"
-  },
-  "suggestions": {
-    "all_caught_up": "Tout est à jour ! Aucune suggestion en attente.",
-    "dismiss": "Ignorer",
-    "follow_up_title": "Relancer Pixel Root",
-    "follow_up_desc": "La facture #042 est due dans 2 jours. Envoyez un rappel amical.",
-    "send_reminder": "Envoyer un rappel",
-    "proposal_ready_title": "Proposition prête à envoyer",
-    "proposal_ready_desc": "La proposition de Drift Co. est en brouillon depuis 5 jours.",
-    "review_draft": "Réviser le brouillon",
-    "schedule_planning_title": "Planifier le trimestre T2",
-    "schedule_planning_desc": "Aucun événement prévu pour la semaine prochaine. Réservez du temps pour la planification.",
-    "add_event": "Ajouter un événement",
-    "revenue_on_track_title": "Objectif de revenus en bonne voie",
-    "revenue_on_track_desc": "Vous êtes à 87 % de votre objectif mensuel. Continuez comme ça !",
-    "view_stats": "Voir les statistiques"
-  },
   "notes_capture": {
     "title_placeholder": "Titre de la note...",
     "body_placeholder": "Commencez à écrire... (optionnel)",
@@ -590,12 +567,6 @@
     "untitled_note": "Note sans titre",
     "empty_note": "Note vide...",
     "view_all": "Voir tout dans Rappels →"
-  },
-  "living_widget": {
-    "level": "Niveau {{level}}",
-    "just_planted": "Tout juste planté",
-    "growth": "{{hours}}h de croissance",
-    "description": "Votre écosystème de travail grandit au fil de votre activité"
   },
   "widgets": {
     "calendar": {
@@ -618,17 +589,21 @@
       "label": "Fil d'activité",
       "description": "Flux d'activité récent avec horodatages"
     },
-    "projects": {
-      "label": "Progression des projets",
-      "description": "Projets actifs avec barres de progression"
+    "heatmap": {
+      "label": "Carte d'activité",
+      "description": "Graphique de contributions quotidiennes style GitHub"
     },
-    "suggestions": {
-      "label": "Suggestions intelligentes",
-      "description": "Informations exploitables alimentées par l'IA pour votre flux de travail"
+    "dataGraph": {
+      "label": "Projets & Clients",
+      "description": "Graphique en barres des projets et clients au fil du temps"
     },
-    "ecosystem": {
-      "label": "Écosystème vivant",
-      "description": "Une plante générative qui grandit avec votre utilisation"
+    "statusBar": {
+      "label": "Statut des projets",
+      "description": "Barre segmentée montrant la répartition des projets par statut"
+    },
+    "deadline": {
+      "label": "Prochaine échéance",
+      "description": "Compte à rebours vers la prochaine échéance de projet"
     }
   }
 }

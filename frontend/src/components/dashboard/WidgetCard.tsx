@@ -85,7 +85,7 @@ export default function WidgetCard({
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, opacity: hovered ? 1 : 0, transition: 'opacity .15s' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, opacity: (isEditing || hovered) ? 1 : 0, transition: 'opacity .15s' }}>
           {actions}
           {onRemove && (
             <button

@@ -557,29 +557,6 @@
     "due": "Due",
     "view_all": "View all invoices →"
   },
-  "projects_progress": {
-    "active": "Active",
-    "in_review": "In Review",
-    "paused": "Paused",
-    "due": "Due",
-    "view_all": "View all projects →"
-  },
-  "suggestions": {
-    "all_caught_up": "All caught up! No pending suggestions.",
-    "dismiss": "Dismiss",
-    "follow_up_title": "Follow up with Pixel Root",
-    "follow_up_desc": "Invoice #042 is due in 2 days. Send a friendly reminder.",
-    "send_reminder": "Send Reminder",
-    "proposal_ready_title": "Proposal ready to send",
-    "proposal_ready_desc": "Drift Co. proposal has been in draft for 5 days.",
-    "review_draft": "Review Draft",
-    "schedule_planning_title": "Schedule Q2 planning",
-    "schedule_planning_desc": "No events scheduled for next week. Block time for planning.",
-    "add_event": "Add Event",
-    "revenue_on_track_title": "Revenue goal on track",
-    "revenue_on_track_desc": "You're at 87% of your monthly goal. Keep it up!",
-    "view_stats": "View Stats"
-  },
   "notes_capture": {
     "title_placeholder": "Note title...",
     "body_placeholder": "Start typing... (optional)",
@@ -590,12 +567,6 @@
     "untitled_note": "Untitled Note",
     "empty_note": "Empty note...",
     "view_all": "View all in Reminders →"
-  },
-  "living_widget": {
-    "level": "Level {{level}}",
-    "just_planted": "Just planted",
-    "growth": "{{hours}}h growth",
-    "description": "Your workspace ecosystem grows as you work"
   },
   "widgets": {
     "calendar": {
@@ -618,17 +589,21 @@
       "label": "Activity Feed",
       "description": "Recent activity stream with timestamps"
     },
-    "projects": {
-      "label": "Projects Progress",
-      "description": "Active projects with progress bars"
+    "heatmap": {
+      "label": "Activity Heatmap",
+      "description": "GitHub-style contribution graph of daily activity"
     },
-    "suggestions": {
-      "label": "Smart Suggestions",
-      "description": "AI-powered actionable insights for your workflow"
+    "dataGraph": {
+      "label": "Projects & Clients",
+      "description": "Bar chart showing projects and clients over time"
     },
-    "ecosystem": {
-      "label": "Living Ecosystem",
-      "description": "A generative plant that grows with your usage"
+    "statusBar": {
+      "label": "Project Status",
+      "description": "Segmented bar showing project distribution by status"
+    },
+    "deadline": {
+      "label": "Next Deadline",
+      "description": "Flip-clock countdown to the nearest project deadline"
     }
   }
 }

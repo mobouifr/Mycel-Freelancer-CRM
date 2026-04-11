@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useRef, useState, useEffect } from 'react';
+import { useMemo, useCallback, useRef, useState, useEffect, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   GridLayout,
@@ -21,6 +21,7 @@ interface WidgetGridProps {
   visible: string[];
   onLayoutChange: (layouts: LayoutItem[]) => void;
   onRemoveWidget: (id: string) => void;
+  onReorderMobile: (id: string, dir: 1 | -1) => void;
   isEditing: boolean;
 }
 
@@ -64,6 +65,7 @@ export default function WidgetGrid({
   visible,
   onLayoutChange,
   onRemoveWidget,
+  onReorderMobile,
   isEditing,
 }: WidgetGridProps) {
   const { t } = useTranslation();
@@ -118,34 +120,62 @@ export default function WidgetGrid({
     [onLayoutChange, visible],
   );
 
-  /* ── Mobile: 2-column CSS grid (no drag/resize) ── */
+  /* ── Mobile: single-column stack with optional reorder ── */
   if (isMobile) {
+    const btnStyle: CSSProperties = {
+      width: 22, height: 22, borderRadius: 4,
+      background: 'none', border: '1px solid var(--border)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      cursor: 'pointer', color: 'var(--text-dim)',
+      transition: 'all .15s', flexShrink: 0,
+    };
+
     return (
       <div
         ref={containerRef}
         className="widget-grid-container"
-        style={{
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-        }}
+        style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12 }}
       >
-        {visible.map((widgetId) => {
+        {visible.map((widgetId, idx) => {
           const entry = getWidgetEntry(widgetId);
           if (!entry) return null;
           const Widget = entry.component;
           const layout = layouts.find((l: LayoutItem) => l.i === widgetId);
-          const minHeight = (layout?.h ?? 3) * ROW_HEIGHT;
+          // Use explicit height so WidgetCard's height:100% resolves correctly
+          const height = Math.max((layout?.h ?? 3) * ROW_HEIGHT, 180);
 
           return (
-            <div
-              key={widgetId}
-              style={{ minHeight, width: '100%' }}
-            >
+            <div key={widgetId} style={{ height, width: '100%' }}>
               <WidgetCard
                 title={t(entry.label)}
-                isEditing={false}
+                isEditing={isEditing}
+                onRemove={isEditing ? () => onRemoveWidget(widgetId) : undefined}
+                actions={isEditing ? (
+                  <>
+                    {idx > 0 && (
+                      <button
+                        style={btnStyle}
+                        aria-label="Move widget up"
+                        onClick={() => onReorderMobile(widgetId, -1)}
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="18 15 12 9 6 15" />
+                        </svg>
+                      </button>
+                    )}
+                    {idx < visible.length - 1 && (
+                      <button
+                        style={btnStyle}
+                        aria-label="Move widget down"
+                        onClick={() => onReorderMobile(widgetId, 1)}
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                      </button>
+                    )}
+                  </>
+                ) : undefined}
                 icon={
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                     <path d={entry.icon} />

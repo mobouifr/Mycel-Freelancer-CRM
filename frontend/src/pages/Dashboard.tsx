@@ -9,9 +9,10 @@ import '../components/dashboard/CalendarUpcoming';
 import '../components/dashboard/NotesCapture';
 import '../components/dashboard/RevenueKPI';
 import '../components/dashboard/ActivityFeed';
-import '../components/dashboard/ProjectsProgress';
-import '../components/dashboard/SmartSuggestions';
-import '../components/dashboard/LivingWidget';
+import '../components/dashboard/ActivityHeatmap';
+import '../components/dashboard/DataGraph';
+import '../components/dashboard/ProjectStatusBar';
+import '../components/dashboard/NextDeadline';
 
 /* ─────────────────────────────────────────────
    DASHBOARD PAGE — Configurable widget grid
@@ -28,6 +29,7 @@ export default function Dashboard() {
     onLayoutChange,
     applyPreset,
     toggleWidget,
+    reorderVisible,
     clearLayout,
     undo,
     canUndo,
@@ -284,6 +286,7 @@ export default function Dashboard() {
           visible={visible}
           onLayoutChange={onLayoutChange}
           onRemoveWidget={handleRemoveWidget}
+          onReorderMobile={reorderVisible}
           isEditing={isEditing}
         />
       )}
