@@ -137,4 +137,32 @@ export class DashboardService {
       }
     });
   }
+
+  async getNotes(userId: string) {
+    return this.prisma.note.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: 20 // Let's limit dashboards to the last 20 notes
+    });
+  }
+
+  async createNote(userId: string, title: string, content: string, tags: string[]) {
+    return this.prisma.note.create({
+      data: {
+        title,
+        content,
+        tags,
+        userId,
+      }
+    });
+  }
+
+  async deleteNote(userId: string,  noteId: string) {
+    return this.prisma.note.deleteMany({
+      where: {
+        id: noteId,
+        userId: userId // Security: ensuring user owns the note!
+      }
+    });
+  }
 }

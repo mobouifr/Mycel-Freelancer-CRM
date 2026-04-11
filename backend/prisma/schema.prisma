@@ -38,10 +38,11 @@ model User {
   clients      Client[]
   projects     Project[]
   invoices     Invoice[]
-  proposals    Proposal[]
   notifications Notification[]
-  achievements  UserAchievement[]
-  badges        UserBadge[]
+  proposals    Proposal[]
+  achievements UserAchievement[]
+  badges       UserBadge[]
+  notes        Note[]
 
   @@map("users")
 }
@@ -138,6 +139,20 @@ model Payment {
 
   @@index([invoiceId])
   @@map("payments")
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  tags      String[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt      @map("updated_at")
+
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notes")
 }
 
 // =============================================================================
