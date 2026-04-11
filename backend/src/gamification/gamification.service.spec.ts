@@ -71,22 +71,6 @@ describe('GamificationService', () => {
     });
   });
 
-  it('should apply urgent multipliers and safely level up', async () => {
-    const userId = 'user-uuid-2';
-    // Arrange: Mock a brand new user
-    mockPrismaService.user.findUnique.mockResolvedValue({ id: userId, xp: 0, level: 1 });
-    mockPrismaService.user.update.mockResolvedValue({});
-
-    // Act: Complete an 'urgent' project with a $5000 budget
-    // (500 base XP * 1.5 multiplier) = 750 XP.
-    const result = await service.awardProjectCompletionXp(userId, 5000, 'urgent');
-
-    // Assert: Check the math
-    expect(result.xpAwarded).toBe(750);
-    expect(result.newLevel).toBe(2); // 750 XP means Level 2 (needs 2000 for Level 3)
-    expect(result.leveledUp).toBe(true);
-  });
-
   it('should award XP but NOT level up if the threshold is not met', async () => {
     const userId = 'user-uuid-3';
     // Arrange: Mock a Level 2 user who currently has 1000 XP

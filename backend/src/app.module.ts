@@ -8,7 +8,6 @@ import { GamificationModule } from './gamification/gamification.module';
 import { PrismaModule} from './prisma/prisma.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MetricsModule } from './metrics/metrics.module';
-import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
@@ -27,7 +26,6 @@ import { ActivityModule } from './activity/activity.module';
     GamificationModule,
     NotificationsModule,
     MetricsModule,
-    ActivityModule,
   ],
 })
 export class AppModule {}
