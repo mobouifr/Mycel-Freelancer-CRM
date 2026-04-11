@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import mermaid from 'mermaid';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { useAuth } from '../../hooks/useAuth';
+import 'highlight.js/styles/github-dark.css';
 
 type MessageRole = 'user' | 'assistant';
 type PendingFormType = 'CLIENT' | 'PROJECT' | 'DELETE_CLIENT' | 'DELETE_PROJECT';
@@ -16,15 +21,67 @@ interface ChatMessage {
   content: string;
 }
 
-type StatusBadgeType = 'done' | 'pending' | 'critical' | 'warning';
+interface SuggestionsExtraction {
+  cleanContent: string;
+  suggestions: string[];
+}
 
-type FormattedBlock =
-  | { type: 'paragraph'; lines: string[] }
-  | { type: 'ul'; items: string[] }
-  | { type: 'ol'; items: string[] }
-  | { type: 'table'; headers: string[]; rows: string[][] }
-  | { type: 'diagram'; lines: string[] }
-  | { type: 'suggestions'; items: string[] };
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'dark',
+  themeVariables: {
+    primaryColor: '#1e293b',
+    primaryTextColor: '#e2e8f0',
+    primaryBorderColor: '#334155',
+    lineColor: '#64748b',
+    secondaryColor: '#0f172a',
+    tertiaryColor: '#1e293b',
+    background: '#0f172a',
+    mainBkg: '#1e293b',
+    nodeBorder: '#334155',
+    clusterBkg: '#1e293b',
+    titleColor: '#e2e8f0',
+    edgeLabelBackground: '#1e293b',
+    fontFamily: 'var(--font-m)',
+  },
+});
+
+const MermaidDiagram = ({ chart }: { chart: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [svg, setSvg] = useState<string>('');
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (!chart) return;
+    const id = `mermaid-${Math.random().toString(36).slice(2)}`;
+    mermaid
+      .render(id, chart)
+      .then(({ svg: rendered }) => {
+        setSvg(rendered);
+        setError(false);
+      })
+      .catch(() => {
+        setError(true);
+      });
+  }, [chart]);
+
+  if (error) {
+    return (
+      <div className="cb-diagram-wrap">
+        <p className="cb-diagram-label">Diagram</p>
+        <pre className="cb-diagram-block">{chart}</pre>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="cb-mermaid-wrap"
+      ref={ref}
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
+  );
+};
 
 export default function ChatbotAI() {
   const { t } = useTranslation();
@@ -42,9 +99,9 @@ export default function ChatbotAI() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [hasSentFirstMessage, setHasSentFirstMessage] = useState(false);
+
   const [panelSize, setPanelSize] = useState<{ width: number; height: number } | null>(null);
   const [isResizing, setIsResizing] = useState(false);
-  const [copiedMessageKey, setCopiedMessageKey] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const panelRef = useRef<HTMLElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -57,129 +114,6 @@ export default function ChatbotAI() {
     { label: '📊 Compare Options', prompt: 'Compare two options in a structured table' },
     { label: '📢 Announcement', prompt: 'Draft a professional internal announcement' },
   ];
-
-  const formalKeywords = [
-    'Subject:',
-    'Dear',
-    'Hi ',
-    'Best regards',
-    'Report:',
-    'Title:',
-    'Overview',
-    'Prepared by',
-    'Recommendations',
-    'Conclusion',
-    '━━━',
-  ];
-
-  const statusPatterns: Array<{ regex: RegExp; type: StatusBadgeType; label: string }> = [
-    { regex: /^\[(?:✅\s*)?DONE\]$/i, type: 'done', label: 'DONE' },
-    { regex: /^\[(?:⏳\s*)?PENDING\]$/i, type: 'pending', label: 'PENDING' },
-    { regex: /^\[(?:🚨\s*)?CRITICAL\]$/i, type: 'critical', label: 'CRITICAL' },
-    { regex: /^\[(?:⚠️?\s*)?WARNING\]$/i, type: 'warning', label: 'WARNING' },
-  ];
-
-  const isDiagramLine = (line: string): boolean => /[→▶│┌└┐┘]/.test(line) || /--/.test(line);
-
-  const isTableSeparatorLine = (line: string): boolean => /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(line);
-
-  const splitTableRow = (line: string): string[] =>
-    line
-      .trim()
-      .replace(/^\|/, '')
-      .replace(/\|$/, '')
-      .split('|')
-      .map((cell: string) => cell.trim());
-
-  const containsFormalDocument = (text: string): boolean => {
-    const lower = text.toLowerCase();
-    return formalKeywords.some((keyword) => lower.includes(keyword.toLowerCase()));
-  };
-
-  const parseBlocks = (text: string): FormattedBlock[] => {
-    const lines = text.replace(/\r\n/g, '\n').split('\n');
-    const blocks: FormattedBlock[] = [];
-    let i = 0;
-
-    while (i < lines.length) {
-      const rawLine = lines[i];
-      const line = rawLine.trim();
-
-      if (!line) {
-        i += 1;
-        continue;
-      }
-
-      if ((line.startsWith('|') || line.includes('|')) && i + 1 < lines.length && isTableSeparatorLine(lines[i + 1])) {
-        const headers = splitTableRow(lines[i]);
-        const rows: string[][] = [];
-        i += 2;
-        while (i < lines.length && lines[i].trim().includes('|')) {
-          rows.push(splitTableRow(lines[i]));
-          i += 1;
-        }
-        blocks.push({ type: 'table', headers, rows });
-        continue;
-      }
-
-      if (isDiagramLine(rawLine)) {
-        const diagramLines: string[] = [];
-        while (i < lines.length && lines[i].trim() && isDiagramLine(lines[i])) {
-          diagramLines.push(lines[i]);
-          i += 1;
-        }
-        blocks.push({ type: 'diagram', lines: diagramLines });
-        continue;
-      }
-
-      if (/^(-|•)\s+/.test(line)) {
-        const items: string[] = [];
-        while (i < lines.length && /^(-|•)\s+/.test(lines[i].trim())) {
-          items.push(lines[i].trim().replace(/^(-|•)\s+/, ''));
-          i += 1;
-        }
-        blocks.push({ type: 'ul', items });
-        continue;
-      }
-
-      if (/^\d+\.\s+/.test(line)) {
-        const items: string[] = [];
-        while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) {
-          items.push(lines[i].trim().replace(/^\d+\.\s+/, ''));
-          i += 1;
-        }
-        blocks.push({ type: 'ol', items });
-        continue;
-      }
-
-      if (/^(→|->)\s+/.test(line)) {
-        const items: string[] = [];
-        while (i < lines.length && /^(→|->)\s+/.test(lines[i].trim())) {
-          items.push(lines[i].trim().replace(/^(→|->)\s+/, '').replace(/^"|"$/g, ''));
-          i += 1;
-        }
-        blocks.push({ type: 'suggestions', items });
-        continue;
-      }
-
-      const paragraphLines: string[] = [];
-      while (
-        i < lines.length &&
-        lines[i].trim() &&
-        !(/^(-|•)\s+/.test(lines[i].trim()) ||
-          /^\d+\.\s+/.test(lines[i].trim()) ||
-          /^(→|->)\s+/.test(lines[i].trim()) ||
-          isDiagramLine(lines[i]) ||
-          ((lines[i].trim().startsWith('|') || lines[i].includes('|')) && i + 1 < lines.length && isTableSeparatorLine(lines[i + 1])))
-      ) {
-        paragraphLines.push(lines[i]);
-        i += 1;
-      }
-      blocks.push({ type: 'paragraph', lines: paragraphLines });
-    }
-
-    return blocks;
-  };
 
   const startResize = (clientX: number, clientY: number) => {
     if (fullscreenActive || isMobile || !panelRef.current) return;
@@ -220,36 +154,6 @@ export default function ChatbotAI() {
     window.addEventListener('touchend', stopResize);
   };
 
-  const renderInlineContent = (text: string, keyPrefix: string) => {
-    const tokens = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\])/g);
-    return tokens.filter(Boolean).map((token, idx) => {
-      const boldMatch = token.match(/^\*\*(.+)\*\*$/);
-      if (boldMatch) {
-        return <strong key={`${keyPrefix}-b-${idx}`}>{boldMatch[1]}</strong>;
-      }
-
-      const badgeRule = statusPatterns.find((rule) => rule.regex.test(token.trim()));
-      if (badgeRule) {
-        return (
-          <span key={`${keyPrefix}-s-${idx}`} className={`cb-status-badge ${badgeRule.type}`}>
-            {badgeRule.label}
-          </span>
-        );
-      }
-
-      return <span key={`${keyPrefix}-t-${idx}`}>{token}</span>;
-    });
-  };
-
-  const copyMessageText = async (key: string, text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedMessageKey(key);
-      window.setTimeout(() => setCopiedMessageKey((current: string | null) => (current === key ? null : current)), 2000);
-    } catch {
-      setCopiedMessageKey(null);
-    }
-  };
 
   const getAuthHeaders = (json = false): Record<string, string> => {
     const token = localStorage.getItem('token');
@@ -665,11 +569,33 @@ export default function ChatbotAI() {
     return null;
   };
 
+  const extractQuickSuggestions = (text: string): SuggestionsExtraction => {
+    const lines = text.split('\n');
+    const suggestions: string[] = [];
+    const keptLines: string[] = [];
+
+    for (const line of lines) {
+      const match = line.match(/^\s*(?:->|→)\s*"?(.+?)"?\s*$/);
+      if (match && match[1]) {
+        suggestions.push(match[1].trim());
+      } else {
+        keptLines.push(line);
+      }
+    }
+
+    return {
+      cleanContent: keptLines.join('\n').trim(),
+      suggestions,
+    };
+  };
+
   const sendMessage = async (overrideText?: string) => {
     const trimmed = (overrideText ?? input).trim();
     if (!trimmed || loading) return;
 
     setHasSentFirstMessage(true);
+
+
     const userMessage: ChatMessage = { role: 'user', content: trimmed };
     setMessages((prev: ChatMessage[]) => [...prev, userMessage]);
     setInput('');
@@ -804,110 +730,96 @@ ${latestCrmContext}`,
     setLoading(false);
   };
 
-  const renderMessageContent = (message: ChatMessage, messageKey: string) => {
-    const blocks = parseBlocks(message.content);
-    const isFormalDoc = message.role === 'assistant' && containsFormalDocument(message.content);
+  const renderMessageContent = (message: ChatMessage) => {
+    if (message.role === 'user') {
+      return <span>{message.content}</span>;
+    }
 
-    const content = (
-      <div className="cb-rich-content">
-        {blocks.map((block, blockIndex) => {
-          if (block.type === 'paragraph') {
-            return (
-              <p key={`${messageKey}-p-${blockIndex}`} className="cb-paragraph">
-                {renderInlineContent(block.lines.join(' '), `${messageKey}-p-${blockIndex}`)}
-              </p>
-            );
-          }
-
-          if (block.type === 'ul') {
-            return (
-              <ul key={`${messageKey}-ul-${blockIndex}`} className="cb-list cb-list-ul">
-                {block.items.map((item, idx) => (
-                  <li key={`${messageKey}-ul-${blockIndex}-${idx}`}>{renderInlineContent(item, `${messageKey}-uli-${blockIndex}-${idx}`)}</li>
-                ))}
-              </ul>
-            );
-          }
-
-          if (block.type === 'ol') {
-            return (
-              <ol key={`${messageKey}-ol-${blockIndex}`} className="cb-list cb-list-ol">
-                {block.items.map((item, idx) => (
-                  <li key={`${messageKey}-ol-${blockIndex}-${idx}`}>{renderInlineContent(item, `${messageKey}-oli-${blockIndex}-${idx}`)}</li>
-                ))}
-              </ol>
-            );
-          }
-
-          if (block.type === 'diagram') {
-            return (
-              <div key={`${messageKey}-d-${blockIndex}`} className="cb-diagram-wrap">
-                <p className="cb-diagram-label">Diagram</p>
-                <pre className="cb-diagram-block">{block.lines.join('\n')}</pre>
-              </div>
-            );
-          }
-
-          if (block.type === 'suggestions') {
-            return (
-              <div key={`${messageKey}-s-${blockIndex}`} className="cb-suggestions-wrap">
-                {block.items.map((item, idx) => (
-                  <button
-                    key={`${messageKey}-sbtn-${blockIndex}-${idx}`}
-                    type="button"
-                    className="cb-suggestion-btn"
-                    onClick={() => { void sendMessage(item); }}
-                    disabled={loading}
-                  >
-                    {`-> "${item}"`}
-                  </button>
-                ))}
-              </div>
-            );
-          }
-
-          if (block.type === 'table') {
-            return (
-              <div key={`${messageKey}-t-${blockIndex}`} className="cb-table-wrap">
-                <table className="cb-table">
-                  <thead>
-                    <tr>
-                      {block.headers.map((header, idx) => (
-                        <th key={`${messageKey}-th-${blockIndex}-${idx}`} title={header}>{header}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {block.rows.map((row, rowIdx) => (
-                      <tr key={`${messageKey}-tr-${blockIndex}-${rowIdx}`}>
-                        {row.map((cell, cellIdx) => (
-                          <td key={`${messageKey}-td-${blockIndex}-${rowIdx}-${cellIdx}`} title={cell}>{renderInlineContent(cell, `${messageKey}-cell-${blockIndex}-${rowIdx}-${cellIdx}`)}</td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            );
-          }
-
-          return null;
-        })}
-      </div>
-    );
-
-    if (!isFormalDoc) return content;
+    const { cleanContent, suggestions } = extractQuickSuggestions(message.content);
 
     return (
-      <div className="cb-copy-block">
-        <button
-          type="button"
-          className="cb-copy-btn"
-          onClick={() => { void copyMessageText(messageKey, message.content); }}
+      <div className="cb-rich-content">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeHighlight]}
+          components={{
+            h1: ({ children }) => <h1 className="cb-h1">{children}</h1>,
+            h2: ({ children }) => <h2 className="cb-h2">{children}</h2>,
+            h3: ({ children }) => <h3 className="cb-h3">{children}</h3>,
+            p: ({ children }) => <p className="cb-paragraph">{children}</p>,
+            ul: ({ children }) => <ul className="cb-list cb-list-ul">{children}</ul>,
+            ol: ({ children }) => <ol className="cb-list cb-list-ol">{children}</ol>,
+            li: ({ children }) => <li className="cb-li">{children}</li>,
+            strong: ({ children }) => <strong className="cb-bold">{children}</strong>,
+            blockquote: ({ children }) => <blockquote className="cb-blockquote">{children}</blockquote>,
+            table: ({ children }) => (
+              <div className="cb-table-wrap">
+                <table className="cb-table">{children}</table>
+              </div>
+            ),
+            thead: ({ children }) => <thead>{children}</thead>,
+            tbody: ({ children }) => <tbody>{children}</tbody>,
+            tr: ({ children }) => <tr>{children}</tr>,
+            th: ({ children }) => <th>{children}</th>,
+            td: ({ children }) => <td>{children}</td>,
+            code: (props: any) => {
+              const { inline, className, children, ...rest } = props;
+              const lang = (className ?? '').replace('language-', '');
+
+              if (lang === 'mermaid') {
+                return <MermaidDiagram chart={String(children).trim()} />;
+              }
+
+              if (lang === 'action') {
+                return null;
+              }
+
+              if (inline) {
+                return (
+                  <code className="cb-inline-code" {...rest}>
+                    {children}
+                  </code>
+                );
+              }
+
+              return (
+                <div className="cb-code-wrap">
+                  {lang && <span className="cb-code-lang">{lang}</span>}
+                  <pre className="cb-code-block">
+                    <code className={className} {...rest}>
+                      {children}
+                    </code>
+                  </pre>
+                </div>
+              );
+            },
+            a: ({ href, children }) => (
+              <a href={href} target="_blank" rel="noopener noreferrer" className="cb-link">
+                {children}
+              </a>
+            ),
+          }}
         >
-          {copiedMessageKey === messageKey ? '✓ Copied!' : 'Copy'}
-        </button>
-        {content}
+          {cleanContent}
+        </ReactMarkdown>
+
+        {suggestions.length > 0 && (
+          <div className="cb-suggestions-wrap" aria-label="Suggested follow-up questions">
+            {suggestions.slice(0, 4).map((suggestion, index) => (
+              <button
+                key={`sugg-${index}-${suggestion}`}
+                type="button"
+                className="cb-suggestion-btn"
+                disabled={loading}
+                onClick={() => {
+                  void sendMessage(suggestion);
+                }}
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     );
   };
@@ -1139,6 +1051,103 @@ ${latestCrmContext}`,
           margin: 0;
         }
 
+        .cb-h1 {
+          font-size: 15px;
+          font-weight: 700;
+          color: var(--white);
+          margin: 6px 0 4px;
+          padding-bottom: 4px;
+          border-bottom: 1px solid var(--border);
+          letter-spacing: 0.02em;
+        }
+
+        .cb-h2 {
+          font-size: 13px;
+          font-weight: 700;
+          color: var(--accent);
+          margin: 6px 0 3px;
+          letter-spacing: 0.03em;
+        }
+
+        .cb-h3 {
+          font-size: 11.5px;
+          font-weight: 700;
+          color: var(--text);
+          margin: 4px 0 2px;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          opacity: 0.85;
+        }
+
+        .cb-bold {
+          color: var(--white);
+          font-weight: 700;
+        }
+
+        .cb-blockquote {
+          border-left: 3px solid var(--accent);
+          margin: 4px 0;
+          padding: 6px 10px;
+          background: color-mix(in srgb, var(--accent-bg) 30%, transparent);
+          border-radius: 0 6px 6px 0;
+          font-style: italic;
+          color: var(--text-mid);
+          font-size: 10.5px;
+        }
+
+        .cb-inline-code {
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          font-size: 10px;
+          background: color-mix(in srgb, var(--surface-2) 80%, white 20%);
+          border: 1px solid var(--border);
+          border-radius: 4px;
+          padding: 1px 5px;
+          color: var(--accent);
+        }
+
+        .cb-code-wrap {
+          position: relative;
+          border-radius: 8px;
+          overflow: hidden;
+          border: 1px solid var(--border);
+        }
+
+        .cb-code-lang {
+          display: block;
+          padding: 4px 10px;
+          font-size: 9px;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          font-weight: 700;
+          color: var(--text-dim);
+          background: color-mix(in srgb, var(--surface-2) 70%, black 30%);
+          border-bottom: 1px solid var(--border);
+        }
+
+        .cb-code-block {
+          margin: 0;
+          padding: 10px;
+          font-size: 10.5px;
+          line-height: 1.55;
+          overflow-x: auto;
+          background: color-mix(in srgb, var(--surface) 60%, black 40%);
+        }
+
+        .cb-link {
+          color: var(--accent);
+          text-decoration: underline;
+          text-underline-offset: 2px;
+          font-size: inherit;
+        }
+
+        .cb-link:hover {
+          opacity: 0.8;
+        }
+
+        .cb-li {
+          line-height: 1.6;
+        }
+
         .cb-list {
           margin: 0;
           padding-left: 18px;
@@ -1146,41 +1155,6 @@ ${latestCrmContext}`,
           gap: 4px;
         }
 
-        .cb-status-badge {
-          display: inline-flex;
-          align-items: center;
-          border-radius: 999px;
-          padding: 1px 7px;
-          font-size: 10px;
-          font-weight: 700;
-          margin: 0 2px;
-          border: 1px solid transparent;
-          vertical-align: middle;
-        }
-
-        .cb-status-badge.done {
-          color: #14532d;
-          background: #dcfce7;
-          border-color: #86efac;
-        }
-
-        .cb-status-badge.pending {
-          color: #92400e;
-          background: #fef3c7;
-          border-color: #fcd34d;
-        }
-
-        .cb-status-badge.critical {
-          color: #7f1d1d;
-          background: #fee2e2;
-          border-color: #fca5a5;
-        }
-
-        .cb-status-badge.warning {
-          color: #9a3412;
-          background: #ffedd5;
-          border-color: #fdba74;
-        }
 
         .cb-diagram-wrap {
           display: grid;
@@ -1205,6 +1179,21 @@ ${latestCrmContext}`,
           line-height: 1.5;
           overflow-x: auto;
           font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+        }
+
+        .cb-mermaid-wrap {
+          background: color-mix(in srgb, var(--surface-2) 80%, black 20%);
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          padding: 12px;
+          overflow-x: auto;
+          display: flex;
+          justify-content: center;
+        }
+
+        .cb-mermaid-wrap svg {
+          max-width: 100%;
+          height: auto;
         }
 
         .cb-table-wrap {
@@ -1253,81 +1242,65 @@ ${latestCrmContext}`,
           background: var(--surface-2);
         }
 
-        .cb-copy-block {
-          position: relative;
+
+        .chatbot-ai-quick-actions {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+          overflow: hidden;
+          padding: 10px 14px;
+          border-top: 1px solid var(--border);
+          background: linear-gradient(180deg, var(--surface), var(--surface-2));
+        }
+
+        .chatbot-ai-quick-chip {
           border: 1px solid var(--border);
           border-radius: 10px;
-          background: color-mix(in srgb, var(--surface-2) 82%, white 18%);
-          padding: 10px;
-        }
-
-        .cb-copy-btn {
-          position: absolute;
-          top: 8px;
-          right: 8px;
-          border: 1px solid var(--border);
-          border-radius: 6px;
-          background: var(--surface);
+          background: var(--surface-2);
           color: var(--text);
+          padding: 8px 10px;
           font-size: 10px;
-          font-weight: 600;
-          padding: 4px 7px;
+          line-height: 1.35;
+          text-align: left;
+          min-height: 42px;
           cursor: pointer;
+          transition: transform 0.16s var(--ease), border-color 0.16s var(--ease), background 0.16s var(--ease);
         }
 
-        .cb-copy-btn:hover {
+        .chatbot-ai-quick-chip:hover {
           border-color: var(--accent);
+          background: color-mix(in srgb, var(--accent-bg) 60%, var(--surface) 40%);
+          transform: translateY(-1px);
         }
 
         .cb-suggestions-wrap {
           display: flex;
           flex-wrap: wrap;
-          gap: 6px;
+          gap: 7px;
+          margin-top: 2px;
         }
 
         .cb-suggestion-btn {
           border: 1px solid var(--border);
           border-radius: 999px;
-          background: var(--surface);
-          color: var(--text);
+          background: color-mix(in srgb, var(--accent-bg) 38%, var(--surface) 62%);
+          color: var(--white);
+          padding: 5px 10px;
           font-size: 10px;
-          padding: 5px 8px;
+          line-height: 1.3;
           cursor: pointer;
+          transition: filter 0.16s var(--ease), transform 0.16s var(--ease), border-color 0.16s var(--ease);
         }
 
-        .cb-suggestion-btn:hover {
+        .cb-suggestion-btn:hover:not(:disabled) {
+          filter: brightness(1.07);
+          transform: translateY(-1px);
           border-color: var(--accent);
-          background: var(--accent-bg);
         }
 
-        .chatbot-ai-quick-actions {
-          display: flex;
-          gap: 6px;
-          overflow-x: auto;
-          padding: 0 14px 10px;
-          border-top: 1px solid var(--border);
-          background: var(--surface);
-          scrollbar-width: thin;
-        }
-
-        .chatbot-ai-quick-actions::-webkit-scrollbar {
-          height: 4px;
-        }
-
-        .chatbot-ai-quick-chip {
-          border: 1px solid var(--border);
-          border-radius: 999px;
-          background: var(--surface-2);
-          color: var(--text);
-          padding: 6px 10px;
-          font-size: 10px;
-          white-space: nowrap;
-          cursor: pointer;
-        }
-
-        .chatbot-ai-quick-chip:hover {
-          border-color: var(--accent);
-          background: var(--accent-bg);
+        .cb-suggestion-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
 
         .chatbot-ai-empty {
@@ -1577,6 +1550,10 @@ ${latestCrmContext}`,
           .chatbot-ai-send {
             padding: 0 12px;
           }
+
+          .chatbot-ai-quick-actions {
+            grid-template-columns: 1fr;
+          }
         }
 
         @media (max-width: 479px) {
@@ -1693,7 +1670,7 @@ ${latestCrmContext}`,
               {messages.map((message: ChatMessage, index: number) => (
                 <div key={`${message.role}-${index}`} className={`chatbot-ai-row ${message.role}`}>
                   {message.role === 'assistant' && <span className="chatbot-ai-avatar assistant" aria-hidden="true">AI</span>}
-                  <div className={`chatbot-ai-bubble ${message.role}`}>{renderMessageContent(message, `${message.role}-${index}`)}</div>
+                  <div className={`chatbot-ai-bubble ${message.role}`}>{renderMessageContent(message)}</div>
                   {message.role === 'user' && <span className="chatbot-ai-avatar user" aria-hidden="true">{(username?.[0] ?? 'U').toUpperCase()}</span>}
                 </div>
               ))}
@@ -1721,13 +1698,17 @@ ${latestCrmContext}`,
                     type="button"
                     className="chatbot-ai-quick-chip"
                     disabled={loading}
-                    onClick={() => { void sendMessage(action.prompt); }}
+                    onClick={() => {
+                      void sendMessage(action.prompt);
+                    }}
                   >
                     {action.label}
                   </button>
                 ))}
               </div>
             )}
+
+
 
             {pendingForm && (
               <div
