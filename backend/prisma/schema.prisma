@@ -147,6 +147,8 @@ model Note {
   title     String
   content   String
   tags      String[]
+  color     String   @default("default")
+  pinned    Boolean  @default(false)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt      @map("updated_at")
 

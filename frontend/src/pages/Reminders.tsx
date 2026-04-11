@@ -4,11 +4,10 @@ import { useIsMobile } from '../hooks/useIsMobile';
 import CalendarView from '../components/reminders/CalendarView';
 import DailyEventsView from '../components/reminders/DailyEventsView';
 import NotesView from '../components/reminders/NotesView';
-import TodosView from '../components/reminders/TodosView';
 import type { CalendarEvent } from '../hooks/useStore';
 import api from '../services/api';
 
-type RightTab = 'events' | 'notes' | 'todos';
+type RightTab = 'events' | 'notes';
 
 export default function Reminders() {
   const { t } = useTranslation();
@@ -100,7 +99,7 @@ export default function Reminders() {
             display: 'flex', borderBottom: '1px solid var(--border)',
             padding: '0 10px', flexShrink: 0,
           }}>
-            {(['events', 'notes', 'todos'] as RightTab[]).map((tab) => (
+            {(['events', 'notes'] as RightTab[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setRightTab(tab)}
@@ -117,9 +116,7 @@ export default function Reminders() {
               >
                 {tab === 'events'
                   ? t('calendar.events', 'Events')
-                  : tab === 'notes'
-                    ? t('reminders.notes')
-                    : t('reminders.todos')}
+                  : t('reminders.notes')}
               </button>
             ))}
           </div>
@@ -136,11 +133,6 @@ export default function Reminders() {
             {rightTab === 'notes' && (
               <div style={{ padding: 12 }}>
                 <NotesView onConvertToEvent={handleConvertNoteToEvent} />
-              </div>
-            )}
-            {rightTab === 'todos' && (
-              <div style={{ padding: 12 }}>
-                <TodosView />
               </div>
             )}
           </div>

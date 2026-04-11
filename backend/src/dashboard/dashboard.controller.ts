@@ -28,13 +28,13 @@ export class DashboardController {
   }
 
   @Post('notes')
-  async createNote(@Req() req: any, @Body() body: { title: string; content: string; tags: string[] }) {
-    return this.dashboardService.createNote(req.user.id, body.title, body.content, body.tags || []);
+  async createNote(@Req() req: any, @Body() body: { title: string; content: string; tags: string[]; color?: string; pinned?: boolean }) {
+    return this.dashboardService.createNote(req.user.id, body.title, body.content, body.tags || [], body.color, body.pinned);
   }
 
   @Put('notes/:id')
-  async updateNote(@Req() req: any, @Param('id') id: string, @Body() body: { title: string; content: string; tags: string[] }) {
-    return this.dashboardService.updateNote(req.user.id, id, body.title, body.content, body.tags || []);
+  async updateNote(@Req() req: any, @Param('id') id: string, @Body() body: { title: string; content: string; tags: string[]; color?: string; pinned?: boolean }) {
+    return this.dashboardService.updateNote(req.user.id, id, body.title, body.content, body.tags || [], body.color, body.pinned);
   }
 
   @Delete('notes/:id')

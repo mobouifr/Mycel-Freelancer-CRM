@@ -18,6 +18,11 @@ const TAG_COLORS: Record<string, string> = {
   'follow-up': 'var(--glass)',
 };
 
+const COLOR_DOT: Record<string, string> = {
+  default: 'var(--text-dim)', yellow: '#a0a040', green: '#40a040',
+  blue: '#4060c0', pink: '#c040a0', purple: '#8040c0',
+};
+
 function NotesCapture() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -266,12 +271,23 @@ function NotesCapture() {
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 2 }}>
-                  <p style={{
-                    fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--white)',
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
-                  }}>
-                    {note.title || t('notes_capture.untitled')}
-                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+                      background: COLOR_DOT[note.color] || COLOR_DOT.default,
+                    }} />
+                    {note.pinned && (
+                      <span style={{ fontFamily: 'var(--font-m)', fontSize: 7, color: 'var(--accent)', fontWeight: 600, flexShrink: 0 }}>
+                        Pinned
+                      </span>
+                    )}
+                    <p style={{
+                      fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--white)',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, margin: 0,
+                    }}>
+                      {note.title || t('notes_capture.untitled')}
+                    </p>
+                  </div>
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                     <button
                       onClick={() => startEdit(note)}

@@ -141,32 +141,36 @@ export class DashboardService {
   async getNotes(userId: string) {
     return this.prisma.note.findMany({
       where: { userId },
-      orderBy: { updatedAt: 'desc' },
-      take: 20 // Let's limit dashboards to the last 20 notes
+      orderBy: [{ pinned: 'desc' }, { updatedAt: 'desc' }],
+      take: 20,
     });
   }
 
-  async createNote(userId: string, title: string, content: string, tags: string[]) {
+  async createNote(userId: string, title: string, content: string, tags: string[], color?: string, pinned?: boolean) {
     return this.prisma.note.create({
       data: {
         title,
         content,
         tags,
+        color: color || 'default',
+        pinned: pinned || false,
         userId,
       }
     });
   }
 
-  async updateNote(userId: string, noteId: string, title: string, content: string, tags: string[]) {
+  async updateNote(userId: string, noteId: string, title: string, content: string, tags: string[], color?: string, pinned?: boolean) {
     return this.prisma.note.updateMany({
       where: {
         id: noteId,
-        userId: userId, // Ensure ownership!
+        userId: userId,
       },
       data: {
         title,
         content,
         tags,
+        ...(color !== undefined && { color }),
+        ...(pinned !== undefined && { pinned }),
       }
     });
   }

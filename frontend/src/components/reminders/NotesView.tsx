@@ -12,6 +12,20 @@ const TAG_COLORS: Record<string, string> = {
   'follow-up': 'var(--glass)',
 };
 
+const NOTE_COLORS: { key: string; label: string }[] = [
+  { key: 'default', label: 'Default' },
+  { key: 'yellow',  label: 'Yellow' },
+  { key: 'green',   label: 'Green' },
+  { key: 'blue',    label: 'Blue' },
+  { key: 'pink',    label: 'Pink' },
+  { key: 'purple',  label: 'Purple' },
+];
+
+const COLOR_BG: Record<string, string> = {
+  default: 'var(--surface)', yellow: '#2a2a1a', green: '#1a2a1a',
+  blue: '#1a1a2a', pink: '#2a1a2a', purple: '#221a2a',
+};
+
 interface NotesViewProps {
   onConvertToEvent?: (note: any) => void;
 }
@@ -23,6 +37,7 @@ export default function NotesView({ onConvertToEvent }: NotesViewProps) {
   const [newTitle, setNewTitle] = useState('');
   const [newBody, setNewBody] = useState('');
   const [newTag, setNewTag] = useState('');
+  const [newColor, setNewColor] = useState('default');
 
   const fetchNotes = () => {
     api.get('/dashboard/notes')
@@ -40,12 +55,15 @@ export default function NotesView({ onConvertToEvent }: NotesViewProps) {
       await api.post('/dashboard/notes', {
         title: newTitle.trim() || 'Untitled',
         content: newBody,
-        tags: newTag ? [newTag] : []
+        tags: newTag ? [newTag] : [],
+        color: newColor,
+        pinned: false,
       });
       fetchNotes();
       setNewTitle('');
       setNewBody('');
       setNewTag('');
+      setNewColor('default');
       setShowNew(false);
     } catch (e) {
       console.error(e);
@@ -116,33 +134,47 @@ export default function NotesView({ onConvertToEvent }: NotesViewProps) {
             rows={3}
             style={{ ...inputStyle, resize: 'vertical', minHeight: 40 }}
           />
-          <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+          {/* Tag picker */}
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {['urgent', 'work', 'personal', 'client'].map(tOption => (
               <button
                 key={tOption}
                 onClick={() => setNewTag(newTag === tOption ? '' : tOption)}
                 style={{
-                  padding: '2px 8px',
-                  borderRadius: 12,
-                  fontFamily: 'var(--font-m)',
-                  fontSize: 9,
-                  cursor: 'pointer',
+                  padding: '2px 8px', borderRadius: 12,
+                  fontFamily: 'var(--font-m)', fontSize: 9, cursor: 'pointer',
                   background: newTag === tOption ? TAG_COLORS[tOption] || 'var(--glass)' : 'transparent',
                   color: newTag === tOption ? 'var(--white)' : 'var(--text-dim)',
                   border: `1px solid ${newTag === tOption ? 'transparent' : 'var(--border)'}`,
                   fontWeight: newTag === tOption ? 600 : 400,
-                  transition: 'all 0.15s ease'
+                  transition: 'all 0.15s ease',
                 }}
               >
                 {tOption}
               </button>
             ))}
           </div>
+          {/* Color picker */}
+          <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+            <span style={{ fontFamily: 'var(--font-m)', fontSize: 8, color: 'var(--text-dim)', letterSpacing: '.06em', textTransform: 'uppercase' }}>
+              Color
+            </span>
+            {NOTE_COLORS.map(c => (
+              <button
+                key={c.key}
+                onClick={() => setNewColor(c.key)}
+                title={c.label}
+                style={{
+                  width: 16, height: 16, borderRadius: '50%', padding: 0,
+                  background: COLOR_BG[c.key],
+                  border: `2px solid ${newColor === c.key ? 'var(--accent)' : 'var(--border)'}`,
+                  cursor: 'pointer', transition: 'border-color .12s',
+                }}
+              />
+            ))}
+          </div>
           <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-            <button
-              onClick={() => setShowNew(false)}
-              style={cancelBtn}
-            >
+            <button onClick={() => setShowNew(false)} style={cancelBtn}>
               {t('common.cancel')}
             </button>
             <button onClick={handleCreate} style={saveBtn}>
