@@ -47,11 +47,12 @@ export class ProjectsService {
     }
 
     const resolvedDeadline = this.parseDeadline(createProjectDto.deadline ?? createProjectDto.due_date);
+    const rawBudget = Number(createProjectDto.budget ?? 0);
     const data: any = {
       title: createProjectDto.title || '',
       description: createProjectDto.description?.trim() || null,
       status: this.normalizeStatus(createProjectDto.status) ?? ProjectStatus.ACTIVE,
-      budget: createProjectDto.budget !== undefined ? createProjectDto.budget : 0,
+      budget: Number.isFinite(rawBudget) ? rawBudget : 0,
       userId,
       clientId: createProjectDto.clientId,
       ...(resolvedDeadline !== undefined ? { deadline: resolvedDeadline } : {}),
@@ -101,7 +102,9 @@ export class ProjectsService {
       ...(updateProjectDto.description !== undefined
         ? { description: updateProjectDto.description?.trim() || null }
         : {}),
-      ...(updateProjectDto.budget !== undefined ? { budget: updateProjectDto.budget } : {}),
+      ...(updateProjectDto.budget !== undefined ? {
+        budget: Number.isFinite(Number(updateProjectDto.budget)) ? Number(updateProjectDto.budget) : 0,
+      } : {}),
       ...(updateProjectDto.clientId !== undefined ? { clientId: updateProjectDto.clientId } : {}),
       ...(normalizedStatus !== undefined ? { status: normalizedStatus } : {}),
       ...(resolvedDeadline !== undefined ? { deadline: resolvedDeadline } : {}),

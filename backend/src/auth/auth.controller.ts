@@ -115,9 +115,10 @@ export class AuthController {
   @UseGuards(AuthGuard('42'))
   @Get('42/callback')
   async fortytwoAuthRedirect(@Request() req: any, @Res({ passthrough: true }) res: Response) {
+    const frontendUrl = process.env.FRONTEND_URL ?? 'https://localhost';
+
     if (req.user.isTwoFactorEnabled) {
-       // redirect to a 2fa page in frontend passing the userId
-       return res.redirect(`http://localhost:3089/2fa?userId=${req.user.id}`);
+      return res.redirect(`${frontendUrl}/2fa?userId=${req.user.id}`);
     }
 
     // Generate our own JWT cookie for the rest of the application
@@ -125,14 +126,13 @@ export class AuthController {
 
     res.cookie('jwt', access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // true in production (HTTPS), false locally
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
-
     // Redirect to the frontend OAuth callback page so it can handle the session
-    return res.redirect('http://localhost:3089/auth/callback');
+    return res.redirect(`${frontendUrl}/auth/callback`);
   }
 
   // --- 2FA Routes ---
