@@ -163,7 +163,8 @@ model Event {
   time        String
   endDate     String?  @map("end_date")
   endTime     String?  @map("end_time")
-  timezone    String?
+  clientTag   String?
+  projectTag  String?
   description String?
   eventType   String?  @map("event_type")
   priority    String?

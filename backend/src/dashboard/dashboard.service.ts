@@ -196,12 +196,13 @@ export class DashboardService {
         time: data.time,
         endDate: data.endDate,
         endTime: data.endTime,
-        timezone: data.timezone,
         description: data.description,
         eventType: data.eventType,
         priority: data.priority,
         location: data.location,
         externalLink: data.externalLink,
+        projectTag: data.projectTag,
+        clientTag: data.clientTag,
         userId,
       }
     });
@@ -220,12 +221,13 @@ export class DashboardService {
         time: data.time,
         endDate: data.endDate,
         endTime: data.endTime,
-        timezone: data.timezone,
         description: data.description,
         eventType: data.eventType,
         priority: data.priority,
         location: data.location,
         externalLink: data.externalLink,
+        projectTag: data.projectTag,
+        clientTag: data.clientTag,
       }
     });
     // return the actual updated record securely
