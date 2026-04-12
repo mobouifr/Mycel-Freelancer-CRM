@@ -1,4 +1,5 @@
-import { Controller, Get, Req, Query, UseGuards, Post, Body, Delete, Param, Put } from '@nestjs/common';
+import { Controller, Get, Req, Query, UseGuards, Post, Body, Delete, Param, Put, Sse, MessageEvent } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { DashboardService } from './dashboard.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -6,6 +7,11 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
+
+  @Sse('realtime')
+  streamRealTimeUpdates(): Observable<MessageEvent> {
+    return this.dashboardService.streamRealTimeUpdates();
+  }
 
   @Get('revenue')
   async getRevenue(
