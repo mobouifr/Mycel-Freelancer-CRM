@@ -1,5 +1,5 @@
 // Clients list page
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, type CSSProperties } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -8,12 +8,24 @@ import { ClientTable } from '../../components/clients/ClientTable';
 import { type Client } from '../../types/client.types';
 import { useIsMobile } from '../../hooks/useIsMobile';
 
+function getPageNumbers(current: number, total: number): (number | '...')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 3) return [1, 2, 3, 4, '...', total];
+  if (current >= total - 2) return [1, '...', total - 3, total - 2, total - 1, total];
+  return [1, '...', current - 1, current, current + 1, '...', total];
+}
+
 export const ClientsListPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
-  const { clients, loading, error, deleteClient, refetch } = useClients();
+  const {
+    clients, loading, error,
+    page, totalPages, total,
+    search, setSearch, goToPage,
+    deleteClient, refetch,
+  } = useClients();
 
   // Re-fetch whenever the user navigates back to this page (e.g. after creating/editing)
   const isFirstRender = useRef(true);
@@ -21,14 +33,6 @@ export const ClientsListPage = () => {
     if (isFirstRender.current) { isFirstRender.current = false; return; }
     refetch();
   }, [location.key]);
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const filteredClients = clients.filter(
-    (client) =>
-      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.company?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const handleDelete = async (client: Client) => {
     if (window.confirm(t('clients.confirm_delete', { name: client.name }))) {
@@ -40,7 +44,9 @@ export const ClientsListPage = () => {
     }
   };
 
-  if (loading) {
+  // Show full-page spinner only on the very first load (no data yet).
+  // On page turns / re-fetches the table stays visible with the previous page's data.
+  if (loading && clients.length === 0) {
     return (
       <div
         style={{
@@ -145,8 +151,8 @@ export const ClientsListPage = () => {
           name="clients-search"
           autoComplete="off"
           placeholder={t('clients.search_placeholder')}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           style={{
             flex: 1,
             minWidth: 0,
@@ -200,11 +206,48 @@ export const ClientsListPage = () => {
         }}
       >
         <ClientTable
-          clients={filteredClients}
+          clients={clients}
           onView={(client) => navigate(`/clients/${client.id}`, { state: { background: location, client } })}
           onEdit={(client) => navigate(`/clients/${client.id}/edit`, { state: { background: location } })}
           onDelete={handleDelete}
         />
+
+        {/* Pagination */}
+        {totalPages > 1 && (() => {
+          const btnBase: CSSProperties = {
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            minWidth: 30, height: 30, padding: '0 8px', borderRadius: 6,
+            border: '1px solid var(--border)', background: 'transparent',
+            color: 'var(--text-mid)', fontFamily: 'var(--font-m)', fontSize: 11,
+            cursor: 'pointer', transition: 'all .15s',
+          };
+          const pages = getPageNumbers(page, totalPages);
+          return (
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '12px 24px', borderTop: '1px solid var(--border)',
+              flexWrap: 'wrap', gap: 8,
+            }}>
+              <span style={{ fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)', lineHeight: 1.4 }}>
+                {total} results · Page {page} of {totalPages}
+              </span>
+              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                <button type="button" disabled={page === 1} onClick={() => goToPage(page - 1)}
+                  style={{ ...btnBase, opacity: page === 1 ? 0.35 : 1, cursor: page === 1 ? 'default' : 'pointer' }}>←</button>
+                {pages.map((p, i) =>
+                  p === '...'
+                    ? <span key={`e${i}`} style={{ ...btnBase, border: 'none', cursor: 'default', color: 'var(--text-dim)' }}>…</span>
+                    : <button key={p} type="button" onClick={() => goToPage(p as number)} style={{
+                        ...btnBase,
+                        ...(p === page ? { background: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid var(--accent-hover)', fontWeight: 600 } : {}),
+                      }}>{p}</button>
+                )}
+                <button type="button" disabled={page === totalPages} onClick={() => goToPage(page + 1)}
+                  style={{ ...btnBase, opacity: page === totalPages ? 0.35 : 1, cursor: page === totalPages ? 'default' : 'pointer' }}>→</button>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

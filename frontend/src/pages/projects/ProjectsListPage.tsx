@@ -1,5 +1,5 @@
 // Projects list page
-import { useState, useEffect, useRef, type CSSProperties } from 'react';
+import { useEffect, useRef, type CSSProperties } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -9,6 +9,13 @@ import { ProjectStatusBadge } from '../../components/projects/ProjectStatusBadge
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { SegmentedControl } from '../../components/SegmentedControl';
+
+function getPageNumbers(current: number, total: number): (number | '...')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 3) return [1, 2, 3, 4, '...', total];
+  if (current >= total - 2) return [1, '...', total - 3, total - 2, total - 1, total];
+  return [1, '...', current - 1, current, current + 1, '...', total];
+}
 
 const PROJECT_TABLE_MIN_WIDTH = 1000;
 
@@ -43,9 +50,13 @@ export const ProjectsListPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
-  const { projects, loading, error, deleteProject, refetch } = useProjects();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'ALL'>('ALL');
+  const {
+    projects, loading, error,
+    page, totalPages, total,
+    search, setSearch,
+    statusFilter, setStatusFilter,
+    goToPage, deleteProject, refetch,
+  } = useProjects();
 
   // Re-fetch whenever the user navigates back to this page (e.g. after creating/editing)
   const isFirstRender = useRef(true);
@@ -53,15 +64,6 @@ export const ProjectsListPage = () => {
     if (isFirstRender.current) { isFirstRender.current = false; return; }
     refetch();
   }, [location.key]);
-
-  const filteredProjects = projects.filter((project) => {
-    const matchesSearch =
-      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.client?.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'ALL' || project.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
 
   const handleDelete = async (project: Project) => {
     if (window.confirm(t('projects.confirm_delete', { name: project.title }))) {
@@ -182,7 +184,9 @@ export const ProjectsListPage = () => {
     marginBottom: 4,
   };
 
-  if (loading) {
+  // Show full-page spinner only on the very first load (no data yet).
+  // On page turns / re-fetches the table stays visible with the previous page's data.
+  if (loading && projects.length === 0) {
     return (
       <div style={{ padding: 0, animation: 'fadeUp .3s var(--ease) both' }}>
         <div
@@ -278,8 +282,8 @@ export const ProjectsListPage = () => {
           name="projects-search"
           autoComplete="off"
           placeholder={t('projects.search_placeholder')}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           style={{
             flex: 1,
             minWidth: 0,
@@ -334,7 +338,7 @@ export const ProjectsListPage = () => {
             { value: ProjectStatus.CANCELLED,   label: t('forms.project.cancelled'),   activeColor: 'var(--danger)',  activeBg: 'var(--danger-bg)' },
           ]}
           value={statusFilter}
-          onChange={(v) => setStatusFilter(v as ProjectStatus | 'ALL')}
+          onChange={(v) => setStatusFilter(v)}
           scrollable
         />
       </div>
@@ -351,7 +355,7 @@ export const ProjectsListPage = () => {
         }}
       >
         {/* Table / mobile cards */}
-        {filteredProjects.length === 0 ? (
+        {projects.length === 0 ? (
           <div
             style={{
               textAlign: 'center',
@@ -366,7 +370,7 @@ export const ProjectsListPage = () => {
           </div>
         ) : isMobile ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '12px 0' }}>
-            {filteredProjects.map((project) => {
+            {projects.map((project) => {
               const clientName = project.client?.name || '—';
               const priority = project.priority || ProjectPriority.MEDIUM;
               return (
@@ -495,7 +499,7 @@ export const ProjectsListPage = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredProjects.map((project, index) => {
+              {projects.map((project, index) => {
                 const clientName = project.client?.name || '—';
                 const priority = project.priority || ProjectPriority.MEDIUM;
                 
@@ -598,6 +602,43 @@ export const ProjectsListPage = () => {
           </table>
           </div>
         )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (() => {
+          const btnBase: CSSProperties = {
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            minWidth: 30, height: 30, padding: '0 8px', borderRadius: 6,
+            border: '1px solid var(--border)', background: 'transparent',
+            color: 'var(--text-mid)', fontFamily: 'var(--font-m)', fontSize: 11,
+            cursor: 'pointer', transition: 'all .15s',
+          };
+          const pages = getPageNumbers(page, totalPages);
+          return (
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '12px 24px', borderTop: '1px solid var(--border)',
+              flexWrap: 'wrap', gap: 8,
+            }}>
+              <span style={{ fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)', lineHeight: 1.4 }}>
+                {total} results · Page {page} of {totalPages}
+              </span>
+              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                <button type="button" disabled={page === 1} onClick={() => goToPage(page - 1)}
+                  style={{ ...btnBase, opacity: page === 1 ? 0.35 : 1, cursor: page === 1 ? 'default' : 'pointer' }}>←</button>
+                {pages.map((p, i) =>
+                  p === '...'
+                    ? <span key={`e${i}`} style={{ ...btnBase, border: 'none', cursor: 'default', color: 'var(--text-dim)' }}>…</span>
+                    : <button key={p} type="button" onClick={() => goToPage(p as number)} style={{
+                        ...btnBase,
+                        ...(p === page ? { background: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid var(--accent-hover)', fontWeight: 600 } : {}),
+                      }}>{p}</button>
+                )}
+                <button type="button" disabled={page === totalPages} onClick={() => goToPage(page + 1)}
+                  style={{ ...btnBase, opacity: page === totalPages ? 0.35 : 1, cursor: page === totalPages ? 'default' : 'pointer' }}>→</button>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

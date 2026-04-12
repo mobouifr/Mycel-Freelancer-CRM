@@ -10,8 +10,9 @@ const devHttps = fs.existsSync(certPath)
   ? { cert: fs.readFileSync(certPath), key: fs.readFileSync(keyPath) }
   : undefined
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss()],
+  esbuild: mode === 'production' ? { drop: ['console', 'debugger'] } : {},
   build: {
     rollupOptions: {
       output: {
@@ -62,4 +63,4 @@ export default defineConfig({
       }
     }
   }
-})
+}))

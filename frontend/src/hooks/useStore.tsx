@@ -100,6 +100,7 @@ interface StoreContextType extends StoreState {
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   dismissNotification: (id: string) => void;
+  dismissAllNotifications: () => void;
   unreadCount: number;
   // Undo
   undo: () => void;
@@ -246,6 +247,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const dismissAllNotifications = useCallback(() => {
+    setState((s) => ({ ...s, notifications: [] }));
+  }, []);
+
   const unreadCount = state.notifications.filter((n) => !n.isRead).length;
 
   return (
@@ -255,7 +260,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         addNote, updateNote, deleteNote,
         addEvent, updateEvent, deleteEvent,
         addTodo, updateTodo, deleteTodo,
-        addNotification, markAsRead, markAllAsRead, dismissNotification,
+        addNotification, markAsRead, markAllAsRead, dismissNotification, dismissAllNotifications,
         unreadCount,
         undo,
         canUndo: undoStack.length > 0,

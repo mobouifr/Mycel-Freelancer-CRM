@@ -573,6 +573,7 @@
   "notifications": {
     "title": "Notificaciones",
     "mark_all_read": "Marcar todo como leído",
+    "delete_all": "Eliminar todo",
     "empty": "Sin notificaciones",
     "dismiss": "Descartar"
   },

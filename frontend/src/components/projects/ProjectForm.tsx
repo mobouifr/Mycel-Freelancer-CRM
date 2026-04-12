@@ -18,7 +18,7 @@ interface ProjectFormProps {
 
 export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: ProjectFormProps) => {
   const { t } = useTranslation();
-  const { clients } = useClients();
+  const { clients } = useClients({ pageSize: 100 });
 
   const {
     register,
