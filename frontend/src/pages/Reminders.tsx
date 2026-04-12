@@ -1,25 +1,47 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { useIsMobile } from '../hooks/useIsMobile';
 import CalendarView from '../components/reminders/CalendarView';
+import DailyEventsView from '../components/reminders/DailyEventsView';
 import NotesView from '../components/reminders/NotesView';
-import TodosView from '../components/reminders/TodosView';
-import type { Note } from '../hooks/useStore';
+import type { CalendarEvent } from '../hooks/useStore';
+import api from '../services/api';
 
-type RightTab = 'notes' | 'todos';
+type RightTab = 'events' | 'notes';
 
 export default function Reminders() {
   const { t } = useTranslation();
   const isMobile = useIsMobile(1100);
+  const location = useLocation();
   const [rightTab, setRightTab] = useState<RightTab>('notes');
-  const [convertingNote, setConvertingNote] = useState<Note | null>(null);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [currentDate, setCurrentDate] = useState(new Date());
 
-  const handleConvertNoteToEvent = useCallback((_note: Note) => {
-    setConvertingNote(_note);
+  const fetchEvents = useCallback(() => {
+    api.get('/dashboard/events')
+      .then(res => { if (res.data) setEvents(res.data); })
+      .catch(console.error);
   }, []);
 
-  // Clear converting state after it's used (CalendarView picks it up)
-  void convertingNote; // consumed if needed for pre-fill
+  useEffect(() => { fetchEvents(); }, [fetchEvents]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const dateParam = params.get('date');
+    if (!dateParam) return;
+
+    const parsed = new Date(`${dateParam}T12:00:00`);
+    if (Number.isNaN(parsed.getTime())) return;
+
+    setCurrentDate(parsed);
+    setRightTab('events');
+  }, [location.search]);
+
+  const handleEventClick = useCallback((event: CalendarEvent) => {
+    // Dispatched via custom event so CalendarView can open its modal
+    window.dispatchEvent(new CustomEvent('open-event-modal', { detail: event }));
+  }, []);
 
   return (
     <div style={{
@@ -64,10 +86,14 @@ export default function Reminders() {
           background: 'var(--surface)',
           overflow: 'hidden',
         }}>
-          <CalendarView />
+          <CalendarView
+            events={events}
+            onEventsChange={fetchEvents}
+            onDateChange={setCurrentDate}
+          />
         </div>
 
-        {/* Right: Notes + Todos (~30%) */}
+        {/* Right: Events + Notes + Todos (~30%) */}
         <div style={{
           flex: isMobile ? 'none' : '3',
           minWidth: isMobile ? undefined : 280,
@@ -76,14 +102,14 @@ export default function Reminders() {
           border: '1px solid var(--border)', borderRadius: 12,
           background: 'var(--surface)',
           overflow: 'hidden',
-          padding: '10px 0', // Add padding to match calendar widget frame
+          padding: '10px 0',
         }}>
           {/* Tab switcher */}
           <div style={{
             display: 'flex', borderBottom: '1px solid var(--border)',
             padding: '0 10px', flexShrink: 0,
           }}>
-            {(['notes', 'todos'] as RightTab[]).map((tab) => (
+            {(['events', 'notes'] as RightTab[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setRightTab(tab)}
@@ -98,17 +124,27 @@ export default function Reminders() {
                   transition: 'all .12s',
                 }}
               >
-                {tab === 'notes' ? t('reminders.notes') : t('reminders.todos')}
+                {tab === 'events'
+                  ? t('calendar.events', 'Events')
+                  : t('reminders.notes')}
               </button>
             ))}
           </div>
 
           {/* Content */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
-            {rightTab === 'notes' && (
-              <NotesView onConvertToEvent={handleConvertNoteToEvent} />
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            {rightTab === 'events' && (
+              <DailyEventsView
+                date={currentDate}
+                events={events}
+                onEventClick={handleEventClick}
+              />
             )}
-            {rightTab === 'todos' && <TodosView />}
+            {rightTab === 'notes' && (
+              <div style={{ padding: 12 }}>
+                <NotesView />
+              </div>
+            )}
           </div>
         </div>
       </div>

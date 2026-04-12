@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Input, Button, ErrorMessage } from '../components';
 import { useAuth } from '../hooks/useAuth';
 import { authService } from '../services/auth';
-import { useTheme, type SidebarBehavior, THEME_PRESETS } from '../hooks/useTheme';
+import { useTheme, THEME_PRESETS } from '../hooks/useTheme';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 /* ─────────────────────────────────────────────
    SETTINGS PAGE — Profile + Security + Preferences
@@ -20,6 +21,7 @@ const TABS: { id: Tab; label: string }[] = [
 export default function Settings() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState<Tab>('profile');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -55,13 +57,15 @@ export default function Settings() {
           email,
         });
       } else if (activeTab === 'security') {
-        if (newPassword && newPassword !== confirmPassword) {
-          setError('New password and confirmation do not match');
-          setSaving(false);
-          return;
+        if (!user?.intraId) {
+          if (newPassword && newPassword !== confirmPassword) {
+            setError('New password and confirmation do not match');
+            setSaving(false);
+            return;
+          }
+          await authService.changePassword(currentPassword, newPassword);
+          await new Promise((r) => setTimeout(r, 600));
         }
-        await authService.changePassword(currentPassword, newPassword);
-        await new Promise((r) => setTimeout(r, 600)); 
       }
       setSuccess(true);
       setTimeout(() => {
@@ -164,7 +168,7 @@ export default function Settings() {
           background: 'var(--surface-2)',
           border: '1px solid var(--border)',
           borderRadius: 8,
-          padding: '32px 40px',
+          padding: isMobile ? '20px 16px' : '32px 36px',
         }}
       >
         {activeTab === 'profile' && (
@@ -177,10 +181,10 @@ export default function Settings() {
             }}
           >
             <SectionTitle title={t('settings.profile_info')} sub={t('settings.personal_details')} />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 32 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <Input label={t('settings.username')} placeholder="montassir" value={username} onChange={setUsername} />
-                <Input label={t('settings.full_name')} placeholder="Montassir D." value={name} onChange={setName} />
+                <Input label={t('settings.username')} placeholder="your_username" value={username} onChange={setUsername} />
+                <Input label={t('settings.full_name')} placeholder="Your Name" value={name} onChange={setName} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <Input label={t('settings.email')} type="email" placeholder="you@studio.com" value={email} onChange={setEmail} />
@@ -198,9 +202,10 @@ export default function Settings() {
               animation: 'fadeUp .2s var(--ease) both',
             }}
           >
+            {!user?.intraId && (
             <div>
               <SectionTitle title={t('settings.change_password')} sub={t('settings.password_secure')} />
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 32 }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                   <Input
                     label={t('settings.current_password')}
@@ -228,6 +233,7 @@ export default function Settings() {
                 </div>
               </div>
             </div>
+            )}
 
             <div>
               <SectionTitle title={t('settings.twofa_title')} sub={t('settings.twofa_subtitle')} />
@@ -395,7 +401,7 @@ export default function Settings() {
                         </div>
 
                         {/* Verification Code + Enable button */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
                           <div>
                             <Input
                               label={t('settings.verification_code')}
@@ -521,14 +527,9 @@ function SectionTitle({ title, sub }: { title: string; sub: string }) {
 
 /* ── Preferences Panel ─── */
 
-const SIDEBAR_OPTIONS: { value: SidebarBehavior; label: string; desc: string }[] = [
-  { value: 'automatic', label: 'settings.automatic', desc: 'settings.automatic_desc' },
-  { value: 'manual',    label: 'settings.manual',     desc: 'settings.manual_desc' },
-];
-
 function PreferencesPanel() {
   const { t } = useTranslation();
-  const { theme, sidebarBehavior, setTheme, setSidebarBehavior } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   return (
     <div
@@ -542,7 +543,7 @@ function PreferencesPanel() {
       {/* Theme Presets */}
       <div>
         <SectionTitle title={t('settings.color_theme')} sub={t('settings.theme_subtitle')} />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: 16, marginTop: 20 }}>
           {THEME_PRESETS.map((p) => {
             const active = theme === p.id;
             return (
@@ -613,48 +614,6 @@ function PreferencesPanel() {
         </div>
       </div>
 
-      {/* Sidebar Behavior */}
-      <div>
-        <SectionTitle title={t('settings.sidebar_behavior')} sub={t('settings.sidebar_subtitle')} />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 20 }}>
-          {SIDEBAR_OPTIONS.map((opt) => {
-            const active = sidebarBehavior === opt.value;
-            return (
-              <button
-                key={opt.value}
-                onClick={() => setSidebarBehavior(opt.value)}
-                style={{
-                  padding: '20px 20px',
-                  borderRadius: 8,
-                  border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
-                  background: active ? 'var(--accent-bg)' : 'transparent',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  transition: 'all .2s var(--ease)',
-                }}
-              >
-                <p style={{
-                  fontFamily: 'var(--font-m)',
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: active ? 'var(--white)' : 'var(--text-mid)',
-                  marginBottom: 4,
-                }}>
-                  {t(opt.label)}
-                </p>
-                <p style={{
-                  fontFamily: 'var(--font-m)',
-                  fontSize: 11,
-                  color: 'var(--text-dim)',
-                  letterSpacing: '.03em',
-                }}>
-                  {t(opt.desc)}
-                </p>
-              </button>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 }

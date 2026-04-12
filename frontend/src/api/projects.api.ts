@@ -1,12 +1,12 @@
 // Projects API endpoints
 import apiClient from './client';
 import { type Project, type CreateProjectDto, type UpdateProjectDto } from '../types/project.types';
-import { type ApiResponse } from '../types/common.types';
+import { type PaginatedResponse } from '../types/common.types';
 
 export const projectsApi = {
-  // Get all projects
-  getAll: async (): Promise<ApiResponse<Project[]>> => {
-    const response = await apiClient.get<ApiResponse<Project[]>>('/projects');
+  // Get paginated projects
+  getAll: async (params?: { page?: number; limit?: number; search?: string; status?: string }): Promise<PaginatedResponse<Project>> => {
+    const response = await apiClient.get<PaginatedResponse<Project>>('/projects', { params });
     return response.data;
   },
 

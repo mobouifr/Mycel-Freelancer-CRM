@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import Modal from '../Modal';
 import type { CalendarEvent, EventType, EventPriority } from '../../hooks/useStore';
 import { useTheme } from '../../hooks/useTheme';
+import { useClients } from '../../hooks/useClients';
+import { useProjects } from '../../hooks/useProjects';
 
 const EVENT_TYPE_KEYS: { value: EventType; key: string }[] = [
   { value: 'event', key: 'event_modal.event' },
@@ -18,26 +20,18 @@ const PRIORITY_KEYS: { value: EventPriority; key: string }[] = [
   { value: 'high', key: 'event_modal.high' },
 ];
 
-const RECURRENCE_KEYS = [
-  { value: 'none', key: 'event_modal.no_repeat' },
-  { value: 'daily', key: 'event_modal.daily' },
-  { value: 'weekly', key: 'event_modal.weekly' },
-  { value: 'monthly', key: 'event_modal.monthly' },
-];
-
 interface EventModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: Omit<CalendarEvent, 'id' | 'createdAt'>) => void;
   onDelete?: () => void;
-  onConvertToTodo?: () => void;
   initialData?: Partial<CalendarEvent>;
   defaultDate?: string;
   defaultTime?: string;
 }
 
 export default function EventModal({
-  isOpen, onClose, onSave, onDelete, onConvertToTodo,
+  isOpen, onClose, onSave, onDelete,
   initialData, defaultDate, defaultTime,
 }: EventModalProps) {
   if (!isOpen) return null;
@@ -45,14 +39,13 @@ export default function EventModal({
     <EventModalInner
       key={initialData?.id || `new-${defaultDate}-${defaultTime}`}
       onClose={onClose} onSave={onSave} onDelete={onDelete}
-      onConvertToTodo={onConvertToTodo}
       initialData={initialData} defaultDate={defaultDate} defaultTime={defaultTime}
     />
   );
 }
 
 function EventModalInner({
-  onClose, onSave, onDelete, onConvertToTodo,
+  onClose, onSave, onDelete,
   initialData, defaultDate, defaultTime,
 }: Omit<EventModalProps, 'isOpen'>) {
   const { t } = useTranslation();
@@ -67,8 +60,9 @@ function EventModalInner({
   const [priority, setPriority] = useState<EventPriority>(initialData?.priority || 'normal');
   const [projectTag, setProjectTag] = useState(initialData?.projectTag || '');
   const [clientTag, setClientTag] = useState(initialData?.clientTag || '');
-  const [reminderOffset, setReminderOffset] = useState(initialData?.reminderOffset ?? 15);
-  const [recurrence, setRecurrence] = useState(initialData?.recurrence || 'none');
+
+  const { clients } = useClients({ pageSize: 100 });
+  const { projects } = useProjects({ pageSize: 100 });
 
   const handleSubmit = () => {
     if (!title.trim()) return;
@@ -80,12 +74,9 @@ function EventModalInner({
       time,
       endDate: endDate || date,
       endTime,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       priority,
       projectTag: projectTag || undefined,
       clientTag: clientTag || undefined,
-      reminderOffset,
-      recurrence,
     });
     onClose();
   };
@@ -196,7 +187,13 @@ function EventModalInner({
               onChange={(e) => setProjectTag(e.target.value)}
               placeholder={t('event_modal.project_placeholder')}
               style={inputStyle}
+              list="project-list"
             />
+            <datalist id="project-list">
+              {projects.map((p) => (
+                <option key={p.id} value={p.title} />
+              ))}
+            </datalist>
           </div>
           <div style={{ flex: 1 }}>
             <label style={labelStyle}>{t('event_modal.client')}</label>
@@ -205,38 +202,13 @@ function EventModalInner({
               onChange={(e) => setClientTag(e.target.value)}
               placeholder={t('event_modal.client_placeholder')}
               style={inputStyle}
+              list="client-list"
             />
-          </div>
-        </div>
-
-        {/* Reminder & Recurrence */}
-        <div style={{ display: 'flex', gap: 10 }}>
-          <div style={{ flex: 1 }}>
-            <label style={labelStyle}>{t('event_modal.reminder')}</label>
-            <select
-              value={reminderOffset}
-              onChange={(e) => setReminderOffset(Number(e.target.value))}
-              style={selectStyle}
-            >
-              <option value={0}>{t('event_modal.none')}</option>
-              <option value={5}>{t('event_modal.5_min')}</option>
-              <option value={15}>{t('event_modal.15_min')}</option>
-              <option value={30}>{t('event_modal.30_min')}</option>
-              <option value={60}>{t('event_modal.1_hour')}</option>
-              <option value={1440}>{t('event_modal.1_day')}</option>
-            </select>
-          </div>
-          <div style={{ flex: 1 }}>
-            <label style={labelStyle}>{t('event_modal.recurrence')}</label>
-            <select
-              value={recurrence}
-              onChange={(e) => setRecurrence(e.target.value)}
-              style={selectStyle}
-            >
-              {RECURRENCE_KEYS.map((r) => (
-                <option key={r.value} value={r.value}>{t(r.key)}</option>
+            <datalist id="client-list">
+              {clients.map((c) => (
+                <option key={c.id} value={c.name} />
               ))}
-            </select>
+            </datalist>
           </div>
         </div>
 
@@ -248,11 +220,6 @@ function EventModalInner({
           <div style={{ display: 'flex', gap: 8 }}>
             {isEditing && onDelete && (
               <button onClick={onDelete} style={dangerBtn}>{t('common.delete')}</button>
-            )}
-            {isEditing && onConvertToTodo && (
-              <button onClick={onConvertToTodo} style={secondaryBtn}>
-                {t('event_modal.convert_to_todo')}
-              </button>
             )}
           </div>
           <div style={{ display: 'flex', gap: 8 }}>

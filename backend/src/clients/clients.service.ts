@@ -41,10 +41,21 @@ export class ClientsService {
     return client;
   }
 
-  async findAll(userId: string): Promise<Client[]> {
-    return this.prisma.client.findMany({
-      where: { userId },
-    });
+  async findAll(userId: string, page = 1, limit = 10, search?: string) {
+    const skip = (page - 1) * limit;
+    const where: any = { userId };
+    if (search?.trim()) {
+      where.OR = [
+        { name:    { contains: search.trim(), mode: 'insensitive' } },
+        { email:   { contains: search.trim(), mode: 'insensitive' } },
+        { company: { contains: search.trim(), mode: 'insensitive' } },
+      ];
+    }
+    const [data, count] = await Promise.all([
+      this.prisma.client.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.client.count({ where }),
+    ]);
+    return { data, count, page, limit, totalPages: Math.ceil(count / limit) || 1 };
   }
 
   async findOne(userId: string, id: string): Promise<Client> {

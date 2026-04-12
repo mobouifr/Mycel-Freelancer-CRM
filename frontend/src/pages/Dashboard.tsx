@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDashboardLayout, PRESET_OPTIONS } from '../hooks/useDashboardLayout';
+import { useDashboardRealtime } from '../hooks/useDashboardRealtime';
 import WidgetGrid from '../components/dashboard/WidgetGrid';
 import WidgetPicker from '../components/dashboard/WidgetPicker';
 
@@ -9,9 +10,10 @@ import '../components/dashboard/CalendarUpcoming';
 import '../components/dashboard/NotesCapture';
 import '../components/dashboard/RevenueKPI';
 import '../components/dashboard/ActivityFeed';
-import '../components/dashboard/ProjectsProgress';
-import '../components/dashboard/SmartSuggestions';
-import '../components/dashboard/LivingWidget';
+import '../components/dashboard/ActivityHeatmap';
+import '../components/dashboard/DataGraph';
+import '../components/dashboard/ProjectStatusBar';
+import '../components/dashboard/NextDeadline';
 
 /* ─────────────────────────────────────────────
    DASHBOARD PAGE — Configurable widget grid
@@ -28,12 +30,16 @@ export default function Dashboard() {
     onLayoutChange,
     applyPreset,
     toggleWidget,
+    reorderVisible,
     clearLayout,
     undo,
     canUndo,
     exportLayout,
     importLayout,
   } = useDashboardLayout();
+
+  // ── Establish Real-Time SSE Connection ──
+  useDashboardRealtime();
 
   const [isEditing, setIsEditing] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -49,8 +55,8 @@ export default function Dashboard() {
       display: 'flex',
       flexDirection: 'column',
       gap: 20,
-      animation: 'fadeUp .3s var(--ease) both',
       position: 'relative',
+      animation: 'fadeUp .18s var(--ease) both',
     }}>
       {/* ── Header row ── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 10 }}>
@@ -233,7 +239,6 @@ export default function Dashboard() {
           background: 'var(--accent-bg)',
           border: '1px solid var(--accent-hover)',
           borderRadius: 6,
-          animation: 'fadeUp .15s var(--ease) both',
         }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
@@ -284,6 +289,7 @@ export default function Dashboard() {
           visible={visible}
           onLayoutChange={onLayoutChange}
           onRemoveWidget={handleRemoveWidget}
+          onReorderMobile={reorderVisible}
           isEditing={isEditing}
         />
       )}

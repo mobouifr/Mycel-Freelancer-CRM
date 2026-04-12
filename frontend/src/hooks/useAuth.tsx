@@ -24,7 +24,6 @@ interface AuthContextType {
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => void;
   clearError: () => void;
-  forgotPassword: (email: string) => Promise<string>;
   checkSession: () => Promise<void>;
 }
 
@@ -81,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const { user: newUser } = await authService.register(payload);
-      setUser(newUser);
+      setUser(newUser ?? null);
     } catch (err: unknown) {
       const message =
         err && typeof err === 'object' && 'message' in err
@@ -101,20 +100,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const clearError = useCallback(() => setError(null), []);
 
-  const forgotPassword = useCallback(async (email: string): Promise<string> => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const { message } = await authService.forgotPassword(email);
-      return message;
-    } catch {
-      // If the backend is unreachable, still show a success-like message
-      // (never reveal whether the email exists — security best practice)
-      return `If an account exists for ${email}, a password-reset link has been sent.`;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
 
   return (
     <AuthContext.Provider
@@ -127,7 +112,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         clearError,
-        forgotPassword,
         checkSession,
       }}
     >

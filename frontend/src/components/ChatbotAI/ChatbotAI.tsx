@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import mermaid from 'mermaid';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { useAuth } from '../../hooks/useAuth';
+import api from '../../services/api';
+import 'highlight.js/styles/github-dark.css';
 
 type MessageRole = 'user' | 'assistant';
 type PendingFormType = 'CLIENT' | 'PROJECT' | 'DELETE_CLIENT' | 'DELETE_PROJECT';
@@ -16,6 +22,73 @@ interface ChatMessage {
   content: string;
 }
 
+interface ChatbotApiResponse {
+  reply: string;
+  action?: Record<string, unknown>;
+}
+
+interface SuggestionsExtraction {
+  cleanContent: string;
+  suggestions: string[];
+}
+
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'dark',
+  themeVariables: {
+    primaryColor: '#1e293b',
+    primaryTextColor: '#e2e8f0',
+    primaryBorderColor: '#334155',
+    lineColor: '#64748b',
+    secondaryColor: '#0f172a',
+    tertiaryColor: '#1e293b',
+    background: '#0f172a',
+    mainBkg: '#1e293b',
+    nodeBorder: '#334155',
+    clusterBkg: '#1e293b',
+    titleColor: '#e2e8f0',
+    edgeLabelBackground: '#1e293b',
+    fontFamily: 'var(--font-m)',
+  },
+});
+
+const MermaidDiagram = ({ chart }: { chart: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [svg, setSvg] = useState<string>('');
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (!chart) return;
+    const id = `mermaid-${Math.random().toString(36).slice(2)}`;
+    mermaid
+      .render(id, chart)
+      .then(({ svg: rendered }) => {
+        setSvg(rendered);
+        setError(false);
+      })
+      .catch(() => {
+        setError(true);
+      });
+  }, [chart]);
+
+  if (error) {
+    return (
+      <div className="cb-diagram-wrap">
+        <p className="cb-diagram-label">Diagram</p>
+        <pre className="cb-diagram-block">{chart}</pre>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="cb-mermaid-wrap"
+      ref={ref}
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
+  );
+};
+
 export default function ChatbotAI() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -26,13 +99,67 @@ export default function ChatbotAI() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [crmContext, setCrmContext] = useState<string>('');
   const [pendingForm, setPendingForm] = useState<PendingFormType | null>(null);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [formSubmitting, setFormSubmitting] = useState(false);
+  const [hasSentFirstMessage, setHasSentFirstMessage] = useState(false);
+
+  const [panelSize, setPanelSize] = useState<{ width: number; height: number } | null>(null);
+  const [isResizing, setIsResizing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const panelRef = useRef<HTMLElement | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const fullscreenActive = isOpen && (isMobile || isFullscreen);
+  const quickActions = [
+    { label: '✉️ Write Email', prompt: 'Write a professional email' },
+    { label: '📄 Write Report', prompt: 'Write a full structured report' },
+    { label: '👥 Active Users', prompt: 'Show a table of active users with name, role, status, and last active date' },
+    { label: '✅ Task List', prompt: 'Create a task list table with task name, owner, priority, due date, and status' },
+    { label: '📊 Compare Options', prompt: 'Compare two options in a structured table' },
+    { label: '📢 Announcement', prompt: 'Draft a professional internal announcement' },
+  ];
+
+  const startResize = (clientX: number, clientY: number) => {
+    if (fullscreenActive || isMobile || !panelRef.current) return;
+
+    const rect = panelRef.current.getBoundingClientRect();
+    const startWidth = rect.width;
+    const startHeight = rect.height;
+
+    setIsResizing(true);
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'nwse-resize';
+
+    const onMove = (moveX: number, moveY: number) => {
+      // Top-left resize handle: moving right/down shrinks, left/up expands.
+      const width = Math.max(320, Math.min(window.innerWidth * 0.98, startWidth - (moveX - clientX)));
+      const height = Math.max(380, Math.min(window.innerHeight * 0.92, startHeight - (moveY - clientY)));
+      setPanelSize({ width, height });
+    };
+
+    const handleMouseMove = (event: MouseEvent) => onMove(event.clientX, event.clientY);
+    const handleTouchMove = (event: TouchEvent) => {
+      if (!event.touches[0]) return;
+      onMove(event.touches[0].clientX, event.touches[0].clientY);
+    };
+
+    const stopResize = () => {
+      setIsResizing(false);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', stopResize);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', stopResize);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', stopResize);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', stopResize);
+  };
+
 
   const getAuthHeaders = (json = false): Record<string, string> => {
     const token = localStorage.getItem('token');
@@ -178,47 +305,6 @@ export default function ChatbotAI() {
     return null;
   };
 
-  const fetchEntityList = async (path: string): Promise<any[]> => {
-    try {
-      const response = await fetch(path, { headers: getAuthHeaders() });
-      if (!response.ok) return [];
-      const payload = await response.json();
-      return Array.isArray(payload) ? payload : (payload.data ?? []);
-    } catch {
-      return [];
-    }
-  };
-
-  const refreshCrmContext = async (): Promise<string> => {
-    const [clients, projects] = await Promise.all([
-      fetchEntityList('/api/clients'),
-      fetchEntityList('/api/projects'),
-    ]);
-
-    const clientLines = clients.length
-      ? clients.map((c: any) =>
-          `- ${c.name} | email: ${c.email ?? 'N/A'} | phone: ${c.phone ?? 'N/A'} | company: ${c.company ?? 'N/A'} | notes: ${c.notes ?? 'none'} | id: ${c.id}`
-        ).join('\n')
-      : '  (no clients yet)';
-
-    const projectLines = projects.length
-      ? projects.map((p: any) =>
-          `- ${p.title} | client: ${p.client?.name ?? p.clientId ?? 'N/A'} | status: ${p.status} | priority: ${p.priority ?? 'N/A'} | budget: $${p.budget ?? 0} | deadline: ${p.deadline ?? 'N/A'} | description: ${p.description ?? 'none'} | id: ${p.id}`
-        ).join('\n')
-      : '  (no projects yet)';
-
-    const summary = [
-      `Clients (${clients.length}):`,
-      clientLines,
-      '',
-      `Projects (${projects.length}):`,
-      projectLines,
-    ].join('\n');
-
-    setCrmContext(summary);
-    return summary;
-  };
-
   const isValidEmail = (value: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   const isValidDate = (value: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(value);
 
@@ -239,9 +325,8 @@ export default function ChatbotAI() {
       if (!title) errors.title = t('chatbot.validation_title_required');
       else if (title.length > 255) errors.title = t('validation.title_max');
 
-      const clientId = (formData.clientId ?? '').trim();
       const clientName = (formData.clientName ?? '').trim();
-      if (!clientId && !clientName) errors.clientName = t('chatbot.validation_client_required');
+      if (!clientName) errors.clientName = t('chatbot.validation_client_required');
 
       const budgetValue = Number(formData.budget ?? '0');
       if (formData.budget && (!Number.isFinite(budgetValue) || budgetValue < 0)) {
@@ -292,7 +377,6 @@ export default function ChatbotAI() {
       if (pendingForm === 'PROJECT') {
         const title = (formData.title ?? '').trim();
         const clientName = (formData.clientName ?? '').trim();
-        const clientId = (formData.clientId ?? '').trim();
 
         const budgetValue = Number(formData.budget ?? '0');
         const payload: Record<string, unknown> = {
@@ -303,13 +387,13 @@ export default function ChatbotAI() {
           deadline: (formData.deadline ?? '').trim() || undefined,
         };
 
-        if (clientId) {
-          payload.clientId = clientId;
-        } else if (clientName) {
-          const matchedClient = await findClientByName(clientName);
-          if (matchedClient?.id) {
-            payload.clientId = matchedClient.id;
-          }
+        const matchedClient = await findClientByName(clientName);
+        if (matchedClient?.id) {
+          payload.clientId = matchedClient.id;
+        } else {
+            setFormErrors((prev: Record<string, string>) => ({ ...prev, clientName: 'Client is required.' }));
+            setFormSubmitting(false);
+            return;
         }
 
         await postWithFallback(['/api/projects'], payload);
@@ -374,111 +458,378 @@ export default function ChatbotAI() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading, isOpen, pendingForm]);
 
-  useEffect(() => {
-    const loadContext = async () => {
-      try {
-        await refreshCrmContext();
-      } catch {
-        setCrmContext('CRM data could not be loaded.');
+  const detectLocalIntent = (text: string): PendingFormType | null => {
+    const lower = text.toLowerCase();
+
+    const deleteClientPatterns = [
+      /delete\s+(a\s+)?client/,
+      /remove\s+(a\s+)?client/,
+      /supprimer\s+(un\s+)?client/,
+      /eliminar\s+(un\s+)?cliente/,
+    ];
+    if (deleteClientPatterns.some(p => p.test(lower))) return 'DELETE_CLIENT';
+
+    const deleteProjectPatterns = [
+      /delete\s+(a\s+)?project/,
+      /remove\s+(a\s+)?project/,
+      /supprimer\s+(un\s+)?projet/,
+      /eliminar\s+(un\s+)?proyecto/,
+    ];
+    if (deleteProjectPatterns.some(p => p.test(lower))) return 'DELETE_PROJECT';
+
+    const createClientPatterns = [
+      /add\s+(a\s+)?client/,
+      /create\s+(a\s+)?client/,
+      /new\s+client/,
+      /ajouter\s+(un\s+)?client/,
+      /créer\s+(un\s+)?client/,
+      /añadir\s+(un\s+)?cliente/,
+      /crear\s+(un\s+)?cliente/,
+    ];
+    if (createClientPatterns.some(p => p.test(lower))) return 'CLIENT';
+
+    const createProjectPatterns = [
+      /add\s+(a\s+)?project/,
+      /create\s+(a\s+)?project/,
+      /new\s+project/,
+      /ajouter\s+(un\s+)?projet/,
+      /créer\s+(un\s+)?projet/,
+      /añadir\s+(un\s+)?proyecto/,
+      /crear\s+(un\s+)?proyecto/,
+    ];
+    if (createProjectPatterns.some(p => p.test(lower))) return 'PROJECT';
+
+    const modifyClientPatterns = [
+      /modify\s+(a\s+)?client/,
+      /edit\s+(a\s+)?client/,
+      /update\s+(a\s+)?client/,
+      /change\s+(a\s+)?client/,
+      /modifier\s+(un\s+)?client/,
+      /modificar\s+(un\s+)?cliente/,
+    ];
+    if (modifyClientPatterns.some(p => p.test(lower))) return 'CLIENT';
+
+    const modifyProjectPatterns = [
+      /modify\s+(a\s+)?project/,
+      /edit\s+(a\s+)?project/,
+      /update\s+(a\s+)?project/,
+      /change\s+(a\s+)?project/,
+      /modifier\s+(un\s+)?projet/,
+      /modificar\s+(un\s+)?proyecto/,
+    ];
+    if (modifyProjectPatterns.some(p => p.test(lower))) return 'PROJECT';
+
+    return null;
+  };
+
+  const extractQuickSuggestions = (text: string): SuggestionsExtraction => {
+    const lines = text.split('\n');
+    const suggestions: string[] = [];
+    const keptLines: string[] = [];
+
+    for (const line of lines) {
+      const match = line.match(/^\s*(?:->|→)\s*"?(.+?)"?\s*$/);
+      if (match && match[1]) {
+        suggestions.push(match[1].trim());
+      } else {
+        keptLines.push(line);
       }
+    }
+
+    return {
+      cleanContent: keptLines.join('\n').trim(),
+      suggestions,
     };
+  };
 
-    void loadContext();
-  }, []);
+  const buildRateLimitMessage = (retryAfterSeconds?: number): string => {
+    const waitSeconds = Math.max(1, Math.floor(retryAfterSeconds ?? 300));
+    const minutes = Math.floor(waitSeconds / 60);
+    const seconds = waitSeconds % 60;
 
-  const sendMessage = async () => {
-    const trimmed = input.trim();
+    if (minutes > 0 && seconds > 0) {
+      return `Rate limit reached. Please wait ${minutes} minute${minutes > 1 ? 's' : ''} and ${seconds} second${seconds > 1 ? 's' : ''} before sending another request.`;
+    }
+
+    if (minutes > 0) {
+      return `Rate limit reached. Please wait ${minutes} minute${minutes > 1 ? 's' : ''} before sending another request.`;
+    }
+
+    return `Rate limit reached. Please wait ${seconds} second${seconds > 1 ? 's' : ''} before sending another request.`;
+  };
+
+  const sendMessage = async (overrideText?: string) => {
+    const trimmed = (overrideText ?? input).trim();
     if (!trimmed || loading) return;
+
+    setHasSentFirstMessage(true);
+
 
     const userMessage: ChatMessage = { role: 'user', content: trimmed };
     setMessages((prev: ChatMessage[]) => [...prev, userMessage]);
     setInput('');
     setLoading(true);
 
-    let latestCrmContext = crmContext;
-    try {
-      latestCrmContext = await refreshCrmContext();
-    } catch {
-      latestCrmContext = crmContext || 'CRM data could not be loaded.';
+    // Detect intent locally first
+    const localIntent = detectLocalIntent(trimmed);
+    const shouldForceFormInput = localIntent === 'CLIENT' || localIntent === 'PROJECT';
+
+    if (shouldForceFormInput && !pendingForm) {
+      setPendingForm(localIntent);
+      setFormData({});
+      setFormErrors({});
     }
-
-    const prompt = {
-      role: 'system' as const,
-      content: `You are a friendly, warm CRM assistant helping ${username} manage their freelance business. Think of yourself as a helpful colleague who genuinely cares about ${username}'s success.
-
-Personality guidelines:
-- Always address the user as "${username}" naturally in your responses
-- Be conversational, supportive, and encouraging — like a kind human colleague
-- Use light emoji where it feels natural (✅ 📋 💡 🎉) but don't overdo it
-- Celebrate small wins ("Nice, your client list is growing!")
-- Offer helpful follow-ups ("Want me to dig deeper?" or "I can help with that next!")
-- Keep answers concise but warm — no robotic or overly formal language
-
-When answering questions about projects, clients, or plans:
-- Use markdown tables for comparisons and data summaries
-- Use numbered steps for action plans
-- Use plain text for short factual answers
-- Always pull details from the CRM snapshot below — it's your source of truth
-
-The CRM snapshot includes full details: names, emails, phones, companies, budgets, deadlines, priorities, descriptions, and IDs. Use these details to give ${username} precise, helpful answers.
-
-CRM Actions — when ${username} wants to create or delete something, respond ONLY with a JSON block:
-\`\`\`action
-{"action":"CREATE_CLIENT","data":{"name":"...","email":"...","phone":"...","company":""}}
-\`\`\`
-\`\`\`action
-{"action":"CREATE_PROJECT","data":{"title":"...","clientName":"...","status":"ACTIVE","budget":0}}
-\`\`\`
-
-Action rules:
-- Use "action" key always in UPPERCASE with underscore
-- Fill only the fields the user mentioned — leave others as empty string or 0
-- If critical fields are missing (name for client, title for project), ask ${username} nicely for the missing info instead of using NEEDS_FORM
-- For normal questions, answer as usual with no JSON
-
-Here is ${username}'s current CRM data:
-${latestCrmContext}`,
-    };
 
     let reply = '';
 
     try {
-      const response = await fetch('https://api.deepseek.com/chat/completions', {
+      const token = localStorage.getItem('token');
+      const streamResponse = await fetch('/api/chatbot/stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_DEEPSEEK_API_KEY}`
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({
-          model: 'deepseek-chat',
-          messages: [
-            prompt,
-            ...messages,
-            { role: 'user', content: trimmed }
-          ],
-          max_tokens: 1024,
-          stream: false
-        })
+        credentials: 'include',
+        body: JSON.stringify({ message: trimmed }),
       });
 
-      const data = await response.json();
-      reply = data.choices?.[0]?.message?.content ?? 'Sorry, no response received.';
+      if (streamResponse.status === 429) {
+        const retryAfter = Number(streamResponse.headers.get('retry-after') ?? '0');
+        reply = buildRateLimitMessage(Number.isFinite(retryAfter) ? retryAfter : undefined);
+        setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: reply }]);
+        setLoading(false);
+        return;
+      }
 
-      const parsed = parseActionBlock(reply);
-      reply = parsed.text || reply;
+      if (streamResponse.ok && streamResponse.body) {
+        const reader = streamResponse.body.getReader();
+        const decoder = new TextDecoder();
+        let streamedContent = '';
+        let pendingChunk = '';
 
-      if (parsed.action) {
-        const opened = openActionModal(parsed.action);
+        // Add a placeholder assistant message that we update in real time.
+        setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: '' }]);
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          pendingChunk += decoder.decode(value, { stream: true });
+          const lines = pendingChunk.split('\n');
+          pendingChunk = lines.pop() ?? '';
+
+          for (const line of lines) {
+            const trimmedLine = line.trim();
+            if (!trimmedLine.startsWith('data:')) continue;
+
+            const data = trimmedLine.slice(5).trim();
+            if (data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data) as { content?: string };
+              if (parsed.content) {
+                streamedContent += parsed.content;
+                setMessages((prev: ChatMessage[]) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = {
+                    role: 'assistant',
+                    content: streamedContent,
+                  };
+                  return updated;
+                });
+              }
+            } catch {
+              // Skip malformed SSE chunks.
+            }
+          }
+        }
+
+        const parsed = parseActionBlock(streamedContent);
+        const finalReply = parsed.text || streamedContent || 'Sorry, no response received.';
+
+        let actionReply = finalReply;
+        if (parsed.action) {
+          const opened = openActionModal(parsed.action);
+          if (opened && !actionReply) {
+            actionReply = 'Action prepared. Review the details and submit the form.';
+          }
+        }
+
+        setMessages((prev: ChatMessage[]) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            role: 'assistant',
+            content: actionReply,
+          };
+          return updated;
+        });
+
+        // Streaming branch handled the assistant message already.
+        setLoading(false);
+        return;
+      }
+
+      // Fallback to non-streaming endpoint when SSE is unavailable.
+      const { data } = await api.post<ChatbotApiResponse>('/chatbot/chat', {
+        message: trimmed,
+      });
+
+      reply = data.reply ?? 'Sorry, no response received.';
+
+      const action = data.action;
+      if (action) {
+        const opened = openActionModal(action);
         if (opened && !reply) {
           reply = 'Action prepared. Review the details and submit the form.';
         }
+      } else {
+        const parsed = parseActionBlock(reply);
+        reply = parsed.text || reply;
+
+        if (parsed.action) {
+          const opened = openActionModal(parsed.action);
+          if (opened && !reply) {
+            reply = 'Action prepared. Review the details and submit the form.';
+          }
+        }
       }
-    } catch {
-      reply = 'Something went wrong. Please try again.';
+    } catch (error) {
+      const status =
+        error && typeof error === 'object' && 'response' in error
+          ? Number((error as { response?: { status?: number } }).response?.status)
+          : error && typeof error === 'object' && 'status' in error
+            ? Number((error as { status?: number }).status)
+            : undefined;
+
+      if (status === 429) {
+        const err = error as {
+          response?: {
+            headers?: Record<string, unknown>;
+            data?: { retryAfterSeconds?: number | string };
+          };
+        };
+
+        const retryAfterHeader = Number(err.response?.headers?.['retry-after'] ?? '0');
+        const retryAfterBody = Number(err.response?.data?.retryAfterSeconds ?? '0');
+        const retryAfterSeconds = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
+          ? retryAfterHeader
+          : Number.isFinite(retryAfterBody) && retryAfterBody > 0
+            ? retryAfterBody
+            : undefined;
+
+        reply = buildRateLimitMessage(retryAfterSeconds);
+      } else {
+        reply = 'Something went wrong. Please try again.';
+      }
+    }
+
+    // Fallback: if AI didn't open a form but we detected CRUD intent, open it
+    if (localIntent && !pendingForm && !shouldForceFormInput) {
+      setPendingForm(localIntent);
+      setFormData({});
+      setFormErrors({});
+      if (!reply || reply === 'Something went wrong. Please try again.') {
+        reply = `Sure, ${username}! Please fill in the details below.`;
+      }
     }
 
     setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: reply }]);
     setLoading(false);
+  };
+
+  const renderMessageContent = (message: ChatMessage) => {
+    if (message.role === 'user') {
+      return <span>{message.content}</span>;
+    }
+
+    const { cleanContent, suggestions } = extractQuickSuggestions(message.content);
+
+    return (
+      <div className="cb-rich-content">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeHighlight]}
+          components={{
+            h1: ({ children }) => <h1 className="cb-h1">{children}</h1>,
+            h2: ({ children }) => <h2 className="cb-h2">{children}</h2>,
+            h3: ({ children }) => <h3 className="cb-h3">{children}</h3>,
+            p: ({ children }) => <p className="cb-paragraph">{children}</p>,
+            ul: ({ children }) => <ul className="cb-list cb-list-ul">{children}</ul>,
+            ol: ({ children }) => <ol className="cb-list cb-list-ol">{children}</ol>,
+            li: ({ children }) => <li className="cb-li">{children}</li>,
+            strong: ({ children }) => <strong className="cb-bold">{children}</strong>,
+            blockquote: ({ children }) => <blockquote className="cb-blockquote">{children}</blockquote>,
+            table: ({ children }) => (
+              <div className="cb-table-wrap">
+                <table className="cb-table">{children}</table>
+              </div>
+            ),
+            thead: ({ children }) => <thead>{children}</thead>,
+            tbody: ({ children }) => <tbody>{children}</tbody>,
+            tr: ({ children }) => <tr>{children}</tr>,
+            th: ({ children }) => <th>{children}</th>,
+            td: ({ children }) => <td>{children}</td>,
+            code: (props: any) => {
+              const { inline, className, children, ...rest } = props;
+              const lang = (className ?? '').replace('language-', '');
+
+              if (lang === 'mermaid') {
+                return <MermaidDiagram chart={String(children).trim()} />;
+              }
+
+              if (lang === 'action') {
+                return null;
+              }
+
+              if (inline) {
+                return (
+                  <code className="cb-inline-code" {...rest}>
+                    {children}
+                  </code>
+                );
+              }
+
+              return (
+                <div className="cb-code-wrap">
+                  {lang && <span className="cb-code-lang">{lang}</span>}
+                  <pre className="cb-code-block">
+                    <code className={className} {...rest}>
+                      {children}
+                    </code>
+                  </pre>
+                </div>
+              );
+            },
+            a: ({ href, children }) => (
+              <a href={href} target="_blank" rel="noopener noreferrer" className="cb-link">
+                {children}
+              </a>
+            ),
+          }}
+        >
+          {cleanContent}
+        </ReactMarkdown>
+
+        {suggestions.length > 0 && (
+          <div className="cb-suggestions-wrap" aria-label="Suggested follow-up questions">
+            {suggestions.slice(0, 4).map((suggestion, index) => (
+              <button
+                key={`sugg-${index}-${suggestion}`}
+                type="button"
+                className="cb-suggestion-btn"
+                disabled={loading}
+                onClick={() => {
+                  void sendMessage(suggestion);
+                }}
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -487,9 +838,10 @@ ${latestCrmContext}`,
         .chatbot-ai-root {
           position: fixed;
           right: max(32px, env(safe-area-inset-right, 0px));
-          bottom: max(104px, env(safe-area-inset-bottom, 0px));
+          bottom: var(--fab-bottom, max(32px, env(safe-area-inset-bottom, 0px)));
           z-index: var(--z-fab);
           font-family: var(--font-m);
+          transition: bottom 0.2s var(--ease);
         }
 
         .chatbot-ai-fab {
@@ -497,9 +849,7 @@ ${latestCrmContext}`,
           height: 56px;
           border-radius: 999px;
           border: 1px solid var(--fab-border);
-          background: var(--fab-bg);
-          backdrop-filter: blur(8px) saturate(120%);
-          -webkit-backdrop-filter: blur(8px) saturate(120%);
+          background: var(--surface-2);
           color: var(--accent);
           cursor: pointer;
           display: inline-flex;
@@ -530,6 +880,37 @@ ${latestCrmContext}`,
           overflow: hidden;
           box-shadow: 0 16px 40px rgba(0, 0, 0, 0.42);
           animation: chatbot-ai-pop 0.2s var(--ease);
+        }
+
+        .chatbot-ai-panel.resizing {
+          user-select: none;
+        }
+
+        .chatbot-ai-resize-handle {
+          position: absolute;
+          left: 4px;
+          top: 4px;
+          width: 16px;
+          height: 16px;
+          border: 0;
+          background: transparent;
+          color: var(--text-dim);
+          opacity: 0.5;
+          cursor: nwse-resize;
+          z-index: 4;
+          padding: 0;
+          transition: opacity 0.2s var(--ease), color 0.2s var(--ease);
+        }
+
+        .chatbot-ai-resize-handle:hover {
+          opacity: 0.95;
+          color: var(--accent);
+        }
+
+        .chatbot-ai-resize-handle svg {
+          display: block;
+          width: 16px;
+          height: 16px;
         }
 
         .chatbot-ai-header {
@@ -611,6 +992,9 @@ ${latestCrmContext}`,
         .chatbot-ai-row {
           display: flex;
           width: 100%;
+          align-items: flex-end;
+          gap: 8px;
+          animation: chatbot-ai-bubble-in 0.2s var(--ease);
         }
 
         .chatbot-ai-row.user {
@@ -642,6 +1026,288 @@ ${latestCrmContext}`,
           background: var(--surface-2);
           border-color: var(--border);
           color: var(--text);
+        }
+
+        .chatbot-ai-avatar {
+          width: 24px;
+          height: 24px;
+          border-radius: 999px;
+          font-size: 11px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid var(--border);
+          background: var(--surface-2);
+          color: var(--text-mid);
+          flex-shrink: 0;
+        }
+
+        .chatbot-ai-avatar.user {
+          background: var(--accent-bg);
+          color: var(--white);
+          border-color: var(--accent-hover);
+        }
+
+        .cb-rich-content {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .cb-paragraph {
+          margin: 0;
+        }
+
+        .cb-h1 {
+          font-size: 15px;
+          font-weight: 700;
+          color: var(--white);
+          margin: 6px 0 4px;
+          padding-bottom: 4px;
+          border-bottom: 1px solid var(--border);
+          letter-spacing: 0.02em;
+        }
+
+        .cb-h2 {
+          font-size: 13px;
+          font-weight: 700;
+          color: var(--accent);
+          margin: 6px 0 3px;
+          letter-spacing: 0.03em;
+        }
+
+        .cb-h3 {
+          font-size: 11.5px;
+          font-weight: 700;
+          color: var(--text);
+          margin: 4px 0 2px;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          opacity: 0.85;
+        }
+
+        .cb-bold {
+          color: var(--white);
+          font-weight: 700;
+        }
+
+        .cb-blockquote {
+          border-left: 3px solid var(--accent);
+          margin: 4px 0;
+          padding: 6px 10px;
+          background: color-mix(in srgb, var(--accent-bg) 30%, transparent);
+          border-radius: 0 6px 6px 0;
+          font-style: italic;
+          color: var(--text-mid);
+          font-size: 10.5px;
+        }
+
+        .cb-inline-code {
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          font-size: 10px;
+          background: color-mix(in srgb, var(--surface-2) 80%, white 20%);
+          border: 1px solid var(--border);
+          border-radius: 4px;
+          padding: 1px 5px;
+          color: var(--accent);
+        }
+
+        .cb-code-wrap {
+          position: relative;
+          border-radius: 8px;
+          overflow: hidden;
+          border: 1px solid var(--border);
+        }
+
+        .cb-code-lang {
+          display: block;
+          padding: 4px 10px;
+          font-size: 9px;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          font-weight: 700;
+          color: var(--text-dim);
+          background: color-mix(in srgb, var(--surface-2) 70%, black 30%);
+          border-bottom: 1px solid var(--border);
+        }
+
+        .cb-code-block {
+          margin: 0;
+          padding: 10px;
+          font-size: 10.5px;
+          line-height: 1.55;
+          overflow-x: auto;
+          background: color-mix(in srgb, var(--surface) 60%, black 40%);
+        }
+
+        .cb-link {
+          color: var(--accent);
+          text-decoration: underline;
+          text-underline-offset: 2px;
+          font-size: inherit;
+        }
+
+        .cb-link:hover {
+          opacity: 0.8;
+        }
+
+        .cb-li {
+          line-height: 1.6;
+        }
+
+        .cb-list {
+          margin: 0;
+          padding-left: 18px;
+          display: grid;
+          gap: 4px;
+        }
+
+
+        .cb-diagram-wrap {
+          display: grid;
+          gap: 4px;
+        }
+
+        .cb-diagram-label {
+          margin: 0;
+          font-size: 10px;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: var(--text-dim);
+        }
+
+        .cb-diagram-block {
+          margin: 0;
+          padding: 8px;
+          border-radius: 8px;
+          background: color-mix(in srgb, var(--surface-2) 84%, white 16%);
+          border: 1px solid var(--border);
+          font-size: 10.5px;
+          line-height: 1.5;
+          overflow-x: auto;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+        }
+
+        .cb-mermaid-wrap {
+          background: color-mix(in srgb, var(--surface-2) 80%, black 20%);
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          padding: 12px;
+          overflow-x: auto;
+          display: flex;
+          justify-content: center;
+        }
+
+        .cb-mermaid-wrap svg {
+          max-width: 100%;
+          height: auto;
+        }
+
+        .cb-table-wrap {
+          overflow-x: auto;
+          border-radius: 8px;
+          border: 0.5px solid var(--border);
+        }
+
+        .cb-table {
+          width: 100%;
+          min-width: 420px;
+          border-collapse: separate;
+          border-spacing: 0;
+          table-layout: fixed;
+          font-size: 10.5px;
+        }
+
+        .cb-table th,
+        .cb-table td {
+          border-right: 0.5px solid var(--border);
+          border-bottom: 0.5px solid var(--border);
+          padding: 6px 8px;
+          text-align: left;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 180px;
+        }
+
+        .cb-table th:last-child,
+        .cb-table td:last-child {
+          border-right: 0;
+        }
+
+        .cb-table thead th {
+          background: color-mix(in srgb, var(--accent-bg) 40%, var(--surface-2) 60%);
+          color: var(--text);
+          font-weight: 700;
+        }
+
+        .cb-table tbody tr:nth-child(odd) td {
+          background: color-mix(in srgb, var(--surface) 90%, black 10%);
+        }
+
+        .cb-table tbody tr:nth-child(even) td {
+          background: var(--surface-2);
+        }
+
+
+        .chatbot-ai-quick-actions {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+          overflow: hidden;
+          padding: 10px 14px;
+          border-top: 1px solid var(--border);
+          background: linear-gradient(180deg, var(--surface), var(--surface-2));
+        }
+
+        .chatbot-ai-quick-chip {
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          background: var(--surface-2);
+          color: var(--text);
+          padding: 8px 10px;
+          font-size: 10px;
+          line-height: 1.35;
+          text-align: left;
+          min-height: 42px;
+          cursor: pointer;
+          transition: transform 0.16s var(--ease), border-color 0.16s var(--ease), background 0.16s var(--ease);
+        }
+
+        .chatbot-ai-quick-chip:hover {
+          border-color: var(--accent);
+          background: color-mix(in srgb, var(--accent-bg) 60%, var(--surface) 40%);
+          transform: translateY(-1px);
+        }
+
+        .cb-suggestions-wrap {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 7px;
+          margin-top: 2px;
+        }
+
+        .cb-suggestion-btn {
+          border: 1px solid var(--border);
+          border-radius: 999px;
+          background: color-mix(in srgb, var(--accent-bg) 38%, var(--surface) 62%);
+          color: var(--white);
+          padding: 5px 10px;
+          font-size: 10px;
+          line-height: 1.3;
+          cursor: pointer;
+          transition: filter 0.16s var(--ease), transform 0.16s var(--ease), border-color 0.16s var(--ease);
+        }
+
+        .cb-suggestion-btn:hover:not(:disabled) {
+          filter: brightness(1.07);
+          transform: translateY(-1px);
+          border-color: var(--accent);
+        }
+
+        .cb-suggestion-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
 
         .chatbot-ai-empty {
@@ -694,8 +1360,13 @@ ${latestCrmContext}`,
           color: var(--text);
           padding: 9px 10px;
           font-size: max(16px, 13px);
+          font-family: inherit;
+          resize: none;
+          min-height: 40px;
+          max-height: 132px;
           outline: none;
           transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+          overflow-y: auto;
         }
 
         .chatbot-ai-input::placeholder {
@@ -810,6 +1481,8 @@ ${latestCrmContext}`,
           color: #f87171;
           margin: -4px 0 0 2px;
           line-height: 1.3;
+          word-break: break-word;
+          overflow-wrap: break-word;
         }
 
         .cb-action-modal input.has-error {
@@ -846,19 +1519,23 @@ ${latestCrmContext}`,
         @media (max-width: 1024px) {
           .chatbot-ai-root {
             right: max(32px, env(safe-area-inset-right, 0px));
-            bottom: max(104px, env(safe-area-inset-bottom, 0px));
+            bottom: max(32px, env(safe-area-inset-bottom, 0px));
           }
 
           .chatbot-ai-panel {
             width: min(360px, calc(100vw - 20px));
             height: min(520px, calc(100vh - 130px));
           }
+
+          .chatbot-ai-resize-handle {
+            display: none;
+          }
         }
 
         @media (max-width: 767px) {
           .chatbot-ai-root {
             right: max(20px, env(safe-area-inset-right, 0px));
-            bottom: max(84px, env(safe-area-inset-bottom, 0px));
+            bottom: max(24px, env(safe-area-inset-bottom, 0px));
           }
 
           .chatbot-ai-fab {
@@ -881,6 +1558,29 @@ ${latestCrmContext}`,
 
           .chatbot-ai-send {
             padding: 0 12px;
+          }
+
+          .chatbot-ai-quick-actions {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 479px) {
+          .chatbot-ai-root {
+            right: 0;
+            bottom: 0;
+          }
+
+          .chatbot-ai-panel {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100dvh;
+            max-width: 100vw;
+            max-height: 100dvh;
+            border-radius: 0;
+            right: auto;
+            bottom: auto;
           }
         }
 
@@ -907,11 +1607,29 @@ ${latestCrmContext}`,
             transform: translateY(-1px);
           }
         }
+
+        @keyframes chatbot-ai-bubble-in {
+          from {
+            opacity: 0;
+            transform: translateY(4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
       `}</style>
 
       <div className="chatbot-ai-root">
         {isOpen && (
-          <section className={`chatbot-ai-panel ${fullscreenActive ? 'fullscreen' : ''}`} aria-label="AI Assistant chat panel">
+          <section
+            ref={(el: HTMLElement | null) => {
+              panelRef.current = el;
+            }}
+            className={`chatbot-ai-panel ${fullscreenActive ? 'fullscreen' : ''} ${isResizing ? 'resizing' : ''}`}
+            aria-label="AI Assistant chat panel"
+            style={panelSize && !fullscreenActive ? { width: `${panelSize.width}px`, height: `${panelSize.height}px` } : undefined}
+          >
             <header className="chatbot-ai-header">
               <h3 className="chatbot-ai-title">{t('chatbot.title')}</h3>
               <div className="chatbot-ai-header-actions">
@@ -960,7 +1678,9 @@ ${latestCrmContext}`,
 
               {messages.map((message: ChatMessage, index: number) => (
                 <div key={`${message.role}-${index}`} className={`chatbot-ai-row ${message.role}`}>
-                  <div className={`chatbot-ai-bubble ${message.role}`}>{message.content}</div>
+                  {message.role === 'assistant' && <span className="chatbot-ai-avatar assistant" aria-hidden="true">AI</span>}
+                  <div className={`chatbot-ai-bubble ${message.role}`}>{renderMessageContent(message)}</div>
+                  {message.role === 'user' && <span className="chatbot-ai-avatar user" aria-hidden="true">{(username?.[0] ?? 'U').toUpperCase()}</span>}
                 </div>
               ))}
 
@@ -978,6 +1698,26 @@ ${latestCrmContext}`,
 
               <div ref={messagesEndRef} aria-hidden="true" />
             </div>
+
+            {!hasSentFirstMessage && (
+              <div className="chatbot-ai-quick-actions" aria-label="Quick actions">
+                {quickActions.map((action) => (
+                  <button
+                    key={action.label}
+                    type="button"
+                    className="chatbot-ai-quick-chip"
+                    disabled={loading}
+                    onClick={() => {
+                      void sendMessage(action.prompt);
+                    }}
+                  >
+                    {action.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+
 
             {pendingForm && (
               <div
@@ -1040,12 +1780,6 @@ ${latestCrmContext}`,
                         onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, title: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { title: _, ...rest } = prev; return rest; }); }}
                       />
                       {formErrors.title && <p className="cb-field-error">{formErrors.title}</p>}
-                      <input
-                        className={formErrors.clientId ? 'has-error' : ''}
-                        placeholder="Client ID"
-                        value={formData.clientId ?? ''}
-                        onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, clientId: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { clientName: _, ...rest } = prev; return rest; }); }}
-                      />
                       <input
                         className={formErrors.clientName ? 'has-error' : ''}
                         placeholder={t('chatbot.placeholder_client_name')}
@@ -1132,15 +1866,28 @@ ${latestCrmContext}`,
                 void sendMessage();
               }}
             >
-              <input
+              <textarea
+                ref={inputRef}
                 className="chatbot-ai-input"
                 value={input}
-                onChange={(e: any) => setInput(e.target.value)}
+                onChange={(e: any) => {
+                  setInput(e.target.value);
+                  const el = e.target as HTMLTextAreaElement;
+                  el.style.height = 'auto';
+                  el.style.height = `${Math.min(el.scrollHeight, 132)}px`;
+                }}
+                onKeyDown={(e: any) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    void sendMessage();
+                  }
+                }}
                 placeholder={t('chatbot.input_placeholder')}
                 disabled={loading}
                 enterKeyHint="send"
                 autoComplete="off"
                 autoCorrect="off"
+                rows={1}
               />
               <button
                 className="chatbot-ai-send"
@@ -1150,6 +1897,28 @@ ${latestCrmContext}`,
                 {t('chatbot.send')}
               </button>
             </form>
+
+            {!fullscreenActive && !isMobile && (
+              <button
+                type="button"
+                className="chatbot-ai-resize-handle"
+                aria-label="Resize chat window"
+                onMouseDown={(e: any) => {
+                  e.preventDefault();
+                  startResize(e.clientX, e.clientY);
+                }}
+                onTouchStart={(e: any) => {
+                  if (!e.touches[0]) return;
+                  startResize(e.touches[0].clientX, e.touches[0].clientY);
+                }}
+              >
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+                  <path d="M2 10L10 2" />
+                  <path d="M2 7L7 2" />
+                  <path d="M2 4L4 2" />
+                </svg>
+              </button>
+            )}
           </section>
         )}
 

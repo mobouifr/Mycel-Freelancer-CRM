@@ -8,7 +8,8 @@ import type { LoginPayload, RegisterPayload, AuthResponse, User } from '../types
 ───────────────────────────────────────────── */
 
 /** Backend base URL for full-page redirects (42 OAuth) */
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || API_BASE_URL.replace(/\/api\/?$/, '');
 
 export const authService = {
   // ── Login ──────────────────────────────────
@@ -48,12 +49,6 @@ export const authService = {
     await api.post('/auth/change-password', { currentPassword, newPassword });
   },
 
-  // ── Forgot password ────────────────────────
-  async forgotPassword(email: string): Promise<{ message: string }> {
-    const { data } = await api.post<{ message: string }>('/auth/forgot-password', { email });
-    return data;
-  },
-
   // ── 2FA ────────────────────────────────────
 
   /** Ask backend to generate a TOTP secret + QR code data URL */
@@ -64,7 +59,12 @@ export const authService = {
 
   /** Verify the 6-digit code and enable 2FA on the account */
   async enable2FA(code: string): Promise<void> {
-    await api.post('/auth/2fa/turn-on', { code });
+    const res = await api.post('/auth/2fa/turn-on', { code }, {
+      validateStatus: (s: number) => s < 500,
+    });
+    if (res.status !== 200) {
+      throw { message: (res.data as any)?.message || 'Invalid 2FA code', status: res.status };
+    }
   },
 
   /** Disable 2FA on the account */
@@ -74,8 +74,17 @@ export const authService = {
 
   /** Verify 2FA during login — backend sets JWT cookie on success */
   async verify2FA(userId: string, code: string): Promise<AuthResponse> {
-    const { data } = await api.post<AuthResponse>('/auth/2fa/authenticate', { userId, code });
-    return data;
+    // Use validateStatus so 401 (wrong code) doesn't hit the global
+    // interceptor which would redirect to /login before we can show
+    // the inline error on the 2FA page.
+    const res = await api.post<AuthResponse>('/auth/2fa/authenticate',
+      { userId, code },
+      { validateStatus: (s: number) => s < 500 },
+    );
+    if (res.status !== 200) {
+      throw { message: (res.data as any)?.message || 'Invalid 2FA code', status: res.status };
+    }
+    return res.data;
   },
 
   // ── 42 OAuth ───────────────────────────────

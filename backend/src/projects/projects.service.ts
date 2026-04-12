@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { GamificationService } from '../gamification/gamification.service';
@@ -34,12 +34,26 @@ export class ProjectsService {
   }
 
   async create(userId: string, createProjectDto: CreateProjectDto | any) {
+    if (!createProjectDto.clientId) {
+      throw new BadRequestException('clientId is required to create a project');
+    }
+
+    const clientExists = await this.prisma.client.findFirst({
+      where: { id: createProjectDto.clientId, userId }
+    });
+
+    if (!clientExists) {
+      throw new BadRequestException('The provided clientId is invalid or does not belong to your account');
+    }
+
     const resolvedDeadline = this.parseDeadline(createProjectDto.deadline ?? createProjectDto.due_date);
+    const rawBudget = Number(createProjectDto.budget ?? 0);
     const data: any = {
       title: createProjectDto.title || '',
       description: createProjectDto.description?.trim() || null,
       status: this.normalizeStatus(createProjectDto.status) ?? ProjectStatus.ACTIVE,
-      budget: createProjectDto.budget !== undefined ? createProjectDto.budget : 0,
+      priority: createProjectDto.priority ?? 'MEDIUM',
+      budget: Number.isFinite(rawBudget) ? rawBudget : 0,
       userId,
       clientId: createProjectDto.clientId,
       ...(resolvedDeadline !== undefined ? { deadline: resolvedDeadline } : {}),
@@ -58,11 +72,23 @@ export class ProjectsService {
     return project;
   }
 
-  async findAll(userId: string) {
-    return await this.prisma.project.findMany({ 
-      where: { userId },
-      include: { client: true }
-    });
+  async findAll(userId: string, page = 1, limit = 10, search?: string, status?: string) {
+    const skip = (page - 1) * limit;
+    const where: any = { userId };
+    if (search?.trim()) {
+      where.OR = [
+        { title:       { contains: search.trim(), mode: 'insensitive' } },
+        { description: { contains: search.trim(), mode: 'insensitive' } },
+      ];
+    }
+    if (status && status !== 'ALL') {
+      where.status = status as ProjectStatus;
+    }
+    const [data, count] = await Promise.all([
+      this.prisma.project.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' }, include: { client: true } }),
+      this.prisma.project.count({ where }),
+    ]);
+    return { data, count, page, limit, totalPages: Math.ceil(count / limit) || 1 };
   }
 
   async findOne(userId: string, id: string) {
@@ -89,8 +115,11 @@ export class ProjectsService {
       ...(updateProjectDto.description !== undefined
         ? { description: updateProjectDto.description?.trim() || null }
         : {}),
-      ...(updateProjectDto.budget !== undefined ? { budget: updateProjectDto.budget } : {}),
+      ...(updateProjectDto.budget !== undefined ? {
+        budget: Number.isFinite(Number(updateProjectDto.budget)) ? Number(updateProjectDto.budget) : 0,
+      } : {}),
       ...(updateProjectDto.clientId !== undefined ? { clientId: updateProjectDto.clientId } : {}),
+      ...(updateProjectDto.priority !== undefined ? { priority: updateProjectDto.priority } : {}),
       ...(normalizedStatus !== undefined ? { status: normalizedStatus } : {}),
       ...(resolvedDeadline !== undefined ? { deadline: resolvedDeadline } : {}),
     };
@@ -104,7 +133,7 @@ export class ProjectsService {
     const newStatus = updatedProject.status;
 
     if (oldStatus !== 'COMPLETED' && newStatus === 'COMPLETED') {
-      const priority = updateProjectDto.priority || 'MEDIUM';
+      const priority = updateProjectDto.priority || updatedProject.priority || 'MEDIUM';
       
       this.gamificationService.awardProjectCompletionXp(
         userId,

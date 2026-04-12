@@ -1,8 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import useCalendar from '../../hooks/useCalendar';
 import type { CalendarViewMode } from '../../hooks/useCalendar';
-import useNotifications from '../../hooks/useNotifications';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import MiniCalendar from './MiniCalendar';
 import CalendarMonthView from './CalendarMonthView';
@@ -10,6 +9,7 @@ import CalendarWeekView from './CalendarWeekView';
 import CalendarDayView from './CalendarDayView';
 import EventModal from './EventModal';
 import type { CalendarEvent } from '../../hooks/useStore';
+import api from '../../services/api';
 
 const VIEW_OPTIONS: { value: CalendarViewMode; labelKey: string }[] = [
   { value: 'month', labelKey: 'calendar.month' },
@@ -17,9 +17,14 @@ const VIEW_OPTIONS: { value: CalendarViewMode; labelKey: string }[] = [
   { value: 'day', labelKey: 'calendar.day' },
 ];
 
-export default function CalendarView() {
+interface CalendarViewProps {
+  events: CalendarEvent[];
+  onEventsChange: () => void;
+  onDateChange?: (date: Date) => void;
+}
+
+export default function CalendarView({ events, onEventsChange, onDateChange }: CalendarViewProps) {
   const calendar = useCalendar();
-  const { events, createEvent, editEvent, removeEvent, addTodo, addNotification } = useNotifications();
   const isMobile = useIsMobile(1100);
   const { t } = useTranslation();
 
@@ -27,6 +32,26 @@ export default function CalendarView() {
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [defaultDate, setDefaultDate] = useState('');
   const [defaultTime, setDefaultTime] = useState('');
+
+  // Notify parent of date changes
+  useEffect(() => {
+    onDateChange?.(calendar.currentDate);
+  }, [calendar.currentDate, onDateChange]);
+
+  // Listen for external event-click requests (from DailyEventsView in the right panel)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const event = (e as CustomEvent).detail as CalendarEvent;
+      if (event) {
+        setEditingEvent(event);
+        setDefaultDate(event.date);
+        setDefaultTime(event.time);
+        setModalOpen(true);
+      }
+    };
+    window.addEventListener('open-event-modal', handler);
+    return () => window.removeEventListener('open-event-modal', handler);
+  }, []);
 
   // Responsive mini calendar width
   const miniCalendarWidth = useMemo(() => {
@@ -36,7 +61,6 @@ export default function CalendarView() {
     return 230;
   }, [isMobile]);
 
-  // Button styles
   const navBtn = {
     width: 28, height: 28, borderRadius: 6,
     background: 'var(--surface-2)', border: '1px solid var(--border)',
@@ -54,60 +78,49 @@ export default function CalendarView() {
     transition: 'all .15s',
   };
 
-  const filteredEvents = useMemo(() => {
-    return events;
-  }, [events]);
-
-  const handleCreateEvent = (date: string, time?: string) => {
+  const handleCreateEvent = useCallback((date: string, time?: string) => {
     setEditingEvent(null);
     setDefaultDate(date);
     setDefaultTime(time || '09:00');
     setModalOpen(true);
-  };
+  }, []);
 
-  const handleEventClick = (event: CalendarEvent) => {
+  const handleEventClick = useCallback((event: CalendarEvent) => {
     setEditingEvent(event);
     setDefaultDate(event.date);
     setDefaultTime(event.time);
     setModalOpen(true);
+  }, []);
+
+  const handleSave = async (data: Omit<CalendarEvent, 'id' | 'createdAt'>) => {
+    try {
+      if (editingEvent) {
+        await api.put(`/dashboard/events/${editingEvent.id}`, data);
+      } else {
+        await api.post('/dashboard/events', data);
+      }
+      onEventsChange();
+      setModalOpen(false);
+      setEditingEvent(null);
+    } catch (error) {
+      console.error('Failed to save event', error);
+    }
   };
 
-  const handleSave = (data: Omit<CalendarEvent, 'id' | 'createdAt'>) => {
+  const handleDelete = async () => {
     if (editingEvent) {
-      editEvent(editingEvent.id, data);
-    } else {
-      createEvent(data);
+      try {
+        await api.delete(`/dashboard/events/${editingEvent.id}`);
+        onEventsChange();
+      } catch (error) {
+        console.error('Failed to delete event', error);
+      }
     }
     setModalOpen(false);
     setEditingEvent(null);
   };
 
-  const handleDelete = () => {
-    if (editingEvent) {
-      removeEvent(editingEvent.id, editingEvent.title);
-    }
-    setModalOpen(false);
-    setEditingEvent(null);
-  };
 
-  const handleConvertToTodo = () => {
-    if (!editingEvent) return;
-    addTodo({
-      text: editingEvent.title,
-      done: false,
-      dueAt: editingEvent.date,
-      flag: editingEvent.priority === 'high' ? 'important' : 'none',
-    });
-    addNotification({
-      type: 'success',
-      title: 'Converted to todo',
-      message: `"${editingEvent.title}" is now a todo`,
-      targetType: 'todo',
-    });
-    removeEvent(editingEvent.id, editingEvent.title);
-    setModalOpen(false);
-    setEditingEvent(null);
-  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -143,16 +156,16 @@ export default function CalendarView() {
                 style={{
                   fontFamily: 'var(--font-m)', fontSize: 10, padding: '6px 12px',
                   borderRadius: 7, cursor: 'pointer',
-                  background: calendar.viewMode === v.value 
-                    ? 'var(--sidebar-active-bg)' 
+                  background: calendar.viewMode === v.value
+                    ? 'var(--sidebar-active-bg)'
                     : 'transparent',
-                  color: calendar.viewMode === v.value 
-                    ? 'var(--sidebar-active)' 
+                  color: calendar.viewMode === v.value
+                    ? 'var(--sidebar-active)'
                     : 'var(--text-mid)',
                   fontWeight: calendar.viewMode === v.value ? 600 : 400,
                   transition: 'all .18s',
-                  border: calendar.viewMode === v.value 
-                    ? '1px solid var(--sidebar-active-border)' 
+                  border: calendar.viewMode === v.value
+                    ? '1px solid var(--sidebar-active-border)'
                     : '1px solid transparent',
                   margin: 1,
                 }}
@@ -166,11 +179,18 @@ export default function CalendarView() {
               calendar.currentDate.toISOString().split('T')[0],
             )}
             style={{
-              background: 'var(--accent)', border: 'none', borderRadius: 6,
-              padding: '6px 14px', color: 'var(--bg)',
-              fontFamily: 'var(--font-m)', fontSize: 10, fontWeight: 600,
+              background: 'var(--accent-bg)',
+              border: '1px solid var(--accent-hover)',
+              borderRadius: 6,
+              padding: '6px 14px',
+              color: 'var(--accent)',
+              fontFamily: 'var(--font-m)', fontSize: 10, fontWeight: 500,
               cursor: 'pointer',
+              letterSpacing: '.05em',
+              transition: 'background .15s, color .15s',
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent)'; e.currentTarget.style.color = 'var(--bg)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--accent-bg)'; e.currentTarget.style.color = 'var(--accent)'; }}
           >
             + Event
           </button>
@@ -179,12 +199,12 @@ export default function CalendarView() {
 
       {/* Main content area */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {/* Mini calendar sidebar (persistent across all views) */}
+        {/* Mini calendar sidebar */}
         <div style={{
           width: miniCalendarWidth, flexShrink: 0, padding: 10,
           borderRight: '1px solid var(--border)',
           overflowY: 'auto',
-          display: isMobile ? 'none' : 'block', // Hide on mobile
+          display: isMobile ? 'none' : 'block',
         }}>
           <MiniCalendar
             currentDate={calendar.currentDate}
@@ -194,7 +214,7 @@ export default function CalendarView() {
             }}
             onPrev={calendar.goPrev}
             onNext={calendar.goNext}
-            events={filteredEvents}
+            events={events}
           />
         </div>
 
@@ -205,7 +225,7 @@ export default function CalendarView() {
               year={calendar.currentDate.getFullYear()}
               month={calendar.currentDate.getMonth()}
               grid={calendar.monthGrid}
-              events={filteredEvents}
+              events={events}
               today={calendar.today}
               selectedDate={calendar.currentDate}
               onDateClick={(d) => {
@@ -219,7 +239,7 @@ export default function CalendarView() {
           {calendar.viewMode === 'week' && (
             <CalendarWeekView
               weekDates={calendar.weekDates}
-              events={filteredEvents}
+              events={events}
               today={calendar.today}
               onEventClick={handleEventClick}
               onCreateEvent={handleCreateEvent}
@@ -228,7 +248,7 @@ export default function CalendarView() {
           {calendar.viewMode === 'day' && (
             <CalendarDayView
               date={calendar.currentDate}
-              events={filteredEvents}
+              events={events}
               today={calendar.today}
               onEventClick={handleEventClick}
               onCreateEvent={handleCreateEvent}
@@ -243,7 +263,6 @@ export default function CalendarView() {
         onClose={() => { setModalOpen(false); setEditingEvent(null); }}
         onSave={handleSave}
         onDelete={editingEvent ? handleDelete : undefined}
-        onConvertToTodo={editingEvent ? handleConvertToTodo : undefined}
         initialData={editingEvent || undefined}
         defaultDate={defaultDate}
         defaultTime={defaultTime}

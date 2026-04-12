@@ -3,8 +3,22 @@ node_modules/
 dist/
 *.log
 .DS_Store
-dist/
 coverage/
 *.tsbuildinfo
 home/
 AUDIT_REPORT.md
+backup_*.sql
+backups/
+*.sql.gz
+
+# SSL certificates — never commit real certs or private keys
+docker/ssl/letsencrypt/
+docker/ssl/*.pem
+docker/ssl/*.key
+docker/ssl/*.crt
+# Self-signed dev SSL certificates (generated locally by make ssl-dev-cert)
+docker/ssl/
+
+# Ignore all markdown and text files
+*.md
+*.txt

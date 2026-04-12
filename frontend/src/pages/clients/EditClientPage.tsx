@@ -7,7 +7,7 @@ import { ClientForm } from '../../components/clients/ClientForm';
 import { type ClientFormData } from '../../utils/validation';
 import { type Client } from '../../types/client.types';
 import { type ApiError } from '../../types/common.types';
-import CenteredModal from '../../components/modals/CenteredModal';
+import Modal from '../../components/Modal';
 import { useStore } from '../../hooks/useStore';
 
 export const EditClientPage = () => {
@@ -55,46 +55,34 @@ export const EditClientPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <CenteredModal title={t('clients.edit_title')} onClose={() => navigate('/clients')}>
-        <div className="text-center py-8" style={{ color: 'var(--text-mid)' }}>
-          {t('clients.detail_loading')}
-        </div>
-      </CenteredModal>
-    );
-  }
-
-  if (error || !client) {
-    return (
-      <CenteredModal title={t('clients.edit_title')} onClose={() => navigate('/clients')}>
-        <div
-          style={{
-            background: 'rgba(230, 90, 90, 0.08)',
-            border: '1px solid rgba(230, 90, 90, 0.35)',
-            color: 'var(--danger)',
-            padding: '12px 16px',
-            borderRadius: 10,
-            fontFamily: 'var(--font-m)',
-            fontSize: 12,
-            letterSpacing: '.04em',
-          }}
-        >
-          {error || t('clients.not_found')}
-        </div>
-      </CenteredModal>
-    );
-  }
+  const body = loading ? (
+    <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-mid)', fontFamily: 'var(--font-m)', fontSize: 12 }}>
+      {t('clients.detail_loading')}
+    </div>
+  ) : error || !client ? (
+    <div style={{
+      background: 'rgba(230,90,90,0.08)',
+      border: '1px solid rgba(230,90,90,0.35)',
+      color: 'var(--danger)',
+      padding: '12px 16px',
+      borderRadius: 6,
+      fontFamily: 'var(--font-m)',
+      fontSize: 11,
+    }}>
+      {error || t('clients.not_found')}
+    </div>
+  ) : (
+    <ClientForm
+      client={client}
+      onSubmit={handleSubmit}
+      onCancel={() => navigate('/clients')}
+      isLoading={isSaving}
+    />
+  );
 
   return (
-    <CenteredModal title={t('clients.edit_title')} onClose={() => navigate('/clients')}>
-      <ClientForm
-        client={client}
-        onSubmit={handleSubmit}
-        onCancel={() => navigate('/clients')}
-        isLoading={isSaving}
-      />
-    </CenteredModal>
+    <Modal isOpen onClose={() => navigate('/clients')} title={t('clients.edit_title')} width={520}>
+      {body}
+    </Modal>
   );
 };
-

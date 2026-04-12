@@ -9,7 +9,7 @@ import type { GamificationStats } from '../services/gamification';
 ───────────────────────────────────────────── */
 
 const LEVEL_TITLES: Record<number, string> = {
-  1: 'Starter', 2: 'Rising', 3: 'Steady', 4: 'Seasoned', 5: 'Expert',
+  0: 'Newcomer', 1: 'Builder', 2: 'Achiever', 3: 'Veteran', 4: 'Expert', 5: 'Elite',
 };
 const LEVEL_TITLE_DEFAULT = 'Master';
 
@@ -119,7 +119,7 @@ const ALL_CARDS: CardDef[] = [
   },
   {
     type: 'EARLY_BIRD', name: 'Early Bird',
-    hint: 'Finish a project before its deadline',
+    hint: 'Complete a project before its deadline',
     color: 'rgba(180,130,240,0.85)', kind: 'Badge',
     art: (c) => (
       <svg viewBox="0 0 200 140" style={{ width: '100%', height: '100%' }}>
@@ -164,12 +164,12 @@ const ALL_CARDS: CardDef[] = [
 
 // ── XP helpers ──
 
-function xpForLevel(level: number) { return 100 * level * level; }
+// xpForLevel(L) = XP required to reach level L (0 = start, 1 = 500 XP, 2 = 2000 XP, ...)
+function xpForLevel(level: number) { return 500 * level * level; }
 
 function xpProgress(xp: number, level: number): number {
-  const safeLvl = Math.max(level, 1);
-  const cur = xpForLevel(safeLvl - 1);
-  const nxt = xpForLevel(safeLvl);
+  const cur = xpForLevel(level);        // XP at the start of current level
+  const nxt = xpForLevel(level + 1);    // XP needed for next level
   const range = nxt - cur;
   if (range <= 0) return 0;
   return Math.min(Math.max((xp - cur) / range, 0), 1);
@@ -181,19 +181,22 @@ export default function Growth() {
   const { t } = useTranslation();
   const [stats, setStats] = useState<GamificationStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [animReady, setAnimReady] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
+    setError(false);
     gamificationService.fetchStats()
-      .then(setStats)
-      .catch(() => {})
+      .then((data) => { setStats(data); setError(false); })
+      .catch(() => setError(true))
       .finally(() => {
         setLoading(false);
         requestAnimationFrame(() => setAnimReady(true));
       });
   }, []);
 
-  const level = Math.max(stats?.level ?? 1, 1);
+  const level = stats?.level ?? 0;
   const xp = stats?.xp ?? 0;
   const xpToNext = stats?.xpToNextLevel ?? 0;
   const progress = stats ? xpProgress(xp, level) : 0;
@@ -221,14 +224,24 @@ export default function Growth() {
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        minHeight: 400,
-      }}>
-        <p style={{
-          fontFamily: 'var(--font-m)', fontSize: 11,
-          color: 'var(--text-dim)', letterSpacing: '.06em',
-        }}>Loading...</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400 }}>
+        <p style={{ fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)', letterSpacing: '.06em' }}>
+          Loading...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400 }}>
+        <div style={{
+          background: 'var(--danger-bg)', border: '1px solid var(--danger)',
+          borderRadius: 8, padding: '12px 20px',
+          fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--danger)',
+        }}>
+          Could not load growth stats. Please try again later.
+        </div>
       </div>
     );
   }

@@ -19,22 +19,15 @@ export class ChatbotService {
     return value.length > max ? `${value.slice(0, max)}...` : value;
   }
 
-  async chat(
-    userId: string,
-    userMessage: string,
-    history: ChatMessage[],
-  ): Promise<string> {
-    const safeHistory = Array.isArray(history) ? history : [];
-
-    // === CONTEXT WINDOW TRIMMING ===
-    const MAX_HISTORY = 20;
-    const trimmedHistory = safeHistory
-      .filter((m) => m.role === 'user' || m.role === 'assistant')
-      .slice(-MAX_HISTORY);
-
-    let systemPrompt =
+  private unavailablePrompt(): string {
+    return (
       'You are a CRM assistant. The database is currently unavailable.\n' +
-      'Answer only from conversation history. Tell the user data may be outdated.';
+      'Answer only from conversation history. Tell the user data may be outdated.'
+    );
+  }
+
+  private async buildSystemPrompt(userId: string): Promise<string> {
+    let systemPrompt = this.unavailablePrompt();
 
     try {
       // === LIVE DB FETCH ===
@@ -222,18 +215,35 @@ export class ChatbotService {
           .join('\n') || 'No badges yet.';
 
       // === SYSTEM PROMPT ===
-      systemPrompt = `You are ARIA — an elite CRM intelligence layer for freelancer ${userDisplayName}.
+      systemPrompt = `You are ARIA — an advanced, Claude-like AI business intelligence assistant for freelancer ${userDisplayName}.
 You have LIVE access to their complete business data. Today is ${today}. Currency: ${currency}.
 
-## YOUR PERSONALITY
-- Sharp, direct, professional. No filler words.
-- Lead with the most important insight first.
-- Use numbers, names, and dates — never vague answers.
-- When something needs attention (overdue, deadline near, proposal expiring), flag it clearly with ⚠️.
-- For good news (payment received, project completed), acknowledge it with ✅.
+## YOUR PERSONALITY & TONE
+- Highly analytical, deeply insightful, and exceptionally capable.
+- Professional, empathetic, and conversational, providing solid and robust responses.
+- Structure your responses beautifully using rich Markdown (headers, lists, bold text, blockquotes).
+- Do not just output raw data; synthesize it, analyze it, and provide actionable insights.
+- Provide comprehensive answers that feel powerful, well-architected, and easy to read.
+
+## FORMATTING & DESIGN RULES (CRITICAL)
+## DIAGRAM INSTRUCTIONS (CRITICAL)
+- When asked for ANY diagram, flow, architecture, process, or visualization,
+  ALWAYS produce a proper Mermaid code block using the correct diagram type:
+\`\`\`mermaid
+flowchart TD / sequenceDiagram / erDiagram / gantt / stateDiagram-v2 / pie / xychart-beta
+\`\`\`
+- NEVER use ASCII art for diagrams - always use Mermaid syntax.
+- Mermaid diagrams render as interactive SVG in the UI.
+- For simple inline comparisons only, use markdown tables instead.
+- **Use Markdown extensively**: Bold key metrics, names, variables, and dates to make them stand out.
+- **Strategic Sectioning**: Use clear headers (e.g., ### 📊 Financial Overview, ### ⚠️ Action Required, ### 💡 Strategic Insights) to break down information into digestible sections.
+- **Data Tables**: Whenever comparing multiple items, listing invoices, or presenting financial summaries, use clean, well-aligned markdown tables.
+- **Visual hierarchy**: Use bullet points and numbered lists for multiple items or step-by-step reasoning.
+- **Alerts**: Flag overdue items or urgent deadlines with appropriate emojis (🚨, ⚠️) prominently.
+- **Success Indicators**: Acknowledge positive milestones (✅, 🎉) like paid invoices or completed projects.
 
 ## YOUR CAPABILITIES
-You can do two things: ANSWER questions and TRIGGER ACTIONS.
+You can deeply analyze data, answer complex questions, and TRIGGER ACTIONS.
 
 ### TRIGGERING ACTIONS
 When the user asks to add, create, edit, or delete anything, respond with a JSON action block:
@@ -253,14 +263,13 @@ Available actions:
 - GENERATE_REPORT — fields: type* (revenue|pipeline|summary)
 - GENERATE_CONTRACT — fields: projectId*, clientId*
 
-For CREATE actions, if the user hasn't provided all required (*) fields, ask for them one at a time - don't dump a form. Collect fields conversationally then emit the action block.
+For CREATE actions, if the user hasn't provided all required (*) fields, ask for them politely and conversationally one at a time. Once ALL required fields are collected, emit the action block.
 
-## RULES
-1. Answer ONLY from the data below. If it's not listed, say "I don't have that on record."
-2. Never invent names, amounts, or dates.
-3. Keep responses under 150 words unless asked for a full report.
-4. For reports, use clean markdown tables.
-5. Proactively flag: overdue invoices, expiring proposals (within 7 days), approaching deadlines (within 14 days).
+## DATA RULES
+1. Ground your answers 100% in the live snapshot data below. If you don't know, state clearly that it's not on record.
+2. Never hallucinate names, amounts, or dates.
+3. Proactively provide strategic recommendations based on their financial or project health.
+4. Give a definitive, confident closing or next-step recommendation.
 
 ---
 ## LIVE SNAPSHOT
@@ -294,10 +303,26 @@ ${achievementsText}
 ${badgesText}`;
     } catch (error) {
       this.logger.error('Failed to fetch live CRM snapshot', error);
-      systemPrompt =
-        'You are a CRM assistant. The database is currently unavailable.\n' +
-        'Answer only from conversation history. Tell the user data may be outdated.';
+      systemPrompt = this.unavailablePrompt();
     }
+
+    return systemPrompt;
+  }
+
+  async chat(
+    userId: string,
+    userMessage: string,
+    history: ChatMessage[],
+  ): Promise<string> {
+    const safeHistory = Array.isArray(history) ? history : [];
+
+    // === CONTEXT WINDOW TRIMMING ===
+    const MAX_HISTORY = 20;
+    const trimmedHistory = safeHistory
+      .filter((m) => m.role === 'user' || m.role === 'assistant')
+      .slice(-MAX_HISTORY);
+
+    const systemPrompt = await this.buildSystemPrompt(userId);
 
     try {
       // === DEEPSEEK CALL ===
@@ -318,7 +343,7 @@ ${badgesText}`;
         },
         body: JSON.stringify({
           model,
-          temperature: 0.2,
+          temperature: 0.4,
           messages: [
             { role: 'system', content: systemPrompt },
             ...trimmedHistory,
@@ -349,6 +374,105 @@ ${badgesText}`;
     } catch (error) {
       this.logger.error('DeepSeek API call failed', error);
       return "I'm having trouble reaching the AI service. Please try again in a moment.";
+    }
+  }
+
+  async streamChat(userId: string, userMessage: string, res: any): Promise<void> {
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    const baseUrl = process.env.DEEPSEEK_BASE_URL ?? 'https://api.deepseek.com';
+    const model = process.env.DEEPSEEK_MODEL ?? 'deepseek-chat';
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders();
+
+    if (!apiKey) {
+      this.logger.error('DEEPSEEK_API_KEY is missing');
+      res.write('data: {"content":"Service unavailable."}\n\n');
+      res.write('data: [DONE]\n\n');
+      res.end();
+      return;
+    }
+
+    try {
+      const systemPrompt = await this.buildSystemPrompt(userId);
+
+      const response = await fetch(`${baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.4,
+          stream: true,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage },
+          ],
+        }),
+      });
+
+      if (!response.ok || !response.body) {
+        const errorText = await response.text();
+        this.logger.error(
+          `DeepSeek streaming failed: ${response.status} ${response.statusText} ${errorText}`,
+        );
+        res.write('data: {"content":"AI service error."}\n\n');
+        res.write('data: [DONE]\n\n');
+        res.end();
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let pending = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        pending += decoder.decode(value, { stream: true });
+        const lines = pending.split('\n');
+        pending = lines.pop() ?? '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data:')) {
+            continue;
+          }
+
+          const data = trimmed.slice(5).trim();
+          if (data === '[DONE]') {
+            res.write('data: [DONE]\n\n');
+            res.end();
+            return;
+          }
+
+          try {
+            const parsed = JSON.parse(data) as {
+              choices?: Array<{ delta?: { content?: string } }>;
+            };
+            const content = parsed.choices?.[0]?.delta?.content;
+            if (content) {
+              res.write(`data: ${JSON.stringify({ content })}\n\n`);
+            }
+          } catch {
+            // Ignore malformed chunk fragments.
+          }
+        }
+      }
+
+      res.write('data: [DONE]\n\n');
+      res.end();
+    } catch (error) {
+      this.logger.error('Streaming failed', error);
+      res.write('data: {"content":"Stream error."}\n\n');
+      res.write('data: [DONE]\n\n');
+      res.end();
     }
   }
 }

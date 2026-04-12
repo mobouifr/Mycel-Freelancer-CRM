@@ -1,11 +1,11 @@
 import type { CalendarEvent, EventType } from '../../hooks/useStore';
 
 const TYPE_COLORS: Record<EventType, { fg: string; bg: string }> = {
-  event:       { fg: 'var(--cal-event)',     bg: 'var(--cal-event-bg)' },
-  deadline:    { fg: 'var(--cal-deadline)',   bg: 'var(--cal-deadline-bg)' },
-  meeting:     { fg: 'var(--cal-meeting)',    bg: 'var(--cal-meeting-bg)' },
-  milestone:   { fg: 'var(--cal-milestone)',  bg: 'var(--cal-milestone-bg)' },
-  'follow-up': { fg: 'var(--cal-follow-up)', bg: 'var(--cal-follow-up-bg)' },
+  event:       { fg: 'var(--accent)',     bg: 'var(--glass)' },
+  deadline:    { fg: 'var(--danger)',   bg: 'var(--danger-bg)' },
+  meeting:     { fg: 'var(--success)',    bg: 'var(--success-bg)' },
+  milestone:   { fg: 'var(--sidebar-active)',  bg: 'var(--sidebar-active-bg)' },
+  'follow-up': { fg: 'var(--info)', bg: 'var(--info-bg)' },
 };
 
 const TYPE_ICONS: Record<EventType, string> = {

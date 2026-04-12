@@ -51,7 +51,6 @@ export interface CalendarEvent {
   time: string;           // HH:mm
   endDate?: string;       // ISO date string  (YYYY-MM-DD)
   endTime?: string;       // HH:mm
-  timezone: string;
   description: string;
   eventType: EventType;
   priority: EventPriority;
@@ -59,8 +58,6 @@ export interface CalendarEvent {
   projectTag?: string;
   linkedProjectId?: string;
   linkedClientId?: string;
-  reminderOffset: number; // minutes before
-  recurrence: string;     // 'none' | 'daily' | 'weekly' | 'monthly'
   noteId?: string;
   createdAt: string;
 }
@@ -103,6 +100,7 @@ interface StoreContextType extends StoreState {
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   dismissNotification: (id: string) => void;
+  dismissAllNotifications: () => void;
   unreadCount: number;
   // Undo
   undo: () => void;
@@ -128,7 +126,6 @@ function loadStore(): StoreState {
         events: (parsed.events || []).map((e: Record<string, unknown>) => ({
           eventType: 'event' as EventType,
           priority: 'normal' as EventPriority,
-          recurrence: 'none',
           ...e,
         })) as CalendarEvent[],
         todos: (parsed.todos || []) as TodoItem[],
@@ -250,6 +247,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const dismissAllNotifications = useCallback(() => {
+    setState((s) => ({ ...s, notifications: [] }));
+  }, []);
+
   const unreadCount = state.notifications.filter((n) => !n.isRead).length;
 
   return (
@@ -259,7 +260,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         addNote, updateNote, deleteNote,
         addEvent, updateEvent, deleteEvent,
         addTodo, updateTodo, deleteTodo,
-        addNotification, markAsRead, markAllAsRead, dismissNotification,
+        addNotification, markAsRead, markAllAsRead, dismissNotification, dismissAllNotifications,
         unreadCount,
         undo,
         canUndo: undoStack.length > 0,
