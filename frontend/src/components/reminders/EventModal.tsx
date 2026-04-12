@@ -61,8 +61,8 @@ function EventModalInner({
   const [projectTag, setProjectTag] = useState(initialData?.projectTag || '');
   const [clientTag, setClientTag] = useState(initialData?.clientTag || '');
 
-  const { clients } = useClients();
-  const { projects } = useProjects();
+  const { clients } = useClients({ pageSize: 100 });
+  const { projects } = useProjects({ pageSize: 100 });
 
   const handleSubmit = () => {
     if (!title.trim()) return;

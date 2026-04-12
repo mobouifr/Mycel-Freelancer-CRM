@@ -72,11 +72,23 @@ export class ProjectsService {
     return project;
   }
 
-  async findAll(userId: string) {
-    return await this.prisma.project.findMany({ 
-      where: { userId },
-      include: { client: true }
-    });
+  async findAll(userId: string, page = 1, limit = 10, search?: string, status?: string) {
+    const skip = (page - 1) * limit;
+    const where: any = { userId };
+    if (search?.trim()) {
+      where.OR = [
+        { title:       { contains: search.trim(), mode: 'insensitive' } },
+        { description: { contains: search.trim(), mode: 'insensitive' } },
+      ];
+    }
+    if (status && status !== 'ALL') {
+      where.status = status as ProjectStatus;
+    }
+    const [data, count] = await Promise.all([
+      this.prisma.project.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' }, include: { client: true } }),
+      this.prisma.project.count({ where }),
+    ]);
+    return { data, count, page, limit, totalPages: Math.ceil(count / limit) || 1 };
   }
 
   async findOne(userId: string, id: string) {

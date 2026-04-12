@@ -33,6 +33,11 @@ export class NotificationsController {
     return this.notificationsService.markAsRead(req.user.id || req.user.sub, id);
   }
 
+  @Delete()
+  deleteAll(@Request() req: any) {
+    return this.notificationsService.deleteAll(req.user.id || req.user.sub);
+  }
+
   @Delete(':id')
   delete(@Request() req: any, @Param('id') id: string) {
     return this.notificationsService.delete(req.user.id || req.user.sub, id);

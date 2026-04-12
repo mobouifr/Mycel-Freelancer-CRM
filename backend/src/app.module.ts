@@ -26,7 +26,7 @@ import { CustomThrottlerGuard } from './common/guards/custom-throttler.guard';
     ThrottlerModule.forRoot([
       {
         ttl: 300000,
-        limit: 10,
+        limit: 100,
       },
     ]),
     PrismaModule,

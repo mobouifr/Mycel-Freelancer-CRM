@@ -13,8 +13,9 @@ import type { AppNotification } from './useStore';
    so NotificationBell can route actions correctly.
 ───────────────────────────────────────────── */
 
-const POLL_INTERVAL = 30_000; // 30 seconds
-const VALID_TYPES = new Set(['info', 'success', 'warning', 'error']);
+const POLL_INTERVAL  = 30_000;  // 30 s — normal polling cadence
+const BACKOFF_DELAYS = [5_000, 15_000, 30_000, 60_000]; // retry ladder after disconnect
+const VALID_TYPES    = new Set(['info', 'success', 'warning', 'error']);
 
 function mapToApp(n: BackendNotification): AppNotification {
   return {
@@ -35,25 +36,42 @@ function mapToApp(n: BackendNotification): AppNotification {
 
 export function useBackendNotifications() {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerRef     = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const backoffIndex = useRef(0);
+  const alive        = useRef(true);
 
-  const refresh = useCallback(async () => {
-    try {
-      const raw = await notificationsService.fetchAll();
-      setNotifications(raw.map(mapToApp));
-    } catch {
-      // 401 → api interceptor redirects to /login
-      // network / 5xx  → silently ignore, keep stale list
-    }
+  const schedule = useCallback((delay: number) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => poll(), delay); // eslint-disable-line @typescript-eslint/no-use-before-define
   }, []);
 
+  const poll = useCallback(async () => {
+    if (!alive.current) return;
+    try {
+      const raw = await notificationsService.fetchAll();
+      if (!alive.current) return;
+      setNotifications(raw.map(mapToApp));
+      backoffIndex.current = 0;           // connection healthy — reset backoff
+      schedule(POLL_INTERVAL);
+    } catch (err: any) {
+      if (!alive.current) return;
+      const status = err?.response?.status;
+      if (status === 401) return;         // api interceptor handles redirect
+      // Network error or server down — use exponential backoff
+      const delay = BACKOFF_DELAYS[Math.min(backoffIndex.current, BACKOFF_DELAYS.length - 1)];
+      backoffIndex.current = Math.min(backoffIndex.current + 1, BACKOFF_DELAYS.length - 1);
+      schedule(delay);
+    }
+  }, [schedule]);
+
   useEffect(() => {
-    refresh();
-    timerRef.current = setInterval(refresh, POLL_INTERVAL);
+    alive.current = true;
+    poll();
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      alive.current = false;
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [refresh]);
+  }, [poll]);
 
   const markAsRead = useCallback(async (id: string) => {
     try {
@@ -78,5 +96,12 @@ export function useBackendNotifications() {
     } catch { /* silent */ }
   }, []);
 
-  return { notifications, refresh, markAsRead, markAllAsRead, dismiss };
+  const dismissAll = useCallback(async () => {
+    try {
+      await notificationsService.removeAll();
+      setNotifications([]);
+    } catch { /* silent */ }
+  }, []);
+
+  return { notifications, refresh: poll, markAsRead, markAllAsRead, dismiss, dismissAll };
 }

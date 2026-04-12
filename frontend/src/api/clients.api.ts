@@ -1,12 +1,12 @@
 // Clients API endpoints
 import apiClient from './client';
 import { type Client, type CreateClientDto, type UpdateClientDto } from '../types/client.types';
-import { type ApiResponse } from '../types/common.types';
+import { type PaginatedResponse } from '../types/common.types';
 
 export const clientsApi = {
-  // Get all clients
-  getAll: async (): Promise<ApiResponse<Client[]>> => {
-    const response = await apiClient.get<ApiResponse<Client[]>>('/clients');
+  // Get paginated clients
+  getAll: async (params?: { page?: number; limit?: number; search?: string }): Promise<PaginatedResponse<Client>> => {
+    const response = await apiClient.get<PaginatedResponse<Client>>('/clients', { params });
     return response.data;
   },
 
