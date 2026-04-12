@@ -2,12 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProjectsService } from './projects.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { GamificationService } from '../gamification/gamification.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { NotFoundException } from '@nestjs/common';
 
 describe('ProjectsService', () => {
   let service: ProjectsService;
   let prisma: PrismaService;
   let gamification: GamificationService;
+  let notificationsService: NotificationsService;
 
   // Mock Prisma methods
   const mockPrismaService = {
@@ -18,15 +20,17 @@ describe('ProjectsService', () => {
       update: jest.fn(),
       delete: jest.fn(),
     },
-    notification: {
-      create: jest.fn(),
-    },
   };
 
   // Mock Gamification methods
   const mockGamificationService = {
-    awardProjectCompletionXp: jest.fn(),
-    checkAchievementsAndBadges: jest.fn(),
+    awardProjectCompletionXp: jest.fn().mockResolvedValue({}),
+    checkAchievementsAndBadges: jest.fn().mockResolvedValue({}),
+  };
+
+  // Mock Notifications Service
+  const mockNotificationsService = {
+    create: jest.fn().mockResolvedValue({}),
   };
 
   beforeEach(async () => {
@@ -35,12 +39,14 @@ describe('ProjectsService', () => {
         ProjectsService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: GamificationService, useValue: mockGamificationService },
+        { provide: NotificationsService, useValue: mockNotificationsService },
       ],
     }).compile();
 
     service = module.get<ProjectsService>(ProjectsService);
     prisma = module.get<PrismaService>(PrismaService);
     gamification = module.get<GamificationService>(GamificationService);
+    notificationsService = module.get<NotificationsService>(NotificationsService);
   });
 
   afterEach(() => {
@@ -54,7 +60,7 @@ describe('ProjectsService', () => {
   describe('create', () => {
     it('should create a new project and send a notification', async () => {
       const userId = 'user-123';
-      const dto = { title: 'New CRM Feature', status: 'ACTIVE', budget: 1000 };
+      const dto = { title: 'New CRM Feature', status: 'ACTIVE', budget: 1000 } as any;
       const mockResult = { id: 'proj-1', ...dto, userId };
 
       mockPrismaService.project.create.mockResolvedValue(mockResult);
@@ -62,13 +68,14 @@ describe('ProjectsService', () => {
       const result = await service.create(userId, dto);
       expect(result).toEqual(mockResult);
       expect(prisma.project.create).toHaveBeenCalled();
-      expect(prisma.notification.create).toHaveBeenCalledWith({
-        data: {
-          userId,
+      expect(notificationsService.create).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({
+          title: 'Project Created',
           message: `New project created: ${mockResult.title}`,
           type: 'success',
-        },
-      });
+        })
+      );
     });
   });
 
@@ -100,7 +107,7 @@ describe('ProjectsService', () => {
       jest.spyOn(service, 'findOne').mockResolvedValue(existingProject as any);
       mockPrismaService.project.update.mockResolvedValue(updatedProject);
 
-      await service.update(userId, 'proj-1', { status: 'COMPLETED', priority: 'HIGH' });
+      await service.update(userId, 'proj-1', { status: 'COMPLETED', priority: 'HIGH' } as any);
 
       // Verify the GamificationService was triggered
       expect(gamification.awardProjectCompletionXp).toHaveBeenCalledWith(
@@ -110,13 +117,14 @@ describe('ProjectsService', () => {
       );
       expect(gamification.checkAchievementsAndBadges).toHaveBeenCalledWith(userId, updatedProject.id);
 
-      expect(prisma.notification.create).toHaveBeenCalledWith({
-        data: {
-          userId,
+      expect(notificationsService.create).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({
+          title: 'Project Updated',
           message: `Project updated: ${updatedProject.title}`,
           type: 'info',
-        },
-      });
+        })
+      );
     });
 
     it('should update without XP but STILL trigger notification', async () => {
@@ -127,17 +135,18 @@ describe('ProjectsService', () => {
       jest.spyOn(service, 'findOne').mockResolvedValue(existingProject as any);
       mockPrismaService.project.update.mockResolvedValue(updatedProject);
 
-      await service.update(userId, 'proj-1', { status: 'IN_PROGRESS' });
+      await service.update(userId, 'proj-1', { status: 'IN_PROGRESS' } as any);
 
       expect(gamification.awardProjectCompletionXp).not.toHaveBeenCalled();
       
-      expect(prisma.notification.create).toHaveBeenCalledWith({
-        data: {
-          userId,
+      expect(notificationsService.create).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({
+          title: 'Project Updated',
           message: `Project updated: ${updatedProject.title}`,
           type: 'info',
-        },
-      });
+        })
+      );
     });
   });
 
@@ -152,13 +161,14 @@ describe('ProjectsService', () => {
       await service.remove(userId, 'proj-1');
 
       expect(prisma.project.delete).toHaveBeenCalledWith({ where: { id: 'proj-1' } });
-      expect(prisma.notification.create).toHaveBeenCalledWith({
-        data: {
-          userId,
+      expect(notificationsService.create).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({
+          title: 'Project Deleted',
           message: `Project deleted: ${mockProject.title}`,
           type: 'warning',
-        },
-      });
+        })
+      );
     });
   });
 });

@@ -36,7 +36,7 @@ export const clientsApi = {
   // Get client's projects
   getProjects: async (id: string) => {
     const response = await apiClient.get(`/clients/${id}/projects`);
-    return response.data;
+    return response.data.data;
   },
 
 };

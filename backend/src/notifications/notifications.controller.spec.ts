@@ -36,7 +36,7 @@ describe('NotificationsController', () => {
 
   it('GET /notifications should call service.findAll', async () => {
     await controller.findAll(mockRequest);
-    expect(service.findAll).toHaveBeenCalledWith('user-123');
+    expect(service.findAll).toHaveBeenCalledWith('user-123', 50, undefined);
   });
 
   it('PATCH /notifications/read-all should call service.markAllAsRead', async () => {
