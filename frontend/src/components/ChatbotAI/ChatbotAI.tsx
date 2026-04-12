@@ -399,7 +399,7 @@ export default function ChatbotAI() {
         await postWithFallback(['/api/projects'], payload);
         setMessages((prev: ChatMessage[]) => [
           ...prev,
-          { role: 'assistant', content: `All set, ${username}! "${title}" is now live and ready to go. 🚀 Want me to draft an invoice for it?` },
+          { role: 'assistant', content: `All set, ${username}! "${title}" is now live and ready to go. 🚀` },
         ]);
       }
 

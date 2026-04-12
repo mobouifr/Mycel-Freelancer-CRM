@@ -32,18 +32,6 @@ export class ClientsController {
     return { data };
   }
 
-  @Get(':id/proposals')
-  async getProposals(@Request() req: any, @Param('id') id: string) {
-    const data = await this.clientsService.getProposals(req.user.id, id);
-    return { data };
-  }
-
-  @Get(':id/invoices')
-  async getInvoices(@Request() req: any, @Param('id') id: string) {
-    const data = await this.clientsService.getInvoices(req.user.id, id);
-    return { data };
-  }
-
   @Get(':id')
   async findOne(@Request() req: any, @Param('id') id: string) {
     return this.clientsService.findOne(req.user.id, id);
