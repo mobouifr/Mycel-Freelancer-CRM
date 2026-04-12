@@ -47,7 +47,7 @@ export default function CalendarWeekView({
         {weekDates.map((d) => {
           const isToday = isSameDay(d, today);
           return (
-            <div key={toDateKey(d)} style={{
+            <div key={`${toDateKey(d)}-${d.getDay()}`} style={{
               flex: 1, textAlign: 'center', padding: '8px 0',
               borderLeft: '1px solid var(--border)', minWidth: 0, overflow: 'hidden'
             }}>
