@@ -176,6 +176,7 @@ const labelStyle: React.CSSProperties = {
 const valueStyle: React.CSSProperties = {
   padding: '8px 10px', background: 'var(--bg2)', border: '1px solid var(--border)',
   borderRadius: 6, color: 'var(--text)', fontFamily: 'var(--font-m)', fontSize: 11,
+  wordBreak: 'break-word', overflowWrap: 'break-word', minWidth: 0,
 };
 const selectStyle: React.CSSProperties = {
   ...valueStyle, width: '100%', cursor: 'pointer', outline: 'none', boxSizing: 'border-box',

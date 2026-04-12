@@ -1481,6 +1481,8 @@ export default function ChatbotAI() {
           color: #f87171;
           margin: -4px 0 0 2px;
           line-height: 1.3;
+          word-break: break-word;
+          overflow-wrap: break-word;
         }
 
         .cb-action-modal input.has-error {

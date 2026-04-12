@@ -114,11 +114,11 @@ export const ClientDetailPage = () => {
           <>
             {/* Email / Phone row */}
             <div style={{ display: 'flex', gap: 10 }}>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <label style={labelStyle}>{t('common.email')}</label>
                 <div style={valueStyle}>{client.email || '—'}</div>
               </div>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <label style={labelStyle}>{t('common.phone')}</label>
                 <div style={valueStyle}>{client.phone || '—'}</div>
               </div>
@@ -216,6 +216,7 @@ const labelStyle: React.CSSProperties = {
 const valueStyle: React.CSSProperties = {
   padding: '8px 10px', background: 'var(--bg2)', border: '1px solid var(--border)',
   borderRadius: 6, color: 'var(--text)', fontFamily: 'var(--font-m)', fontSize: 11,
+  wordBreak: 'break-word', overflowWrap: 'break-word', minWidth: 0,
 };
 const primaryBtn: React.CSSProperties = {
   padding: '8px 18px', borderRadius: 6, border: 'none', background: 'var(--accent)',

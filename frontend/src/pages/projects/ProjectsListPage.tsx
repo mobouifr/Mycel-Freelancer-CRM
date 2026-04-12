@@ -274,6 +274,9 @@ export const ProjectsListPage = () => {
       }}>
         <input
           type="text"
+          id="projects-search"
+          name="projects-search"
+          autoComplete="off"
           placeholder={t('projects.search_placeholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
