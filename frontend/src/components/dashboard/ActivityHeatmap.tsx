@@ -1,36 +1,13 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
+import api from '../../services/api';
 
 /* ─────────────────────────────────────────────
    ACTIVITY HEATMAP — Glowy contribution grid.
    Single SVG fills the container exactly.
    Wider widget = more weeks of history.
 ───────────────────────────────────────────── */
-
-/* ── Mock data (up to 1 year) ────────────────
-   TODO: Replace with real API call:
-   api.get('/dashboard/activity-heatmap?months=12')
-   Expected shape: Record<string, number>
-   e.g. { "2026-01-15": 3, "2026-01-16": 0, ... }
-───────────────────────────────────────────── */
-function generateMockData(): Record<string, number> {
-  const data: Record<string, number> = {};
-  const today = new Date();
-  for (let i = 0; i < 365; i++) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
-    const key = d.toISOString().slice(0, 10);
-    const rand = Math.random();
-    if (rand < 0.25) data[key] = 0;
-    else if (rand < 0.50) data[key] = Math.ceil(Math.random() * 2);
-    else if (rand < 0.75) data[key] = Math.ceil(Math.random() * 4) + 2;
-    else data[key] = Math.ceil(Math.random() * 6) + 4;
-  }
-  return data;
-}
-
-const MOCK_DATA = generateMockData();
 
 const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
@@ -65,8 +42,25 @@ function ActivityHeatmap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [cw, setCw] = useState(0);  // container width
   const [ch, setCh] = useState(0);  // container height
+  const [heatmapData, setHeatmapData] = useState<Record<string, number>>({});
   const [hoveredCell, setHoveredCell] = useState<DayCell | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    api.get<Record<string, number>>('/dashboard/activity-heatmap?days=365')
+      .then((response: { data: Record<string, number> }) => {
+        if (!cancelled && response.data) {
+          setHeatmapData(response.data);
+        }
+      })
+      .catch(console.error);
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // ── Measure container precisely ──
   useEffect(() => {
@@ -127,7 +121,7 @@ function ActivityHeatmap() {
         cellDate.setDate(cellDate.getDate() + w * 7 + d);
         if (cellDate > today) continue;
         const key = cellDate.toISOString().slice(0, 10);
-        const count = MOCK_DATA[key] ?? 0;
+        const count = heatmapData[key] ?? 0;
         dayCells.push({ date: key, count, intensity: getIntensity(count), col: w, row: d });
 
         const monthKey = `${cellDate.getFullYear()}-${cellDate.getMonth()}`;
@@ -141,7 +135,7 @@ function ActivityHeatmap() {
       }
     }
     return { cells: dayCells, monthLabels: months };
-  }, [weeks]);
+  }, [heatmapData, weeks]);
 
   // ── Cell origin helpers ──
   const cellX = useCallback((col: number) => LABEL_COL + offsetX + col * cellStep + cellGap / 2, [offsetX, cellStep, cellGap]);

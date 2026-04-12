@@ -64,6 +64,43 @@ export class DashboardService {
     };
   }
 
+  async getActivityHeatmap(userId: string, days: number = 365) {
+    const data: Record<string, number> = {};
+    const today = new Date();
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - days);
+
+    // 1. Count created clients
+    const clients = await this.prisma.client.findMany({
+      where: { userId, createdAt: { gte: startDate } },
+      select: { createdAt: true }
+    });
+
+    // 2. Count created projects
+    const createdProjects = await this.prisma.project.findMany({
+      where: { userId, createdAt: { gte: startDate } },
+      select: { createdAt: true }
+    });
+
+    // 3. Count completed projects (using updatedAt as a proxy for completion date)
+    const completedProjects = await this.prisma.project.findMany({
+      where: { userId, status: ProjectStatus.COMPLETED, updatedAt: { gte: startDate } },
+      select: { updatedAt: true }
+    });
+
+    // Helper to increment counts by date
+    const incrementDate = (date: Date) => {
+      const key = date.toISOString().slice(0, 10);
+      data[key] = (data[key] || 0) + 1;
+    };
+
+    clients.forEach(c => incrementDate(c.createdAt));
+    createdProjects.forEach(p => incrementDate(p.createdAt));
+    completedProjects.forEach(p => incrementDate(p.updatedAt));
+
+    return data;
+  }
+
   async getActivityFeed(userId: string) {
     // Fetch recent items from different tables
     const [recentClients, recentProjects, recentAchievements] = await Promise.all([
@@ -245,5 +282,58 @@ export class DashboardService {
         userId: userId
       }
     });
+  }
+
+  async getProjectsClientsGraph(userId: string) {
+    // Get the last 6 months of data
+    const now = new Date();
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    // Fetch projects and clients created in the last 6 months
+    const [projects, clients] = await Promise.all([
+      this.prisma.project.findMany({
+        where: { userId, createdAt: { gte: sixMonthsAgo } },
+        select: { createdAt: true }
+      }),
+      this.prisma.client.findMany({
+        where: { userId, createdAt: { gte: sixMonthsAgo } },
+        select: { createdAt: true }
+      })
+    ]);
+
+    // Initialize arrays for the last 6 months
+    const months = [];
+    const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const projectsCounts = new Array(6).fill(0);
+    const clientsCounts = new Array(6).fill(0);
+
+    // Build month labels
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now);
+      d.setMonth(d.getMonth() - i);
+      months.push(monthLabels[d.getMonth()]);
+    }
+
+    // Count projects and clients by month
+    projects.forEach(p => {
+      const pDate = new Date(p.createdAt);
+      const monthDiff = (now.getFullYear() - pDate.getFullYear()) * 12 + (now.getMonth() - pDate.getMonth());
+      const idx = 5 - monthDiff;
+      if (idx >= 0 && idx < 6) projectsCounts[idx]++;
+    });
+
+    clients.forEach(c => {
+      const cDate = new Date(c.createdAt);
+      const monthDiff = (now.getFullYear() - cDate.getFullYear()) * 12 + (now.getMonth() - cDate.getMonth());
+      const idx = 5 - monthDiff;
+      if (idx >= 0 && idx < 6) clientsCounts[idx]++;
+    });
+
+    return {
+      months,
+      projects: projectsCounts,
+      clients: clientsCounts
+    };
   }
 }

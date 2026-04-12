@@ -21,6 +21,12 @@ export class DashboardController {
     return this.dashboardService.getActivityFeed(req.user.id);
   }
 
+  @Get('activity-heatmap')
+  async getActivityHeatmap(@Req() req: any, @Query('days') days?: string) {
+    const daysCount = parseInt(days || '365', 10);
+    return this.dashboardService.getActivityHeatmap(req.user.id, daysCount);
+  }
+
   // Note endpoints directly inside Dashboard Controller for simplicity as per Option A
   @Get('notes')
   async getNotes(@Req() req: any) {
@@ -60,5 +66,10 @@ export class DashboardController {
   @Delete('events/:id')
   async deleteEvent(@Req() req: any, @Param('id') id: string) {
     return this.dashboardService.deleteEvent(req.user.id, id);
+  }
+
+  @Get('projects-clients-graph')
+  async getProjectsClientsGraph(@Req() req: any) {
+    return this.dashboardService.getProjectsClientsGraph(req.user.id);
   }
 }

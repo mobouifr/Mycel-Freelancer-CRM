@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import type { MouseEvent as ReactMouseEvent } from 'react';
 import { useStore, type CalendarEvent } from '../hooks/useStore';
 
 /* ─────────────────────────────────────────────
@@ -13,8 +14,14 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 
 type SizeMode = 'tiny' | 'medium' | 'full';
 
-export default function CalendarWidget() {
-  const { events } = useStore();
+interface CalendarWidgetProps {
+  events?: CalendarEvent[];
+  onDayClick?: (date: string) => void;
+}
+
+export default function CalendarWidget({ events: externalEvents, onDayClick }: CalendarWidgetProps) {
+  const { events: storeEvents } = useStore();
+  const events = externalEvents ?? storeEvents;
   const today = new Date();
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [viewYear, setViewYear] = useState(today.getFullYear());
@@ -173,8 +180,12 @@ export default function CalendarWidget() {
   const isToday = (day: number) =>
     day === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear();
 
-  const handleDayClick = (day: number, e: React.MouseEvent) => {
+  const handleDayClick = (day: number, e: ReactMouseEvent) => {
     const key = toKey(day);
+    if (onDayClick) {
+      onDayClick(key);
+      return;
+    }
     if (selectedDay === key) { setSelectedDay(null); setPopoverPos(null); return; }
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const parent = (e.currentTarget as HTMLElement).closest('[data-calendar-root]')?.getBoundingClientRect();
@@ -330,12 +341,22 @@ export default function CalendarWidget() {
                       left: '50%', transform: 'translateX(-50%)',
                       display: 'flex', gap: 1.5,
                     }}>
-                      {eventsByDate[key].slice(0, 3).map((_, idx) => (
+                      {eventsByDate[key].slice(0, 5).map((_, idx) => (
                         <div key={idx} style={{
                           width: dotSize, height: dotSize, borderRadius: '50%',
                           background: 'var(--accent)',
                         }} />
                       ))}
+                      {eventsByDate[key].length > 5 && (
+                        <span style={{
+                          fontFamily: 'var(--font-m)',
+                          fontSize: Math.max(dayFontSize * 0.7, 8),
+                          color: 'var(--accent)',
+                          marginLeft: 2,
+                        }}>
+                          +{eventsByDate[key].length - 5}
+                        </span>
+                      )}
                     </div>
                   )}
                 </button>
@@ -409,7 +430,7 @@ function buildEventMap(events: CalendarEvent[]) {
   return map;
 }
 
-const rootStyle: React.CSSProperties = {
+const rootStyle = {
   background: 'var(--surface-2)',
   border: '1px solid var(--border)',
   borderRadius: 8,
@@ -422,7 +443,7 @@ const rootStyle: React.CSSProperties = {
   overflow: 'hidden',
 };
 
-const navBtnStyle: React.CSSProperties = {
+const navBtnStyle = {
   background: 'none',
   border: '1px solid var(--border)',
   borderRadius: 4,
