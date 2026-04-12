@@ -167,9 +167,13 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
                 position: 'absolute', right: 8, top: '50%',
                 transform: 'translateY(-50%)',
                 background: 'none', border: 'none', cursor: 'pointer',
-                color: 'var(--text-dim)', padding: 0,
+                color: 'var(--text)', padding: 0,
                 display: 'flex', alignItems: 'center',
+                opacity: 0.55,
+                transition: 'opacity .15s',
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.55'; }}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -200,6 +204,7 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
               style={{
                 position: 'absolute', opacity: 0, pointerEvents: 'none',
                 width: 1, height: 1, top: 0, right: 0, border: 'none',
+                colorScheme: 'light dark',
               }}
             />
           </div>

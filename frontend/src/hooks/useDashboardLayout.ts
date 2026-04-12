@@ -44,7 +44,7 @@ const PRESETS: Record<PresetId, () => Pick<DashboardState, 'layouts' | 'visible'
     layouts: [
       { i: 'revenue',   x: 0, y: 0, w: 4, h: 3, minW: 3, minH: 2 },
       { i: 'statusBar', x: 4, y: 0, w: 4, h: 2, minW: 3, minH: 2 },
-      { i: 'calendar',  x: 8, y: 0, w: 4, h: 6, minW: 4, minH: 4 },
+      { i: 'calendar',  x: 8, y: 0, w: 4, h: 6, minW: 2, minH: 1 },
       { i: 'deadline',  x: 4, y: 2, w: 4, h: 2, minW: 4, minH: 2, maxW: 4, maxH: 2, isResizable: false },
       { i: 'dataGraph', x: 0, y: 4, w: 4, h: 3, minW: 4, minH: 3 },
       { i: 'notes',     x: 4, y: 4, w: 4, h: 2, minW: 3, minH: 2 },
@@ -62,7 +62,7 @@ const PRESETS: Record<PresetId, () => Pick<DashboardState, 'layouts' | 'visible'
       { i: 'deadline',  x: 4, y: 0, w: 4, h: 2, minW: 4, minH: 2, maxW: 4, maxH: 2, isResizable: false },
       { i: 'statusBar', x: 8, y: 0, w: 4, h: 2, minW: 3, minH: 2 },
       { i: 'notes',     x: 0, y: 2, w: 4, h: 4, minW: 3, minH: 2 },
-      { i: 'calendar',  x: 4, y: 2, w: 4, h: 5, minW: 4, minH: 4 },
+      { i: 'calendar',  x: 4, y: 2, w: 4, h: 5, minW: 2, minH: 1 },
       { i: 'activity',  x: 8, y: 2, w: 4, h: 4, minW: 3, minH: 2 },
     ],
   }),
@@ -72,7 +72,7 @@ const PRESETS: Record<PresetId, () => Pick<DashboardState, 'layouts' | 'visible'
   focus: () => ({
     visible: ['calendar', 'deadline', 'notes', 'activity'],
     layouts: [
-      { i: 'calendar', x: 0, y: 0, w: 8, h: 5, minW: 4, minH: 4 },
+      { i: 'calendar', x: 0, y: 0, w: 8, h: 5, minW: 2, minH: 1 },
       { i: 'deadline', x: 8, y: 0, w: 4, h: 2, minW: 4, minH: 2, maxW: 4, maxH: 2, isResizable: false },
       { i: 'notes',    x: 8, y: 2, w: 4, h: 3, minW: 3, minH: 2 },
       { i: 'activity', x: 0, y: 5, w: 12, h: 3, minW: 4, minH: 2 },

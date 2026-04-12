@@ -23,10 +23,9 @@ interface StickyNoteProps {
   note: any;
   onUpdate: (id: string, updates: any) => void;
   onDelete: (id: string) => void;
-  onConvertToEvent: (note: any) => void;
 }
 
-export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent }: StickyNoteProps) {
+export default function StickyNote({ note, onUpdate, onDelete }: StickyNoteProps) {
   const { t, i18n } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(note.title);
@@ -98,10 +97,6 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
             <svg width="11" height="11" viewBox="0 0 24 24" fill={note.pinned ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 17v5M9 2h6l-1 7h4l-7 8 1-7H8l1-8z" />
             </svg>
-          </button>
-          {/* Convert to event */}
-          <button onClick={() => onConvertToEvent(note)} title="Convert to event" style={iconBtn}>
-            {t('notes.event')}
           </button>
           {/* Delete */}
           <button onClick={() => onDelete(note.id)} title="Delete" style={{ ...iconBtn, color: 'var(--danger)' }}>

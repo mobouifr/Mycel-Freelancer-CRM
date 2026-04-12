@@ -248,24 +248,32 @@ input:-webkit-autofill:focus {
 }
 
 /* Resize handle styling */
-.react-grid-item > .react-resizable-handle-se,
-.react-grid-item > .react-resizable-handle-nw {
-  top: 0 !important;
-  left: 0 !important;
-  right: auto !important;
-  bottom: auto !important;
-}
-
 .react-grid-item > .react-resizable-handle::after {
-  border-left: 2px solid var(--text-dim);
-  border-top: 2px solid var(--text-dim);
   opacity: 0.4;
   transition: opacity .15s;
 }
 
 .react-grid-item > .react-resizable-handle:hover::after {
-  opacity: 0.8;
-  border-color: var(--accent);
+  opacity: 0.9;
+  border-color: var(--accent) !important;
+}
+
+/* per-corner border directions */
+.react-grid-item > .react-resizable-handle-nw::after {
+  border-left: 2px solid var(--text-dim);
+  border-top: 2px solid var(--text-dim);
+}
+.react-grid-item > .react-resizable-handle-ne::after {
+  border-right: 2px solid var(--text-dim);
+  border-top: 2px solid var(--text-dim);
+}
+.react-grid-item > .react-resizable-handle-sw::after {
+  border-left: 2px solid var(--text-dim);
+  border-bottom: 2px solid var(--text-dim);
+}
+.react-grid-item > .react-resizable-handle-se::after {
+  border-right: 2px solid var(--text-dim);
+  border-bottom: 2px solid var(--text-dim);
 }
 
 /* Drag handle cursor — applied to WidgetCard header */

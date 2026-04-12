@@ -183,8 +183,8 @@ export default function Settings() {
             <SectionTitle title={t('settings.profile_info')} sub={t('settings.personal_details')} />
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 32 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <Input label={t('settings.username')} placeholder="montassir" value={username} onChange={setUsername} />
-                <Input label={t('settings.full_name')} placeholder="Montassir D." value={name} onChange={setName} />
+                <Input label={t('settings.username')} placeholder="your_username" value={username} onChange={setUsername} />
+                <Input label={t('settings.full_name')} placeholder="Your Name" value={name} onChange={setName} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <Input label={t('settings.email')} type="email" placeholder="you@studio.com" value={email} onChange={setEmail} />

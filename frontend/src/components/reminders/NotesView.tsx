@@ -30,11 +30,7 @@ const COLOR_BG: Record<string, string> = {
   purple:  'color-mix(in srgb, #8b5cf6 30%, var(--surface))',
 };
 
-interface NotesViewProps {
-  onConvertToEvent?: (note: any) => void;
-}
-
-export default function NotesView({ onConvertToEvent }: NotesViewProps) {
+export default function NotesView() {
   const { t } = useTranslation();
   const [notes, setNotes] = useState<any[]>([]);
   const [showNew, setShowNew] = useState(false);
@@ -90,10 +86,6 @@ export default function NotesView({ onConvertToEvent }: NotesViewProps) {
     } catch (e) {
       console.error(e);
     }
-  };
-
-  const handleConvert = (note: any) => {
-    if (onConvertToEvent) onConvertToEvent(note);
   };
 
   return (
@@ -208,7 +200,6 @@ export default function NotesView({ onConvertToEvent }: NotesViewProps) {
               note={note}
               onUpdate={handleUpdate}
               onDelete={(id) => handleDelete(id)}
-              onConvertToEvent={handleConvert}
             />
           ))}
         </div>

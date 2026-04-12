@@ -14,7 +14,7 @@
     "search": "Search",
     "all_statuses": "All Statuses",
     "actions": "ACTIONS",
-    "back": "\u2190 Back",
+    "back": "← Back",
     "reset": "Reset",
     "undo": "Undo",
     "export": "Export",
@@ -74,7 +74,6 @@
     "password_label": "Password",
     "password_placeholder": "••••••••",
     "remember_me": "Remember me",
-    "forgot_password": "Forgot password?",
     "username_label": "Username",
     "username_placeholder": "montassir",
     "password_min": "Min. 6 characters",
@@ -85,11 +84,7 @@
     "sign_in_link": "Sign in",
     "privacy": "Privacy",
     "terms": "Terms",
-    "reset_password": "Reset password",
-    "reset_description": "Enter the email linked to your account and we'll send a reset link.",
-    "email_sent": "Email sent",
     "back_to_login": "BACK TO LOGIN",
-    "send_link": "SEND LINK",
     "sending": "SENDING...",
     "email_required": "Email is required",
     "email_invalid": "Enter a valid email address",
@@ -97,7 +92,7 @@
     "username_required": "Username is required",
     "username_min": "Username must be at least 3 characters",
     "password_min_6": "Password must be at least 6 characters",
-    "authenticating_42": "Authenticating with 42\u2026"
+    "authenticating_42": "Authenticating with 42…"
   },
   "twofa": {
     "title": "TWO-FACTOR AUTH",
