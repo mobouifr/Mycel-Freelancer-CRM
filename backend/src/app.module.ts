@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
@@ -10,7 +10,7 @@ import { GamificationModule } from './gamification/gamification.module';
 import { PrismaModule} from './prisma/prisma.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MetricsModule } from './metrics/metrics.module';
-import { MetricsInterceptor } from './metrics/metrics.interceptor';
+import { GlobalMetricsMiddleware } from './metrics/global-metrics.middleware';
 import { HealthModule } from './health/health.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
@@ -46,10 +46,10 @@ import { CustomThrottlerGuard } from './common/guards/custom-throttler.guard';
       provide: APP_GUARD,
       useClass: CustomThrottlerGuard,
     },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: MetricsInterceptor,
-    },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(GlobalMetricsMiddleware).forRoutes('*');
+  }
+}
