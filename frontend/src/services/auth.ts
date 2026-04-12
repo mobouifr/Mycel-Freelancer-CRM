@@ -8,7 +8,8 @@ import type { LoginPayload, RegisterPayload, AuthResponse, User } from '../types
 ───────────────────────────────────────────── */
 
 /** Backend base URL for full-page redirects (42 OAuth) */
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || API_BASE_URL.replace(/\/api\/?$/, '');
 
 export const authService = {
   // ── Login ──────────────────────────────────

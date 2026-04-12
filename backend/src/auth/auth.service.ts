@@ -52,7 +52,8 @@ export class AuthService {
             throw new ConflictException('Email already in use'); 
         }
         
-        const passwordHash = await bcrypt.hash(registerDto.password, 10);
+        const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
+        const passwordHash = await bcrypt.hash(registerDto.password, saltRounds);
         const username = registerDto.username || registerDto.name || registerDto.email.split('@')[0];
         
         const newUser = await this.usersService.createUser(username, registerDto.email, registerDto.name || username, passwordHash);
@@ -91,7 +92,8 @@ export class AuthService {
             }
         }
 
-        const passwordHash = await bcrypt.hash(newPassword, 10);
+        const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
+        const passwordHash = await bcrypt.hash(newPassword, saltRounds);
         await this.usersService.update(userId, { passwordHash });
     }
 
