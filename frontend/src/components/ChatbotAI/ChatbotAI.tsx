@@ -6,6 +6,7 @@ import mermaid from 'mermaid';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { useAuth } from '../../hooks/useAuth';
+import api from '../../services/api';
 import 'highlight.js/styles/github-dark.css';
 
 type MessageRole = 'user' | 'assistant';
@@ -19,6 +20,11 @@ interface ParsedActionResult {
 interface ChatMessage {
   role: MessageRole;
   content: string;
+}
+
+interface ChatbotApiResponse {
+  reply: string;
+  action?: Record<string, unknown>;
 }
 
 interface SuggestionsExtraction {
@@ -93,7 +99,6 @@ export default function ChatbotAI() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [crmContext, setCrmContext] = useState<string>('');
   const [pendingForm, setPendingForm] = useState<PendingFormType | null>(null);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -300,47 +305,6 @@ export default function ChatbotAI() {
     return null;
   };
 
-  const fetchEntityList = async (path: string): Promise<any[]> => {
-    try {
-      const response = await fetch(path, { headers: getAuthHeaders() });
-      if (!response.ok) return [];
-      const payload = await response.json();
-      return Array.isArray(payload) ? payload : (payload.data ?? []);
-    } catch {
-      return [];
-    }
-  };
-
-  const refreshCrmContext = async (): Promise<string> => {
-    const [clients, projects] = await Promise.all([
-      fetchEntityList('/api/clients'),
-      fetchEntityList('/api/projects'),
-    ]);
-
-    const clientLines = clients.length
-      ? clients.map((c: any) =>
-          `- ${c.name} | email: ${c.email ?? 'N/A'} | phone: ${c.phone ?? 'N/A'} | company: ${c.company ?? 'N/A'} | notes: ${c.notes ?? 'none'} | id: ${c.id}`
-        ).join('\n')
-      : '  (no clients yet)';
-
-    const projectLines = projects.length
-      ? projects.map((p: any) =>
-          `- ${p.title} | client: ${p.client?.name ?? p.clientId ?? 'N/A'} | status: ${p.status} | priority: ${p.priority ?? 'N/A'} | budget: $${p.budget ?? 0} | deadline: ${p.deadline ?? 'N/A'} | description: ${p.description ?? 'none'} | id: ${p.id}`
-        ).join('\n')
-      : '  (no projects yet)';
-
-    const summary = [
-      `Clients (${clients.length}):`,
-      clientLines,
-      '',
-      `Projects (${projects.length}):`,
-      projectLines,
-    ].join('\n');
-
-    setCrmContext(summary);
-    return summary;
-  };
-
   const isValidEmail = (value: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   const isValidDate = (value: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(value);
 
@@ -494,18 +458,6 @@ export default function ChatbotAI() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading, isOpen, pendingForm]);
 
-  useEffect(() => {
-    const loadContext = async () => {
-      try {
-        await refreshCrmContext();
-      } catch {
-        setCrmContext('CRM data could not be loaded.');
-      }
-    };
-
-    void loadContext();
-  }, []);
-
   const detectLocalIntent = (text: string): PendingFormType | null => {
     const lower = text.toLowerCase();
 
@@ -605,112 +557,30 @@ export default function ChatbotAI() {
     // Detect intent locally first
     const localIntent = detectLocalIntent(trimmed);
 
-    let latestCrmContext = crmContext;
-    try {
-      latestCrmContext = await refreshCrmContext();
-    } catch {
-      latestCrmContext = crmContext || 'CRM data could not be loaded.';
-    }
-
-    const prompt = {
-      role: 'system' as const,
-      content: `You are a professional AI assistant helping ${username} manage CRM work.
-
-STRUCTURE:
-- Always organize replies with clear sections.
-- Use bold-style section titles in markdown.
-- Never produce a wall of text; split content into readable chunks.
-
-TABLES:
-- When comparing options, listing structured data, specs, or summaries, use a markdown table with a header row.
-
-DIAGRAMS:
-- For any process, system, architecture, or flow explanation, include a compact ASCII diagram.
-
-EMAILS AND REPORTS:
-- For any email/report/letter/formal document request, return a copy-ready block.
-- Start with a clear label like "--- EMAIL ---" or "--- REPORT ---".
-- Include full sections: subject, greeting, body, and sign-off.
-- After the block, add exactly: "You can copy the text above."
-
-LISTS:
-- Use bullet points for features/options.
-- Use numbered lists for sequences/instructions.
-
-STATUS LABELS:
-- Tag relevant key terms with: [DONE] [PENDING] [CRITICAL] [INFO] [WARNING].
-
-TONE AND LENGTH:
-- Be concise, professional, and warm.
-- Avoid filler phrases.
-- Match response length to request complexity.
-- Ensure each sentence adds value.
-
-QUICK SUGGESTIONS:
-- At the end of relevant responses, add 2-3 short follow-up suggestions.
-- Format each on its own line as:
-  -> "Ask me to expand the budget section"
-
-CRM data usage:
-- Always use the CRM snapshot below as source of truth for client/project details.
-- Use names, budgets, deadlines, priorities, descriptions, and IDs accurately from the snapshot when available.
-
-CRM Actions — when ${username} wants to create, modify, edit, update, or delete something, you MUST ALWAYS respond with a JSON block:
-\`\`\`action
-{"action":"CREATE_CLIENT","data":{"name":"...","email":"...","phone":"...","company":""}}
-\`\`\`
-\`\`\`action
-{"action":"CREATE_PROJECT","data":{"title":"...","clientName":"...","status":"ACTIVE","budget":0}}
-\`\`\`
-\`\`\`action
-{"action":"DELETE_CLIENT","data":{"clientId":"..."}}
-\`\`\`
-\`\`\`action
-{"action":"DELETE_PROJECT","data":{"projectId":"..."}}
-\`\`\`
-
-Action rules:
-- Use "action" key always in UPPERCASE with underscore
-- ALWAYS respond with an action JSON block when the user asks to add, create, modify, edit, update, change, or delete a client or project — NEVER skip this
-- For project creation, use "clientName" and do not ask the user for a client ID
-- Fill only the fields the user mentioned — leave others as empty string or 0
-- For normal questions, answer as usual with no JSON
-
-Here is ${username}'s current CRM data:
-${latestCrmContext}`,
-    };
-
     let reply = '';
 
     try {
-      const response = await fetch('https://api.deepseek.com/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_DEEPSEEK_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: 'deepseek-chat',
-          messages: [
-            prompt,
-            ...messages,
-            { role: 'user', content: trimmed }
-          ],
-          max_tokens: 1024,
-          stream: false
-        })
+      const { data } = await api.post<ChatbotApiResponse>('/chatbot/chat', {
+        message: trimmed,
       });
 
-      const data = await response.json();
-      reply = data.choices?.[0]?.message?.content ?? 'Sorry, no response received.';
+      reply = data.reply ?? 'Sorry, no response received.';
 
-      const parsed = parseActionBlock(reply);
-      reply = parsed.text || reply;
-
-      if (parsed.action) {
-        const opened = openActionModal(parsed.action);
+      const action = data.action;
+      if (action) {
+        const opened = openActionModal(action);
         if (opened && !reply) {
           reply = 'Action prepared. Review the details and submit the form.';
+        }
+      } else {
+        const parsed = parseActionBlock(reply);
+        reply = parsed.text || reply;
+
+        if (parsed.action) {
+          const opened = openActionModal(parsed.action);
+          if (opened && !reply) {
+            reply = 'Action prepared. Review the details and submit the form.';
+          }
         }
       }
     } catch {
