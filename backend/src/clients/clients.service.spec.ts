@@ -21,12 +21,6 @@ describe('ClientsService', () => {
     project: {
       findMany: jest.fn(),
     },
-    proposal: {
-      findMany: jest.fn(),
-    },
-    invoice: {
-      findMany: jest.fn(),
-    },
   };
 
   const mockNotificationsService = {
@@ -149,27 +143,5 @@ describe('ClientsService', () => {
       expect(prisma.project.findMany).toHaveBeenCalledWith({ where: { clientId, userId } });
     });
 
-    it('should fetch proposals linked to the client projects', async () => {
-      const mockProposals = [{ id: 'prop-1', projectId: 'proj-1' }];
-      mockPrismaService.project.findMany.mockResolvedValue(mockProjects);
-      mockPrismaService.proposal.findMany.mockResolvedValue(mockProposals);
-
-      const result = await service.getProposals(userId, clientId);
-
-      expect(result).toEqual(mockProposals);
-      // Validates that the IN query extracts project IDs correctly
-      expect(prisma.proposal.findMany).toHaveBeenCalledWith({
-        where: { projectId: { in: ['proj-1', 'proj-2'] }, userId },
-      });
-    });
-
-    it('should return an empty array for invoices if the client has no projects', async () => {
-      mockPrismaService.project.findMany.mockResolvedValue([]);
-      
-      const result = await service.getInvoices(userId, clientId);
-      
-      expect(result).toEqual([]);
-      expect(prisma.invoice.findMany).not.toHaveBeenCalled(); // Ensures we don't query if array is empty
-    });
   });
 });

@@ -72,7 +72,15 @@ export class ProjectsService {
     return project;
   }
 
-  async findAll(userId: string, page = 1, limit = 10, search?: string, status?: string) {
+  async findAll(
+    userId: string,
+    page = 1,
+    limit = 10,
+    search?: string,
+    status?: string,
+    sortBy = 'createdAt',
+    sortOrder: 'asc' | 'desc' = 'desc',
+  ) {
     const skip = (page - 1) * limit;
     const where: any = { userId };
     if (search?.trim()) {
@@ -84,8 +92,11 @@ export class ProjectsService {
     if (status && status !== 'ALL') {
       where.status = status as ProjectStatus;
     }
+    const allowedSortFields = ['title', 'budget', 'deadline', 'createdAt'];
+    const safeSortBy  = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
+    const safeSortOrd = sortOrder === 'asc' ? 'asc' : 'desc';
     const [data, count] = await Promise.all([
-      this.prisma.project.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' }, include: { client: true } }),
+      this.prisma.project.findMany({ where, skip, take: limit, orderBy: { [safeSortBy]: safeSortOrd }, include: { client: true } }),
       this.prisma.project.count({ where }),
     ]);
     return { data, count, page, limit, totalPages: Math.ceil(count / limit) || 1 };
@@ -133,7 +144,7 @@ export class ProjectsService {
     const newStatus = updatedProject.status;
 
     if (oldStatus !== 'COMPLETED' && newStatus === 'COMPLETED') {
-      const priority = updateProjectDto.priority || updatedProject.priority || 'MEDIUM';
+      const priority = updateProjectDto.priority || (existingProject as any).priority || 'MEDIUM';
       
       this.gamificationService.awardProjectCompletionXp(
         userId,

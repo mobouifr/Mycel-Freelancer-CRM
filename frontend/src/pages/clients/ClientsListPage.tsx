@@ -23,8 +23,9 @@ export const ClientsListPage = () => {
   const {
     clients, loading, error,
     page, totalPages, total,
-    search, setSearch, goToPage,
-    deleteClient, refetch,
+    search, setSearch,
+    sortBy, sortOrder, handleSort,
+    goToPage, deleteClient, refetch,
   } = useClients();
 
   // Re-fetch whenever the user navigates back to this page (e.g. after creating/editing)
@@ -207,6 +208,9 @@ export const ClientsListPage = () => {
       >
         <ClientTable
           clients={clients}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSort={handleSort}
           onView={(client) => navigate(`/clients/${client.id}`, { state: { background: location, client } })}
           onEdit={(client) => navigate(`/clients/${client.id}/edit`, { state: { background: location } })}
           onDelete={handleDelete}

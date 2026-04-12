@@ -54,8 +54,8 @@ describe('ClientsController', () => {
     mockClientsService.findAll.mockResolvedValue(mockResult);
 
     const result = await controller.findAll(req);
-    expect(result).toEqual({ data: mockResult });
-    expect(service.findAll).toHaveBeenCalledWith('user-1');
+    expect(result).toEqual(mockResult);
+    expect(service.findAll).toHaveBeenCalledWith('user-1', 1, 10, undefined, undefined, 'desc');
   });
 
   it('should find one client', async () => {

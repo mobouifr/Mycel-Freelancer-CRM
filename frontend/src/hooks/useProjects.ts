@@ -16,16 +16,22 @@ export const useProjects = (options?: { pageSize?: number }) => {
   const [total, setTotal]           = useState(0);
   const [search, setSearch]         = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [sortBy, setSortBy]         = useState('createdAt');
+  const [sortOrder, setSortOrder]   = useState<'asc' | 'desc'>('desc');
   const { addNotification } = useStore();
 
-  const pageRef         = useRef(page);
-  const searchRef       = useRef(search);
-  const statusRef       = useRef(statusFilter);
-  pageRef.current       = page;
-  searchRef.current     = search;
-  statusRef.current     = statusFilter;
+  const pageRef        = useRef(page);
+  const searchRef      = useRef(search);
+  const statusRef      = useRef(statusFilter);
+  const sortByRef      = useRef(sortBy);
+  const sortOrderRef   = useRef(sortOrder);
+  pageRef.current      = page;
+  searchRef.current    = search;
+  statusRef.current    = statusFilter;
+  sortByRef.current    = sortBy;
+  sortOrderRef.current = sortOrder;
 
-  const doFetch = useCallback(async (p: number, s: string, st: string) => {
+  const doFetch = useCallback(async (p: number, s: string, st: string, sb: string, so: 'asc' | 'desc') => {
     setLoading(true);
     setError(null);
     try {
@@ -34,6 +40,8 @@ export const useProjects = (options?: { pageSize?: number }) => {
         limit: PAGE_SIZE,
         search: s,
         status: st !== 'ALL' ? st : undefined,
+        sortBy: sb,
+        sortOrder: so,
       });
       setProjects(res.data);
       setTotalPages(res.totalPages ?? 1);
@@ -50,7 +58,7 @@ export const useProjects = (options?: { pageSize?: number }) => {
   useEffect(() => {
     if (didInit.current) return;
     didInit.current = true;
-    doFetch(1, '', 'ALL');
+    doFetch(1, '', 'ALL', 'createdAt', 'desc');
   }, [doFetch]);
 
   // Debounced search — resets to page 1
@@ -59,7 +67,7 @@ export const useProjects = (options?: { pageSize?: number }) => {
     if (isInitialSearch.current) { isInitialSearch.current = false; return; }
     const id = setTimeout(() => {
       setPage(1);
-      doFetch(1, search, statusRef.current);
+      doFetch(1, search, statusRef.current, sortByRef.current, sortOrderRef.current);
     }, 300);
     return () => clearTimeout(id);
   }, [search, doFetch]);
@@ -69,16 +77,34 @@ export const useProjects = (options?: { pageSize?: number }) => {
   useEffect(() => {
     if (isInitialStatus.current) { isInitialStatus.current = false; return; }
     setPage(1);
-    doFetch(1, searchRef.current, statusFilter);
+    doFetch(1, searchRef.current, statusFilter, sortByRef.current, sortOrderRef.current);
   }, [statusFilter, doFetch]);
+
+  // Sort change — immediate, resets to page 1
+  const isInitialSort = useRef(true);
+  useEffect(() => {
+    if (isInitialSort.current) { isInitialSort.current = false; return; }
+    setPage(1);
+    doFetch(1, searchRef.current, statusRef.current, sortBy, sortOrder);
+  }, [sortBy, sortOrder, doFetch]);
 
   const goToPage = useCallback((p: number) => {
     setPage(p);
-    doFetch(p, searchRef.current, statusRef.current);
+    doFetch(p, searchRef.current, statusRef.current, sortByRef.current, sortOrderRef.current);
   }, [doFetch]);
 
+  /** Toggle sort: same field flips direction; new field defaults to desc */
+  const handleSort = useCallback((field: string) => {
+    if (field === sortByRef.current) {
+      setSortOrder((prev) => (prev === 'desc' ? 'asc' : 'desc'));
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  }, []);
+
   const refetch = useCallback(() => {
-    doFetch(pageRef.current, searchRef.current, statusRef.current);
+    doFetch(pageRef.current, searchRef.current, statusRef.current, sortByRef.current, sortOrderRef.current);
   }, [doFetch]);
 
   const createProject = useCallback(async (data: any) => {
@@ -86,7 +112,7 @@ export const useProjects = (options?: { pageSize?: number }) => {
       const newProject = await projectsService.create(data);
       addNotification({ type: 'success', title: 'Project created', message: `"${newProject.title}" was created successfully.` });
       setPage(1);
-      await doFetch(1, searchRef.current, statusRef.current);
+      await doFetch(1, searchRef.current, statusRef.current, sortByRef.current, sortOrderRef.current);
       return newProject;
     } catch (err) {
       throw err as ApiError;
@@ -97,7 +123,7 @@ export const useProjects = (options?: { pageSize?: number }) => {
     try {
       const updatedProject = await projectsService.update(id, data);
       addNotification({ type: 'info', title: 'Project updated', message: `"${updatedProject.title}" was updated.` });
-      await doFetch(pageRef.current, searchRef.current, statusRef.current);
+      await doFetch(pageRef.current, searchRef.current, statusRef.current, sortByRef.current, sortOrderRef.current);
       return updatedProject;
     } catch (err) {
       throw err as ApiError;
@@ -111,7 +137,7 @@ export const useProjects = (options?: { pageSize?: number }) => {
       addNotification({ type: 'warning', title: 'Project deleted', message: deletedProject ? `"${deletedProject.title}" was removed.` : 'A project was removed.' });
       const targetPage = projects.length === 1 && pageRef.current > 1 ? pageRef.current - 1 : pageRef.current;
       if (targetPage !== pageRef.current) setPage(targetPage);
-      await doFetch(targetPage, searchRef.current, statusRef.current);
+      await doFetch(targetPage, searchRef.current, statusRef.current, sortByRef.current, sortOrderRef.current);
     } catch (err) {
       throw err as ApiError;
     }
@@ -128,6 +154,9 @@ export const useProjects = (options?: { pageSize?: number }) => {
     setSearch,
     statusFilter,
     setStatusFilter,
+    sortBy,
+    sortOrder,
+    handleSort,
     goToPage,
     refetch,
     createProject,
