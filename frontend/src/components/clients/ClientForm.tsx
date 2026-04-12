@@ -36,154 +36,85 @@ export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: Cl
     await onSubmit(data);
   };
 
-  const fieldBoxStyle: React.CSSProperties = {
-    width: '100%',
-    background: 'rgba(255,255,255,0.02)',
-    border: '2px solid var(--border-h)',
-    borderRadius: 10,
-    padding: '12px 16px',
-    color: 'var(--text)',
-    fontSize: 13,
-    fontFamily: 'var(--font-m)',
-    outline: 'none',
-  };
-
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(handleFormSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {/* Name */}
       <div>
-        <label htmlFor="name" className="block text-sm font-medium mb-1">
-          {t('forms.client.name')} <span className="text-red-500">*</span>
+        <label style={labelStyle}>
+          {t('forms.client.name')} <span style={{ color: 'var(--danger)' }}>*</span>
         </label>
         <input
-          id="name"
           type="text"
           {...register('name')}
-          className="w-full rounded-md focus:outline-none"
-          style={fieldBoxStyle}
+          placeholder={t('forms.client.name')}
+          autoFocus
+          style={inputStyle}
         />
-        {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
+        {errors.name && <p style={errorStyle}>{errors.name.message}</p>}
       </div>
 
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium mb-1">
-          {t('forms.client.email')}
-        </label>
-        <input
-          id="email"
-          type="email"
-          {...register('email')}
-          className="w-full rounded-md focus:outline-none"
-          style={fieldBoxStyle}
-        />
-        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+      {/* Email / Phone row */}
+      <div style={{ display: 'flex', gap: 10 }}>
+        <div style={{ flex: 1 }}>
+          <label style={labelStyle}>{t('forms.client.email')}</label>
+          <input
+            type="email"
+            {...register('email')}
+            placeholder="name@example.com"
+            style={inputStyle}
+          />
+          {errors.email && <p style={errorStyle}>{errors.email.message}</p>}
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={labelStyle}>{t('forms.client.phone')}</label>
+          <input
+            type="tel"
+            {...register('phone')}
+            placeholder="+1 555 000 0000"
+            style={inputStyle}
+          />
+          {errors.phone && <p style={errorStyle}>{errors.phone.message}</p>}
+        </div>
       </div>
 
+      {/* Company */}
       <div>
-        <label htmlFor="phone" className="block text-sm font-medium mb-1">
-          {t('forms.client.phone')}
-        </label>
+        <label style={labelStyle}>{t('forms.client.company')}</label>
         <input
-          id="phone"
-          type="tel"
-          {...register('phone')}
-          className="w-full rounded-md focus:outline-none"
-          style={fieldBoxStyle}
-        />
-        {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
-      </div>
-
-      <div>
-        <label htmlFor="company" className="block text-sm font-medium mb-1">
-          {t('forms.client.company')}
-        </label>
-        <input
-          id="company"
           type="text"
           {...register('company')}
-          className="w-full rounded-md focus:outline-none"
-          style={fieldBoxStyle}
+          placeholder={t('forms.client.company')}
+          style={inputStyle}
         />
-        {errors.company && <p className="text-red-500 text-sm mt-1">{errors.company.message}</p>}
+        {errors.company && <p style={errorStyle}>{errors.company.message}</p>}
       </div>
 
+      {/* Notes */}
       <div>
-        <label htmlFor="notes" className="block text-sm font-medium mb-1">
-          {t('forms.client.notes')}
-        </label>
+        <label style={labelStyle}>{t('forms.client.notes')}</label>
         <textarea
-          id="notes"
           {...register('notes')}
-          rows={4}
-          className="w-full rounded-md focus:outline-none"
-          style={fieldBoxStyle}
+          rows={3}
+          placeholder={t('event_modal.add_details')}
+          style={{ ...inputStyle, resize: 'vertical', minHeight: 60 }}
         />
-        {errors.notes && <p className="text-red-500 text-sm mt-1">{errors.notes.message}</p>}
+        {errors.notes && <p style={errorStyle}>{errors.notes.message}</p>}
       </div>
 
-      <div
-        className="flex gap-2 justify-end"
-        style={{
-          borderTop: '1px solid var(--border)',
-          paddingTop: 16,
-          marginTop: 0, // spacing comes from the form's `space-y-4`
-        }}
-      >
+      {/* Actions */}
+      <div style={{
+        display: 'flex', gap: 8, justifyContent: 'flex-end',
+        marginTop: 8, paddingTop: 14, borderTop: '1px solid var(--border)',
+      }}>
         {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={isSubmitting || isLoading}
-            style={{
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid var(--border)',
-              color: 'var(--text-mid)',
-              cursor: 'pointer',
-              fontFamily: 'var(--font-m)',
-              fontSize: 10,
-              padding: '6px 12px',
-              borderRadius: 999,
-              letterSpacing: '.06em',
-              transition: 'all .15s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = 'var(--text)';
-              e.currentTarget.style.borderColor = 'var(--border-h)';
-              e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = 'var(--text-dim)';
-              e.currentTarget.style.borderColor = 'var(--border)';
-              e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-            }}
-          >
+          <button type="button" onClick={onCancel} disabled={isSubmitting || isLoading} style={secondaryBtn}>
             {t('common.cancel')}
           </button>
         )}
         <button
           type="submit"
           disabled={!isValid || isSubmitting || isLoading}
-          style={{
-            background: 'var(--accent-bg)',
-            border: '1px solid var(--accent-hover)',
-            color: 'var(--accent)',
-            cursor: !isValid || isSubmitting || isLoading ? 'not-allowed' : 'pointer',
-            fontFamily: 'var(--font-m)',
-            fontSize: 10,
-            padding: '6px 12px',
-            borderRadius: 999,
-            letterSpacing: '.06em',
-            transition: 'all .15s',
-            opacity: !isValid || isSubmitting || isLoading ? 0.65 : 1,
-          }}
-          onMouseEnter={(e) => {
-            if (isSubmitting || isLoading || !isValid) return;
-            e.currentTarget.style.background = 'var(--accent)';
-            e.currentTarget.style.color = '#050505';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'var(--accent-bg)';
-            e.currentTarget.style.color = 'var(--accent)';
-          }}
+          style={{ ...primaryBtn, opacity: !isValid || isSubmitting || isLoading ? 0.55 : 1, cursor: !isValid || isSubmitting || isLoading ? 'not-allowed' : 'pointer' }}
         >
           {isSubmitting || isLoading ? t('common.saving') : client ? t('forms.client.update') : t('forms.client.create')}
         </button>
@@ -192,3 +123,56 @@ export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: Cl
   );
 };
 
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '8px 10px',
+  background: 'var(--bg2)',
+  border: '1px solid var(--border)',
+  borderRadius: 6,
+  color: 'var(--text)',
+  fontFamily: 'var(--font-m)',
+  fontSize: 11,
+  outline: 'none',
+  boxSizing: 'border-box',
+  transition: 'border-color .15s',
+};
+
+const labelStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-m)',
+  fontSize: 9,
+  color: 'var(--text-dim)',
+  letterSpacing: '.06em',
+  textTransform: 'uppercase',
+  marginBottom: 4,
+  display: 'block',
+};
+
+const errorStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-m)',
+  fontSize: 10,
+  color: 'var(--danger)',
+  marginTop: 4,
+};
+
+const primaryBtn: React.CSSProperties = {
+  padding: '8px 18px',
+  borderRadius: 6,
+  border: 'none',
+  background: 'var(--accent)',
+  color: 'var(--bg)',
+  fontFamily: 'var(--font-m)',
+  fontSize: 11,
+  fontWeight: 600,
+  transition: 'opacity .15s',
+};
+
+const secondaryBtn: React.CSSProperties = {
+  padding: '8px 14px',
+  borderRadius: 6,
+  border: '1px solid var(--border)',
+  background: 'transparent',
+  color: 'var(--text-mid)',
+  fontFamily: 'var(--font-m)',
+  fontSize: 11,
+  cursor: 'pointer',
+};

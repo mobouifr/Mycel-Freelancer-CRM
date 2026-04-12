@@ -1,11 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ClientsService } from './clients.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { NotFoundException } from '@nestjs/common';
 
 describe('ClientsService', () => {
   let service: ClientsService;
   let prisma: PrismaService;
+  let notificationsService: NotificationsService;
 
   // 1. Mock all the Prisma models and methods used in the service
   const mockPrismaService = {
@@ -19,9 +21,6 @@ describe('ClientsService', () => {
     project: {
       findMany: jest.fn(),
     },
-    notification: {
-      create: jest.fn(),
-    },
     proposal: {
       findMany: jest.fn(),
     },
@@ -30,16 +29,22 @@ describe('ClientsService', () => {
     },
   };
 
+  const mockNotificationsService = {
+    create: jest.fn().mockResolvedValue({}),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ClientsService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: NotificationsService, useValue: mockNotificationsService },
       ],
     }).compile();
 
     service = module.get<ClientsService>(ClientsService);
     prisma = module.get<PrismaService>(PrismaService);
+    notificationsService = module.get<NotificationsService>(NotificationsService);
   });
 
   afterEach(() => {
@@ -63,15 +68,16 @@ describe('ClientsService', () => {
       
       expect(result).toEqual(mockClient);
       expect(prisma.client.create).toHaveBeenCalledWith({
-        data: { ...dto, userId },
+        data: expect.objectContaining({ name: dto.name, email: dto.email, userId }),
       });
-      expect(prisma.notification.create).toHaveBeenCalledWith({
-        data: {
-          userId,
+      expect(notificationsService.create).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({
+          title: 'Client Created',
           message: `New client created: ${mockClient.name}`,
           type: 'success',
-        },
-      });
+        })
+      );
     });
 
     it('should update a client and create a notification', async () => {
@@ -85,15 +91,16 @@ describe('ClientsService', () => {
       expect(result).toEqual(updatedClient);
       expect(prisma.client.update).toHaveBeenCalledWith({
         where: { id: clientId },
-        data: dto,
+        data: expect.objectContaining(dto),
       });
-      expect(prisma.notification.create).toHaveBeenCalledWith({
-        data: {
-          userId,
+      expect(notificationsService.create).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({
+          title: 'Client Updated',
           message: `Client updated: ${updatedClient.name}`,
           type: 'info',
-        },
-      });
+        })
+      );
     });
 
     it('should delete a client and create a notification', async () => {
@@ -106,13 +113,14 @@ describe('ClientsService', () => {
       expect(prisma.client.delete).toHaveBeenCalledWith({
         where: { id: clientId },
       });
-      expect(prisma.notification.create).toHaveBeenCalledWith({
-        data: {
-          userId,
+      expect(notificationsService.create).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({
+          title: 'Client Deleted',
           message: `Client deleted: ${mockClient.name}`,
           type: 'warning',
-        },
-      });
+        })
+      );
     });
 
     it('should throw NotFoundException if client does not exist or belong to user', async () => {

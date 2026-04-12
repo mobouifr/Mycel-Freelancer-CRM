@@ -8,6 +8,7 @@ import { type ProjectFormData } from '../../utils/validation';
 import { type Project } from '../../types/project.types';
 import { type ApiError } from '../../types/common.types';
 import { useStore } from '../../hooks/useStore';
+import Modal from '../../components/Modal';
 
 export const EditProjectPage = () => {
   const { t } = useTranslation();
@@ -54,44 +55,34 @@ export const EditProjectPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-6">
-        <div className="text-center py-8">{t('projects.detail_loading')}</div>
-      </div>
-    );
-  }
-
-  if (error || !project) {
-    return (
-      <div className="p-6">
-        <div
-          style={{
-            background: 'var(--danger-bg)',
-            border: '1px solid var(--danger)',
-            color: 'var(--danger)',
-            padding: '12px 16px',
-            borderRadius: 8,
-          }}
-        >
-          {error || t('projects.not_found')}
-        </div>
-      </div>
-    );
-  }
+  const body = loading ? (
+    <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-mid)', fontFamily: 'var(--font-m)', fontSize: 12 }}>
+      {t('projects.detail_loading')}
+    </div>
+  ) : error || !project ? (
+    <div style={{
+      background: 'rgba(230,90,90,0.08)',
+      border: '1px solid rgba(230,90,90,0.35)',
+      color: 'var(--danger)',
+      padding: '12px 16px',
+      borderRadius: 6,
+      fontFamily: 'var(--font-m)',
+      fontSize: 11,
+    }}>
+      {error || t('projects.not_found')}
+    </div>
+  ) : (
+    <ProjectForm
+      project={project}
+      onSubmit={handleSubmit}
+      onCancel={() => navigate('/projects')}
+      isLoading={isSaving}
+    />
+  );
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text)' }}>{t('projects.edit_title')}</h1>
-      <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24, maxWidth: 768 }}>
-        <ProjectForm
-          project={project}
-          onSubmit={handleSubmit}
-          onCancel={() => navigate('/projects')}
-          isLoading={isSaving}
-        />
-      </div>
-    </div>
+    <Modal isOpen onClose={() => navigate('/projects')} title={t('projects.edit_title')} width={560}>
+      {body}
+    </Modal>
   );
 };
-
