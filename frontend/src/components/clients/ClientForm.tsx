@@ -44,9 +44,11 @@ export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: Cl
           {t('forms.client.name')} <span style={{ color: 'var(--danger)' }}>*</span>
         </label>
         <input
+          id="client-name"
           type="text"
           {...register('name')}
           placeholder={t('forms.client.name')}
+          autoComplete="name"
           autoFocus
           style={inputStyle}
         />
@@ -58,9 +60,11 @@ export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: Cl
         <div style={{ flex: 1 }}>
           <label style={labelStyle}>{t('forms.client.email')}</label>
           <input
+            id="client-email"
             type="email"
             {...register('email')}
             placeholder="name@example.com"
+            autoComplete="email"
             style={inputStyle}
           />
           {errors.email && <p style={errorStyle}>{errors.email.message}</p>}
@@ -68,9 +72,11 @@ export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: Cl
         <div style={{ flex: 1 }}>
           <label style={labelStyle}>{t('forms.client.phone')}</label>
           <input
+            id="client-phone"
             type="tel"
             {...register('phone')}
             placeholder="+1 555 000 0000"
+            autoComplete="tel"
             style={inputStyle}
           />
           {errors.phone && <p style={errorStyle}>{errors.phone.message}</p>}
@@ -81,9 +87,11 @@ export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: Cl
       <div>
         <label style={labelStyle}>{t('forms.client.company')}</label>
         <input
+          id="client-company"
           type="text"
           {...register('company')}
           placeholder={t('forms.client.company')}
+          autoComplete="organization"
           style={inputStyle}
         />
         {errors.company && <p style={errorStyle}>{errors.company.message}</p>}
@@ -93,9 +101,11 @@ export const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: Cl
       <div>
         <label style={labelStyle}>{t('forms.client.notes')}</label>
         <textarea
+          id="client-notes"
           {...register('notes')}
           rows={3}
           placeholder={t('event_modal.add_details')}
+          autoComplete="off"
           style={{ ...inputStyle, resize: 'vertical', minHeight: 60 }}
         />
         {errors.notes && <p style={errorStyle}>{errors.notes.message}</p>}

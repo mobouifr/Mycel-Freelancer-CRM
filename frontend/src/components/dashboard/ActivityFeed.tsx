@@ -87,7 +87,7 @@ function ActivityFeed() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <p style={{
                     fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--white)',
-                    lineHeight: 1.3,
+                    lineHeight: 1.3, wordBreak: 'break-word', overflowWrap: 'break-word',
                   }}>
                     {item.title}
                   </p>

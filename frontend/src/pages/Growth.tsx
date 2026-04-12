@@ -9,7 +9,7 @@ import type { GamificationStats } from '../services/gamification';
 ───────────────────────────────────────────── */
 
 const LEVEL_TITLES: Record<number, string> = {
-  1: 'Newcomer', 2: 'Builder', 3: 'Achiever', 4: 'Veteran', 5: 'Expert', 6: 'Elite',
+  0: 'Newcomer', 1: 'Builder', 2: 'Achiever', 3: 'Veteran', 4: 'Expert', 5: 'Elite',
 };
 const LEVEL_TITLE_DEFAULT = 'Master';
 
@@ -164,12 +164,12 @@ const ALL_CARDS: CardDef[] = [
 
 // ── XP helpers ──
 
+// xpForLevel(L) = XP required to reach level L (0 = start, 1 = 500 XP, 2 = 2000 XP, ...)
 function xpForLevel(level: number) { return 500 * level * level; }
 
 function xpProgress(xp: number, level: number): number {
-  const safeLvl = Math.max(level, 1);
-  const cur = xpForLevel(safeLvl - 1);
-  const nxt = xpForLevel(safeLvl);
+  const cur = xpForLevel(level);        // XP at the start of current level
+  const nxt = xpForLevel(level + 1);    // XP needed for next level
   const range = nxt - cur;
   if (range <= 0) return 0;
   return Math.min(Math.max((xp - cur) / range, 0), 1);
@@ -196,7 +196,7 @@ export default function Growth() {
       });
   }, []);
 
-  const level = Math.max(stats?.level ?? 1, 1);
+  const level = stats?.level ?? 0;
   const xp = stats?.xp ?? 0;
   const xpToNext = stats?.xpToNextLevel ?? 0;
   const progress = stats ? xpProgress(xp, level) : 0;

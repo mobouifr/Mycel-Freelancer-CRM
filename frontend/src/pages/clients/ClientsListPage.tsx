@@ -1,5 +1,5 @@
 // Clients list page
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -13,7 +13,14 @@ export const ClientsListPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
-  const { clients, loading, error, deleteClient } = useClients();
+  const { clients, loading, error, deleteClient, refetch } = useClients();
+
+  // Re-fetch whenever the user navigates back to this page (e.g. after creating/editing)
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    refetch();
+  }, [location.key]);
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredClients = clients.filter(
@@ -134,6 +141,9 @@ export const ClientsListPage = () => {
       }}>
         <input
           type="text"
+          id="clients-search"
+          name="clients-search"
+          autoComplete="off"
           placeholder={t('clients.search_placeholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}

@@ -43,6 +43,8 @@ const CELL_MUTED: CSSProperties = {
   fontWeight: 400,
   lineHeight: 1.4,
   color: 'var(--text-mid)',
+  wordBreak: 'break-word',
+  overflowWrap: 'break-word',
 };
 
 export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTableProps) => {
@@ -186,7 +188,7 @@ export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTablePr
           >
             <div style={{ marginBottom: 10 }}>
               <div style={LABEL_STYLE}>{t('clients.table.name')}</div>
-              <div style={{ fontFamily: 'var(--font-m)', fontSize: 12, fontWeight: 500, lineHeight: 1.3, color: 'var(--text)' }}>
+              <div style={{ fontFamily: 'var(--font-m)', fontSize: 12, fontWeight: 500, lineHeight: 1.3, color: 'var(--text)', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                 {client.name}
               </div>
             </div>
@@ -262,6 +264,8 @@ export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTablePr
                   fontWeight: 500,
                   lineHeight: 1.3,
                   color: 'var(--text)',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'break-word',
                 }}
               >
                 {client.name}
