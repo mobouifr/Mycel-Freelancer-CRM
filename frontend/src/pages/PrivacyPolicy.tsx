@@ -35,23 +35,36 @@ export default function PrivacyPolicy() {
         padding: '0 32px',
         zIndex: 10,
       }}>
-        {/* Logo */}
-        <Link
-          to="/"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            textDecoration: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          <LogoMark size={32} />
-          <span className="brand-logo" style={{
-            fontFamily: 'var(--font-display)', fontWeight: 700,
-            fontSize: 18, color: 'var(--white)', letterSpacing: '.01em',
-          }}>Mycel.</span>
-        </Link>
+        {/* Back + Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <button
+            onClick={handleBack}
+            style={{
+              width: 34, height: 34, borderRadius: '50%',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              background: 'var(--glass)', border: '1px solid var(--border)',
+              cursor: 'pointer', color: 'var(--text-dim)', flexShrink: 0,
+              transition: 'color .15s, border-color .15s, background .15s',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text)'; e.currentTarget.style.borderColor = 'var(--border-h)'; e.currentTarget.style.background = 'var(--surface-2)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-dim)'; e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--glass)'; }}
+            aria-label={t('common.back')}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <Link
+            to="/"
+            style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', cursor: 'pointer' }}
+          >
+            <LogoMark size={32} />
+            <span className="brand-logo" style={{
+              fontFamily: 'var(--font-display)', fontWeight: 700,
+              fontSize: 18, color: 'var(--white)', letterSpacing: '.01em',
+            }}>Mycel.</span>
+          </Link>
+        </div>
 
         {/* Theme switcher */}
         <button
@@ -100,24 +113,6 @@ export default function PrivacyPolicy() {
         }}
       >
         <div style={{ maxWidth: 720, margin: '0 auto', width: '100%' }}>
-          <button
-            onClick={handleBack}
-            style={{
-              fontFamily: 'var(--font-m)',
-              fontSize: 11,
-              color: 'var(--text-dim)',
-              letterSpacing: '.06em',
-              marginBottom: 32,
-              display: 'inline-block',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: 0,
-            }}
-          >
-            {t('common.back')}
-          </button>
-
           <h1
             style={{
               fontFamily: 'var(--font-d)',
@@ -140,8 +135,8 @@ export default function PrivacyPolicy() {
               marginBottom: 40,
             }}
           >
-            Last updated:{' '}
-            {new Date().toLocaleDateString('en-US', {
+            {t('privacy_policy.last_updated')}:{' '}
+            {new Date().toLocaleDateString(undefined, {
               year: 'numeric',
               month: 'long',
               day: 'numeric',
@@ -149,60 +144,52 @@ export default function PrivacyPolicy() {
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-            <Section title="1. Introduction">
-              Mycel ("we", "our", "us") operates the Mycel Freelancer CRM web application.
-              This Privacy Policy explains how we collect, use, disclose, and safeguard your
-              information when you use our application. By using Mycel, you agree to the
-              collection and use of information as described in this policy.
+            <Section title={t('privacy_policy.s1_title')}>
+              {t('privacy_policy.s1_body')}
             </Section>
 
-            <Section title="2. Information We Collect">
-              <strong>Account Information:</strong> When you register, we collect your username,
-              email address, and a securely hashed version of your password. If you authenticate
-              via OAuth (42 Intra), we receive your intra ID and public profile data.
+            <Section title={t('privacy_policy.s2_title')}>
+              <strong>{t('privacy_policy.s2_account_label')}</strong> {t('privacy_policy.s2_account_body')}
               <br /><br />
-              <strong>Business Data:</strong> You may voluntarily provide business details such as
-              company name, address, currency preference, and tax rate.
+              <strong>{t('privacy_policy.s2_business_label')}</strong> {t('privacy_policy.s2_business_body')}
               <br /><br />
-              <strong>Client and Project Data:</strong> Information you enter about your clients,
-              projects, reminders, and notes.
+              <strong>{t('privacy_policy.s2_client_label')}</strong> {t('privacy_policy.s2_client_body')}
               <br /><br />
-              <strong>Usage Data:</strong> We collect basic usage patterns such as login timestamps.
+              <strong>{t('privacy_policy.s2_usage_label')}</strong> {t('privacy_policy.s2_usage_body')}
             </Section>
 
-            <Section title="3. How We Use Your Information">
-              We use collected information to:
+            <Section title={t('privacy_policy.s3_title')}>
+              {t('privacy_policy.s3_intro')}
               <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-                <li>Provide and maintain the app</li>
-                <li>Authenticate and secure your account</li>
-                <li>Send reminders</li>
-                <li>Improve experience</li>
+                <li>{t('privacy_policy.s3_li1')}</li>
+                <li>{t('privacy_policy.s3_li2')}</li>
+                <li>{t('privacy_policy.s3_li3')}</li>
+                <li>{t('privacy_policy.s3_li4')}</li>
               </ul>
             </Section>
 
-            <Section title="4. Data Storage and Security">
-              Your data is stored in a PostgreSQL database. Passwords are hashed using bcrypt.
-              Authentication tokens (JWT) are stored in HTTP-only cookies.
+            <Section title={t('privacy_policy.s4_title')}>
+              {t('privacy_policy.s4_body')}
             </Section>
 
-            <Section title="5. Data Sharing">
-              We do not sell your data. We may share it only if required by law or with consent.
+            <Section title={t('privacy_policy.s5_title')}>
+              {t('privacy_policy.s5_body')}
             </Section>
 
-            <Section title="6. Your Rights">
-              You can access, update, delete, or export your data anytime.
+            <Section title={t('privacy_policy.s6_title')}>
+              {t('privacy_policy.s6_body')}
             </Section>
 
-            <Section title="7. Cookies and Local Storage">
-              We use local storage for preferences and HTTP-only cookies for auth.
+            <Section title={t('privacy_policy.s7_title')}>
+              {t('privacy_policy.s7_body')}
             </Section>
 
-            <Section title="8. Changes to This Policy">
-              We may update this policy. Continued use means acceptance.
+            <Section title={t('privacy_policy.s8_title')}>
+              {t('privacy_policy.s8_body')}
             </Section>
 
-            <Section title="9. Contact">
-              Contact us via the app settings.
+            <Section title={t('privacy_policy.s9_title')}>
+              {t('privacy_policy.s9_body')}
             </Section>
           </div>
         </div>

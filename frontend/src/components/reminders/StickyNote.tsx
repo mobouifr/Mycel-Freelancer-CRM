@@ -11,22 +11,21 @@ const TAG_COLORS: Record<string, string> = {
 };
 
 const NOTE_COLORS: { key: string; bg: string; border: string }[] = [
-  { key: 'default', bg: 'var(--surface)',    border: 'var(--border)' },
-  { key: 'yellow',  bg: '#2a2a1a',          border: '#5a5a2a' },
-  { key: 'green',   bg: '#1a2a1a',          border: '#2a5a2a' },
-  { key: 'blue',    bg: '#1a1a2a',          border: '#2a2a5a' },
-  { key: 'pink',    bg: '#2a1a2a',          border: '#5a2a4a' },
-  { key: 'purple',  bg: '#221a2a',          border: '#4a2a5a' },
+  { key: 'default', bg: 'var(--surface)',                                                          border: 'var(--border)' },
+  { key: 'yellow',  bg: 'color-mix(in srgb, #f59e0b 12%, var(--surface))',                        border: 'color-mix(in srgb, #f59e0b 40%, var(--border))' },
+  { key: 'green',   bg: 'color-mix(in srgb, var(--success) 12%, var(--surface))',                 border: 'color-mix(in srgb, var(--success) 40%, var(--border))' },
+  { key: 'blue',    bg: 'color-mix(in srgb, var(--info) 12%, var(--surface))',                    border: 'color-mix(in srgb, var(--info) 40%, var(--border))' },
+  { key: 'pink',    bg: 'color-mix(in srgb, #ec4899 12%, var(--surface))',                        border: 'color-mix(in srgb, #ec4899 40%, var(--border))' },
+  { key: 'purple',  bg: 'color-mix(in srgb, #8b5cf6 12%, var(--surface))',                        border: 'color-mix(in srgb, #8b5cf6 40%, var(--border))' },
 ];
 
 interface StickyNoteProps {
   note: any;
   onUpdate: (id: string, updates: any) => void;
   onDelete: (id: string) => void;
-  onConvertToEvent: (note: any) => void;
 }
 
-export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent }: StickyNoteProps) {
+export default function StickyNote({ note, onUpdate, onDelete }: StickyNoteProps) {
   const { t, i18n } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(note.title);
@@ -58,6 +57,8 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
       display: 'flex', flexDirection: 'column', gap: 4,
       transition: 'transform .12s, box-shadow .12s',
       position: 'relative',
+      overflow: 'hidden',
+      minWidth: 0,
     }}>
       {/* Top bar: pin + color + actions */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
@@ -97,10 +98,6 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
               <path d="M12 17v5M9 2h6l-1 7h4l-7 8 1-7H8l1-8z" />
             </svg>
           </button>
-          {/* Convert to event */}
-          <button onClick={() => onConvertToEvent(note)} title="Convert to event" style={iconBtn}>
-            {t('notes.event')}
-          </button>
           {/* Delete */}
           <button onClick={() => onDelete(note.id)} title="Delete" style={{ ...iconBtn, color: 'var(--danger)' }}>
             ×
@@ -136,6 +133,7 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
             onChange={(e) => setTitle(e.target.value)}
             placeholder={t('notes.title_label')}
             style={{
+              width: '100%', boxSizing: 'border-box',
               background: 'transparent', border: 'none', borderBottom: '1px solid var(--border)',
               color: 'var(--text)', fontFamily: 'var(--font-m)', fontSize: 12,
               fontWeight: 600, outline: 'none', paddingBottom: 4,
@@ -147,6 +145,7 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
             placeholder={t('notes.content_placeholder')}
             rows={3}
             style={{
+              width: '100%', boxSizing: 'border-box',
               background: 'transparent', border: 'none',
               color: 'var(--text)', fontFamily: 'var(--font-m)', fontSize: 10,
               outline: 'none', resize: 'vertical', minHeight: 40,
@@ -183,6 +182,7 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
           <div style={{
             fontFamily: 'var(--font-m)', fontSize: 12, color: 'var(--text)',
             fontWeight: 600, marginBottom: 3,
+            overflowWrap: 'break-word', wordBreak: 'break-word',
           }}>
             {note.title || t('notes.untitled')}
           </div>
@@ -190,6 +190,7 @@ export default function StickyNote({ note, onUpdate, onDelete, onConvertToEvent 
             fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-mid)',
             lineHeight: 1.5, whiteSpace: 'pre-wrap',
             overflow: 'hidden', maxHeight: 80,
+            overflowWrap: 'break-word', wordBreak: 'break-word',
           }}>
             {note.content || t('notes.click_to_edit')}
           </div>

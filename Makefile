@@ -141,12 +141,16 @@ db-backup:
 	@$(DB_EXEC) pg_dump -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-freelancer_crm} --clean --if-exists > backups/backup_$(TIMESTAMP).sql
 	@printf "$(GREEN)Saved to backups/backup_$(TIMESTAMP).sql$(RESET)\n"
 
-## db-restore     : Restore DB (usage: make db-restore FILE=backups/xxx.sql)
+## db-restore     : Restore DB (usage: make db-restore FILE=backups/xxx.sql[.gz])
 db-restore:
-	@if [ -z "$(FILE)" ]; then printf "$(RED)Usage: make db-restore FILE=backups/file.sql$(RESET)\n"; exit 1; fi
+	@if [ -z "$(FILE)" ]; then printf "$(RED)Usage: make db-restore FILE=backups/file.sql[.gz]$(RESET)\n"; exit 1; fi
 	@if [ ! -f "$(FILE)" ]; then printf "$(RED)Not found: $(FILE)$(RESET)\n"; exit 1; fi
 	@printf "$(RED)Overwrite database with $(FILE)? [y/N] $(RESET)" && read ans && [ $${ans:-N} = y ]
-	@cat $(FILE) | $(DB_EXEC) psql -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-freelancer_crm}
+	@if echo "$(FILE)" | grep -q '\\.gz$$'; then \
+		gunzip -c "$(FILE)" | $(DB_EXEC) psql -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-freelancer_crm}; \
+	else \
+		cat "$(FILE)" | $(DB_EXEC) psql -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-freelancer_crm}; \
+	fi
 	@printf "$(GREEN)Restored from $(FILE)$(RESET)\n"
 
 # =============================================================================
@@ -185,7 +189,7 @@ help:
 	@printf "  make up\n"
 	@printf "  make logs\n"
 	@printf "  make db-backup\n"
-	@printf "  make db-restore FILE=backups/backup_YYYYMMDD_HHMMSS.sql\n"
+	@printf "  make db-restore FILE=backups/backup_YYYYMMDD_HHMMSS.sql.gz\n"
 	@printf "  make up-monitoring\n\n"
 
 .DEFAULT_GOAL := help

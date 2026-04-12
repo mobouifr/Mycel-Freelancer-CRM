@@ -23,7 +23,7 @@ groups:
       # Backend Down — backend service specifically unreachable
       # -----------------------------------------------------------------------
       - alert: BackendDown
-        expr: up{job="backend"} == 0
+        expr: up{job="nestjs-backend"} == 0
         for: 1m
         labels:
           severity: critical

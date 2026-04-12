@@ -10,7 +10,7 @@ set -eu
 
 BACKUP_DIR="/backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-BACKUP_FILE="${BACKUP_DIR}/crm_${TIMESTAMP}.sql.gz"
+BACKUP_FILE="${BACKUP_DIR}/backup_${TIMESTAMP}.sql.gz"
 
 # ---------------------------------------------------------------------------
 # Create backup
@@ -36,7 +36,7 @@ fi
 # ---------------------------------------------------------------------------
 # Remove backups older than 7 days
 # ---------------------------------------------------------------------------
-find "${BACKUP_DIR}" -name "crm_*.sql.gz" -type f -mtime +7 -delete
+find "${BACKUP_DIR}" -name "backup_*.sql.gz" -type f -mtime +7 -delete
 
 echo "[$(date)] Cleanup complete. Current backups:"
-ls -lh "${BACKUP_DIR}"/crm_*.sql.gz 2>/dev/null || echo "  (none)"
+ls -lh "${BACKUP_DIR}"/backup_*.sql.gz 2>/dev/null || echo "  (none)"

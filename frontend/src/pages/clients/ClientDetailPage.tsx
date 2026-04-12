@@ -2,10 +2,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { clientsService } from '../../services/data.service';
+import { clientsService, projectsService } from '../../services/data.service';
 import { type Client } from '../../types/client.types';
+import { type Project } from '../../types/project.types';
 import { type ApiError } from '../../types/common.types';
-import { formatDate } from '../../utils/formatters';
+import { formatDate, formatCurrency } from '../../utils/formatters';
+import { ProjectStatusBadge } from '../../components/projects/ProjectStatusBadge';
 import Modal from '../../components/Modal';
 
 export const ClientDetailPage = () => {
@@ -21,6 +23,21 @@ export const ClientDetailPage = () => {
   const [loading, setLoading] = useState(!initialClient);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'projects'>('overview');
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectsLoading, setProjectsLoading] = useState(false);
+
+  // Fetch this client's projects when the Projects tab is opened
+  useEffect(() => {
+    if (activeTab !== 'projects' || !client) return;
+    setProjectsLoading(true);
+    projectsService.getAll()
+      .then((res) => {
+        const list: Project[] = res.data ?? [];
+        setProjects(list.filter((p) => p.clientId === client.id));
+      })
+      .catch(() => setProjects([]))
+      .finally(() => setProjectsLoading(false));
+  }, [activeTab, client?.id]);
 
   useEffect(() => {
     if (initialClient) return; // Already have data — skip fetch
@@ -45,7 +62,7 @@ export const ClientDetailPage = () => {
     return (
       <div style={{
         position: 'fixed', inset: 0, zIndex: 1000,
-        background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+        background: 'rgba(0,0,0,0.72)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         <span style={{ fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)', letterSpacing: '.08em' }}>
@@ -136,8 +153,42 @@ export const ClientDetailPage = () => {
         )}
 
         {activeTab === 'projects' && (
-          <div style={{ ...valueStyle, color: 'var(--text-dim)', textAlign: 'center', padding: '24px 10px' }}>
-            {t('clients.no_projects')}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {projectsLoading ? (
+              <div style={{ ...valueStyle, color: 'var(--text-dim)', textAlign: 'center', padding: '24px 10px' }}>
+                {t('projects.loading')}
+              </div>
+            ) : projects.length === 0 ? (
+              <div style={{ ...valueStyle, color: 'var(--text-dim)', textAlign: 'center', padding: '24px 10px' }}>
+                {t('clients.no_projects')}
+              </div>
+            ) : projects.map((p) => (
+              <div key={p.id} style={{
+                ...valueStyle, display: 'flex', alignItems: 'center',
+                justifyContent: 'space-between', gap: 10, cursor: 'pointer',
+              }}
+                onClick={() => navigate(`/projects/${p.id}`, { state: { project: p } })}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                  <ProjectStatusBadge status={p.status} />
+                  <span style={{ fontSize: 11, color: 'var(--text)', fontFamily: 'var(--font-m)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {p.title}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
+                  {p.budget > 0 && (
+                    <span style={{ fontSize: 10, color: 'var(--text-dim)', fontFamily: 'var(--font-m)' }}>
+                      {formatCurrency(p.budget)}
+                    </span>
+                  )}
+                  {p.deadline && (
+                    <span style={{ fontSize: 10, color: 'var(--text-dim)', fontFamily: 'var(--font-m)' }}>
+                      {formatDate(p.deadline)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
 

@@ -42,7 +42,7 @@ export default function CalendarWidget({ events: externalEvents, onDayClick }: C
     return () => ro.disconnect();
   }, []);
 
-  const sizeMode: SizeMode = ch < 180 ? 'tiny' : ch < 300 ? 'medium' : 'full';
+  const sizeMode: SizeMode = ch < 220 ? 'tiny' : ch < 320 ? 'medium' : 'full';
 
   // Today info
   const todayDay = today.getDate();
@@ -441,7 +441,7 @@ const rootStyle = {
   height: '100%',
   minWidth: 0,
   overflow: 'hidden',
-};
+} as const;
 
 const navBtnStyle = {
   background: 'none',
