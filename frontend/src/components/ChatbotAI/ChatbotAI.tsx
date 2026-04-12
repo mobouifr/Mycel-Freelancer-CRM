@@ -556,6 +556,13 @@ export default function ChatbotAI() {
 
     // Detect intent locally first
     const localIntent = detectLocalIntent(trimmed);
+    const shouldForceFormInput = localIntent === 'CLIENT' || localIntent === 'PROJECT';
+
+    if (shouldForceFormInput && !pendingForm) {
+      setPendingForm(localIntent);
+      setFormData({});
+      setFormErrors({});
+    }
 
     let reply = '';
 
@@ -668,7 +675,7 @@ export default function ChatbotAI() {
     }
 
     // Fallback: if AI didn't open a form but we detected CRUD intent, open it
-    if (localIntent && !pendingForm) {
+    if (localIntent && !pendingForm && !shouldForceFormInput) {
       setPendingForm(localIntent);
       setFormData({});
       setFormErrors({});
