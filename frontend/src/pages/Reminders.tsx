@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { useIsMobile } from '../hooks/useIsMobile';
 import CalendarView from '../components/reminders/CalendarView';
 import DailyEventsView from '../components/reminders/DailyEventsView';
@@ -12,6 +13,7 @@ type RightTab = 'events' | 'notes';
 export default function Reminders() {
   const { t } = useTranslation();
   const isMobile = useIsMobile(1100);
+  const location = useLocation();
   const [rightTab, setRightTab] = useState<RightTab>('notes');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -23,6 +25,18 @@ export default function Reminders() {
   }, []);
 
   useEffect(() => { fetchEvents(); }, [fetchEvents]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const dateParam = params.get('date');
+    if (!dateParam) return;
+
+    const parsed = new Date(`${dateParam}T12:00:00`);
+    if (Number.isNaN(parsed.getTime())) return;
+
+    setCurrentDate(parsed);
+    setRightTab('events');
+  }, [location.search]);
 
   const handleConvertNoteToEvent = useCallback(() => {
     // Pre-fill handled by CalendarView modal
