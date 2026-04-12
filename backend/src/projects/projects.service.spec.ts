@@ -13,6 +13,9 @@ describe('ProjectsService', () => {
 
   // Mock Prisma methods
   const mockPrismaService = {
+    client: {
+      findFirst: jest.fn(),
+    },
     project: {
       create: jest.fn(),
       findMany: jest.fn(),
@@ -60,9 +63,10 @@ describe('ProjectsService', () => {
   describe('create', () => {
     it('should create a new project and send a notification', async () => {
       const userId = 'user-123';
-      const dto = { title: 'New CRM Feature', status: 'ACTIVE', budget: 1000 } as any;
+      const dto = { title: 'New CRM Feature', status: 'ACTIVE', budget: 1000, clientId: 'client-1' } as any;
       const mockResult = { id: 'proj-1', ...dto, userId };
 
+      mockPrismaService.client.findFirst.mockResolvedValue({ id: 'client-1', userId });
       mockPrismaService.project.create.mockResolvedValue(mockResult);
 
       const result = await service.create(userId, dto);

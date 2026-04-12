@@ -5,7 +5,7 @@
 // Safe to run multiple times (uses upsert everywhere)
 // =============================================================================
 
-import { PrismaClient, ProjectStatus, InvoiceStatus, ProposalStatus } from '@prisma/client';
+import { PrismaClient, ProjectStatus } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -19,10 +19,6 @@ const IDS = {
     clientB: '00000000-0000-4000-a000-000000000011',
     projectActive: '00000000-0000-4000-a000-000000000020',
     projectCompleted: '00000000-0000-4000-a000-000000000021',
-    proposalSent: '00000000-0000-4000-a000-000000000030',
-    invoicePending: '00000000-0000-4000-a000-000000000040',
-    invoicePaid: '00000000-0000-4000-a000-000000000041',
-    payment: '00000000-0000-4000-a000-000000000050',
 };
 
 async function main() {
@@ -113,74 +109,6 @@ async function main() {
     console.log(`              ${projectCompleted.title} (COMPLETED)`);
 
     // -------------------------------------------------------------------------
-    // 4. Proposal
-    // -------------------------------------------------------------------------
-    const proposal = await prisma.proposal.upsert({
-        where: { id: IDS.proposalSent },
-        update: {},
-        create: {
-            id: IDS.proposalSent,
-            title: 'E-Commerce Redesign — Phase 2 Proposal',
-            amount: 8500.0,
-            status: ProposalStatus.SENT,
-            notes: 'Includes mobile optimization and checkout flow redesign.',
-            validUntil: new Date('2026-04-30'),
-            userId: user.id,
-            projectId: projectActive.id,
-        },
-    });
-    console.log(`  ✔ Proposal: ${proposal.title} (SENT)`);
-
-    // -------------------------------------------------------------------------
-    // 5. Invoices
-    // -------------------------------------------------------------------------
-    const invoicePending = await prisma.invoice.upsert({
-        where: { id: IDS.invoicePending },
-        update: {},
-        create: {
-            id: IDS.invoicePending,
-            amount: 7500.0,
-            status: InvoiceStatus.PENDING,
-            dueDate: new Date('2026-03-31'),
-            notes: 'First milestone payment — wireframes and design.',
-            userId: user.id,
-            projectId: projectActive.id,
-        },
-    });
-
-    const invoicePaid = await prisma.invoice.upsert({
-        where: { id: IDS.invoicePaid },
-        update: {},
-        create: {
-            id: IDS.invoicePaid,
-            amount: 5000.0,
-            status: InvoiceStatus.PAID,
-            dueDate: new Date('2026-01-15'),
-            notes: 'Full payment for brand identity package.',
-            userId: user.id,
-            projectId: projectCompleted.id,
-        },
-    });
-    console.log(`  ✔ Invoices: $${invoicePending.amount} (PENDING), $${invoicePaid.amount} (PAID)`);
-
-    // -------------------------------------------------------------------------
-    // 6. Payment (linked to paid invoice)
-    // -------------------------------------------------------------------------
-    const payment = await prisma.payment.upsert({
-        where: { id: IDS.payment },
-        update: {},
-        create: {
-            id: IDS.payment,
-            amount: 5000.0,
-            method: 'Bank Transfer',
-            notes: 'Payment received via wire transfer.',
-            paidAt: new Date('2026-01-10'),
-            invoiceId: invoicePaid.id,
-        },
-    });
-    console.log(`  ✔ Payment:  $${payment.amount} via ${payment.method}`);
-
-    // -------------------------------------------------------------------------
     // Summary
     // -------------------------------------------------------------------------
     console.log('\n' + '═'.repeat(50));
@@ -189,9 +117,6 @@ async function main() {
     console.log(`  Users:     1`);
     console.log(`  Clients:   2`);
     console.log(`  Projects:  2 (1 ACTIVE, 1 COMPLETED)`);
-    console.log(`  Proposals: 1 (SENT)`);
-    console.log(`  Invoices:  2 (1 PENDING, 1 PAID)`);
-    console.log(`  Payments:  1`);
     console.log('═'.repeat(50));
     console.log(`\n  🔑 LOGIN CREDENTIALS`);
     console.log(`     Email:    demo@crm.com`);
