@@ -2,18 +2,17 @@
 import { useEffect, useRef, type CSSProperties } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-
-const SortIcon = ({ field, sortBy, sortOrder }: { field: string; sortBy: string; sortOrder: 'asc' | 'desc' }) => {
-  if (field !== sortBy) return <span style={{ opacity: 0.3, marginLeft: 4, fontSize: 9 }}>↕</span>;
-  return <span style={{ marginLeft: 4, fontSize: 9, color: 'var(--accent)' }}>{sortOrder === 'asc' ? '↑' : '↓'}</span>;
-};
-
 import { useProjects } from '../../hooks/useProjects';
 import { type Project, ProjectPriority, ProjectStatus } from '../../types/project.types';
 import { ProjectStatusBadge } from '../../components/projects/ProjectStatusBadge';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { SegmentedControl } from '../../components/SegmentedControl';
+
+const SortIcon = ({ field, sortBy, sortOrder }: { field: string; sortBy: string; sortOrder: 'asc' | 'desc' }) => {
+  if (field !== sortBy) return <span style={{ opacity: 0.3, marginLeft: 4, fontSize: 9 }}>↕</span>;
+  return <span style={{ marginLeft: 4, fontSize: 9, color: 'var(--accent)' }}>{sortOrder === 'asc' ? '↑' : '↓'}</span>;
+};
 
 function getPageNumbers(current: number, total: number): (number | '...')[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
