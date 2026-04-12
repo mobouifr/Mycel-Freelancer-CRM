@@ -67,19 +67,29 @@ function DataGraph() {
   // Fetch data from backend
   useEffect(() => {
     let cancelled = false;
-    api.get('/dashboard/projects-clients-graph')
-      .then((res: any) => {
-        if (!cancelled && res.data) {
-          setData(res.data);
-        }
-      })
-      .catch((err: any) => {
-        if (!cancelled) {
-          console.error('Failed to fetch projects-clients graph:', err);
-          setData(DEFAULT_DATA);
-        }
-      });
-    return () => { cancelled = true; };
+
+    const fetchGraph = () => {
+      api.get('/dashboard/projects-clients-graph')
+        .then((res: any) => {
+          if (!cancelled && res.data) {
+            setData(res.data);
+          }
+        })
+        .catch((err: any) => {
+          if (!cancelled) {
+            console.error('Failed to fetch projects-clients graph:', err);
+            setData(DEFAULT_DATA);
+          }
+        });
+    };
+
+    fetchGraph();
+    window.addEventListener('dashboardRefresh', fetchGraph);
+    
+    return () => { 
+      cancelled = true; 
+      window.removeEventListener('dashboardRefresh', fetchGraph);
+    };
   }, []);
 
   const { months, projects, clients } = data;

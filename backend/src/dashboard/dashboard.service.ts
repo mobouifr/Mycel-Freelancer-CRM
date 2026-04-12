@@ -1,10 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, MessageEvent } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ProjectStatus } from '@prisma/client';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
+
+  streamRealTimeUpdates(): Observable<MessageEvent> {
+    return this.prisma.globalMutation$.pipe(
+      map((mutation) => ({
+        data: JSON.stringify({ refresh: Date.now(), ...mutation }),
+      } as MessageEvent))
+    );
+  }
 
   async getRevenueData(userId: string, timeframe: 'monthly' | 'weekly' = 'monthly') {
     // 1. Fetch all completed projects for this user
