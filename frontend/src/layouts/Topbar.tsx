@@ -177,6 +177,9 @@ export default function Topbar({ isMobile = false, onMenuToggle }: TopbarProps =
             ⌕
           </span>
           <input
+            id="topbar-search"
+            name="topbar-search"
+            autoComplete="off"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setFocused(true)}

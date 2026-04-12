@@ -40,13 +40,13 @@ ENV VITE_API_URL=${VITE_API_URL}
 RUN npm run build
 
 # ---------------------------------------------------------------------------
-# Stage 3: PRODUCTION — Serve static files with Nginx (NON-ROOT)
+# Stage 3: PRODUCTION — Serve static files with Nginx
 # ---------------------------------------------------------------------------
-# Using nginx:alpine for the smallest possible production image (~40MB)
-# Runs entirely as the unprivileged 'nginx' user (uid 101)
+# nginx master process runs as root so it can bind to port 443 (privileged).
+# Worker processes drop to the 'nginx' user via the 'user nginx;' directive
+# that is kept in /etc/nginx/nginx.conf (standard nginx:alpine behaviour).
 FROM nginx:1.27-alpine AS production
 
-# Add metadata labels
 LABEL maintainer="DevOps Team"
 LABEL description="Freelancer CRM Frontend"
 LABEL org.opencontainers.image.source="https://github.com/freelancer-crm"
@@ -55,33 +55,22 @@ LABEL org.opencontainers.image.source="https://github.com/freelancer-crm"
 RUN rm -rf /usr/share/nginx/html/* && \
     rm /etc/nginx/conf.d/default.conf
 
-# Copy our custom Nginx configuration
+# Bake-in the dev config (overridden by volume mount in production compose)
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy the built static files from the builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Configure Nginx for non-root operation:
-# 1. Set correct ownership of required directories
-# 2. Create pid file location writable by nginx user
-# 3. Update nginx.conf to use non-privileged port
-RUN chown -R nginx:nginx /usr/share/nginx/html && \
-    chown -R nginx:nginx /var/cache/nginx && \
-    chown -R nginx:nginx /var/log/nginx && \
-    touch /var/run/nginx.pid && \
-    chown -R nginx:nginx /var/run/nginx.pid && \
-    # Patch the main nginx.conf to not use 'user' directive (not needed as non-root)
-    sed -i 's/^user  nginx;/# user  nginx;/' /etc/nginx/nginx.conf
+# Copy the entrypoint script (handles envsubst for production domain injection)
+COPY docker/nginx-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
-# Switch to non-root user
-USER nginx
-
-# Expose non-privileged port (8080 instead of 80)
-EXPOSE 8080
+# Expose HTTP (8080) and HTTPS (443) ports
+EXPOSE 8080 443
 
 # Health check — verify Nginx is serving the app
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1
 
-# Start Nginx in the foreground (required for Docker)
-CMD ["nginx", "-g", "daemon off;"]
+# Use the entrypoint — applies envsubst in prod, or just starts nginx in dev
+CMD ["/docker-entrypoint.sh"]

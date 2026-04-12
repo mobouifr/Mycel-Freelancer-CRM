@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LogoMark } from '../components';
 import { useAuth } from '../hooks/useAuth';
-import { useTheme } from '../hooks/useTheme';
+
 
 /* ─────────────────────────────────────────────
    SIDEBAR — Expandable navigation panel
@@ -70,10 +70,8 @@ const NAV_ITEMS: NavEntry[] = [
 
 const COLLAPSED_W = 64;
 const EXPANDED_W = 210;
-const MIN_MANUAL_W = 64;
-const MAX_MANUAL_W = 360;
 
-const AUTO_BREAKPOINT = 900;
+const AUTO_BREAKPOINT = 1200;
 
 interface SidebarProps {
   onNavigate?: () => void;
@@ -83,7 +81,6 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const { sidebarBehavior, sidebarManualWidth, setSidebarManualWidth } = useTheme();
   const { t } = useTranslation();
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
@@ -95,65 +92,17 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
   /* ── Automatic mode: breakpoint-driven expand/collapse ── */
   const [autoExpanded, setAutoExpanded] = useState(() => window.innerWidth >= AUTO_BREAKPOINT);
   useEffect(() => {
-    if (sidebarBehavior !== 'automatic') return;
     const mq = window.matchMedia(`(min-width: ${AUTO_BREAKPOINT}px)`);
     const handler = (e: MediaQueryListEvent) => setAutoExpanded(e.matches);
     setAutoExpanded(mq.matches);
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
-  }, [sidebarBehavior]);
-
-  /* ── Manual mode: drag resize ── */
-  const isDragging = useRef(false);
-  const dragStartX = useRef(0);
-  const dragStartW = useRef(sidebarManualWidth);
-
-  const onDragStart = useCallback((clientX: number) => {
-    isDragging.current = true;
-    dragStartX.current = clientX;
-    dragStartW.current = sidebarManualWidth;
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-  }, [sidebarManualWidth]);
-
-  useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      if (!isDragging.current) return;
-      const delta = e.clientX - dragStartX.current;
-      const next = Math.min(MAX_MANUAL_W, Math.max(MIN_MANUAL_W, dragStartW.current + delta));
-      setSidebarManualWidth(next);
-    };
-    const onUp = () => {
-      if (!isDragging.current) return;
-      isDragging.current = false;
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-    };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-    return () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-    };
-  }, [setSidebarManualWidth]);
-
-  /* Keyboard nudge for drag handle */
-  const handleKeyNudge = useCallback((e: React.KeyboardEvent) => {
-    const step = e.shiftKey ? 20 : 4;
-    if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      setSidebarManualWidth(Math.min(MAX_MANUAL_W, sidebarManualWidth + step));
-    } else if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      setSidebarManualWidth(Math.max(MIN_MANUAL_W, sidebarManualWidth - step));
-    }
-  }, [sidebarManualWidth, setSidebarManualWidth]);
+  }, []);
 
   /* ── Derived width ── */
   const isMobileOverlay = !!onNavigate;
-  const isManual = sidebarBehavior === 'manual';
-  const width = isMobileOverlay ? '100%' : isManual ? sidebarManualWidth : (autoExpanded ? EXPANDED_W : COLLAPSED_W);
-  const expanded = isMobileOverlay ? true : isManual ? sidebarManualWidth >= 120 : autoExpanded;
+  const width = isMobileOverlay ? '100%' : (autoExpanded ? EXPANDED_W : COLLAPSED_W);
+  const expanded = isMobileOverlay ? true : autoExpanded;
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
@@ -445,36 +394,6 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
           {t('nav.sign_out')}
         </span>
       </button>
-
-      {/* ── Manual mode: drag handle on right edge (hidden on mobile overlay) ── */}
-      {isManual && !isMobileOverlay && (
-        <div
-          role="separator"
-          aria-orientation="vertical"
-          aria-label="Resize sidebar"
-          aria-valuenow={sidebarManualWidth}
-          aria-valuemin={MIN_MANUAL_W}
-          aria-valuemax={MAX_MANUAL_W}
-          tabIndex={0}
-          onMouseDown={(e) => onDragStart(e.clientX)}
-          onKeyDown={handleKeyNudge}
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            width: 6,
-            height: '100%',
-            cursor: 'col-resize',
-            background: 'transparent',
-            zIndex: 10,
-            transition: 'background .15s',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-hover)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-          onFocus={(e) => { e.currentTarget.style.background = 'var(--accent-hover)'; }}
-          onBlur={(e) => { e.currentTarget.style.background = 'transparent'; }}
-        />
-      )}
 
     </div>
   );

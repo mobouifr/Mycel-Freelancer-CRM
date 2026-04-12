@@ -12,31 +12,30 @@ export class GamificationService {
   ) {}
 
   // XP needed to *reach* a given level (cumulative RPG curve)
-  // Example: L1 -> 0, L2 -> 500, L3 -> 2000, L4 -> 4500, ...
+  // Level 0 = starting state (0 XP), Level 1 = 500 XP, Level 2 = 2000 XP, ...
+  // xpThreshold(L) = 500 * L^2  (L >= 1); level 0 starts at 0 XP
   private getLevelFromXp(totalXp: number): number {
-    const xpForLevel = (level: number) => 500 * level * level; // slower quadratic growth so you don't level too fast
-
-    let level = 1;
-    while (totalXp >= xpForLevel(level)) {
+    const xpForLevel = (level: number) => 500 * level * level;
+    let level = 0;
+    while (totalXp >= xpForLevel(level + 1)) {
       level++;
     }
-
     return level;
   }
 
-  async awardProjectCompletionXp(userId: string, budget: number, priority: string) {
+  async awardProjectCompletionXp(userId: string, _budget: number, priority: string) {
     const baseXP = 500;
 
     let multiplier = 1.0;
-    switch (priority) {
+    switch (priority.toLowerCase()) {
       case 'low':
-        multiplier = 0.5; 
+        multiplier = 0.5;
         break;
       case 'medium':
-        multiplier = 0.8; 
+        multiplier = 0.8;
         break;
       case 'high':
-        multiplier = 1.1; 
+        multiplier = 1.1;
         break;
     }
 

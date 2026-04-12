@@ -38,4 +38,8 @@ export const notificationsService = {
   async remove(id: string): Promise<void> {
     await api.delete(`/notifications/${id}`);
   },
+
+  async removeAll(): Promise<void> {
+    await api.delete('/notifications');
+  },
 };

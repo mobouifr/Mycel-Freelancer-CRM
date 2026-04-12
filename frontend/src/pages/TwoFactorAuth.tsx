@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Input, Button } from '../components';
 import { LogoMark } from '../components';
@@ -12,17 +12,18 @@ export default function TwoFactorAuth() {
   const [searchParams] = useSearchParams();
   const userId = searchParams.get('userId');
   const { t } = useTranslation();
-  const { checkSession } = useAuth();
+  const { checkSession, isAuthenticated, isLoading } = useAuth();
+
+  // Already authenticated — bounce to dashboard
+  if (!isLoading && isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { mode: themeMode, cycleQuickTheme, theme } = useTheme();
 
-  const handleBackToLogin = () => {
-    navigate('/login');
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!userId) {
       setError('Missing user session. Please log in again.');
@@ -238,78 +239,6 @@ export default function TwoFactorAuth() {
                 </Button>
               </form>
 
-              {/* Help section */}
-              <div style={{
-                marginTop: 32,
-                paddingTop: 24,
-                borderTop: '1px solid var(--border)',
-              }}>
-                <p style={{
-                  fontFamily: 'var(--font-m)',
-                  fontSize: 11,
-                  color: 'var(--text-dim)',
-                  marginBottom: 12,
-                  textAlign: 'center',
-                }}>
-                  {t('twofa.having_trouble')}
-                </p>
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 8,
-                  alignItems: 'center',
-                }}>
-                  <button
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--accent)',
-                      fontFamily: 'var(--font-m)',
-                      fontSize: 11,
-                      cursor: 'pointer',
-                      textDecoration: 'underline',
-                      padding: 0,
-                    }}
-                  >
-                    {t('twofa.cant_access')}
-                  </button>
-                  <button
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--text-dim)',
-                      fontFamily: 'var(--font-m)',
-                      fontSize: 11,
-                      cursor: 'pointer',
-                      textDecoration: 'underline',
-                      padding: 0,
-                    }}
-                  >
-                    {t('twofa.use_backup')}
-                  </button>
-                </div>
-              </div>
-
-              {/* Cancel link */}
-              <div style={{
-                marginTop: 24,
-                textAlign: 'center',
-              }}>
-                <button
-                  onClick={handleBackToLogin}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--text-dim)',
-                    fontFamily: 'var(--font-m)',
-                    fontSize: 11,
-                    cursor: 'pointer',
-                    padding: 0,
-                  }}
-                >
-                  {t('twofa.back_to_login')}
-                </button>
-              </div>
             </div>
           </div>
         </div>

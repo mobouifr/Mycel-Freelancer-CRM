@@ -68,6 +68,7 @@ services:
       # Override DATABASE_URL to point to the postgres container (not localhost)
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-freelancer_crm}?schema=public
       NODE_ENV: development
+      FRONTEND_URL: ${FRONTEND_URL:-https://localhost}
       FORTYTWO_CLIENT_ID: ${FORTYTWO_CLIENT_ID:-local-dev-client-id}
       FORTYTWO_CLIENT_SECRET: ${FORTYTWO_CLIENT_SECRET:-local-dev-client-secret}
       FORTYTWO_CALLBACK_URL: ${FORTYTWO_CALLBACK_URL:-http://localhost:3001/auth/42/callback}
@@ -120,13 +121,13 @@ services:
       - .env
 
     environment:
-      # Vite needs to know the API URL for proxy config
-      VITE_API_URL: http://localhost:${PORT:-3001}/api
-      VITE_WS_URL: http://localhost:${PORT:-3001}
+      # /api is handled by Vite's built-in proxy (see vite.config.ts → server.proxy)
+      VITE_API_URL: /api
 
     ports:
-      # Vite dev server with HMR
-      - "3089:3089"
+      # HTTPS dev server — https://localhost  (443 → container 3089)
+      # Self-signed cert mounted at /certs, read by vite.config.ts
+      - "443:3089"
 
     volumes:
       # Mount source code for hot module replacement
@@ -141,6 +142,8 @@ services:
       - ./frontend/tsconfig.node.json:/app/tsconfig.node.json:cached
       # Prevent host node_modules from conflicting
       - /app/node_modules
+      # Self-signed cert for HTTPS dev server (read by vite.config.ts)
+      - ./docker/ssl/dev:/certs:ro
 
     # Override CMD for development: run Vite dev server
     # --host 0.0.0.0 makes it accessible from outside the container

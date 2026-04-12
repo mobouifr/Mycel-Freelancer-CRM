@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 
 /* ─────────────────────────────────────────────
    MODAL — Overlay dialog with scale-in animation
@@ -33,7 +34,7 @@ export default function Modal({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
       ref={overlayRef}
       onClick={(e) => {
@@ -43,8 +44,7 @@ export default function Modal({
         position: 'fixed',
         inset: 0,
         zIndex: 1000,
-        background: 'rgba(0,0,0,0.6)',
-        backdropFilter: 'blur(4px)',
+        background: 'rgba(0,0,0,0.72)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -115,6 +115,7 @@ export default function Modal({
         {/* Content */}
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

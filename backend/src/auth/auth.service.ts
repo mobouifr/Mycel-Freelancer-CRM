@@ -31,15 +31,20 @@ export class AuthService {
     }
 
     async turnOnTwoFactorAuth(userId: string, code: string) {
+        await this.verifyTwoFactorCode(userId, code);
+        await this.usersService.update(userId, { isTwoFactorEnabled: true });
+    }
+
+    async verifyTwoFactorCode(userId: string, code: string) {
         const user = await this.usersService.findOne(userId);
         if (!user || !user.twoFactorSecret) throw new UnauthorizedException('2FA not configured');
         const isValid = authenticator.verify({ secret: user.twoFactorSecret, token: code });
         if (!isValid) throw new UnauthorizedException('Invalid 2FA code');
-        await this.usersService.update(userId, { isTwoFactorEnabled: true });
+        return user;
     }
 
     async turnOffTwoFactorAuth(userId: string) {
-        await this.usersService.update(userId, { isTwoFactorEnabled: false, twoFactorSecret: undefined });
+        await this.usersService.update(userId, { isTwoFactorEnabled: false, twoFactorSecret: null });
     }
 
     async register(registerDto: RegisterDto) {
@@ -47,7 +52,8 @@ export class AuthService {
             throw new ConflictException('Email already in use'); 
         }
         
-        const passwordHash = await bcrypt.hash(registerDto.password, 10);
+        const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
+        const passwordHash = await bcrypt.hash(registerDto.password, saltRounds);
         const username = registerDto.username || registerDto.name || registerDto.email.split('@')[0];
         
         const newUser = await this.usersService.createUser(username, registerDto.email, registerDto.name || username, passwordHash);
@@ -86,7 +92,8 @@ export class AuthService {
             }
         }
 
-        const passwordHash = await bcrypt.hash(newPassword, 10);
+        const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
+        const passwordHash = await bcrypt.hash(newPassword, saltRounds);
         await this.usersService.update(userId, { passwordHash });
     }
 

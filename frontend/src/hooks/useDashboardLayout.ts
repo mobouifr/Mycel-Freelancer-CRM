@@ -31,54 +31,74 @@ export interface DashboardState {
 }
 
 /** Bump this version when layout shape changes to invalidate stale caches */
-const LAYOUT_VERSION = 2;
+const LAYOUT_VERSION = 13;
 const STORAGE_KEY = `mycel-dashboard-layout-v${LAYOUT_VERSION}`;
 
 /* ── Preset definitions ─────────────────────── */
 const PRESETS: Record<PresetId, () => Pick<DashboardState, 'layouts' | 'visible'>> = {
+  /* ── Default: everything, well-balanced ──
+     revenue config + heatmap + calendar top row
+     status + deadline below | dataGraph + activity bottom */
   default: () => ({
-    visible: ['calendar', 'revenue', 'activity', 'projects', 'notes', 'suggestions'],
+    visible: ['revenue', 'calendar', 'heatmap', 'statusBar', 'deadline', 'dataGraph', 'activity', 'notes'],
     layouts: [
-      { i: 'calendar',    x: 8, y: 0, w: 4, h: 6, minW: 4, minH: 4, moved: false, static: false },
-      { i: 'revenue',     x: 0, y: 0, w: 8, h: 3, minW: 3, minH: 2, moved: false, static: false },
-      { i: 'activity',    x: 0, y: 6, w: 4, h: 3, minW: 4, minH: 2, moved: false, static: false },
-      { i: 'projects',    x: 8, y: 6, w: 4, h: 3, minW: 3, minH: 2, moved: false, static: false },
-      { i: 'notes',       x: 4, y: 3, w: 4, h: 3, minW: 3, minH: 2, moved: false, static: false },
-      { i: 'suggestions', x: 4, y: 6, w: 4, h: 3, minW: 3, minH: 2, moved: false, static: false },
+      { i: 'revenue',   x: 0, y: 0, w: 4, h: 3, minW: 3, minH: 2 },
+      { i: 'statusBar', x: 4, y: 0, w: 4, h: 2, minW: 3, minH: 2 },
+      { i: 'calendar',  x: 8, y: 0, w: 4, h: 6, minW: 2, minH: 1 },
+      { i: 'deadline',  x: 4, y: 2, w: 4, h: 2, minW: 4, minH: 2, maxW: 4, maxH: 2, isResizable: false },
+      { i: 'dataGraph', x: 0, y: 4, w: 4, h: 3, minW: 4, minH: 3 },
+      { i: 'notes',     x: 4, y: 4, w: 4, h: 2, minW: 3, minH: 2 },
+      { i: 'heatmap',   x: 0, y: 8, w: 8, h: 3, minW: 3, minH: 2 },
+      { i: 'activity',  x: 8, y: 8, w: 4, h: 3, minW: 3, minH: 2 },
     ],
   }),
+
+  /* ── Compact: essentials in tight space ──
+     revenue + deadline + statusBar top row | notes + calendar + activity */
   compact: () => ({
-    visible: ['revenue', 'calendar', 'notes', 'activity'],
+    visible: ['revenue', 'deadline', 'statusBar', 'calendar', 'activity', 'notes'],
     layouts: [
-      { i: 'revenue',  x: 0, y: 0, w: 12, h: 2, minW: 3, minH: 2 },
-      { i: 'calendar', x: 0, y: 2, w: 6,  h: 4, minW: 4, minH: 4 },
-      { i: 'notes',    x: 6, y: 2, w: 6,  h: 3, minW: 3, minH: 2 },
-      { i: 'activity', x: 0, y: 6, w: 6,  h: 3, minW: 4, minH: 2 },
+      { i: 'revenue',   x: 0, y: 0, w: 4, h: 2, minW: 3, minH: 2 },
+      { i: 'deadline',  x: 4, y: 0, w: 4, h: 2, minW: 4, minH: 2, maxW: 4, maxH: 2, isResizable: false },
+      { i: 'statusBar', x: 8, y: 0, w: 4, h: 2, minW: 3, minH: 2 },
+      { i: 'notes',     x: 0, y: 2, w: 4, h: 4, minW: 3, minH: 2 },
+      { i: 'calendar',  x: 4, y: 2, w: 4, h: 5, minW: 2, minH: 1 },
+      { i: 'activity',  x: 8, y: 2, w: 4, h: 4, minW: 3, minH: 2 },
     ],
   }),
+
+  /* ── Focus: planning & tasks only ──
+     calendar dominant | deadline + notes right */
   focus: () => ({
-    visible: ['calendar', 'notes', 'suggestions'],
+    visible: ['calendar', 'deadline', 'notes', 'activity'],
     layouts: [
-      { i: 'calendar',    x: 0, y: 0, w: 7, h: 5, minW: 4, minH: 4 },
-      { i: 'notes',       x: 7, y: 0, w: 5, h: 3, minW: 3, minH: 2 },
-      { i: 'suggestions', x: 7, y: 3, w: 5, h: 3, minW: 3, minH: 2 },
+      { i: 'calendar', x: 0, y: 0, w: 8, h: 5, minW: 2, minH: 1 },
+      { i: 'deadline', x: 8, y: 0, w: 4, h: 2, minW: 4, minH: 2, maxW: 4, maxH: 2, isResizable: false },
+      { i: 'notes',    x: 8, y: 2, w: 4, h: 3, minW: 3, minH: 2 },
+      { i: 'activity', x: 0, y: 5, w: 12, h: 3, minW: 4, minH: 2 },
     ],
   }),
+
+  /* ── Finance: revenue, charts, status ──
+     revenue + status + deadline top row | dataGraph + heatmap/activity */
   finance: () => ({
-    visible: ['revenue', 'activity', 'projects'],
+    visible: ['revenue', 'dataGraph', 'statusBar', 'deadline', 'heatmap', 'activity'],
     layouts: [
-      { i: 'revenue',  x: 0, y: 0, w: 12, h: 4, minW: 3, minH: 2 },
-      { i: 'activity', x: 0, y: 4, w: 8, h: 3, minW: 4, minH: 2 },
-      { i: 'projects', x: 8, y: 4, w: 4, h: 3, minW: 3, minH: 2 },
+      { i: 'revenue',   x: 0, y: 0, w: 4,  h: 2, minW: 3, minH: 2 },
+      { i: 'statusBar', x: 4, y: 0, w: 4,  h: 2, minW: 3, minH: 2 },
+      { i: 'deadline',  x: 8, y: 0, w: 4,  h: 2, minW: 4, minH: 2, maxW: 4, maxH: 2, isResizable: false },
+      { i: 'dataGraph', x: 0, y: 2, w: 8,  h: 4, minW: 4, minH: 3 },
+      { i: 'heatmap',   x: 8, y: 2, w: 4,  h: 2, minW: 3, minH: 2 },
+      { i: 'activity',  x: 8, y: 4, w: 4,  h: 4, minW: 3, minH: 2 },
     ],
   }),
 };
 
 export const PRESET_OPTIONS: { id: PresetId; label: string; desc: string }[] = [
-  { id: 'default', label: 'Default',  desc: 'Balanced overview with all widgets' },
-  { id: 'compact', label: 'Compact',  desc: 'Condensed single-column stack' },
-  { id: 'focus',   label: 'Focus',    desc: 'Calendar, notes, and suggestions only' },
-  { id: 'finance', label: 'Finance',  desc: 'Revenue and projects first' },
+  { id: 'default', label: 'Default',  desc: 'All widgets in a balanced overview' },
+  { id: 'compact', label: 'Compact',  desc: 'Essentials in a tight layout' },
+  { id: 'focus',   label: 'Focus',    desc: 'Calendar, deadline, notes, and activity' },
+  { id: 'finance', label: 'Finance',  desc: 'Revenue, charts, and project status' },
 ];
 
 /* ── Load / save ─────────────────────────────── */
@@ -139,6 +159,19 @@ export function useDashboardLayout() {
     setState((prev) => {
       setUndoStack((u) => [...u.slice(-4), prev]);
       return { preset, ...PRESETS[preset]() };
+    });
+  }, []);
+
+  /** Reorder a widget in the visible list — used by the mobile edit mode */
+  const reorderVisible = useCallback((id: string, dir: 1 | -1) => {
+    setState((prev) => {
+      const idx = prev.visible.indexOf(id);
+      const swapIdx = idx + dir;
+      if (idx === -1 || swapIdx < 0 || swapIdx >= prev.visible.length) return prev;
+      setUndoStack((u) => [...u.slice(-4), prev]);
+      const newVisible = [...prev.visible];
+      [newVisible[idx], newVisible[swapIdx]] = [newVisible[swapIdx], newVisible[idx]];
+      return { ...prev, visible: newVisible };
     });
   }, []);
 
@@ -223,6 +256,7 @@ export function useDashboardLayout() {
     onLayoutChange,
     applyPreset,
     toggleWidget,
+    reorderVisible,
     clearLayout,
     undo,
     canUndo: undoStack.length > 0,

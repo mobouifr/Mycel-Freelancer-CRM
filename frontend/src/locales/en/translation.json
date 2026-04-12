@@ -14,7 +14,7 @@
     "search": "Search",
     "all_statuses": "All Statuses",
     "actions": "ACTIONS",
-    "back": "\u2190 Back",
+    "back": "← Back",
     "reset": "Reset",
     "undo": "Undo",
     "export": "Export",
@@ -74,7 +74,6 @@
     "password_label": "Password",
     "password_placeholder": "••••••••",
     "remember_me": "Remember me",
-    "forgot_password": "Forgot password?",
     "username_label": "Username",
     "username_placeholder": "montassir",
     "password_min": "Min. 6 characters",
@@ -85,11 +84,7 @@
     "sign_in_link": "Sign in",
     "privacy": "Privacy",
     "terms": "Terms",
-    "reset_password": "Reset password",
-    "reset_description": "Enter the email linked to your account and we'll send a reset link.",
-    "email_sent": "Email sent",
     "back_to_login": "BACK TO LOGIN",
-    "send_link": "SEND LINK",
     "sending": "SENDING...",
     "email_required": "Email is required",
     "email_invalid": "Enter a valid email address",
@@ -97,7 +92,7 @@
     "username_required": "Username is required",
     "username_min": "Username must be at least 3 characters",
     "password_min_6": "Password must be at least 6 characters",
-    "authenticating_42": "Authenticating with 42\u2026"
+    "authenticating_42": "Authenticating with 42…"
   },
   "twofa": {
     "title": "TWO-FACTOR AUTH",
@@ -188,6 +183,7 @@
     "create_failed": "Failed to create client",
     "update_failed": "Failed to update client",
     "updated": "Client updated",
+    "no_projects": "No projects for this client yet.",
     "table": {
       "name": "Name",
       "email": "Email",
@@ -459,10 +455,82 @@
     "terms_of_service": "Terms of Service"
   },
   "privacy_policy": {
-    "title": "Privacy Policy"
+    "title": "Privacy Policy",
+    "last_updated": "Last updated",
+    "s1_title": "1. Introduction",
+    "s1_body": "Mycel (\"we\", \"our\", \"us\") operates the Mycel Freelancer CRM web application. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our application. By using Mycel, you agree to the collection and use of information as described in this policy.",
+    "s2_title": "2. Information We Collect",
+    "s2_account_label": "Account Information:",
+    "s2_account_body": "When you register, we collect your username, email address, and a securely hashed version of your password. If you authenticate via OAuth (42 Intra), we receive your intra ID and public profile data.",
+    "s2_business_label": "Business Data:",
+    "s2_business_body": "You may voluntarily provide business details such as company name, address, currency preference, and tax rate.",
+    "s2_client_label": "Client and Project Data:",
+    "s2_client_body": "Information you enter about your clients, projects, reminders, and notes.",
+    "s2_usage_label": "Usage Data:",
+    "s2_usage_body": "We collect basic usage patterns such as login timestamps.",
+    "s3_title": "3. How We Use Your Information",
+    "s3_intro": "We use collected information to:",
+    "s3_li1": "Provide and maintain the app",
+    "s3_li2": "Authenticate and secure your account",
+    "s3_li3": "Send reminders",
+    "s3_li4": "Improve experience",
+    "s4_title": "4. Data Storage and Security",
+    "s4_body": "Your data is stored in a PostgreSQL database. Passwords are hashed using bcrypt. Authentication tokens (JWT) are stored in HTTP-only cookies.",
+    "s5_title": "5. Data Sharing",
+    "s5_body": "We do not sell your data. We may share it only if required by law or with consent.",
+    "s6_title": "6. Your Rights",
+    "s6_body": "You can access, update, delete, or export your data anytime.",
+    "s7_title": "7. Cookies and Local Storage",
+    "s7_body": "We use local storage for preferences and HTTP-only cookies for auth.",
+    "s8_title": "8. Changes to This Policy",
+    "s8_body": "We may update this policy. Continued use means acceptance.",
+    "s9_title": "9. Contact",
+    "s9_body": "Contact us via the app settings."
   },
   "terms_of_service": {
-    "title": "Terms of Service"
+    "title": "Terms of Service",
+    "last_updated": "Last updated",
+    "s1_title": "1. Acceptance of Terms",
+    "s1_body": "By accessing or using the Mycel Freelancer CRM application (\"Service\"), you agree to be bound by these Terms of Service. If you do not agree, you must not use the Service. These terms apply to all users, including registered account holders and visitors.",
+    "s2_title": "2. Description of Service",
+    "s2_body": "Mycel is a web-based Customer Relationship Management tool designed for freelancers and small businesses. The Service allows users to manage clients, track projects, set reminders, and view business analytics through an interactive dashboard.",
+    "s3_title": "3. User Accounts",
+    "s3_p1": "To use most features, you must create an account by providing a valid username, email address, and password. You may also sign in via OAuth providers (42 Intra).",
+    "s3_p2": "You are responsible for:",
+    "s3_li1": "Maintaining the confidentiality of your credentials",
+    "s3_li2": "All activity that occurs under your account",
+    "s3_li3": "Notifying us immediately of any unauthorized access",
+    "s3_li4": "Providing accurate and truthful registration information",
+    "s4_title": "4. Acceptable Use",
+    "s4_intro": "You agree not to:",
+    "s4_li1": "Use the Service for any illegal or unauthorized purpose",
+    "s4_li2": "Attempt to gain unauthorized access to other accounts or systems",
+    "s4_li3": "Upload malicious code, viruses, or harmful content",
+    "s4_li4": "Interfere with or disrupt the Service or its infrastructure",
+    "s4_li5": "Scrape, harvest, or collect data from the Service without permission",
+    "s4_li6": "Impersonate another person or misrepresent your affiliation",
+    "s5_title": "5. Your Data",
+    "s5_p1": "You retain ownership of all data you enter into the Service (clients, projects, etc.). We do not claim ownership of your content.",
+    "s5_p2": "By using the Service, you grant us a limited license to store, process, and display your data solely for the purpose of providing the Service to you.",
+    "s5_p3": "You are responsible for maintaining backups of your data. While we take reasonable steps to protect your data, we are not liable for data loss.",
+    "s6_title": "6. Availability and Modifications",
+    "s6_p1": "We strive to maintain Service availability but do not guarantee uninterrupted access. The Service may be temporarily unavailable due to maintenance, updates, or circumstances beyond our control.",
+    "s6_p2": "We reserve the right to modify, suspend, or discontinue any part of the Service at any time. We will make reasonable efforts to notify users of significant changes.",
+    "s7_title": "7. Intellectual Property",
+    "s7_p1": "The Service, including its design, interface, codebase, and branding (Mycel), is the intellectual property of the development team. This project was created as part of the 42 curriculum.",
+    "s7_p2": "You may not copy, modify, distribute, or reverse-engineer any part of the Service without explicit permission.",
+    "s8_title": "8. Limitation of Liability",
+    "s8_p1": "The Service is provided \"as is\" without warranties of any kind, express or implied. We do not warrant that the Service will be error-free, secure, or available at all times.",
+    "s8_p2": "To the maximum extent permitted by law, we shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the Service, including loss of data, revenue, or business opportunities.",
+    "s9_title": "9. Account Termination",
+    "s9_p1": "We may suspend or terminate your account if you violate these Terms or engage in behavior that harms the Service or its users. You may delete your account at any time through the Settings page.",
+    "s9_p2": "Upon termination, your right to use the Service ceases immediately. We may retain certain data as required by law or for legitimate business purposes.",
+    "s10_title": "10. Changes to Terms",
+    "s10_body": "We may update these Terms from time to time. Changes take effect when posted on this page with an updated \"Last updated\" date. Continued use of the Service after changes constitutes acceptance of the revised Terms.",
+    "s11_title": "11. Governing Law",
+    "s11_body": "These Terms are governed by and construed in accordance with applicable local laws. Any disputes shall be resolved through good-faith negotiation before pursuing formal legal action.",
+    "s12_title": "12. Contact",
+    "s12_body": "For questions about these Terms of Service, please contact your team administrator or reach out through the application's Settings page."
   },
   "chatbot": {
     "title": "AI Assistant",
@@ -505,6 +573,7 @@
   "notifications": {
     "title": "Notifications",
     "mark_all_read": "Mark all read",
+    "delete_all": "Delete all",
     "empty": "No notifications",
     "dismiss": "Dismiss"
   },
@@ -557,29 +626,6 @@
     "due": "Due",
     "view_all": "View all invoices →"
   },
-  "projects_progress": {
-    "active": "Active",
-    "in_review": "In Review",
-    "paused": "Paused",
-    "due": "Due",
-    "view_all": "View all projects →"
-  },
-  "suggestions": {
-    "all_caught_up": "All caught up! No pending suggestions.",
-    "dismiss": "Dismiss",
-    "follow_up_title": "Follow up with Pixel Root",
-    "follow_up_desc": "Invoice #042 is due in 2 days. Send a friendly reminder.",
-    "send_reminder": "Send Reminder",
-    "proposal_ready_title": "Proposal ready to send",
-    "proposal_ready_desc": "Drift Co. proposal has been in draft for 5 days.",
-    "review_draft": "Review Draft",
-    "schedule_planning_title": "Schedule Q2 planning",
-    "schedule_planning_desc": "No events scheduled for next week. Block time for planning.",
-    "add_event": "Add Event",
-    "revenue_on_track_title": "Revenue goal on track",
-    "revenue_on_track_desc": "You're at 87% of your monthly goal. Keep it up!",
-    "view_stats": "View Stats"
-  },
   "notes_capture": {
     "title_placeholder": "Note title...",
     "body_placeholder": "Start typing... (optional)",
@@ -590,12 +636,6 @@
     "untitled_note": "Untitled Note",
     "empty_note": "Empty note...",
     "view_all": "View all in Reminders →"
-  },
-  "living_widget": {
-    "level": "Level {{level}}",
-    "just_planted": "Just planted",
-    "growth": "{{hours}}h growth",
-    "description": "Your workspace ecosystem grows as you work"
   },
   "widgets": {
     "calendar": {
@@ -618,17 +658,21 @@
       "label": "Activity Feed",
       "description": "Recent activity stream with timestamps"
     },
-    "projects": {
-      "label": "Projects Progress",
-      "description": "Active projects with progress bars"
+    "heatmap": {
+      "label": "Activity Heatmap",
+      "description": "GitHub-style contribution graph of daily activity"
     },
-    "suggestions": {
-      "label": "Smart Suggestions",
-      "description": "AI-powered actionable insights for your workflow"
+    "dataGraph": {
+      "label": "Projects & Clients",
+      "description": "Bar chart showing projects and clients over time"
     },
-    "ecosystem": {
-      "label": "Living Ecosystem",
-      "description": "A generative plant that grows with your usage"
+    "statusBar": {
+      "label": "Project Status",
+      "description": "Segmented bar showing project distribution by status"
+    },
+    "deadline": {
+      "label": "Next Deadline",
+      "description": "Flip-clock countdown to the nearest project deadline"
     }
   }
 }

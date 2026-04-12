@@ -159,34 +159,38 @@ services:
       - freelancer_crm_network
 
   # ---------------------------------------------------------------------------
-  # Frontend + Nginx Reverse Proxy — Serves SPA + SSL Termination
+  # Frontend + Nginx — Serves SPA + SSL Termination
   # ---------------------------------------------------------------------------
-  # In production, Nginx serves the built React app AND proxies /api to backend.
-  # It also handles SSL termination (HTTPS).
+  # Nginx master runs as root to bind port 443. Worker processes drop to the
+  # 'nginx' user via the 'user nginx;' directive in /etc/nginx/nginx.conf.
+  # The production config is generated at startup from nginx.prod.conf (template)
+  # via envsubst, injecting the DOMAIN env var.
   nginx:
     container_name: freelancer-crm-nginx
     build:
       context: .
       dockerfile: docker/frontend.Dockerfile
-      # Full production build: React build → Nginx serving static files
       target: production
       args:
-        # Set the API URL for the Vite build (baked into the JS bundle)
         VITE_API_URL: /api
     restart: always
 
+    environment:
+      # Domain name for SSL cert paths and server_name in nginx config.
+      # Must match the domain used to issue the Let's Encrypt certificate.
+      DOMAIN: ${DOMAIN}
+
     ports:
-      # HTTP → redirected to HTTPS by Nginx
-      - "80:8080"
-      # HTTPS — production traffic
-      - "443:443"
+      - "80:8080"    # HTTP  → HTTPS redirect (+ ACME challenge)
+      - "443:443"    # HTTPS → production traffic
 
     volumes:
-      # Mount SSL certificates (from Let's Encrypt, Certbot, etc.)
-      - ./docker/ssl/fullchain.pem:/etc/nginx/ssl/fullchain.pem:ro
-      - ./docker/ssl/privkey.pem:/etc/nginx/ssl/privkey.pem:ro
-      # Mount production Nginx config with SSL block
-      - ./docker/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
+      # Production nginx config template — envsubst fills in ${DOMAIN} at startup
+      - ./docker/nginx.prod.conf:/etc/nginx/nginx.prod.conf.template:ro
+      # Let's Encrypt certificates (written by Certbot service below)
+      - certbot_letsencrypt:/etc/letsencrypt:ro
+      # Shared webroot for ACME challenge files
+      - certbot_webroot:/var/www/certbot
 
     depends_on:
       backend:
@@ -197,7 +201,7 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 15s
 
     deploy:
       resources:
@@ -216,20 +220,73 @@ services:
 
     networks:
       - freelancer_crm_network
-  # NO Adminer in production — use SSH tunnel + local client for DB access
 
-  # =============================================================================
+  # ---------------------------------------------------------------------------
+  # Certbot — Let's Encrypt certificate issuance and automatic renewal
+  # ---------------------------------------------------------------------------
+  # Runs in webroot mode: nginx serves the ACME challenge on port 80 while
+  # certbot writes the challenge token to the shared certbot_webroot volume.
+  # After a successful renewal, certbot reloads nginx via the Docker socket.
+  #
+  # First-time setup: run  make ssl-init  before starting this stack.
+  certbot:
+    image: certbot/certbot:latest
+    container_name: freelancer-crm-certbot
+    restart: unless-stopped
+
+    volumes:
+      # Persistent store for certs, keys, accounts, and renewal config
+      - certbot_letsencrypt:/etc/letsencrypt
+      # Shared ACME challenge webroot with nginx
+      - certbot_webroot:/var/www/certbot
+      # Docker socket so certbot can reload nginx after renewal
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    # Renew check every 12 h. Certbot only actually renews when < 30 days remain.
+    # Post-hook reloads nginx gracefully (zero downtime).
+    entrypoint: >
+      /bin/sh -c "
+        apk add --no-cache docker-cli --quiet 2>/dev/null;
+        trap exit TERM;
+        while :; do
+          certbot renew
+            --webroot -w /var/www/certbot
+            --quiet
+            --post-hook 'docker exec freelancer-crm-nginx nginx -s reload';
+          sleep 12h & wait $${!};
+        done
+      "
+
+    depends_on:
+      - nginx
+
+    networks:
+      - freelancer_crm_network
+
+  # NO Adminer in production — use SSH tunnel + local psql for DB access
+
+  # ===========================================================================
   # NETWORKS
-  # =============================================================================
+  # ===========================================================================
 networks:
   freelancer_crm_network:
     name: freelancer_crm_network
     driver: bridge
 
-# =============================================================================
+# ===========================================================================
 # VOLUMES
-# =============================================================================
+# ===========================================================================
 volumes:
   freelancer_crm_postgres_data:
     name: freelancer_crm_postgres_data
+    driver: local
+
+  # Certbot: stores /etc/letsencrypt (certs, keys, renewal config, accounts)
+  certbot_letsencrypt:
+    name: certbot_letsencrypt
+    driver: local
+
+  # Certbot: shared ACME challenge webroot with nginx
+  certbot_webroot:
+    name: certbot_webroot
     driver: local

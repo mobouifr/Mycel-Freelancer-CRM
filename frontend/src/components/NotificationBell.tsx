@@ -56,6 +56,11 @@ export default function NotificationBell() {
     else store.dismissNotification(n.id);
   };
 
+  const handleDismissAll = () => {
+    backend.dismissAll();
+    store.dismissAllNotifications();
+  };
+
   // ── Navigate on click ────────────────────────
   const handleClick = (n: AppNotification) => {
     if (!n.isRead) handleMarkAsRead(n);
@@ -181,18 +186,32 @@ export default function NotificationBell() {
             }}>
               {t('notifications.title')} {unreadCount > 0 && `(${unreadCount})`}
             </p>
-            {unreadCount > 0 && (
-              <button
-                onClick={handleMarkAllAsRead}
-                style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--accent)',
-                  letterSpacing: '.04em',
-                }}
-              >
-                {t('notifications.mark_all_read')}
-              </button>
-            )}
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              {unreadCount > 0 && (
+                <button
+                  onClick={handleMarkAllAsRead}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--accent)',
+                    letterSpacing: '.04em',
+                  }}
+                >
+                  {t('notifications.mark_all_read')}
+                </button>
+              )}
+              {notifications.length > 0 && (
+                <button
+                  onClick={handleDismissAll}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontFamily: 'var(--font-m)', fontSize: 9, color: 'var(--danger)',
+                    letterSpacing: '.04em',
+                  }}
+                >
+                  {t('notifications.delete_all')}
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Items */}

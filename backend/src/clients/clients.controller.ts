@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Request, Query } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
@@ -10,9 +10,15 @@ export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
   @Get()
-  async findAll(@Request() req: any) {
-    const data = await this.clientsService.findAll(req.user.id);
-    return { data };
+  async findAll(
+    @Request() req: any,
+    @Query('page')   page?:   string,
+    @Query('limit')  limit?:  string,
+    @Query('search') search?: string,
+  ) {
+    const pageNum  = Math.max(1, parseInt(page  || '1',  10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit || '10', 10) || 10));
+    return this.clientsService.findAll(req.user.id, pageNum, limitNum, search);
   }
 
   @Post()

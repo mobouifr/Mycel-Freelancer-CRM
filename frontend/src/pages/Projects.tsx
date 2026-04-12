@@ -1,7 +1,7 @@
 /* Placeholder — Heba's module */
 export default function Projects() {
   return (
-    <div style={{ animation: 'fadeUp .3s var(--ease) both' }}>
+    <div>
       <h2
         style={{
           fontFamily: 'var(--font-d)',
