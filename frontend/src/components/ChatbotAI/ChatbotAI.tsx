@@ -560,6 +560,86 @@ export default function ChatbotAI() {
     let reply = '';
 
     try {
+      const token = localStorage.getItem('token');
+      const streamResponse = await fetch('/api/chatbot/stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        credentials: 'include',
+        body: JSON.stringify({ message: trimmed }),
+      });
+
+      if (streamResponse.ok && streamResponse.body) {
+        const reader = streamResponse.body.getReader();
+        const decoder = new TextDecoder();
+        let streamedContent = '';
+        let pendingChunk = '';
+
+        // Add a placeholder assistant message that we update in real time.
+        setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: '' }]);
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          pendingChunk += decoder.decode(value, { stream: true });
+          const lines = pendingChunk.split('\n');
+          pendingChunk = lines.pop() ?? '';
+
+          for (const line of lines) {
+            const trimmedLine = line.trim();
+            if (!trimmedLine.startsWith('data:')) continue;
+
+            const data = trimmedLine.slice(5).trim();
+            if (data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data) as { content?: string };
+              if (parsed.content) {
+                streamedContent += parsed.content;
+                setMessages((prev: ChatMessage[]) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = {
+                    role: 'assistant',
+                    content: streamedContent,
+                  };
+                  return updated;
+                });
+              }
+            } catch {
+              // Skip malformed SSE chunks.
+            }
+          }
+        }
+
+        const parsed = parseActionBlock(streamedContent);
+        const finalReply = parsed.text || streamedContent || 'Sorry, no response received.';
+
+        let actionReply = finalReply;
+        if (parsed.action) {
+          const opened = openActionModal(parsed.action);
+          if (opened && !actionReply) {
+            actionReply = 'Action prepared. Review the details and submit the form.';
+          }
+        }
+
+        setMessages((prev: ChatMessage[]) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            role: 'assistant',
+            content: actionReply,
+          };
+          return updated;
+        });
+
+        // Streaming branch handled the assistant message already.
+        setLoading(false);
+        return;
+      }
+
+      // Fallback to non-streaming endpoint when SSE is unavailable.
       const { data } = await api.post<ChatbotApiResponse>('/chatbot/chat', {
         message: trimmed,
       });

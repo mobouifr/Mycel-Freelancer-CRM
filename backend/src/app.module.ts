@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ClientsModule } from './clients/clients.module';
@@ -21,6 +22,12 @@ import { ChatbotModule } from './chatbot/chatbot.module';
       envFilePath: process.env.NODE_ENV === 'production' ? undefined : ['.env', '../.env'],
       ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 20,
+      },
+    ]),
     PrismaModule,
     AuthModule,
     UsersModule,

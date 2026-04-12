@@ -1,4 +1,5 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Request, Res, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ChatbotService } from './chatbot.service';
 
@@ -11,6 +12,7 @@ interface ChatResponse {
   action?: Record<string, unknown>;
 }
 
+@Throttle({ default: { limit: 20, ttl: 60000 } })
 @Controller('chatbot')
 @UseGuards(JwtAuthGuard)
 export class ChatbotController {
@@ -44,5 +46,20 @@ export class ChatbotController {
 
     const content = await this.chatbotService.chat(req.user.id, message, []);
     return this.extractAction(content);
+  }
+
+  @Post('stream')
+  async streamChat(
+    @Body() body: ChatRequestBody,
+    @Request() req: { user: { id: string } },
+    @Res() res: any,
+  ): Promise<void> {
+    const message = (body?.message ?? '').trim();
+    if (!message) {
+      res.status(400).json({ error: 'Please provide a message.' });
+      return;
+    }
+
+    await this.chatbotService.streamChat(req.user.id, message, res);
   }
 }

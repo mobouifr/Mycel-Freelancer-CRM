@@ -1,142 +1,157 @@
-# Freelancer CRM — ft_transcendence
+*This project has been created as part of the 42 curriculum by solacode-SC, montassir, souita, mobouifr, hiba-chokri.*
 
-## DevOps — Healthcheck & Disaster Recovery
+# Mycel CRM — ft_transcendence
 
-### 1. Health Monitoring
+## Description
+Mycel is a freelancer-focused CRM web application that helps users manage clients, projects, proposals, invoices, reminders, and growth analytics in one place. The platform combines a React frontend, NestJS backend, and PostgreSQL database, with JWT-secured authentication, notifications, i18n, monitoring, backup/restore flows, and an AI assistant integrated with live business context.
 
-The backend exposes a health endpoint that verifies database connectivity:
+## Team
 
-```
-GET http://localhost:3001/api/health
-```
+| Member | Role | Responsibilities |
+|--------|------|-----------------|
+| Solayman | Tech Lead + DevOps Lead | Docker Compose infrastructure, Prometheus/Grafana, alerting rules, backup/restore scripts, Makefile automation, DeepSeek chatbot integration |
+| Othman | Backend Lead | NestJS API architecture, Prisma schema/migrations, auth/security flows, REST endpoints |
+| Montassir | Frontend Lead | React pages/components, dashboard UX, chatbot widget integration, route composition |
+| Mobouifr | Product Owner + Developer | Product scope, feature prioritization, user flow validation, module alignment |
+| Hiba | Developer | Clients/projects UX flows, forms, validation behavior, testing support |
 
-Response:
-```json
-{
-  "status": "ok",
-  "timestamp": "2026-04-10T15:00:00.000Z",
-  "services": {
-    "database": "connected"
-  }
-}
-```
+## Project Management
+- Task tracking: Git branches + pull/merge workflow and issue-style tracking in team discussions.
+- Branch strategy: feature branches merged into `backDevops`.
+- Communication: Discord for daily sync, blockers, and review feedback.
+- Review process: peer code checks before major merges and evaluator rehearsal sessions.
 
-Prometheus scrapes this endpoint every 15 seconds to track service availability.
+## Technical Stack
 
----
+### Frontend
+- React + TypeScript + Vite
+- Tailwind CSS and custom CSS tokens
+- ReactMarkdown + Mermaid + syntax highlighting in chatbot responses
+- i18next for localization (EN/FR/ES)
 
-### 2. Alerting
+### Backend
+- NestJS + TypeScript
+- Prisma ORM + PostgreSQL
+- JWT authentication with HttpOnly cookies and guards
+- DeepSeek LLM API for chatbot responses
 
-Prometheus alert rules are defined in `docker/rules/alerts.yml`.
+### Infrastructure
+- Docker Compose (app + observability + backup services)
+- Prometheus + Grafana for metrics, dashboards, and alerting
+- HTTPS development setup (self-signed cert) and production TLS support
+- Automated daily backup + interactive restore flow
 
-| Alert | Condition | Duration | Severity |
-|-------|-----------|----------|----------|
-| **BackendDown** | `up{job="backend"} == 0` | 1 min | critical |
-| **ServiceDown** | `up == 0` | 1 min | critical |
-| **HighErrorRate** | HTTP 5xx > 5% | 2 min | warning |
-| **HighResponseLatency** | p95 > 1s | 5 min | warning |
-| **PostgresConnectionSaturation** | > 80% connections | 5 min | warning |
-| **HighNodeMemory** | RSS > 512MB | 5 min | warning |
+## Database Schema
+The schema is defined in `backend/prisma/schema.prisma` and includes strongly-related entities for users and business data:
 
-Access Prometheus at: `http://localhost:9090`
+| Model | Purpose | Key Relationships |
+|------|---------|-------------------|
+| User | Account, profile, auth, preferences | 1:N with Client, Project, Proposal, Invoice, Notification, Reminder |
+| Client | Customer records | N:1 User, 1:N Project |
+| Project | Work delivery lifecycle | N:1 User, N:1 Client, 1:N Proposal/Invoice |
+| Proposal | Commercial offers | N:1 User, N:1 Project |
+| Invoice | Billing records | N:1 User, N:1 Project, 1:N Payment |
+| Payment | Invoice payment entries | N:1 Invoice |
+| Notification | User activity notifications | N:1 User |
+| Reminder | Time-based tasks/reminders | N:1 User |
 
----
+## Modules
 
-### 3. Automatic Container Restart
+| Module | Type | Points | Owner | Status |
+|--------|------|--------|-------|--------|
+| Framework (React + NestJS) | Major | 2 | Team | Done |
+| Monitoring (Prometheus + Grafana) | Major | 2 | Solayman | Done |
+| LLM Interface (DeepSeek + streaming + action parsing) | Major | 2 | Solayman + Montassir | Done |
+| ORM (Prisma) | Minor | 1 | Othman | Done |
+| Notification System | Minor | 1 | Team | Done |
+| Multi-language (EN/FR/ES) | Minor | 1 | Team | Done |
+| OAuth 42 | Minor | 1 | Othman | Done |
+| 2FA (TOTP) | Minor | 1 | Othman | Done |
+| Gamification (XP/levels/achievements/badges) | Minor | 1 | Team | Done |
+| Health checks + automated backups + restore procedures | Minor | 1 | Solayman | Done |
+| **Current validated total (target >= 14)** |  | **13** |  | In progress |
 
-All critical services have `restart: unless-stopped` in `docker-compose.yml`:
+Note: module validation is strict during defense; only fully demonstrated modules are counted.
 
-- **postgres** — database
-- **backend** — NestJS API
-- **frontend** — React/Vite
-- **prometheus** — metrics
-- **grafana** — dashboards
-- **backup** — scheduled DB backups
+## Features List
 
-If a container crashes, Docker restarts it automatically.
+| Feature | Description | Owner(s) |
+|--------|-------------|----------|
+| Secure auth | Signup/login, JWT guard, protected routes, 42 OAuth, 2FA | Othman |
+| CRM core | Clients/projects/proposals/invoices CRUD flows | Team |
+| Dashboard | Revenue/activity/project insights and widgets | Montassir + Team |
+| Notifications | Event notifications across create/update/delete actions | Team |
+| Chatbot AI | Live CRM context prompt injection, action parsing, SSE streaming | Solayman + Montassir |
+| Monitoring | Prometheus metrics endpoint, scraping, Grafana dashboards, alerts | Solayman |
+| Backup/restore | Daily cron backups + manual restore with safeguards | Solayman |
+| Localization | English/French/Spanish UI translations | Team |
+| Legal pages | Privacy Policy and Terms of Service pages/routes | Team |
 
----
+## Individual Contributions
 
-### 4. Database Backup Strategy
+### Solayman (Tech Lead / DevOps)
+- Designed and implemented Docker Compose infrastructure for database, API, frontend, monitoring, and backups.
+- Configured Prometheus scrape jobs and alert rules; integrated Grafana provisioning.
+- Built and maintained backup and restore scripts, including retention and safety backup practices.
+- Implemented/updated Makefile automation for app lifecycle, SSL, database, and monitoring operations.
+- Integrated DeepSeek chatbot backend with live DB context and SSE streaming endpoint.
+- Added chatbot rate limiting with NestJS throttling.
 
-Backups run automatically via the `backup` container using cron:
+### Othman (Backend Lead)
+- Structured NestJS modules/controllers/services and core API behavior.
+- Implemented Prisma schema, migrations, and backend validation architecture.
+- Built authentication layer (JWT, OAuth, 2FA) and route protection.
 
-| Schedule | Retention | Format |
-|----------|-----------|--------|
-| Daily at 02:00 UTC | 7 days | `crm_YYYYMMDD_HHMMSS.sql.gz` |
+### Montassir (Frontend Lead)
+- Developed React page routing and dashboard/client/project interfaces.
+- Implemented chatbot UI/UX behavior, markdown rendering, and action-driven forms.
+- Integrated frontend chatbot flow with backend endpoints.
 
-To run a manual backup:
+### Mobouifr (PO + Developer)
+- Coordinated project direction, requirement scoping, and validation priorities.
+- Participated in feature review and module planning.
+
+### Hiba (Developer)
+- Worked on client/project UX pages and form flows.
+- Supported testing, polish, and integration validation.
+
+## Instructions
+
+### Prerequisites
+- Docker Engine + Docker Compose v2
+- `make`
+- `.env` file generated from `.env.example`
+
+### Start (development)
 ```bash
+cp .env.example .env
+# Fill required variables in .env
+make up
+```
+
+### Access
+- Frontend: https://localhost
+- Backend API: http://localhost:3001
+- Grafana: http://localhost:3002
+- Prometheus: http://localhost:9090
+- Adminer: http://localhost:8080
+
+### Useful commands
+```bash
+make up
+make down
+make logs
+make status
 make db-backup
+make db-restore FILE=backups/backup_YYYYMMDD_HHMMSS.sql.gz
 ```
 
-Cron entry (for reference):
-```
-0 2 * * * sh /backup.sh >> /var/log/backup.log 2>&1
-```
+## Resources
+- NestJS: https://docs.nestjs.com
+- Prisma: https://www.prisma.io/docs
+- Prometheus: https://prometheus.io/docs
+- Grafana: https://grafana.com/docs
+- DeepSeek API: https://api-docs.deepseek.com
 
----
-
-### 5. Disaster Recovery Steps
-
-#### Scenario A — Backend Crash
-
-1. **Detection**: Prometheus triggers `BackendDown` alert within 1 minute
-2. **Recovery**: Docker automatically restarts the container (`restart: unless-stopped`)
-3. **Verification**: Check `http://localhost:3001/api/health` returns `status: ok`
-
-#### Scenario B — Database Failure
-
-1. **Stop services**:
-   ```bash
-   docker compose down
-   ```
-
-2. **Start only the database**:
-   ```bash
-   docker compose up -d postgres
-   ```
-
-3. **Restore from backup**:
-   ```bash
-   ./scripts/restore-db.sh backups/<backup_file>.sql.gz
-   ```
-
-4. **Restart all services**:
-   ```bash
-   docker compose up -d
-   ```
-
-5. **Verify**: Check health endpoint and Prometheus targets
-
-#### Scenario C — Full System Recovery
-
-1. Clone repository
-2. Copy `.env` file
-3. Run `docker compose up -d`
-4. Restore database: `./scripts/restore-db.sh backups/<latest_backup>.sql.gz`
-5. Verify all services at their respective ports
-
----
-
-### 6. Service Ports
-
-| Service | URL |
-|---------|-----|
-| Frontend | http://localhost:3089 |
-| Backend API | http://localhost:3001 |
-| Adminer | http://localhost:8080 |
-| Prometheus | http://localhost:9090 |
-| Grafana | http://localhost:3002 |
-
----
-
-### 7. Useful Commands
-
-```bash
-make up              # Start all services
-make down            # Stop all services
-make db-backup       # Manual database backup
-make db-restore FILE=<path>  # Restore from backup
-docker compose logs -f backend   # Tail backend logs
-```
+### AI Usage
+AI assistants were used to speed up repetitive tasks such as prompt structure drafting, alert syntax review, and implementation brainstorming. Every AI-assisted change was manually reviewed, tested in the project context, and adjusted to match project requirements before merge.
