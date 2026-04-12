@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ClientsModule } from './clients/clients.module';
@@ -8,8 +10,10 @@ import { GamificationModule } from './gamification/gamification.module';
 import { PrismaModule} from './prisma/prisma.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MetricsModule } from './metrics/metrics.module';
+import { MetricsInterceptor } from './metrics/metrics.interceptor';
 import { HealthModule } from './health/health.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
 
 @Module({
   imports: [
@@ -18,6 +22,12 @@ import { DashboardModule } from './dashboard/dashboard.module';
       envFilePath: process.env.NODE_ENV === 'production' ? undefined : ['.env', '../.env'],
       ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 20,
+      },
+    ]),
     PrismaModule,
     AuthModule,
     UsersModule,
@@ -26,8 +36,15 @@ import { DashboardModule } from './dashboard/dashboard.module';
     GamificationModule,
     NotificationsModule,
     MetricsModule,
+    ChatbotModule,
     HealthModule,
     DashboardModule,
+  ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: MetricsInterceptor,
+    },
   ],
 })
 export class AppModule {}

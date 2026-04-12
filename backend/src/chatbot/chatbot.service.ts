@@ -19,22 +19,15 @@ export class ChatbotService {
     return value.length > max ? `${value.slice(0, max)}...` : value;
   }
 
-  async chat(
-    userId: string,
-    userMessage: string,
-    history: ChatMessage[],
-  ): Promise<string> {
-    const safeHistory = Array.isArray(history) ? history : [];
-
-    // === CONTEXT WINDOW TRIMMING ===
-    const MAX_HISTORY = 20;
-    const trimmedHistory = safeHistory
-      .filter((m) => m.role === 'user' || m.role === 'assistant')
-      .slice(-MAX_HISTORY);
-
-    let systemPrompt =
+  private unavailablePrompt(): string {
+    return (
       'You are a CRM assistant. The database is currently unavailable.\n' +
-      'Answer only from conversation history. Tell the user data may be outdated.';
+      'Answer only from conversation history. Tell the user data may be outdated.'
+    );
+  }
+
+  private async buildSystemPrompt(userId: string): Promise<string> {
+    let systemPrompt = this.unavailablePrompt();
 
     try {
       // === LIVE DB FETCH ===
@@ -310,10 +303,26 @@ ${achievementsText}
 ${badgesText}`;
     } catch (error) {
       this.logger.error('Failed to fetch live CRM snapshot', error);
-      systemPrompt =
-        'You are a CRM assistant. The database is currently unavailable.\n' +
-        'Answer only from conversation history. Tell the user data may be outdated.';
+      systemPrompt = this.unavailablePrompt();
     }
+
+    return systemPrompt;
+  }
+
+  async chat(
+    userId: string,
+    userMessage: string,
+    history: ChatMessage[],
+  ): Promise<string> {
+    const safeHistory = Array.isArray(history) ? history : [];
+
+    // === CONTEXT WINDOW TRIMMING ===
+    const MAX_HISTORY = 20;
+    const trimmedHistory = safeHistory
+      .filter((m) => m.role === 'user' || m.role === 'assistant')
+      .slice(-MAX_HISTORY);
+
+    const systemPrompt = await this.buildSystemPrompt(userId);
 
     try {
       // === DEEPSEEK CALL ===
@@ -365,6 +374,105 @@ ${badgesText}`;
     } catch (error) {
       this.logger.error('DeepSeek API call failed', error);
       return "I'm having trouble reaching the AI service. Please try again in a moment.";
+    }
+  }
+
+  async streamChat(userId: string, userMessage: string, res: any): Promise<void> {
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    const baseUrl = process.env.DEEPSEEK_BASE_URL ?? 'https://api.deepseek.com';
+    const model = process.env.DEEPSEEK_MODEL ?? 'deepseek-chat';
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders();
+
+    if (!apiKey) {
+      this.logger.error('DEEPSEEK_API_KEY is missing');
+      res.write('data: {"content":"Service unavailable."}\n\n');
+      res.write('data: [DONE]\n\n');
+      res.end();
+      return;
+    }
+
+    try {
+      const systemPrompt = await this.buildSystemPrompt(userId);
+
+      const response = await fetch(`${baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.4,
+          stream: true,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage },
+          ],
+        }),
+      });
+
+      if (!response.ok || !response.body) {
+        const errorText = await response.text();
+        this.logger.error(
+          `DeepSeek streaming failed: ${response.status} ${response.statusText} ${errorText}`,
+        );
+        res.write('data: {"content":"AI service error."}\n\n');
+        res.write('data: [DONE]\n\n');
+        res.end();
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let pending = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        pending += decoder.decode(value, { stream: true });
+        const lines = pending.split('\n');
+        pending = lines.pop() ?? '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data:')) {
+            continue;
+          }
+
+          const data = trimmed.slice(5).trim();
+          if (data === '[DONE]') {
+            res.write('data: [DONE]\n\n');
+            res.end();
+            return;
+          }
+
+          try {
+            const parsed = JSON.parse(data) as {
+              choices?: Array<{ delta?: { content?: string } }>;
+            };
+            const content = parsed.choices?.[0]?.delta?.content;
+            if (content) {
+              res.write(`data: ${JSON.stringify({ content })}\n\n`);
+            }
+          } catch {
+            // Ignore malformed chunk fragments.
+          }
+        }
+      }
+
+      res.write('data: [DONE]\n\n');
+      res.end();
+    } catch (error) {
+      this.logger.error('Streaming failed', error);
+      res.write('data: {"content":"Stream error."}\n\n');
+      res.write('data: [DONE]\n\n');
+      res.end();
     }
   }
 }

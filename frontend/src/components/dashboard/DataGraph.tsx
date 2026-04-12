@@ -25,9 +25,10 @@ const SERIES = {
 const PAD = { top: 16, right: 12, bottom: 28, left: 32 };
 const TENSION = 0.35;
 
-/** Build a smooth cubic bezier path through points */
-function buildCurve(pts: { x: number; y: number }[]): string {
+/** Build a smooth cubic bezier path through points, clamped to [minY, maxY] */
+function buildCurve(pts: { x: number; y: number }[], minY: number, maxY: number): string {
   if (pts.length < 2) return '';
+  const clampY = (y: number) => Math.min(maxY, Math.max(minY, y));
   let d = `M${pts[0].x},${pts[0].y}`;
   for (let i = 0; i < pts.length - 1; i++) {
     const p0 = pts[Math.max(0, i - 1)];
@@ -35,9 +36,9 @@ function buildCurve(pts: { x: number; y: number }[]): string {
     const p2 = pts[i + 1];
     const p3 = pts[Math.min(pts.length - 1, i + 2)];
     const cp1x = p1.x + (p2.x - p0.x) * TENSION;
-    const cp1y = p1.y + (p2.y - p0.y) * TENSION;
+    const cp1y = clampY(p1.y + (p2.y - p0.y) * TENSION);
     const cp2x = p2.x - (p3.x - p1.x) * TENSION;
-    const cp2y = p2.y - (p3.y - p1.y) * TENSION;
+    const cp2y = clampY(p2.y - (p3.y - p1.y) * TENSION);
     d += ` C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
   }
   return d;
@@ -109,13 +110,13 @@ function DataGraph() {
       val: v,
     }));
 
+  const baseY = PAD.top + chartH;
+
   const projPts = useMemo(() => toPoints(projects), [projects, chartW, chartH, gridMax]);
   const cliPts = useMemo(() => toPoints(clients), [clients, chartW, chartH, gridMax]);
 
-  const projCurve = useMemo(() => buildCurve(projPts), [projPts]);
-  const cliCurve = useMemo(() => buildCurve(cliPts), [cliPts]);
-
-  const baseY = PAD.top + chartH;
+  const projCurve = useMemo(() => buildCurve(projPts, PAD.top, baseY), [projPts, baseY]);
+  const cliCurve = useMemo(() => buildCurve(cliPts, PAD.top, baseY), [cliPts, baseY]);
   const projArea = projCurve ? `${projCurve} L${projPts[projPts.length - 1].x},${baseY} L${projPts[0].x},${baseY} Z` : '';
   const cliArea = cliCurve ? `${cliCurve} L${cliPts[cliPts.length - 1].x},${baseY} L${cliPts[0].x},${baseY} Z` : '';
 
