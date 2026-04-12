@@ -64,6 +64,43 @@ export class DashboardService {
     };
   }
 
+  async getActivityHeatmap(userId: string, days: number = 365) {
+    const data: Record<string, number> = {};
+    const today = new Date();
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - days);
+
+    // 1. Count created clients
+    const clients = await this.prisma.client.findMany({
+      where: { userId, createdAt: { gte: startDate } },
+      select: { createdAt: true }
+    });
+
+    // 2. Count created projects
+    const createdProjects = await this.prisma.project.findMany({
+      where: { userId, createdAt: { gte: startDate } },
+      select: { createdAt: true }
+    });
+
+    // 3. Count completed projects (using updatedAt as a proxy for completion date)
+    const completedProjects = await this.prisma.project.findMany({
+      where: { userId, status: ProjectStatus.COMPLETED, updatedAt: { gte: startDate } },
+      select: { updatedAt: true }
+    });
+
+    // Helper to increment counts by date
+    const incrementDate = (date: Date) => {
+      const key = date.toISOString().slice(0, 10);
+      data[key] = (data[key] || 0) + 1;
+    };
+
+    clients.forEach(c => incrementDate(c.createdAt));
+    createdProjects.forEach(p => incrementDate(p.createdAt));
+    completedProjects.forEach(p => incrementDate(p.updatedAt));
+
+    return data;
+  }
+
   async getActivityFeed(userId: string) {
     // Fetch recent items from different tables
     const [recentClients, recentProjects, recentAchievements] = await Promise.all([
