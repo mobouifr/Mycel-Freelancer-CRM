@@ -31,7 +31,7 @@ export class ChatbotService {
 
     try {
       // === LIVE DB FETCH ===
-      const [user, clients, projects, proposals, invoices, achievements, badges] =
+      const [user, clients, projects, achievements, badges] =
         await Promise.all([
           this.prisma.user.findUnique({
             where: { id: userId },
@@ -73,40 +73,6 @@ export class ChatbotService {
             },
             orderBy: { createdAt: 'desc' },
           }),
-          this.prisma.proposal.findMany({
-            where: { userId },
-            select: {
-              id: true,
-              title: true,
-              amount: true,
-              status: true,
-              notes: true,
-              validUntil: true,
-              createdAt: true,
-              project: { select: { title: true } },
-            },
-            orderBy: { createdAt: 'desc' },
-          }),
-          this.prisma.invoice.findMany({
-            where: { userId },
-            select: {
-              id: true,
-              amount: true,
-              status: true,
-              dueDate: true,
-              notes: true,
-              createdAt: true,
-              project: { select: { title: true } },
-              payments: {
-                select: {
-                  amount: true,
-                  method: true,
-                  paidAt: true,
-                },
-              },
-            },
-            orderBy: { createdAt: 'desc' },
-          }),
           this.prisma.userAchievement.findMany({
             where: { userId },
             select: {
@@ -130,27 +96,12 @@ export class ChatbotService {
       const MAX_ITEMS = 30;
       const limitedClients = clients.slice(0, MAX_ITEMS);
       const limitedProjects = projects.slice(0, MAX_ITEMS);
-      const limitedProposals = proposals.slice(0, MAX_ITEMS);
-      const limitedInvoices = invoices.slice(0, MAX_ITEMS);
       const limitedAchievements = achievements.slice(0, MAX_ITEMS);
       const limitedBadges = badges.slice(0, MAX_ITEMS);
 
       // === STATS ===
-      const totalRevenue = invoices
-        .filter((i) => i.status === 'PAID')
-        .reduce((sum, i) => sum + Number(i.amount), 0);
-
-      const pendingRevenue = invoices
-        .filter((i) => i.status === 'PENDING')
-        .reduce((sum, i) => sum + Number(i.amount), 0);
-
-      const overdueInvoices = invoices.filter((i) => i.status === 'OVERDUE');
-
       const activeProjects = projects.filter((p) => p.status === 'ACTIVE');
       const completedProjects = projects.filter((p) => p.status === 'COMPLETED');
-
-      const acceptedProposals = proposals.filter((p) => p.status === 'ACCEPTED');
-      const pendingProposals = proposals.filter((p) => p.status === 'SENT');
 
       const currency = user?.defaultCurrency ?? 'USD';
       const today = new Date().toLocaleDateString('en-GB', {
@@ -181,22 +132,6 @@ export class ChatbotService {
               `- [${p.status}] ${p.title} | client: ${p.client.name} | budget: ${currency} ${Number(p.budget).toFixed(2)}${p.deadline ? ` | deadline: ${new Date(p.deadline).toLocaleDateString()}` : ''}${p.description ? ` | desc: ${this.truncateText(p.description, 80)}` : ''}`,
           )
           .join('\n') || 'No projects yet.';
-
-      const proposalsText =
-        limitedProposals
-          .map(
-            (p) =>
-              `- [${p.status}] ${p.title} | project: ${p.project.title} | ${currency} ${Number(p.amount).toFixed(2)}${p.validUntil ? ` | valid until: ${new Date(p.validUntil).toLocaleDateString()}` : ''}${p.notes ? ` | note: ${this.truncateText(p.notes, 80)}` : ''}`,
-          )
-          .join('\n') || 'No proposals yet.';
-
-      const invoicesText =
-        limitedInvoices
-          .map(
-            (i) =>
-              `- [${i.status}] ${i.project.title} | ${currency} ${Number(i.amount).toFixed(2)}${i.dueDate ? ` | due: ${new Date(i.dueDate).toLocaleDateString()}` : ''}${i.payments.length ? ` | paid via: ${i.payments.map((p) => p.method).join(', ')}` : ''}${i.notes ? ` | note: ${this.truncateText(i.notes, 80)}` : ''}`,
-          )
-          .join('\n') || 'No invoices yet.';
 
       const achievementsText =
         limitedAchievements
@@ -237,10 +172,10 @@ flowchart TD / sequenceDiagram / erDiagram / gantt / stateDiagram-v2 / pie / xyc
 - For simple inline comparisons only, use markdown tables instead.
 - **Use Markdown extensively**: Bold key metrics, names, variables, and dates to make them stand out.
 - **Strategic Sectioning**: Use clear headers (e.g., ### 📊 Financial Overview, ### ⚠️ Action Required, ### 💡 Strategic Insights) to break down information into digestible sections.
-- **Data Tables**: Whenever comparing multiple items, listing invoices, or presenting financial summaries, use clean, well-aligned markdown tables.
+- **Data Tables**: Whenever comparing multiple items or presenting project summaries, use clean, well-aligned markdown tables.
 - **Visual hierarchy**: Use bullet points and numbered lists for multiple items or step-by-step reasoning.
-- **Alerts**: Flag overdue items or urgent deadlines with appropriate emojis (🚨, ⚠️) prominently.
-- **Success Indicators**: Acknowledge positive milestones (✅, 🎉) like paid invoices or completed projects.
+- **Alerts**: Flag urgent deadlines with appropriate emojis (🚨, ⚠️) prominently.
+- **Success Indicators**: Acknowledge positive milestones (✅, 🎉) like completed projects.
 
 ## YOUR CAPABILITIES
 You can deeply analyze data, answer complex questions, and TRIGGER ACTIONS.
@@ -255,11 +190,8 @@ When the user asks to add, create, edit, or delete anything, respond with a JSON
 Available actions:
 - CREATE_CLIENT — fields: name*, email, phone, company, notes
 - CREATE_PROJECT — fields: title*, clientId*, budget*, status, deadline, description
-- CREATE_PROPOSAL — fields: title*, projectId*, amount*, validUntil, notes
-- CREATE_INVOICE — fields: projectId*, amount*, dueDate, notes
 - DELETE_CLIENT — fields: clientId*
 - DELETE_PROJECT — fields: projectId*
-- DELETE_INVOICE — fields: invoiceId*
 - GENERATE_REPORT — fields: type* (revenue|pipeline|summary)
 - GENERATE_CONTRACT — fields: projectId*, clientId*
 
@@ -277,26 +209,17 @@ For CREATE actions, if the user hasn't provided all required (*) fields, ask for
 ### PROFILE
 ${userDisplayName} | ${businessName} | Level ${userLevel} | ${userXp} XP | Tax: ${taxRate}%
 
-### FINANCIAL SUMMARY
+### PROJECT SUMMARY
 | Metric | Value |
 |--------|-------|
-| Total Earned | ${currency} ${totalRevenue.toFixed(2)} |
-| Pending | ${currency} ${pendingRevenue.toFixed(2)} |
-| Overdue Invoices | ${overdueInvoices.length} |
-| Accepted Proposals | ${acceptedProposals.length} |
-| Pending Proposals | ${pendingProposals.length} |
+| Active Projects | ${activeProjects.length} |
+| Completed Projects | ${completedProjects.length} |
 
 ### CLIENTS (${limitedClients.length})
 ${clientsText}
 
 ### PROJECTS (${limitedProjects.length}) — Active: ${activeProjects.length} | Completed: ${completedProjects.length}
 ${projectsText}
-
-### PROPOSALS (${limitedProposals.length})
-${proposalsText}
-
-### INVOICES (${limitedInvoices.length})
-${invoicesText}
 
 ### ACHIEVEMENTS & BADGES
 ${achievementsText}

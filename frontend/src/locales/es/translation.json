@@ -40,7 +40,6 @@
     "download_pdf": "Descargar PDF",
     "mark_as_paid": "Marcar como pagada",
     "payment_method": "Método de pago",
-    "convert_to_invoice": "Convertir en factura",
     "due_date": "Fecha de vencimiento",
     "valid_until": "Válido hasta"
   },
@@ -48,8 +47,6 @@
     "dashboard": "Panel",
     "clients": "Clientes",
     "projects": "Proyectos",
-    "proposals": "Propuestas",
-    "invoices": "Facturas",
     "reminders": "Recordatorios",
     "growth": "Progreso",
     "settings": "Ajustes",
@@ -219,63 +216,6 @@
       "deadline": "FECHA LÍMITE"
     }
   },
-  "invoices": {
-    "title": "Facturas",
-    "subtitle": "Gestiona el estado de las facturas y el seguimiento de pagos",
-    "new_invoice": "+ Nueva factura",
-    "search_placeholder": "Buscar facturas por proyecto, estado o monto...",
-    "loading": "Cargando facturas...",
-    "confirm_delete": "¿Estás seguro de que deseas eliminar esta factura?",
-    "delete_failed": "Error al eliminar la factura",
-    "detail_loading": "Cargando factura...",
-    "not_found": "Factura no encontrada",
-    "load_failed": "Error al cargar la factura",
-    "create_title": "Crear nueva factura",
-    "edit_title": "Editar factura",
-    "create_failed": "Error al crear la factura",
-    "update_failed": "Error al actualizar la factura",
-    "updated": "Factura actualizada",
-    "pdf_failed": "Error al generar el PDF",
-    "mark_paid_failed": "Error al marcar la factura como pagada",
-    "payments": "Pagos",
-    "creating_from_proposal": "Creando factura a partir de la propuesta...",
-    "table": {
-      "project": "PROYECTO",
-      "status": "ESTADO",
-      "amount": "MONTO",
-      "due_date": "FECHA DE VENCIMIENTO"
-    }
-  },
-  "proposals": {
-    "title": "Propuestas",
-    "subtitle": "Crea y sigue las propuestas para tus clientes",
-    "new_proposal": "+ Nueva propuesta",
-    "search_placeholder": "Buscar propuestas por título, proyecto o estado...",
-    "loading": "Cargando propuestas...",
-    "confirm_delete": "¿Estás seguro de que deseas eliminar \"{{name}}\"?",
-    "delete_failed": "Error al eliminar la propuesta",
-    "detail_loading": "Cargando propuesta...",
-    "not_found": "Propuesta no encontrada",
-    "load_failed": "Error al cargar la propuesta",
-    "create_title": "Crear nueva propuesta",
-    "edit_title": "Editar propuesta",
-    "create_failed": "Error al crear la propuesta",
-    "update_failed": "Error al actualizar la propuesta",
-    "updated": "Propuesta actualizada",
-    "pdf_failed": "Error al generar el PDF",
-    "enter_due_date": "Introduce la fecha de vencimiento (AAAA-MM-DD):",
-    "invoice_created": "Factura creada",
-    "convert_failed": "Error al convertir en factura",
-    "ai_suggestion_prefix": "Sugerencia IA: ",
-    "ai_unavailable": "La sugerencia IA no está disponible",
-    "table": {
-      "title": "TÍTULO",
-      "project": "PROYECTO",
-      "status": "ESTADO",
-      "amount": "MONTO",
-      "valid_until": "VÁLIDO HASTA"
-    }
-  },
   "growth": {
     "title": "Progreso",
     "subtitle": "Sigue tu progreso, desbloquea logros, gana insignias",
@@ -308,10 +248,8 @@
     "no_matching": "No se encontraron widgets"
   },
   "quick_create": {
-    "new_invoice": "Nueva factura",
     "new_client": "Nuevo cliente",
     "new_project": "Nuevo proyecto",
-    "new_proposal": "Nueva propuesta",
     "close": "Cerrar creación rápida",
     "open": "Creación rápida"
   },
@@ -319,7 +257,6 @@
     "net_revenue": "ingresos netos este mes",
     "avg_month": "Prom. / Mes",
     "best_month": "Mejor mes",
-    "invoices_paid": "Facturas pagadas",
     "projects_done": "Proyectos completados"
   },
   "todos": {
@@ -405,36 +342,6 @@
       "create": "Crear proyecto",
       "update": "Actualizar proyecto"
     },
-    "proposal": {
-      "project": "Proyecto",
-      "select_project": "Seleccionar un proyecto",
-      "title": "Título",
-      "ai_suggest": "Sugerencia IA",
-      "amount": "Monto",
-      "status": "Estado",
-      "draft": "Borrador",
-      "sent": "Enviada",
-      "accepted": "Aceptada",
-      "rejected": "Rechazada",
-      "valid_until": "Válido hasta",
-      "notes": "Notas",
-      "create": "Crear propuesta",
-      "update": "Actualizar propuesta"
-    },
-    "invoice": {
-      "project": "Proyecto",
-      "select_project": "Seleccionar un proyecto",
-      "amount": "Monto",
-      "status": "Estado",
-      "pending": "Pendiente",
-      "paid": "Pagada",
-      "overdue": "Vencida",
-      "cancelled": "Cancelada",
-      "due_date": "Fecha de vencimiento",
-      "notes": "Notas",
-      "create": "Crear factura",
-      "update": "Actualizar factura"
-    }
   },
   "validation": {
     "name_required": "El nombre es obligatorio",
@@ -541,7 +448,6 @@
     "empty_state_greeting": "¡Hola {{name}}! 👋 Soy tu asistente CRM. Pregúntame lo que quieras sobre tus clientes, proyectos, o déjame ayudarte a crear nuevos registros.",
     "new_client": "Nuevo cliente",
     "new_project": "Nuevo proyecto",
-    "new_invoice": "Nueva factura",
     "placeholder_name": "Nombre *",
     "placeholder_email": "Correo electrónico",
     "placeholder_phone": "Teléfono",
@@ -549,8 +455,6 @@
     "placeholder_title": "Título *",
     "placeholder_client_name": "Nombre del cliente *",
     "placeholder_budget": "Presupuesto",
-    "placeholder_total": "Total *",
-    "placeholder_due_date": "Fecha de vencimiento (AAAA-MM-DD)",
     "submitting": "Enviando...",
     "submit": "Enviar",
     "input_placeholder": "Escribe tu mensaje...",
@@ -592,13 +496,9 @@
     "click_to_edit": "Haz clic para editar..."
   },
   "activity": {
-    "invoice_paid": "Factura pagada",
-    "proposal_sent": "Propuesta enviada",
     "new_client_added": "Nuevo cliente añadido",
     "project_completed": "Proyecto completado",
-    "invoice_created": "Factura creada",
     "note_linked": "Nota vinculada",
-    "proposal_accepted": "Propuesta aceptada",
     "time_2h": "Hace 2h",
     "time_4h": "Hace 4h",
     "time_yesterday": "Ayer",
@@ -616,15 +516,6 @@
     "month": "Mes",
     "week": "Semana",
     "day": "Día"
-  },
-  "invoices_due": {
-    "total_outstanding": "total pendiente",
-    "overdue_label": "vencido",
-    "overdue": "Vencida",
-    "due_soon": "Vence pronto",
-    "pending": "Pendiente",
-    "due": "Vencimiento",
-    "view_all": "Ver todas las facturas →"
   },
   "notes_capture": {
     "title_placeholder": "Título de la nota...",
@@ -649,10 +540,6 @@
     "revenue": {
       "label": "KPI de ingresos",
       "description": "Gran indicador KPI con mini gráfico sparkline"
-    },
-    "invoices": {
-      "label": "Facturas pendientes",
-      "description": "Facturas impagadas con acciones de recordatorio rápido"
     },
     "activity": {
       "label": "Actividad reciente",

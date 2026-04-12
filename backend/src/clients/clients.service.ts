@@ -122,15 +122,4 @@ export class ClientsService {
     return this.prisma.project.findMany({ where: { clientId: id, userId } });
   }
 
-  async getProposals(userId: string, id: string) {
-    const projects = await this.getProjects(userId, id);
-    if (!projects.length) return [];
-    return this.prisma.proposal.findMany({ where: { projectId: { in: projects.map(p => p.id) }, userId } });
-  }
-
-  async getInvoices(userId: string, id: string) {
-    const projects = await this.getProjects(userId, id);
-    if (!projects.length) return [];
-    return this.prisma.invoice.findMany({ where: { projectId: { in: projects.map(p => p.id) }, userId } });
-  }
 }
