@@ -54,9 +54,12 @@ function RevenueKPI() {
   const avgMonth  = Math.round(MONTHLY_REVENUE.reduce((a, b) => a + Number(b), 0) / (MONTHLY_REVENUE.length || 1));
   const bestMonth = Math.max(...MONTHLY_REVENUE, 0);
 
+  const fmtMoney = (n: number) =>
+    n >= 1000 ? `$${(n / 1000).toFixed(1)}k` : `$${n}`;
+
   const secondaryKpis = [
-    { label: t('revenue.avg_month'),    value: `$${(avgMonth / 1000).toFixed(1)}k` },
-    { label: t('revenue.best_month'),   value: `$${(bestMonth / 1000).toFixed(1)}k` },
+    { label: t('revenue.avg_month'),    value: fmtMoney(avgMonth) },
+    { label: t('revenue.best_month'),   value: fmtMoney(bestMonth) },
     { label: t('revenue.projects_done'), value: dashboardData.projectsDone.toString() },
   ];
 
@@ -110,14 +113,14 @@ function RevenueKPI() {
         </p>
 
         <p style={{
-          fontFamily: 'var(--font-d)', fontWeight: 700,
+          fontFamily: 'var(--font-d)', fontWeight: 300,
           fontSize: mainSize,
           color: 'var(--text)', letterSpacing: '.02em',
           lineHeight: 1, margin: 0,
           fontVariantNumeric: 'tabular-nums',
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}>
-          ${(CURRENT_REVENUE / 1000).toFixed(1)}k
+          {fmtMoney(CURRENT_REVENUE)}
         </p>
 
         {/* Trend badge — hide when too compact */}
@@ -198,7 +201,7 @@ function RevenueKPI() {
                 {kpi.label}
               </span>
               <span style={{
-                fontFamily: 'var(--font-d)', fontSize: secSize, fontWeight: 600,
+                fontFamily: 'var(--font-d)', fontSize: secSize, fontWeight: 300,
                 color: 'var(--text)', fontVariantNumeric: 'tabular-nums',
                 flexShrink: 0,
               }}>

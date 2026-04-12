@@ -51,8 +51,8 @@ export default function Dashboard() {
       display: 'flex',
       flexDirection: 'column',
       gap: 20,
-      animation: 'fadeUp .3s var(--ease) both',
       position: 'relative',
+      animation: 'fadeUp .18s var(--ease) both',
     }}>
       {/* ── Header row ── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 10 }}>
@@ -235,7 +235,6 @@ export default function Dashboard() {
           background: 'var(--accent-bg)',
           border: '1px solid var(--accent-hover)',
           borderRadius: 6,
-          animation: 'fadeUp .15s var(--ease) both',
         }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />

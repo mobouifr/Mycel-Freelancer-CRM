@@ -27,6 +27,8 @@ interface DayCell {
   intensity: number;
   col: number;
   row: number;
+  isFuture: boolean;
+  isToday: boolean;
 }
 
 /* ── Layout constants ── */
@@ -78,28 +80,24 @@ function ActivityHeatmap() {
   const gridAreaW = cw - LABEL_COL;                    // px available for week columns
   const gridAreaH = ch - MONTH_ROW - LEGEND_ROW;       // px available for 7 day rows
 
-  // Cell step: use height as primary driver, then compute week count
+  // Cell step driven by height (square cells), never stretched to fill width
   const stepFromH = gridAreaH > 0 ? gridAreaH / 7 : 10;
 
   // Weeks that fit at that step
   const rawWeeks = gridAreaW > 0 ? Math.floor(gridAreaW / stepFromH) : 20;
   const weeks = Math.max(MIN_WEEKS, Math.min(MAX_WEEKS, rawWeeks));
 
-  // Stretch step to fill width exactly
-  let cellStep = gridAreaW > 0 ? gridAreaW / weeks : 10;
-
-  // If stretching overflows height, cap at height-derived step
-  if (cellStep * 7 > gridAreaH && gridAreaH > 0) {
-    cellStep = gridAreaH / 7;
-  }
-
-  cellStep = Math.max(cellStep, MIN_CELL);
+  // Keep cells square — only shrink if MIN_WEEKS floor would cause overflow
+  const cellStep = Math.max(
+    gridAreaW > 0 ? Math.min(stepFromH, gridAreaW / weeks) : stepFromH,
+    MIN_CELL
+  );
 
   const cellGap = Math.max(cellStep * 0.12, 1);
   const cellSize = cellStep - cellGap;
   const gridW = weeks * cellStep;
   const gridH = 7 * cellStep;
-  const offsetX = Math.max((gridAreaW - gridW) / 2, 0); // center if height-constrained
+  const offsetX = Math.max((gridAreaW - gridW) / 2, 0); // always centered
 
   // Full SVG dimensions
   const svgW = cw;
@@ -112,17 +110,20 @@ function ActivityHeatmap() {
     const months: { label: string; col: number }[] = [];
     const seenMonths = new Set<string>();
 
+    const todayKey = today.toISOString().slice(0, 10);
+    const halfWeeks = Math.floor(weeks / 2);
     const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() - startDate.getDay() - (weeks - 1) * 7);
+    startDate.setDate(startDate.getDate() - startDate.getDay() - halfWeeks * 7);
 
     for (let w = 0; w < weeks; w++) {
       for (let d = 0; d < 7; d++) {
         const cellDate = new Date(startDate);
         cellDate.setDate(cellDate.getDate() + w * 7 + d);
-        if (cellDate > today) continue;
         const key = cellDate.toISOString().slice(0, 10);
-        const count = heatmapData[key] ?? 0;
-        dayCells.push({ date: key, count, intensity: getIntensity(count), col: w, row: d });
+        const isFuture = key > todayKey;
+        const isToday = key === todayKey;
+        const count = isFuture ? 0 : (heatmapData[key] ?? 0);
+        dayCells.push({ date: key, count, intensity: isFuture ? 0 : getIntensity(count), col: w, row: d, isFuture, isToday });
 
         const monthKey = `${cellDate.getFullYear()}-${cellDate.getMonth()}`;
         if (!seenMonths.has(monthKey) && d === 0) {
@@ -238,13 +239,17 @@ function ActivityHeatmap() {
                 {/* Main cell */}
                 <rect
                   x={x} y={y} width={cellSize} height={cellSize} rx={rx}
-                  fill={cell.intensity === 0 ? 'var(--glass)' : 'var(--accent)'}
-                  opacity={op}
-                  stroke={cell.intensity > 0 ? 'var(--accent)' : (isHovered ? 'var(--accent)' : 'none')}
-                  strokeWidth={cell.intensity > 0 ? 0.6 : (isHovered ? 1.2 : 0)}
-                  strokeOpacity={cell.intensity > 0 ? 0.35 : 1}
-                  style={{ cursor: 'pointer', transition: 'opacity .12s' }}
-                  onMouseEnter={(e) => handleMouseEnter(cell, e)}
+                  fill={cell.intensity === 0 ? 'var(--border)' : 'var(--accent)'}
+                  fillOpacity={cell.intensity === 0 ? 0.18 : op}
+                  stroke={
+                    cell.isToday ? 'var(--accent)' :
+                    isHovered ? 'var(--accent)' :
+                    cell.intensity > 0 ? 'var(--accent)' : 'var(--border)'
+                  }
+                  strokeWidth={cell.isToday ? 1.5 : (isHovered ? 1.2 : (cell.intensity > 0 ? 0.6 : 0.8))}
+                  strokeOpacity={cell.isToday ? 0.9 : (isHovered ? 1 : (cell.intensity > 0 ? 0.35 : 0.55))}
+                  style={{ cursor: cell.isFuture ? 'default' : 'pointer', transition: 'fill-opacity .12s' }}
+                  onMouseEnter={(e) => { if (!cell.isFuture) handleMouseEnter(cell, e); }}
                   onMouseLeave={() => setHoveredCell(null)}
                 />
                 {/* Glassy shine on max intensity */}
@@ -323,6 +328,7 @@ function ActivityHeatmap() {
               background: lvl === 0 ? 'var(--glass)' : 'var(--accent)',
               opacity: INTENSITY_OPACITY[lvl],
               boxShadow: lvl >= 3 ? '0 0 4px var(--accent)' : 'none',
+              outline: lvl === 0 ? '0.8px solid var(--border)' : 'none',
             }} />
           );
         })}

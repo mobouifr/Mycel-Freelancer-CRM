@@ -224,6 +224,13 @@ input:-webkit-autofill:focus {
   height: 100%;
 }
 
+/* Disable the default RGL position transition — prevents widgets from
+   "sliding" into position on every dashboard render. Only keep transitions
+   active while actively dragging so snap-back feels smooth. */
+.react-grid-item:not(.react-draggable-dragging):not(.resizing) {
+  transition: none !important;
+}
+
 /* ── Drag & drop enhancements ── */
 .react-grid-item.react-draggable-dragging {
   z-index: var(--z-widget-drag) !important;
@@ -242,15 +249,31 @@ input:-webkit-autofill:focus {
 
 /* Resize handle styling */
 .react-grid-item > .react-resizable-handle::after {
-  border-right: 2px solid var(--text-dim);
-  border-bottom: 2px solid var(--text-dim);
   opacity: 0.4;
   transition: opacity .15s;
 }
 
 .react-grid-item > .react-resizable-handle:hover::after {
-  opacity: 0.8;
-  border-color: var(--accent);
+  opacity: 0.9;
+  border-color: var(--accent) !important;
+}
+
+/* per-corner border directions */
+.react-grid-item > .react-resizable-handle-nw::after {
+  border-left: 2px solid var(--text-dim);
+  border-top: 2px solid var(--text-dim);
+}
+.react-grid-item > .react-resizable-handle-ne::after {
+  border-right: 2px solid var(--text-dim);
+  border-top: 2px solid var(--text-dim);
+}
+.react-grid-item > .react-resizable-handle-sw::after {
+  border-left: 2px solid var(--text-dim);
+  border-bottom: 2px solid var(--text-dim);
+}
+.react-grid-item > .react-resizable-handle-se::after {
+  border-right: 2px solid var(--text-dim);
+  border-bottom: 2px solid var(--text-dim);
 }
 
 /* Drag handle cursor — applied to WidgetCard header */
