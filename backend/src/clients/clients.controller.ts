@@ -12,13 +12,16 @@ export class ClientsController {
   @Get()
   async findAll(
     @Request() req: any,
-    @Query('page')   page?:   string,
-    @Query('limit')  limit?:  string,
-    @Query('search') search?: string,
+    @Query('page')      page?:      string,
+    @Query('limit')     limit?:     string,
+    @Query('search')    search?:    string,
+    @Query('sortBy')    sortBy?:    string,
+    @Query('sortOrder') sortOrder?: string,
   ) {
     const pageNum  = Math.max(1, parseInt(page  || '1',  10) || 1);
     const limitNum = Math.min(100, Math.max(1, parseInt(limit || '10', 10) || 10));
-    return this.clientsService.findAll(req.user.id, pageNum, limitNum, search);
+    const order = sortOrder === 'asc' ? 'asc' : 'desc';
+    return this.clientsService.findAll(req.user.id, pageNum, limitNum, search, sortBy, order);
   }
 
   @Post()
