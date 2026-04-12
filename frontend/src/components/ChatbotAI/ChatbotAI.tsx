@@ -127,8 +127,9 @@ export default function ChatbotAI() {
     document.body.style.cursor = 'nwse-resize';
 
     const onMove = (moveX: number, moveY: number) => {
-      const width = Math.max(320, Math.min(window.innerWidth * 0.98, startWidth + (moveX - clientX)));
-      const height = Math.max(380, Math.min(window.innerHeight * 0.92, startHeight + (moveY - clientY)));
+      // Top-left resize handle: moving right/down shrinks, left/up expands.
+      const width = Math.max(320, Math.min(window.innerWidth * 0.98, startWidth - (moveX - clientX)));
+      const height = Math.max(380, Math.min(window.innerHeight * 0.92, startHeight - (moveY - clientY)));
       setPanelSize({ width, height });
     };
 
@@ -881,8 +882,8 @@ ${latestCrmContext}`,
 
         .chatbot-ai-resize-handle {
           position: absolute;
-          right: 4px;
-          bottom: 4px;
+          left: 4px;
+          top: 4px;
           width: 16px;
           height: 16px;
           border: 0;
@@ -1904,9 +1905,9 @@ ${latestCrmContext}`,
                 }}
               >
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
-                  <path d="M6 14L14 6" />
-                  <path d="M9 14L14 9" />
-                  <path d="M12 14L14 12" />
+                  <path d="M2 10L10 2" />
+                  <path d="M2 7L7 2" />
+                  <path d="M2 4L4 2" />
                 </svg>
               </button>
             )}

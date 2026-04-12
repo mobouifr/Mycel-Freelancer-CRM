@@ -40,7 +40,7 @@ const GRID_CONFIG = {
   maxRows: Infinity,
 } as const;
 
-const RESIZE_HANDLES: readonly ['se'] = ['se'];
+const RESIZE_HANDLES: readonly ['nw'] = ['nw'];
 
 /* Breakpoint for mobile layout (px). Uses window.innerWidth for
    reliable detection regardless of container min-width constraints. */
