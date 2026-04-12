@@ -14,7 +14,6 @@ export const EditClientPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { addNotification } = useStore();
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -42,11 +41,6 @@ export const EditClientPage = () => {
     setIsSaving(true);
     try {
       const updatedClient = await clientsService.update(id, data);
-      addNotification({
-        type: 'info',
-        title: t('clients.updated'),
-        message: `"${updatedClient.name}" was updated.`,
-      });
       navigate('/clients');
     } catch (err: any) {
       alert(err.message || t('clients.update_failed'));

@@ -14,7 +14,6 @@ export const EditProjectPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { addNotification } = useStore();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -42,11 +41,6 @@ export const EditProjectPage = () => {
     setIsSaving(true);
     try {
       const updatedProject = await projectsService.update(id, data as any);
-      addNotification({
-        type: 'info',
-        title: t('projects.updated'),
-        message: `"${updatedProject.title}" was updated.`,
-      });
       navigate('/projects');
     } catch (err: any) {
       alert(err.message || t('projects.update_failed'));
