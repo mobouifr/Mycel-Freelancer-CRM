@@ -311,7 +311,7 @@ export default function CalendarWidget({ events: externalEvents, onDayClick }: C
 
               return (
                 <button
-                  key={key}
+                  key={`${key}-${i}`}
                   onClick={(e) => handleDayClick(day, e)}
                   aria-label={`${day} ${MONTHS[viewMonth]}`}
                   style={{

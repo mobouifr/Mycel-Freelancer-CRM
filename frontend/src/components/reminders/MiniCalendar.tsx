@@ -66,7 +66,7 @@ export default function MiniCalendar({ currentDate, onDateClick, onPrev, onNext,
 
           return (
             <button
-              key={toDateKey(d)}
+              key={`${toDateKey(d)}-${i}`}
               onClick={() => onDateClick(d)}
               aria-label={`${day} ${MONTHS[month]}`}
               style={{
