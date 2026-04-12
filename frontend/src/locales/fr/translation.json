@@ -341,7 +341,7 @@
       "deadline": "Échéance",
       "create": "Créer un projet",
       "update": "Mettre à jour le projet"
-    },
+    }
   },
   "validation": {
     "name_required": "Le nom est requis",
