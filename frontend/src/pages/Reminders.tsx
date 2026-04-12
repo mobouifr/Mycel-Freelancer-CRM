@@ -38,10 +38,6 @@ export default function Reminders() {
     setRightTab('events');
   }, [location.search]);
 
-  const handleConvertNoteToEvent = useCallback(() => {
-    // Pre-fill handled by CalendarView modal
-  }, []);
-
   const handleEventClick = useCallback((event: CalendarEvent) => {
     // Dispatched via custom event so CalendarView can open its modal
     window.dispatchEvent(new CustomEvent('open-event-modal', { detail: event }));
@@ -146,7 +142,7 @@ export default function Reminders() {
             )}
             {rightTab === 'notes' && (
               <div style={{ padding: 12 }}>
-                <NotesView onConvertToEvent={handleConvertNoteToEvent} />
+                <NotesView />
               </div>
             )}
           </div>

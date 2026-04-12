@@ -24,19 +24,19 @@ export class GamificationService {
     return level;
   }
 
-  async awardProjectCompletionXp(userId: string, budget: number, priority: string) {
+  async awardProjectCompletionXp(userId: string, _budget: number, priority: string) {
     const baseXP = 500;
 
     let multiplier = 1.0;
-    switch (priority) {
+    switch (priority.toLowerCase()) {
       case 'low':
-        multiplier = 0.5; 
+        multiplier = 0.5;
         break;
       case 'medium':
-        multiplier = 0.8; 
+        multiplier = 0.8;
         break;
       case 'high':
-        multiplier = 1.1; 
+        multiplier = 1.1;
         break;
     }
 

@@ -53,13 +53,13 @@ fi
 if [ -z "${FILE}" ]; then
     printf "\n${CYAN}${BOLD}━━━ Available Backups ━━━${RESET}\n\n"
 
-    if ! ls "${BACKUP_DIR}"/backup_*.sql* 1>/dev/null 2>&1; then
+    if ! ls "${BACKUP_DIR}"/backup_*.sql* "${BACKUP_DIR}"/crm_*.sql* 1>/dev/null 2>&1; then
         info "No backups found in ${BACKUP_DIR}/"
         printf "  Create one with: ${CYAN}make db-backup${RESET}\n\n"
         exit 0
     fi
 
-    ls -lhtr "${BACKUP_DIR}"/backup_*.sql* | awk '{printf "  %s  %s  %s\n", $5, $6" "$7, $NF}'
+    ls -lhtr "${BACKUP_DIR}"/backup_*.sql* "${BACKUP_DIR}"/crm_*.sql* 2>/dev/null | awk '{printf "  %s  %s  %s\n", $5, $6" "$7, $NF}'
     printf "\n${YELLOW}Usage: make db-restore FILE=<backup_file>${RESET}\n\n"
     exit 0
 fi

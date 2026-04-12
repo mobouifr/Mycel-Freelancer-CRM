@@ -179,11 +179,18 @@ export default function CalendarView({ events, onEventsChange, onDateChange }: C
               calendar.currentDate.toISOString().split('T')[0],
             )}
             style={{
-              background: 'var(--accent)', border: 'none', borderRadius: 6,
-              padding: '6px 14px', color: 'var(--bg)',
-              fontFamily: 'var(--font-m)', fontSize: 10, fontWeight: 600,
+              background: 'var(--accent-bg)',
+              border: '1px solid var(--accent-hover)',
+              borderRadius: 6,
+              padding: '6px 14px',
+              color: 'var(--accent)',
+              fontFamily: 'var(--font-m)', fontSize: 10, fontWeight: 500,
               cursor: 'pointer',
+              letterSpacing: '.05em',
+              transition: 'background .15s, color .15s',
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent)'; e.currentTarget.style.color = 'var(--bg)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--accent-bg)'; e.currentTarget.style.color = 'var(--accent)'; }}
           >
             + Event
           </button>

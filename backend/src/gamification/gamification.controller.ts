@@ -23,7 +23,7 @@ export class GamificationController {
       return null;
     }
 
-    const xpToNextLevel = (100 * user.level * user.level) - user.xp;
+    const xpToNextLevel = Math.max(0, (500 * user.level * user.level) - user.xp);
 
     return {
       xp: user.xp,

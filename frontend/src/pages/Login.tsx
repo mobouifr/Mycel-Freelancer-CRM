@@ -33,7 +33,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
-  const { login, register, forgotPassword, isLoading, error, clearError, isAuthenticated } = useAuth();
+  const { login, register, isLoading, error, clearError, isAuthenticated } = useAuth();
   const { mode: themeMode, cycleQuickTheme, theme } = useTheme();
   const isMobile = useIsMobile();
 
@@ -55,10 +55,6 @@ export default function Login() {
   const [regPassword, setRegPassword] = useState('');
   const [regErrors, setRegErrors] = useState<{ username?: string; email?: string; password?: string }>({});
 
-  const [showForgot, setShowForgot] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotMsg, setForgotMsg] = useState('');
-  const [forgotSending, setForgotSending] = useState(false);
 
   const switchMode = (next: AuthMode) => {
     clearError();
@@ -112,14 +108,6 @@ export default function Login() {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleSubmit();
-  };
-
-  const handleForgot = async () => {
-    if (!forgotEmail.trim() || !EMAIL_RE.test(forgotEmail.trim())) return;
-    setForgotSending(true);
-    const msg = await forgotPassword(forgotEmail.trim());
-    setForgotMsg(msg);
-    setForgotSending(false);
   };
 
   // Already logged in? Redirect to dashboard
@@ -283,23 +271,12 @@ export default function Login() {
                         color: 'var(--text-dim)', letterSpacing: '.04em',
                       }}>{t('auth.remember_me')}</span>
                     </label>
-                    <button
-                      onClick={() => { setShowForgot(true); setForgotMsg(''); setForgotEmail(email); }}
-                      style={{
-                        background: 'none', border: 'none', cursor: 'pointer',
-                        fontFamily: 'var(--font-m)', fontSize: 10,
-                        color: 'var(--text-dim)', letterSpacing: '.04em', padding: 0,
-                        transition: 'color .15s',
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.color = 'var(--white)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-dim)'; }}
-                    >{t('auth.forgot_password')}</button>
                   </div>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                   <Input
-                    label={t('auth.username_label')} placeholder="montassir"
+                    label={t('auth.username_label')} placeholder="your_username"
                     value={regUsername} error={regErrors.username}
                     onChange={(v) => { setRegUsername(v); setRegErrors(p => ({ ...p, username: undefined })); }}
                   />
@@ -451,14 +428,6 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Forgot password overlay */}
-          {showForgot && (
-            <ForgotPasswordOverlay
-              email={forgotEmail} setEmail={setForgotEmail}
-              msg={forgotMsg} sending={forgotSending}
-              onSend={handleForgot} onClose={() => setShowForgot(false)}
-            />
-          )}
         </div>
       </div>
       </div>
@@ -486,91 +455,4 @@ function TabButton({ label, active, onClick }: { label: string; active: boolean;
   );
 }
 
-/* ── Forgot Password Overlay ─────────────── */
-function ForgotPasswordOverlay({
-  email, setEmail, msg, sending, onSend, onClose,
-}: {
-  email: string; setEmail: (v: string) => void;
-  msg: string; sending: boolean;
-  onSend: () => void; onClose: () => void;
-}) {
-  const { t } = useTranslation();
-  return (
-    <div
-      style={{
-        position: 'absolute', inset: 0,
-        background: 'var(--glass)', backdropFilter: 'blur(6px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        zIndex: 10, animation: 'fadeIn .2s var(--ease) both',
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: 'var(--surface-2)', border: '1px solid var(--border)',
-          borderRadius: 8, padding: '32px 36px', width: '100%', maxWidth: 340,
-          animation: 'scaleIn .25s var(--ease) both',
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-        <h2 style={{
-          fontFamily: 'var(--font-m)', fontWeight: 500, fontSize: 16,
-          color: 'var(--text)', letterSpacing: '.04em', marginBottom: 6,
-        }}>{t('auth.reset_password')}</h2>
-        <p style={{
-          fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--text-dim)',
-          lineHeight: 1.5, marginBottom: 24,
-        }}>{t('auth.reset_description')}</p>
-
-        {msg ? (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-              <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
-                <circle cx="9" cy="9" r="9" fill="var(--accent-bg)" />
-                <path d="M5.5 9.5L7.8 11.8L12.5 6.5" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <span style={{ fontFamily: 'var(--font-m)', fontSize: 11, color: 'var(--accent)' }}>{t('auth.email_sent')}</span>
-            </div>
-            <p style={{
-              fontFamily: 'var(--font-m)', fontSize: 10, color: 'var(--text-dim)',
-              lineHeight: 1.5, marginBottom: 20,
-            }}>{msg}</p>
-            <button onClick={onClose} style={overlaySecondaryBtn}>{t('auth.back_to_login')}</button>
-          </div>
-        ) : (
-          <div>
-            <Input label="Email" type="email" placeholder="you@universe.com" value={email} onChange={setEmail} />
-            <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
-              <button onClick={onClose} style={overlaySecondaryBtn}>{t('common.cancel')}</button>
-              <button
-                onClick={onSend}
-                disabled={sending || !email.trim()}
-                style={{
-                  ...overlayPrimaryBtn,
-                  opacity: sending || !email.trim() ? 0.5 : 1,
-                  cursor: sending || !email.trim() ? 'not-allowed' : 'pointer',
-                }}
-              >{sending ? t('auth.sending') : t('auth.send_link')}</button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-const overlaySecondaryBtn: React.CSSProperties = {
-  flex: 1, padding: '10px 0', background: 'transparent',
-  border: '1px solid var(--border)', borderRadius: 6,
-  color: 'var(--text-dim)', fontFamily: 'var(--font-m)',
-  fontSize: 10, letterSpacing: '.08em', cursor: 'pointer',
-  transition: 'border-color .15s',
-};
-
-const overlayPrimaryBtn: React.CSSProperties = {
-  flex: 1, padding: '10px 0', background: 'var(--accent)',
-  border: 'none', borderRadius: 6, color: 'var(--bg)',
-  fontFamily: 'var(--font-m)', fontSize: 10, fontWeight: 600,
-  letterSpacing: '.08em', transition: 'opacity .2s',
-};
 

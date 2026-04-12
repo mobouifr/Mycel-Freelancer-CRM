@@ -1,6 +1,6 @@
 // Clients list page
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { useClients } from '../../hooks/useClients';
@@ -11,6 +11,7 @@ import { useIsMobile } from '../../hooks/useIsMobile';
 export const ClientsListPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
   const { clients, loading, error, deleteClient } = useClients();
   const [searchTerm, setSearchTerm] = useState('');
@@ -93,87 +94,52 @@ export const ClientsListPage = () => {
       }}
     >
       {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'space-between',
-          alignItems: isMobile ? 'stretch' : 'center',
-          flexDirection: isMobile ? 'column' : 'row',
-          gap: isMobile ? 16 : 12,
-          marginBottom: 24,
-          width: '100%',
-        }}
-      >
-        <div style={{ minWidth: 0 }}>
-          <h1
-            style={{
-              fontFamily: 'var(--font-d)',
-              fontWeight: 500,
-              fontSize: isMobile ? 22 : 26,
-              color: 'var(--text)',
-              letterSpacing: '.06em',
-              lineHeight: 1.3,
-              marginBottom: 4,
-            }}
-          >
-            {t('clients.title')}
-          </h1>
-          <p
-            style={{
-              fontFamily: 'var(--font-m)',
-              fontSize: 11,
-              fontWeight: 400,
-              color: 'var(--text-dim)',
-              letterSpacing: '.04em',
-              lineHeight: 1.4,
-              margin: 0,
-            }}
-          >
-            {t('clients.subtitle')}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => navigate('/clients/new')}
+      <div style={{ marginBottom: 24 }}>
+        <h1
           style={{
-            padding: '10px 20px',
-            borderRadius: 6,
-            border: 'none',
-            background: 'var(--accent)',
-            color: 'var(--white)',
-            fontFamily: 'var(--font-m)',
-            fontSize: 11,
+            fontFamily: 'var(--font-d)',
             fontWeight: 500,
+            fontSize: isMobile ? 22 : 26,
+            color: 'var(--text)',
             letterSpacing: '.06em',
-            lineHeight: 1.2,
-            cursor: 'pointer',
-            transition: 'background .2s var(--ease), transform .1s var(--ease)',
-            alignSelf: isMobile ? 'stretch' : 'auto',
-            width: isMobile ? '100%' : 'auto',
-            boxSizing: 'border-box',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'var(--accent-hover)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'var(--accent)';
+            lineHeight: 1.3,
+            marginBottom: 4,
           }}
         >
-          {t('clients.new_client')}
-        </button>
+          {t('clients.title')}
+        </h1>
+        <p
+          style={{
+            fontFamily: 'var(--font-m)',
+            fontSize: 11,
+            fontWeight: 400,
+            color: 'var(--text-dim)',
+            letterSpacing: '.04em',
+            lineHeight: 1.4,
+            margin: 0,
+          }}
+        >
+          {t('clients.subtitle')}
+        </p>
       </div>
 
-      {/* Search */}
-      <div style={{ marginBottom: 20, width: '100%' }}>
+      {/* Search + Add */}
+      <div style={{
+        display: 'flex',
+        gap: 10,
+        marginBottom: 20,
+        width: '100%',
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'stretch' : 'center',
+      }}>
         <input
           type="text"
           placeholder={t('clients.search_placeholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
-            width: '100%',
-            maxWidth: isMobile ? 'none' : 420,
+            flex: 1,
+            minWidth: 0,
             boxSizing: 'border-box',
             padding: '10px 12px',
             borderRadius: 6,
@@ -187,6 +153,31 @@ export const ClientsListPage = () => {
             outline: 'none',
           }}
         />
+        <button
+          type="button"
+          onClick={() => navigate('/clients/new', { state: { background: location } })}
+          style={{
+            padding: '10px 20px',
+            borderRadius: 6,
+            border: '1px solid var(--accent-hover)',
+            background: 'var(--accent-bg)',
+            color: 'var(--accent)',
+            fontFamily: 'var(--font-m)',
+            fontSize: 11,
+            fontWeight: 500,
+            letterSpacing: '.06em',
+            lineHeight: 1.2,
+            cursor: 'pointer',
+            transition: 'background .2s var(--ease), color .2s var(--ease)',
+            width: isMobile ? '100%' : 'auto',
+            boxSizing: 'border-box',
+            whiteSpace: 'nowrap',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent)'; e.currentTarget.style.color = 'var(--bg)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--accent-bg)'; e.currentTarget.style.color = 'var(--accent)'; }}
+        >
+          {t('clients.new_client')}
+        </button>
       </div>
 
       {/* Table container */}
@@ -200,8 +191,8 @@ export const ClientsListPage = () => {
       >
         <ClientTable
           clients={filteredClients}
-          onView={(client) => navigate(`/clients/${client.id}`, { state: { client } })}
-          onEdit={(client) => navigate(`/clients/${client.id}/edit`)}
+          onView={(client) => navigate(`/clients/${client.id}`, { state: { background: location, client } })}
+          onEdit={(client) => navigate(`/clients/${client.id}/edit`, { state: { background: location } })}
           onDelete={handleDelete}
         />
       </div>
