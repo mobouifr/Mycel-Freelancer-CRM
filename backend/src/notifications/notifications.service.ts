@@ -1,10 +1,21 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, MessageEvent } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { Observable } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 
 @Injectable()
 export class NotificationsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  streamRealTimeUpdates(): Observable<MessageEvent> {
+    return this.prisma.globalMutation$.pipe(
+      filter((mutation) => mutation.model === 'Notification'),
+      map((mutation) => ({
+        data: JSON.stringify({ refresh: Date.now(), ...mutation }),
+      } as MessageEvent))
+    );
+  }
 
   async create(userId: string, data: CreateNotificationDto) {
     return this.prisma.notification.create({
