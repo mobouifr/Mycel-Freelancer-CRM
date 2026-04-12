@@ -341,7 +341,7 @@
       "deadline": "Fecha límite",
       "create": "Crear proyecto",
       "update": "Actualizar proyecto"
-    },
+    }
   },
   "validation": {
     "name_required": "El nombre es obligatorio",
