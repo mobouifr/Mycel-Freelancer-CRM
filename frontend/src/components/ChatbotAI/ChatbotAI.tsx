@@ -32,6 +32,22 @@ interface SuggestionsExtraction {
   suggestions: string[];
 }
 
+const dedupeSuggestions = (items: string[]): string[] => {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const item of items) {
+    const value = item.trim();
+    if (!value) continue;
+    const key = value.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push(value);
+  }
+
+  return result;
+};
+
 mermaid.initialize({
   startOnLoad: false,
   theme: 'dark',
@@ -542,6 +558,41 @@ export default function ChatbotAI() {
     };
   };
 
+  const buildContextualSuggestions = (assistantText: string, messageIndex: number): string[] => {
+    const previousUserMessage = [...messages.slice(0, messageIndex)]
+      .reverse()
+      .find((m) => m.role === 'user')
+      ?.content
+      .toLowerCase() ?? '';
+
+    const context = `${assistantText.toLowerCase()} ${previousUserMessage}`;
+    const suggestions: string[] = [];
+
+    if (/client|customer|company/.test(context)) {
+      suggestions.push('Show my latest clients in a table');
+      suggestions.push('Help me add a new client');
+    }
+
+    if (/project|deadline|budget|active|completed/.test(context)) {
+      suggestions.push('Show only active projects');
+      suggestions.push('What project needs attention first?');
+    }
+
+    if (/report|summary|analysis|dashboard|metric/.test(context)) {
+      suggestions.push('Give me a 3-bullet summary');
+      suggestions.push('What should I do next based on this?');
+    }
+
+    if (/delete|remove/.test(context)) {
+      suggestions.push('List safe delete options first');
+    }
+
+    suggestions.push('Turn this into a task checklist');
+    suggestions.push('Explain this in a simpler way');
+
+    return dedupeSuggestions(suggestions).slice(0, 4);
+  };
+
   const buildRateLimitMessage = (retryAfterSeconds?: number): string => {
     const waitSeconds = Math.max(1, Math.floor(retryAfterSeconds ?? 300));
     const minutes = Math.floor(waitSeconds / 60);
@@ -738,12 +789,14 @@ export default function ChatbotAI() {
     setLoading(false);
   };
 
-  const renderMessageContent = (message: ChatMessage) => {
+  const renderMessageContent = (message: ChatMessage, messageIndex: number) => {
     if (message.role === 'user') {
       return <span>{message.content}</span>;
     }
 
     const { cleanContent, suggestions } = extractQuickSuggestions(message.content);
+    const contextualSuggestions =
+      suggestions.length > 0 ? suggestions : buildContextualSuggestions(cleanContent, messageIndex);
 
     return (
       <div className="cb-rich-content">
@@ -811,9 +864,9 @@ export default function ChatbotAI() {
           {cleanContent}
         </ReactMarkdown>
 
-        {suggestions.length > 0 && (
+        {contextualSuggestions.length > 0 && (
           <div className="cb-suggestions-wrap" aria-label="Suggested follow-up questions">
-            {suggestions.slice(0, 4).map((suggestion, index) => (
+            {contextualSuggestions.slice(0, 4).map((suggestion, index) => (
               <button
                 key={`sugg-${index}-${suggestion}`}
                 type="button"
@@ -1679,7 +1732,7 @@ export default function ChatbotAI() {
               {messages.map((message: ChatMessage, index: number) => (
                 <div key={`${message.role}-${index}`} className={`chatbot-ai-row ${message.role}`}>
                   {message.role === 'assistant' && <span className="chatbot-ai-avatar assistant" aria-hidden="true">AI</span>}
-                  <div className={`chatbot-ai-bubble ${message.role}`}>{renderMessageContent(message)}</div>
+                  <div className={`chatbot-ai-bubble ${message.role}`}>{renderMessageContent(message, index)}</div>
                   {message.role === 'user' && <span className="chatbot-ai-avatar user" aria-hidden="true">{(username?.[0] ?? 'U').toUpperCase()}</span>}
                 </div>
               ))}
