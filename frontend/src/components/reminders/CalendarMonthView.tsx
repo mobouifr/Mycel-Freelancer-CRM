@@ -77,7 +77,7 @@ export default function CalendarMonthView({
 
           return (
             <div
-              key={key}
+              key={`${key}-${i}`}
               onClick={() => onDateClick(d)}
               onDoubleClick={() => onCreateEvent(key)}
               style={{
@@ -105,7 +105,7 @@ export default function CalendarMonthView({
               </span>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2, overflow: 'hidden' }}>
                 {dayEvents.slice(0, 3).map((evt) => (
-                  <div key={evt.id} onClick={(e) => e.stopPropagation()}>
+                  <div key={`${evt.id}-${key}`} onClick={(e) => e.stopPropagation()}>
                     <EventChip
                       event={evt}
                       compact

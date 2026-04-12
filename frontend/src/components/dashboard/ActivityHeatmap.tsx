@@ -227,7 +227,7 @@ function ActivityHeatmap() {
             const rx = Math.max(cellSize * 0.18, 1.5);
 
             return (
-              <g key={cell.date}>
+              <g key={`${cell.date}-${cell.col}-${cell.row}`}>
                 {/* Glow for hot cells */}
                 {isHot && (
                   <rect
