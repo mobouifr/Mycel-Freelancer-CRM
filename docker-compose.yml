@@ -125,9 +125,9 @@ services:
       VITE_API_URL: /api
 
     ports:
-      # HTTPS dev server — https://localhost  (443 → container 3089)
+      # HTTPS dev server — https://localhost:8443  (8443 → container 3089)
       # Self-signed cert mounted at /certs, read by vite.config.ts
-      - "443:3089"
+      - "8443:3089"
 
     volumes:
       # Mount source code for hot module replacement
