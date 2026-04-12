@@ -9,6 +9,7 @@ import {
 import 'react-grid-layout/css/styles.css';
 import { getWidgetEntry } from './WidgetRegistry';
 import WidgetCard from './WidgetCard';
+import ErrorBoundary from '../ErrorBoundary';
 import type { LayoutItem } from '../../hooks/useDashboardLayout';
 
 /* ─────────────────────────────────────────────
@@ -182,7 +183,9 @@ export default function WidgetGrid({
                   </svg>
                 }
               >
-                <Widget />
+                <ErrorBoundary>
+                  <Widget />
+                </ErrorBoundary>
               </WidgetCard>
             </div>
           );
@@ -230,7 +233,9 @@ export default function WidgetGrid({
                     </svg>
                   }
                 >
-                  <Widget />
+                  <ErrorBoundary>
+                    <Widget />
+                  </ErrorBoundary>
                 </WidgetCard>
               </div>
             );

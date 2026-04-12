@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { setWidgetComponent } from './WidgetRegistry';
+import api from '../../services/api';
 
 /* ─────────────────────────────────────────────
    DATA GRAPH — Smooth area chart with toggle
@@ -8,15 +9,10 @@ import { setWidgetComponent } from './WidgetRegistry';
    Pure SVG + ResizeObserver.
 ───────────────────────────────────────────── */
 
-/* ── Mock data ───────────────────────────────
-   TODO: Replace with real API call:
-   api.get('/dashboard/projects-clients-graph')
-   Expected shape: { months: string[], projects: number[], clients: number[] }
-───────────────────────────────────────────── */
-const MOCK_DATA = {
+const DEFAULT_DATA = {
   months: ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
-  projects: [4, 6, 3, 8, 5, 7],
-  clients:  [2, 3, 5, 4, 6, 3],
+  projects: [0, 0, 0, 0, 0, 0],
+  clients:  [0, 0, 0, 0, 0, 0],
 };
 
 type ViewMode = 'both' | 'projects' | 'clients';
@@ -54,6 +50,7 @@ function DataGraph() {
   const [size, setSize] = useState({ width: 400, height: 220 });
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const [view, setView] = useState<ViewMode>('both');
+  const [data, setData] = useState(DEFAULT_DATA);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -66,7 +63,25 @@ function DataGraph() {
     return () => ro.disconnect();
   }, []);
 
-  const { months, projects, clients } = MOCK_DATA;
+  // Fetch data from backend
+  useEffect(() => {
+    let cancelled = false;
+    api.get('/dashboard/projects-clients-graph')
+      .then((res: any) => {
+        if (!cancelled && res.data) {
+          setData(res.data);
+        }
+      })
+      .catch((err: any) => {
+        if (!cancelled) {
+          console.error('Failed to fetch projects-clients graph:', err);
+          setData(DEFAULT_DATA);
+        }
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  const { months, projects, clients } = data;
   const chartW = size.width - PAD.left - PAD.right;
   const chartH = size.height - PAD.top - PAD.bottom;
 

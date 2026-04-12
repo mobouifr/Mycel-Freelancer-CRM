@@ -67,4 +67,9 @@ export class DashboardController {
   async deleteEvent(@Req() req: any, @Param('id') id: string) {
     return this.dashboardService.deleteEvent(req.user.id, id);
   }
+
+  @Get('projects-clients-graph')
+  async getProjectsClientsGraph(@Req() req: any) {
+    return this.dashboardService.getProjectsClientsGraph(req.user.id);
+  }
 }

@@ -283,4 +283,57 @@ export class DashboardService {
       }
     });
   }
+
+  async getProjectsClientsGraph(userId: string) {
+    // Get the last 6 months of data
+    const now = new Date();
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    // Fetch projects and clients created in the last 6 months
+    const [projects, clients] = await Promise.all([
+      this.prisma.project.findMany({
+        where: { userId, createdAt: { gte: sixMonthsAgo } },
+        select: { createdAt: true }
+      }),
+      this.prisma.client.findMany({
+        where: { userId, createdAt: { gte: sixMonthsAgo } },
+        select: { createdAt: true }
+      })
+    ]);
+
+    // Initialize arrays for the last 6 months
+    const months = [];
+    const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const projectsCounts = new Array(6).fill(0);
+    const clientsCounts = new Array(6).fill(0);
+
+    // Build month labels
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now);
+      d.setMonth(d.getMonth() - i);
+      months.push(monthLabels[d.getMonth()]);
+    }
+
+    // Count projects and clients by month
+    projects.forEach(p => {
+      const pDate = new Date(p.createdAt);
+      const monthDiff = (now.getFullYear() - pDate.getFullYear()) * 12 + (now.getMonth() - pDate.getMonth());
+      const idx = 5 - monthDiff;
+      if (idx >= 0 && idx < 6) projectsCounts[idx]++;
+    });
+
+    clients.forEach(c => {
+      const cDate = new Date(c.createdAt);
+      const monthDiff = (now.getFullYear() - cDate.getFullYear()) * 12 + (now.getMonth() - cDate.getMonth());
+      const idx = 5 - monthDiff;
+      if (idx >= 0 && idx < 6) clientsCounts[idx]++;
+    });
+
+    return {
+      months,
+      projects: projectsCounts,
+      clients: clientsCounts
+    };
+  }
 }
