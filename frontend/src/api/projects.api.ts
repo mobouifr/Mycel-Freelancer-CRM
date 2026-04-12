@@ -5,7 +5,7 @@ import { type PaginatedResponse } from '../types/common.types';
 
 export const projectsApi = {
   // Get paginated projects
-  getAll: async (params?: { page?: number; limit?: number; search?: string; status?: string }): Promise<PaginatedResponse<Project>> => {
+  getAll: async (params?: { page?: number; limit?: number; search?: string; status?: string; sortBy?: string; sortOrder?: string }): Promise<PaginatedResponse<Project>> => {
     const response = await apiClient.get<PaginatedResponse<Project>>('/projects', { params });
     return response.data;
   },
