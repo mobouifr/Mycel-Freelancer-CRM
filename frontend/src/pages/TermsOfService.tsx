@@ -35,23 +35,36 @@ export default function TermsOfService() {
         padding: '0 32px',
         zIndex: 10,
       }}>
-        {/* Logo */}
-        <Link
-          to="/"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            textDecoration: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          <LogoMark size={32} />
-          <span className="brand-logo" style={{
-            fontFamily: 'var(--font-display)', fontWeight: 700,
-            fontSize: 18, color: 'var(--white)', letterSpacing: '.01em',
-          }}>Mycel.</span>
-        </Link>
+        {/* Back + Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <button
+            onClick={handleBack}
+            style={{
+              width: 34, height: 34, borderRadius: '50%',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              background: 'var(--glass)', border: '1px solid var(--border)',
+              cursor: 'pointer', color: 'var(--text-dim)', flexShrink: 0,
+              transition: 'color .15s, border-color .15s, background .15s',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text)'; e.currentTarget.style.borderColor = 'var(--border-h)'; e.currentTarget.style.background = 'var(--surface-2)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-dim)'; e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--glass)'; }}
+            aria-label={t('common.back')}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <Link
+            to="/"
+            style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', cursor: 'pointer' }}
+          >
+            <LogoMark size={32} />
+            <span className="brand-logo" style={{
+              fontFamily: 'var(--font-display)', fontWeight: 700,
+              fontSize: 18, color: 'var(--white)', letterSpacing: '.01em',
+            }}>Mycel.</span>
+          </Link>
+        </div>
 
         {/* Theme switcher */}
         <button
@@ -100,24 +113,6 @@ export default function TermsOfService() {
         }}
       >
         <div style={{ maxWidth: 720, margin: '0 auto', width: '100%' }}>
-          <button
-            onClick={handleBack}
-            style={{
-              fontFamily: 'var(--font-m)',
-              fontSize: 11,
-              color: 'var(--text-dim)',
-              letterSpacing: '.06em',
-              marginBottom: 32,
-              display: 'inline-block',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: 0,
-            }}
-          >
-            {t('common.back')}
-          </button>
-
           <h1
             style={{
               fontFamily: 'var(--font-d)',
@@ -140,8 +135,8 @@ export default function TermsOfService() {
               marginBottom: 40,
             }}
           >
-            Last updated:{' '}
-            {new Date().toLocaleDateString('en-US', {
+            {t('terms_of_service.last_updated')}:{' '}
+            {new Date().toLocaleDateString(undefined, {
               year: 'numeric',
               month: 'long',
               day: 'numeric',
@@ -149,109 +144,80 @@ export default function TermsOfService() {
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-            <Section title="1. Acceptance of Terms">
-              By accessing or using the Mycel Freelancer CRM application ("Service"), you
-              agree to be bound by these Terms of Service. If you do not agree, you must not
-              use the Service. These terms apply to all users, including registered account
-              holders and visitors.
+            <Section title={t('terms_of_service.s1_title')}>
+              {t('terms_of_service.s1_body')}
             </Section>
 
-            <Section title="2. Description of Service">
-              Mycel is a web-based Customer Relationship Management tool designed for
-              freelancers and small businesses. The Service allows users to manage clients,
-              track projects, set reminders, and view
-              business analytics through an interactive dashboard.
+            <Section title={t('terms_of_service.s2_title')}>
+              {t('terms_of_service.s2_body')}
             </Section>
 
-            <Section title="3. User Accounts">
-              To use most features, you must create an account by providing a valid username,
-              email address, and password. You may also sign in via OAuth providers (42 Intra).
+            <Section title={t('terms_of_service.s3_title')}>
+              {t('terms_of_service.s3_p1')}
               <br /><br />
-              You are responsible for:
+              {t('terms_of_service.s3_p2')}
               <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-                <li>Maintaining the confidentiality of your credentials</li>
-                <li>All activity that occurs under your account</li>
-                <li>Notifying us immediately of any unauthorized access</li>
-                <li>Providing accurate and truthful registration information</li>
+                <li>{t('terms_of_service.s3_li1')}</li>
+                <li>{t('terms_of_service.s3_li2')}</li>
+                <li>{t('terms_of_service.s3_li3')}</li>
+                <li>{t('terms_of_service.s3_li4')}</li>
               </ul>
             </Section>
 
-            <Section title="4. Acceptable Use">
-              You agree not to:
+            <Section title={t('terms_of_service.s4_title')}>
+              {t('terms_of_service.s4_intro')}
               <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-                <li>Use the Service for any illegal or unauthorized purpose</li>
-                <li>Attempt to gain unauthorized access to other accounts or systems</li>
-                <li>Upload malicious code, viruses, or harmful content</li>
-                <li>Interfere with or disrupt the Service or its infrastructure</li>
-                <li>Scrape, harvest, or collect data from the Service without permission</li>
-                <li>Impersonate another person or misrepresent your affiliation</li>
+                <li>{t('terms_of_service.s4_li1')}</li>
+                <li>{t('terms_of_service.s4_li2')}</li>
+                <li>{t('terms_of_service.s4_li3')}</li>
+                <li>{t('terms_of_service.s4_li4')}</li>
+                <li>{t('terms_of_service.s4_li5')}</li>
+                <li>{t('terms_of_service.s4_li6')}</li>
               </ul>
             </Section>
 
-            <Section title="5. Your Data">
-              You retain ownership of all data you enter into the Service (clients, projects,
-              etc.). We do not claim ownership of your content.
+            <Section title={t('terms_of_service.s5_title')}>
+              {t('terms_of_service.s5_p1')}
               <br /><br />
-              By using the Service, you grant us a limited license to store, process, and
-              display your data solely for the purpose of providing the Service to you.
+              {t('terms_of_service.s5_p2')}
               <br /><br />
-              You are responsible for maintaining backups of your data. While we take
-              reasonable steps to protect your data, we are not liable for data loss.
+              {t('terms_of_service.s5_p3')}
             </Section>
 
-            <Section title="6. Availability and Modifications">
-              We strive to maintain Service availability but do not guarantee uninterrupted
-              access. The Service may be temporarily unavailable due to maintenance, updates,
-              or circumstances beyond our control.
+            <Section title={t('terms_of_service.s6_title')}>
+              {t('terms_of_service.s6_p1')}
               <br /><br />
-              We reserve the right to modify, suspend, or discontinue any part of the Service
-              at any time. We will make reasonable efforts to notify users of significant
-              changes.
+              {t('terms_of_service.s6_p2')}
             </Section>
 
-            <Section title="7. Intellectual Property">
-              The Service, including its design, interface, codebase, and branding (Mycel),
-              is the intellectual property of the development team. This project was created
-              as part of the 42 curriculum.
+            <Section title={t('terms_of_service.s7_title')}>
+              {t('terms_of_service.s7_p1')}
               <br /><br />
-              You may not copy, modify, distribute, or reverse-engineer any part of the
-              Service without explicit permission.
+              {t('terms_of_service.s7_p2')}
             </Section>
 
-            <Section title="8. Limitation of Liability">
-              The Service is provided "as is" without warranties of any kind, express or
-              implied. We do not warrant that the Service will be error-free, secure, or
-              available at all times.
+            <Section title={t('terms_of_service.s8_title')}>
+              {t('terms_of_service.s8_p1')}
               <br /><br />
-              To the maximum extent permitted by law, we shall not be liable for any
-              indirect, incidental, special, or consequential damages arising from your use
-              of the Service, including loss of data, revenue, or business opportunities.
+              {t('terms_of_service.s8_p2')}
             </Section>
 
-            <Section title="9. Account Termination">
-              We may suspend or terminate your account if you violate these Terms or engage
-              in behavior that harms the Service or its users. You may delete your account
-              at any time through the Settings page.
+            <Section title={t('terms_of_service.s9_title')}>
+              {t('terms_of_service.s9_p1')}
               <br /><br />
-              Upon termination, your right to use the Service ceases immediately. We may
-              retain certain data as required by law or for legitimate business purposes.
+              {t('terms_of_service.s9_p2')}
             </Section>
 
-            <Section title="10. Changes to Terms">
-              We may update these Terms from time to time. Changes take effect when posted
-              on this page with an updated "Last updated" date. Continued use of the Service
-              after changes constitutes acceptance of the revised Terms.
+            <Section title={t('terms_of_service.s10_title')}>
+              {t('terms_of_service.s10_body')}
             </Section>
 
-            <Section title="11. Governing Law">
-              These Terms are governed by and construed in accordance with applicable local
-              laws. Any disputes shall be resolved through good-faith negotiation before
-              pursuing formal legal action.
+            <Section title={t('terms_of_service.s11_title')}>
+              {t('terms_of_service.s11_body')}
             </Section>
 
-            <Section title="12. Contact">
-              For questions about these Terms of Service, please contact your team
-              administrator or reach out through the application's Settings page.
+            <Section title={t('terms_of_service.s12_title')}>
+              {t('terms_of_service.s12_body')}
             </Section>
           </div>
         </div>

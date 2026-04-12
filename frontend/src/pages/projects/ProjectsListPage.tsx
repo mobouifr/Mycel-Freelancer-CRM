@@ -1,6 +1,6 @@
 // Projects list page
-import { useState, type CSSProperties } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef, type CSSProperties } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { useProjects } from '../../hooks/useProjects';
@@ -8,6 +8,7 @@ import { type Project, ProjectPriority, ProjectStatus } from '../../types/projec
 import { ProjectStatusBadge } from '../../components/projects/ProjectStatusBadge';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { useIsMobile } from '../../hooks/useIsMobile';
+import { SegmentedControl } from '../../components/SegmentedControl';
 
 const PROJECT_TABLE_MIN_WIDTH = 1000;
 
@@ -24,60 +25,34 @@ const PROJECTS_TABLE_TH: CSSProperties = {
   color: 'var(--text-dim)',
 };
 
-// Helper function to get client initials
-const getClientInitials = (name: string): string => {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  }
-  return name.substring(0, 2).toUpperCase();
-};
-
-// Helper function to get avatar color based on client name
-const getAvatarColor = (name: string): string => {
-  const colors = [
-    'var(--accent)',
-    'var(--info)',
-    'var(--warning)',
-    'var(--danger)',
-    'var(--sidebar-active)',
-    'var(--success)',
-  ];
-  const index = name.charCodeAt(0) % colors.length;
-  return colors[index];
-};
 
 const getPriorityStyle = (priority: ProjectPriority): CSSProperties => {
-  switch (priority) {
-    case ProjectPriority.HIGH:
-      return {
-        color: 'var(--danger)',
-        backgroundColor: 'var(--danger-bg)',
-        border: '1px solid var(--danger)',
-      };
-    case ProjectPriority.LOW:
-      return {
-        color: 'var(--success)',
-        backgroundColor: 'var(--success-bg)',
-        border: '1px solid var(--success)',
-      };
-    case ProjectPriority.MEDIUM:
-    default:
-      return {
-        color: 'var(--warning)',
-        backgroundColor: 'var(--warning-bg)',
-        border: '1px solid var(--warning)',
-      };
-  }
+  const color =
+    priority === ProjectPriority.HIGH   ? 'var(--danger)'  :
+    priority === ProjectPriority.LOW    ? 'var(--success)' :
+                                          'var(--warning)';
+  return {
+    color,
+    backgroundColor: 'var(--glass)',
+    border: '1px solid var(--border)',
+  };
 };
 
 export const ProjectsListPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
-  const { projects, loading, error, deleteProject } = useProjects();
+  const { projects, loading, error, deleteProject, refetch } = useProjects();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'ALL'>('ALL');
+
+  // Re-fetch whenever the user navigates back to this page (e.g. after creating/editing)
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    refetch();
+  }, [location.key]);
 
   const filteredProjects = projects.filter((project) => {
     const matchesSearch =
@@ -109,7 +84,7 @@ export const ProjectsListPage = () => {
     >
       <button
         type="button"
-        onClick={() => navigate(`/projects/${project.id}`, { state: { project } })}
+        onClick={() => navigate(`/projects/${project.id}`, { state: { background: location, project } })}
         style={{
           background: 'rgba(255,255,255,0.02)',
           border: '1px solid var(--border)',
@@ -139,7 +114,7 @@ export const ProjectsListPage = () => {
       </button>
       <button
         type="button"
-        onClick={() => navigate(`/projects/${project.id}/edit`)}
+        onClick={() => navigate(`/projects/${project.id}/edit`, { state: { background: location } })}
         style={{
           background: 'var(--accent-bg)',
           border: '1px solid var(--accent-hover)',
@@ -259,124 +234,52 @@ export const ProjectsListPage = () => {
       }}
     >
       {/* Header Section */}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'space-between',
-          alignItems: isMobile ? 'stretch' : 'center',
-          flexDirection: isMobile ? 'column' : 'row',
-          gap: isMobile ? 16 : 12,
-          marginBottom: 24,
-          width: '100%',
-        }}
-      >
-        <div style={{ minWidth: 0 }}>
-          <h1
-            style={{
-              fontFamily: 'var(--font-d)',
-              fontWeight: 500,
-              fontSize: isMobile ? 22 : 26,
-              color: 'var(--text)',
-              letterSpacing: '.06em',
-              lineHeight: 1.3,
-              marginBottom: 4,
-            }}
-          >
-            {t('projects.title')}
-          </h1>
-          <p
-            style={{
-              fontFamily: 'var(--font-m)',
-              fontSize: 11,
-              fontWeight: 400,
-              color: 'var(--text-dim)',
-              letterSpacing: '.04em',
-              lineHeight: 1.4,
-              margin: 0,
-            }}
-          >
-            {t('projects.subtitle')}
-          </p>
-        </div>
-        <div
+      <div style={{ marginBottom: 24 }}>
+        <h1
           style={{
-            display: 'flex',
-            gap: '12px',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            width: isMobile ? '100%' : 'auto',
-            flexDirection: isMobile ? 'column' : 'row',
+            fontFamily: 'var(--font-d)',
+            fontWeight: 500,
+            fontSize: isMobile ? 22 : 26,
+            color: 'var(--text)',
+            letterSpacing: '.06em',
+            lineHeight: 1.3,
+            marginBottom: 4,
           }}
         >
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as ProjectStatus | 'ALL')}
-            style={{
-              padding: '10px 12px',
-              borderRadius: 6,
-              border: '1px solid var(--border)',
-              background: 'var(--surface-2)',
-              color: 'var(--text)',
-              fontFamily: 'var(--font-m)',
-              fontSize: 12,
-              fontWeight: 400,
-              lineHeight: 1.4,
-              outline: 'none',
-              width: isMobile ? '100%' : 'auto',
-              minWidth: isMobile ? undefined : 160,
-              boxSizing: 'border-box',
-            }}
-          >
-            <option value="ALL">{t('common.all_statuses')}</option>
-            {Object.values(ProjectStatus).map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            onClick={() => navigate('/projects/new')}
-            style={{
-              padding: '10px 20px',
-              borderRadius: 6,
-              border: 'none',
-              background: 'var(--accent)',
-              color: 'var(--white)',
-              fontFamily: 'var(--font-m)',
-              fontSize: 11,
-              fontWeight: 500,
-              letterSpacing: '.06em',
-              lineHeight: 1.2,
-              cursor: 'pointer',
-              transition: 'background .2s var(--ease), transform .1s var(--ease)',
-              width: isMobile ? '100%' : 'auto',
-              alignSelf: isMobile ? 'stretch' : 'auto',
-              boxSizing: 'border-box',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--accent-hover)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--accent)';
-            }}
-          >
-            {t('projects.new_project')}
-          </button>
-        </div>
+          {t('projects.title')}
+        </h1>
+        <p
+          style={{
+            fontFamily: 'var(--font-m)',
+            fontSize: 11,
+            fontWeight: 400,
+            color: 'var(--text-dim)',
+            letterSpacing: '.04em',
+            lineHeight: 1.4,
+            margin: 0,
+          }}
+        >
+          {t('projects.subtitle')}
+        </p>
       </div>
 
-      {/* Search */}
-      <div style={{ marginBottom: 20, width: '100%' }}>
+      {/* Search + Filter + Add */}
+      <div style={{
+        display: 'flex',
+        gap: 10,
+        marginBottom: 20,
+        width: '100%',
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'stretch' : 'center',
+      }}>
         <input
           type="text"
           placeholder={t('projects.search_placeholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
-            width: '100%',
-            maxWidth: isMobile ? 'none' : 420,
+            flex: 1,
+            minWidth: 0,
             boxSizing: 'border-box',
             padding: '10px 12px',
             borderRadius: 6,
@@ -389,6 +292,47 @@ export const ProjectsListPage = () => {
             lineHeight: 1.4,
             outline: 'none',
           }}
+        />
+        <button
+          type="button"
+          onClick={() => navigate('/projects/new', { state: { background: location } })}
+          style={{
+            padding: '10px 20px',
+            borderRadius: 6,
+            border: '1px solid var(--accent-hover)',
+            background: 'var(--accent-bg)',
+            color: 'var(--accent)',
+            fontFamily: 'var(--font-m)',
+            fontSize: 11,
+            fontWeight: 500,
+            letterSpacing: '.06em',
+            lineHeight: 1.2,
+            cursor: 'pointer',
+            transition: 'background .2s var(--ease), color .2s var(--ease)',
+            width: isMobile ? '100%' : 'auto',
+            boxSizing: 'border-box',
+            whiteSpace: 'nowrap',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent)'; e.currentTarget.style.color = 'var(--bg)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--accent-bg)'; e.currentTarget.style.color = 'var(--accent)'; }}
+        >
+          {t('projects.new_project')}
+        </button>
+      </div>
+
+      {/* Status filter */}
+      <div style={{ marginBottom: 20 }}>
+        <SegmentedControl
+          options={[
+            { value: 'ALL',                     label: t('common.all_statuses'),       activeColor: 'var(--text)',    activeBg: 'var(--surface-2)' },
+            { value: ProjectStatus.ACTIVE,      label: t('forms.project.active'),      activeColor: 'var(--accent)',  activeBg: 'var(--accent-bg)' },
+            { value: ProjectStatus.COMPLETED,   label: t('forms.project.completed'),   activeColor: 'var(--info)',    activeBg: 'var(--info-bg)' },
+            { value: ProjectStatus.PAUSED,      label: t('forms.project.paused'),      activeColor: 'var(--warning)', activeBg: 'var(--warning-bg)' },
+            { value: ProjectStatus.CANCELLED,   label: t('forms.project.cancelled'),   activeColor: 'var(--danger)',  activeBg: 'var(--danger-bg)' },
+          ]}
+          value={statusFilter}
+          onChange={(v) => setStatusFilter(v as ProjectStatus | 'ALL')}
+          scrollable
         />
       </div>
 
@@ -421,8 +365,6 @@ export const ProjectsListPage = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '12px 0' }}>
             {filteredProjects.map((project) => {
               const clientName = project.client?.name || '—';
-              const initials = getClientInitials(clientName);
-              const avatarColor = getAvatarColor(clientName);
               const priority = project.priority || ProjectPriority.MEDIUM;
               return (
                 <div
@@ -465,39 +407,9 @@ export const ProjectsListPage = () => {
                   </div>
                   <div style={{ marginBottom: 10 }}>
                     <div style={projectLabelStyle}>{t('projects.table.client')}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: 4,
-                          backgroundColor: avatarColor,
-                          color: 'var(--bg)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: 10,
-                          fontWeight: 600,
-                          lineHeight: 1.2,
-                          fontFamily: 'var(--font-m)',
-                          flexShrink: 0,
-                        }}
-                      >
-                        {initials}
-                      </div>
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 400,
-                          lineHeight: 1.4,
-                          color: 'var(--text)',
-                          fontFamily: 'var(--font-m)',
-                          wordBreak: 'break-word',
-                        }}
-                      >
-                        {clientName}
-                      </span>
-                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 400, lineHeight: 1.4, color: 'var(--text)', fontFamily: 'var(--font-m)', wordBreak: 'break-word' }}>
+                      {clientName}
+                    </span>
                   </div>
                   <div style={{ marginBottom: 10 }}>
                     <div style={projectLabelStyle}>{t('projects.table.priority')}</div>
@@ -582,8 +494,6 @@ export const ProjectsListPage = () => {
             <tbody>
               {filteredProjects.map((project, index) => {
                 const clientName = project.client?.name || '—';
-                const initials = getClientInitials(clientName);
-                const avatarColor = getAvatarColor(clientName);
                 const priority = project.priority || ProjectPriority.MEDIUM;
                 
                 return (
@@ -625,35 +535,9 @@ export const ProjectsListPage = () => {
                       )}
                   </td>
                     <td style={{ padding: '13px 24px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '4px',
-                          backgroundColor: avatarColor,
-                          color: 'var(--bg)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: 10,
-                          fontWeight: 600,
-                          lineHeight: 1.2,
-                          fontFamily: 'var(--font-m)',
-                        }}>
-                          {initials}
-                        </div>
-                        <span
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 400,
-                            lineHeight: 1.4,
-                            color: 'var(--text)',
-                            fontFamily: 'var(--font-m)',
-                          }}
-                        >
-                          {clientName}
-                        </span>
-                      </div>
+                      <span style={{ fontSize: 12, fontWeight: 400, lineHeight: 1.4, color: 'var(--text)', fontFamily: 'var(--font-m)' }}>
+                        {clientName}
+                      </span>
                   </td>
                     <td style={{ padding: '13px 24px' }}>
                       <span

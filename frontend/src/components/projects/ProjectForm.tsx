@@ -1,12 +1,13 @@
 // Project form component
+import { useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { projectSchema, type ProjectFormData } from '../../utils/validation';
 import { type Project, ProjectPriority, ProjectStatus } from '../../types/project.types';
-import { formatDateInput } from '../../utils/formatters';
+import { formatDateDisplayInput } from '../../utils/formatters';
 import { useClients } from '../../hooks/useClients';
-import { useTheme } from '../../hooks/useTheme';
+import { SegmentedControl } from '../SegmentedControl';
 
 interface ProjectFormProps {
   project?: Project;
@@ -17,12 +18,13 @@ interface ProjectFormProps {
 
 export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: ProjectFormProps) => {
   const { t } = useTranslation();
-  const { mode } = useTheme();
   const { clients } = useClients();
 
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors, isSubmitting, isValid },
   } = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
@@ -33,14 +35,34 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
           status: project.status,
           priority: project.priority || ProjectPriority.MEDIUM,
           budget: Number(project.budget),
-          deadline: project.deadline ? formatDateInput(project.deadline) : '',
+          deadline: project.deadline ? formatDateDisplayInput(project.deadline) : '',
           clientId: project.clientId,
         }
-      : undefined,
+      : {
+          title: '',
+          description: '',
+          status: ProjectStatus.ACTIVE,
+          priority: ProjectPriority.MEDIUM,
+          budget: 0,
+          deadline: '',
+          clientId: '',
+        },
     mode: 'onChange',
   });
 
+  const statusValue = watch('status') ?? ProjectStatus.ACTIVE;
+  const priorityValue = watch('priority') ?? ProjectPriority.MEDIUM;
+
+  const deadlinePickerRef = useRef<HTMLInputElement>(null);
+
   const handleFormSubmit = async (data: ProjectFormData) => {
+    // Convert DD/MM/YYYY → YYYY-MM-DD before sending to the backend
+    if (data.deadline) {
+      const parts = data.deadline.split('/');
+      if (parts.length === 3) {
+        data = { ...data, deadline: `${parts[2]}-${parts[1]}-${parts[0]}` };
+      }
+    }
     await onSubmit(data);
   };
 
@@ -80,25 +102,33 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
         {errors.clientId && <p style={errorStyle}>{errors.clientId.message}</p>}
       </div>
 
-      {/* Status / Priority row */}
-      <div style={{ display: 'flex', gap: 10 }}>
-        <div style={{ flex: 1 }}>
-          <label style={labelStyle}>{t('forms.project.status')}</label>
-          <select {...register('status')} style={selectStyle}>
-            <option value={ProjectStatus.ACTIVE}>{t('forms.project.active')}</option>
-            <option value={ProjectStatus.COMPLETED}>{t('forms.project.completed')}</option>
-            <option value={ProjectStatus.PAUSED}>{t('forms.project.paused')}</option>
-            <option value={ProjectStatus.CANCELLED}>{t('forms.project.cancelled')}</option>
-          </select>
-        </div>
-        <div style={{ flex: 1 }}>
-          <label style={labelStyle}>{t('forms.project.priority')}</label>
-          <select {...register('priority')} style={selectStyle}>
-            <option value={ProjectPriority.HIGH}>{t('forms.project.high')}</option>
-            <option value={ProjectPriority.MEDIUM}>{t('forms.project.medium')}</option>
-            <option value={ProjectPriority.LOW}>{t('forms.project.low')}</option>
-          </select>
-        </div>
+      {/* Status */}
+      <div>
+        <label style={labelStyle}>{t('forms.project.status')}</label>
+        <SegmentedControl
+          options={[
+            { value: ProjectStatus.ACTIVE,    label: t('forms.project.active'),    activeColor: 'var(--accent)',   activeBg: 'var(--accent-bg)' },
+            { value: ProjectStatus.COMPLETED, label: t('forms.project.completed'), activeColor: 'var(--info)',     activeBg: 'var(--info-bg)' },
+            { value: ProjectStatus.PAUSED,    label: t('forms.project.paused'),    activeColor: 'var(--warning)',  activeBg: 'var(--warning-bg)' },
+            { value: ProjectStatus.CANCELLED, label: t('forms.project.cancelled'), activeColor: 'var(--danger)',   activeBg: 'var(--danger-bg)' },
+          ]}
+          value={statusValue}
+          onChange={(v) => setValue('status', v as ProjectStatus, { shouldValidate: true })}
+        />
+      </div>
+
+      {/* Priority */}
+      <div>
+        <label style={labelStyle}>{t('forms.project.priority')}</label>
+        <SegmentedControl
+          options={[
+            { value: ProjectPriority.LOW,    label: t('forms.project.low'),    activeColor: 'var(--success)', activeBg: 'var(--success-bg)' },
+            { value: ProjectPriority.MEDIUM, label: t('forms.project.medium'), activeColor: 'var(--warning)', activeBg: 'var(--warning-bg)' },
+            { value: ProjectPriority.HIGH,   label: t('forms.project.high'),   activeColor: 'var(--danger)',  activeBg: 'var(--danger-bg)' },
+          ]}
+          value={priorityValue}
+          onChange={(v) => setValue('priority', v as ProjectPriority, { shouldValidate: true })}
+        />
       </div>
 
       {/* Budget / Deadline row */}
@@ -119,11 +149,60 @@ export const ProjectForm = ({ project, onSubmit, onCancel, isLoading = false }: 
         </div>
         <div style={{ flex: 1 }}>
           <label style={labelStyle}>{t('forms.project.deadline')}</label>
-          <input
-            type="date"
-            {...register('deadline')}
-            style={{ ...inputStyle, colorScheme: mode }}
-          />
+          <div style={{ position: 'relative' }}>
+            <input
+              type="text"
+              {...register('deadline')}
+              placeholder="DD/MM/YYYY"
+              style={{ ...inputStyle, paddingRight: 30 }}
+            />
+            {/* Calendar icon — opens the hidden native date picker */}
+            <button
+              type="button"
+              onClick={() => {
+                try { deadlinePickerRef.current?.showPicker(); }
+                catch { deadlinePickerRef.current?.click(); }
+              }}
+              style={{
+                position: 'absolute', right: 8, top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: 'var(--text-dim)', padding: 0,
+                display: 'flex', alignItems: 'center',
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </button>
+            {/* Hidden native date input — used only for the calendar picker UI */}
+            <input
+              ref={deadlinePickerRef}
+              type="date"
+              tabIndex={-1}
+              value={(() => {
+                const v = watch('deadline');
+                if (!v) return '';
+                const p = v.split('/');
+                return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
+              })()}
+              onChange={(e) => {
+                if (e.target.value) {
+                  const [yyyy, mm, dd] = e.target.value.split('-');
+                  setValue('deadline', `${dd}/${mm}/${yyyy}`, { shouldValidate: true });
+                } else {
+                  setValue('deadline', '', { shouldValidate: true });
+                }
+              }}
+              style={{
+                position: 'absolute', opacity: 0, pointerEvents: 'none',
+                width: 1, height: 1, top: 0, right: 0, border: 'none',
+              }}
+            />
+          </div>
           {errors.deadline && <p style={errorStyle}>{errors.deadline.message}</p>}
         </div>
       </div>

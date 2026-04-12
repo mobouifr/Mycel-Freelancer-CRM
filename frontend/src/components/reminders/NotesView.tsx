@@ -22,8 +22,12 @@ const NOTE_COLORS: { key: string; label: string }[] = [
 ];
 
 const COLOR_BG: Record<string, string> = {
-  default: 'var(--surface)', yellow: '#2a2a1a', green: '#1a2a1a',
-  blue: '#1a1a2a', pink: '#2a1a2a', purple: '#221a2a',
+  default: 'var(--surface)',
+  yellow:  'color-mix(in srgb, #f59e0b 30%, var(--surface))',
+  green:   'color-mix(in srgb, var(--success) 30%, var(--surface))',
+  blue:    'color-mix(in srgb, var(--info) 30%, var(--surface))',
+  pink:    'color-mix(in srgb, #ec4899 30%, var(--surface))',
+  purple:  'color-mix(in srgb, #8b5cf6 30%, var(--surface))',
 };
 
 interface NotesViewProps {

@@ -98,7 +98,6 @@ function ProjectStatusBar() {
                 background: sl.color,
                 borderRadius: 4,
                 boxShadow: `0 0 8px ${sl.color}`,
-                transition: 'width .4s var(--ease)',
               }}
             />
           );

@@ -33,6 +33,17 @@ export const formatDateInput = (date: string | null | undefined): string => {
   return d.toISOString().split('T')[0];
 };
 
+/** Formats a stored ISO date as DD/MM/YYYY for display in text inputs. Uses UTC to avoid timezone shift. */
+export const formatDateDisplayInput = (date: string | null | undefined): string => {
+  if (!date) return '';
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '';
+  const dd = String(d.getUTCDate()).padStart(2, '0');
+  const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const yyyy = d.getUTCFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+};
+
 export const formatDateTimeInput = (date: string | null | undefined): string => {
   if (!date) return '';
   const d = new Date(date);

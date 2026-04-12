@@ -224,6 +224,13 @@ input:-webkit-autofill:focus {
   height: 100%;
 }
 
+/* Disable the default RGL position transition — prevents widgets from
+   "sliding" into position on every dashboard render. Only keep transitions
+   active while actively dragging so snap-back feels smooth. */
+.react-grid-item:not(.react-draggable-dragging):not(.resizing) {
+  transition: none !important;
+}
+
 /* ── Drag & drop enhancements ── */
 .react-grid-item.react-draggable-dragging {
   z-index: var(--z-widget-drag) !important;

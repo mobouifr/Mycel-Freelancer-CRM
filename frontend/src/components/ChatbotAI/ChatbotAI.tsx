@@ -701,9 +701,10 @@ export default function ChatbotAI() {
         .chatbot-ai-root {
           position: fixed;
           right: max(32px, env(safe-area-inset-right, 0px));
-          bottom: max(32px, env(safe-area-inset-bottom, 0px));
+          bottom: var(--fab-bottom, max(32px, env(safe-area-inset-bottom, 0px)));
           z-index: var(--z-fab);
           font-family: var(--font-m);
+          transition: bottom 0.2s var(--ease);
         }
 
         .chatbot-ai-fab {
@@ -711,9 +712,7 @@ export default function ChatbotAI() {
           height: 56px;
           border-radius: 999px;
           border: 1px solid var(--fab-border);
-          background: var(--fab-bg);
-          backdrop-filter: blur(8px) saturate(120%);
-          -webkit-backdrop-filter: blur(8px) saturate(120%);
+          background: var(--surface-2);
           color: var(--accent);
           cursor: pointer;
           display: inline-flex;
