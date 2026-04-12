@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
@@ -14,6 +14,7 @@ import { MetricsInterceptor } from './metrics/metrics.interceptor';
 import { HealthModule } from './health/health.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
+import { CustomThrottlerGuard } from './common/guards/custom-throttler.guard';
 
 @Module({
   imports: [
@@ -24,8 +25,8 @@ import { ChatbotModule } from './chatbot/chatbot.module';
     }),
     ThrottlerModule.forRoot([
       {
-        ttl: 60000,
-        limit: 20,
+        ttl: 300000,
+        limit: 10,
       },
     ]),
     PrismaModule,
@@ -41,6 +42,10 @@ import { ChatbotModule } from './chatbot/chatbot.module';
     DashboardModule,
   ],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: CustomThrottlerGuard,
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: MetricsInterceptor,

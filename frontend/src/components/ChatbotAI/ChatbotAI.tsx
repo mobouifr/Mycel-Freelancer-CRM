@@ -542,6 +542,22 @@ export default function ChatbotAI() {
     };
   };
 
+  const buildRateLimitMessage = (retryAfterSeconds?: number): string => {
+    const waitSeconds = Math.max(1, Math.floor(retryAfterSeconds ?? 300));
+    const minutes = Math.floor(waitSeconds / 60);
+    const seconds = waitSeconds % 60;
+
+    if (minutes > 0 && seconds > 0) {
+      return `Rate limit reached. Please wait ${minutes} minute${minutes > 1 ? 's' : ''} and ${seconds} second${seconds > 1 ? 's' : ''} before sending another request.`;
+    }
+
+    if (minutes > 0) {
+      return `Rate limit reached. Please wait ${minutes} minute${minutes > 1 ? 's' : ''} before sending another request.`;
+    }
+
+    return `Rate limit reached. Please wait ${seconds} second${seconds > 1 ? 's' : ''} before sending another request.`;
+  };
+
   const sendMessage = async (overrideText?: string) => {
     const trimmed = (overrideText ?? input).trim();
     if (!trimmed || loading) return;
@@ -577,6 +593,14 @@ export default function ChatbotAI() {
         credentials: 'include',
         body: JSON.stringify({ message: trimmed }),
       });
+
+      if (streamResponse.status === 429) {
+        const retryAfter = Number(streamResponse.headers.get('retry-after') ?? '0');
+        reply = buildRateLimitMessage(Number.isFinite(retryAfter) ? retryAfter : undefined);
+        setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: reply }]);
+        setLoading(false);
+        return;
+      }
 
       if (streamResponse.ok && streamResponse.body) {
         const reader = streamResponse.body.getReader();
@@ -670,8 +694,34 @@ export default function ChatbotAI() {
           }
         }
       }
-    } catch {
-      reply = 'Something went wrong. Please try again.';
+    } catch (error) {
+      const status =
+        error && typeof error === 'object' && 'response' in error
+          ? Number((error as { response?: { status?: number } }).response?.status)
+          : error && typeof error === 'object' && 'status' in error
+            ? Number((error as { status?: number }).status)
+            : undefined;
+
+      if (status === 429) {
+        const err = error as {
+          response?: {
+            headers?: Record<string, unknown>;
+            data?: { retryAfterSeconds?: number | string };
+          };
+        };
+
+        const retryAfterHeader = Number(err.response?.headers?.['retry-after'] ?? '0');
+        const retryAfterBody = Number(err.response?.data?.retryAfterSeconds ?? '0');
+        const retryAfterSeconds = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
+          ? retryAfterHeader
+          : Number.isFinite(retryAfterBody) && retryAfterBody > 0
+            ? retryAfterBody
+            : undefined;
+
+        reply = buildRateLimitMessage(retryAfterSeconds);
+      } else {
+        reply = 'Something went wrong. Please try again.';
+      }
     }
 
     // Fallback: if AI didn't open a form but we detected CRUD intent, open it
