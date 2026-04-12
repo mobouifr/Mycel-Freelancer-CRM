@@ -12,7 +12,7 @@ interface ChatResponse {
   action?: Record<string, unknown>;
 }
 
-@Throttle({ default: { limit: 20, ttl: 60000 } })
+@Throttle({ default: { limit: 10, ttl: 300000 } })
 @Controller('chatbot')
 @UseGuards(JwtAuthGuard)
 export class ChatbotController {

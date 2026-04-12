@@ -7,6 +7,7 @@ DOCKER_COMPOSE := $(shell if $(SUDO)docker compose version > /dev/null 2>&1; the
 COMPOSE_PROD   := $(DOCKER_COMPOSE) -f docker-compose.prod.yml
 BACKEND_EXEC   := $(DOCKER_COMPOSE) exec backend
 DB_EXEC        := $(DOCKER_COMPOSE) exec postgres
+DB_EXEC_NOTTY  := $(DOCKER_COMPOSE) exec -T postgres
 TIMESTAMP      := $(shell date +%Y%m%d_%H%M%S)
 DOMAIN         ?= $(shell grep '^DOMAIN=' .env 2>/dev/null | cut -d= -f2)
 
@@ -138,7 +139,7 @@ db-shell:
 ## db-backup      : Backup database to backups/ with timestamp
 db-backup:
 	@mkdir -p backups
-	@$(DB_EXEC) pg_dump -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-freelancer_crm} --clean --if-exists > backups/backup_$(TIMESTAMP).sql
+	@$(DB_EXEC_NOTTY) pg_dump -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-freelancer_crm} --clean --if-exists > backups/backup_$(TIMESTAMP).sql
 	@printf "$(GREEN)Saved to backups/backup_$(TIMESTAMP).sql$(RESET)\n"
 
 ## db-restore     : Restore DB (usage: make db-restore FILE=backups/xxx.sql[.gz])
@@ -147,9 +148,9 @@ db-restore:
 	@if [ ! -f "$(FILE)" ]; then printf "$(RED)Not found: $(FILE)$(RESET)\n"; exit 1; fi
 	@printf "$(RED)Overwrite database with $(FILE)? [y/N] $(RESET)" && read ans && [ $${ans:-N} = y ]
 	@if echo "$(FILE)" | grep -q '\\.gz$$'; then \
-		gunzip -c "$(FILE)" | $(DB_EXEC) psql -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-freelancer_crm}; \
+		gunzip -c "$(FILE)" | $(DB_EXEC_NOTTY) psql -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-freelancer_crm}; \
 	else \
-		cat "$(FILE)" | $(DB_EXEC) psql -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-freelancer_crm}; \
+		cat "$(FILE)" | $(DB_EXEC_NOTTY) psql -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-freelancer_crm}; \
 	fi
 	@printf "$(GREEN)Restored from $(FILE)$(RESET)\n"
 

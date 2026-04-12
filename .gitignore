@@ -18,3 +18,7 @@ docker/ssl/*.key
 docker/ssl/*.crt
 # Self-signed dev SSL certificates (generated locally by make ssl-dev-cert)
 docker/ssl/
+
+# Ignore all markdown and text files
+*.md
+*.txt
