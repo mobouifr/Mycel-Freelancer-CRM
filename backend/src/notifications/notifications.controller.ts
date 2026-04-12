@@ -1,11 +1,17 @@
-import { Controller, Get, Patch, Param, Delete, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Delete, Query, UseGuards, Request, Sse, MessageEvent } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Observable } from 'rxjs';
 
 @UseGuards(JwtAuthGuard)
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
+
+  @Sse('realtime')
+  streamRealTimeUpdates(): Observable<MessageEvent> {
+    return this.notificationsService.streamRealTimeUpdates();
+  }
 
   @Get()
   findAll(
