@@ -18,7 +18,10 @@ export const projectSchema = z.object({
   description: z.string().optional(),
   status: z.enum(['ACTIVE', 'COMPLETED', 'PAUSED', 'CANCELLED']).optional(),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
-  budget: z.number().min(0, 'Budget must be positive'),
+  budget: z.number()
+    .refine((val) => Number.isFinite(val), 'Budget must be a valid number')
+    .min(0, 'Budget must be 0 or more')
+    .max(99_999_999.99, 'Budget cannot exceed 99,999,999.99'),
   deadline: z.string().optional(),
   clientId: z.string().min(1, 'Client is required'),
 });

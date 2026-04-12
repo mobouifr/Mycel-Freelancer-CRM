@@ -30,6 +30,16 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
+    // Redirect to login on 401 (session expired or not authenticated)
+    if (error.response?.status === 401) {
+      const isAuthPage = window.location.pathname.startsWith('/login') ||
+        window.location.pathname.startsWith('/register') ||
+        window.location.pathname.startsWith('/auth');
+      if (!isAuthPage) {
+        window.location.href = '/login';
+      }
+    }
+
     const apiError: ApiError = {
       message: error.message || 'An error occurred',
       statusCode: error.response?.status,

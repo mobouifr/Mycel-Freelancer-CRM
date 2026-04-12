@@ -22,8 +22,24 @@ RESET  := \033[0m
 # DOCKER / PROJECT CONTROL
 # =============================================================================
 
+## ssl-dev-cert   : Generate self-signed cert for localhost HTTPS dev server
+ssl-dev-cert:
+	@mkdir -p docker/ssl/dev
+	@if [ ! -f docker/ssl/dev/localhost.crt ]; then \
+		printf "$(CYAN)Generating self-signed cert for localhost...$(RESET)\n"; \
+		openssl req -x509 -nodes -newkey rsa:2048 \
+			-keyout docker/ssl/dev/localhost.key \
+			-out docker/ssl/dev/localhost.crt \
+			-days 3650 \
+			-subj "/CN=localhost" \
+			-addext "subjectAltName=DNS:localhost,DNS:*.localhost,IP:127.0.0.1" 2>/dev/null; \
+		printf "$(GREEN)Cert generated at docker/ssl/dev/$(RESET)\n"; \
+	else \
+		printf "$(GREEN)Cert already exists, skipping$(RESET)\n"; \
+	fi
+
 ## up             : Start all services (build)
-up:
+up: ssl-dev-cert
 	@$(DOCKER_COMPOSE) up -d --build
 	@printf "$(GREEN)Services running$(RESET)\n"
 	@printf "  Frontend  -> $(CYAN)https://localhost$(RESET)  (accept self-signed cert on first visit)\n"
@@ -176,7 +192,7 @@ help:
 
 .PHONY: up down restart logs status clean \
 		prod-up prod-down prod-restart prod-logs prod-status \
-		ssl-init ssl-renew ssl-status \
+		ssl-dev-cert ssl-init ssl-renew ssl-status \
 		db-shell db-backup db-restore \
 		up-monitoring down-monitoring \
 		shell-backend help

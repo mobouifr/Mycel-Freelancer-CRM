@@ -57,13 +57,15 @@ export default function Settings() {
           email,
         });
       } else if (activeTab === 'security') {
-        if (newPassword && newPassword !== confirmPassword) {
-          setError('New password and confirmation do not match');
-          setSaving(false);
-          return;
+        if (!user?.intraId) {
+          if (newPassword && newPassword !== confirmPassword) {
+            setError('New password and confirmation do not match');
+            setSaving(false);
+            return;
+          }
+          await authService.changePassword(currentPassword, newPassword);
+          await new Promise((r) => setTimeout(r, 600));
         }
-        await authService.changePassword(currentPassword, newPassword);
-        await new Promise((r) => setTimeout(r, 600)); 
       }
       setSuccess(true);
       setTimeout(() => {
@@ -200,6 +202,7 @@ export default function Settings() {
               animation: 'fadeUp .2s var(--ease) both',
             }}
           >
+            {!user?.intraId && (
             <div>
               <SectionTitle title={t('settings.change_password')} sub={t('settings.password_secure')} />
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 32 }}>
@@ -230,6 +233,7 @@ export default function Settings() {
                 </div>
               </div>
             </div>
+            )}
 
             <div>
               <SectionTitle title={t('settings.twofa_title')} sub={t('settings.twofa_subtitle')} />
