@@ -109,7 +109,7 @@ export const ProjectsListPage = () => {
     >
       <button
         type="button"
-        onClick={() => navigate(`/projects/${project.id}`)}
+        onClick={() => navigate(`/projects/${project.id}`, { state: { project } })}
         style={{
           background: 'rgba(255,255,255,0.02)',
           border: '1px solid var(--border)',

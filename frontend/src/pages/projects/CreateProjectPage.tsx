@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useProjects } from '../../hooks/useProjects';
 import { ProjectForm } from '../../components/projects/ProjectForm';
 import { type ProjectFormData } from '../../utils/validation';
+import Modal from '../../components/Modal';
 
 export const CreateProjectPage = () => {
   const { t } = useTranslation();
@@ -25,12 +26,8 @@ export const CreateProjectPage = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text)' }}>{t('projects.create_title')}</h1>
-      <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 24, maxWidth: 768 }}>
-        <ProjectForm onSubmit={handleSubmit} onCancel={() => navigate('/projects')} isLoading={isLoading} />
-      </div>
-    </div>
+    <Modal isOpen onClose={() => navigate('/projects')} title={t('projects.create_title')} width={560}>
+      <ProjectForm onSubmit={handleSubmit} onCancel={() => navigate('/projects')} isLoading={isLoading} />
+    </Modal>
   );
 };
-

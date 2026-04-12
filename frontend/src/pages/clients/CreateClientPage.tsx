@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useClients } from '../../hooks/useClients';
 import { ClientForm } from '../../components/clients/ClientForm';
 import { type ClientFormData } from '../../utils/validation';
-import CenteredModal from '../../components/modals/CenteredModal';
+import Modal from '../../components/Modal';
 
 export const CreateClientPage = () => {
   const { t } = useTranslation();
@@ -26,9 +26,8 @@ export const CreateClientPage = () => {
   };
 
   return (
-    <CenteredModal title={t('clients.create_title')} onClose={() => navigate('/clients')}>
+    <Modal isOpen onClose={() => navigate('/clients')} title={t('clients.create_title')} width={520}>
       <ClientForm onSubmit={handleSubmit} onCancel={() => navigate('/clients')} isLoading={isLoading} />
-    </CenteredModal>
+    </Modal>
   );
 };
-

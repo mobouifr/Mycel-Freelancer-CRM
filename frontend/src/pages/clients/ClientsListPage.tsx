@@ -200,7 +200,7 @@ export const ClientsListPage = () => {
       >
         <ClientTable
           clients={filteredClients}
-          onView={(client) => navigate(`/clients/${client.id}`)}
+          onView={(client) => navigate(`/clients/${client.id}`, { state: { client } })}
           onEdit={(client) => navigate(`/clients/${client.id}/edit`)}
           onDelete={handleDelete}
         />
