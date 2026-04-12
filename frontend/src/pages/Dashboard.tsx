@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDashboardLayout, PRESET_OPTIONS } from '../hooks/useDashboardLayout';
+import { useDashboardRealtime } from '../hooks/useDashboardRealtime';
 import WidgetGrid from '../components/dashboard/WidgetGrid';
 import WidgetPicker from '../components/dashboard/WidgetPicker';
 
@@ -36,6 +37,9 @@ export default function Dashboard() {
     exportLayout,
     importLayout,
   } = useDashboardLayout();
+
+  // ── Establish Real-Time SSE Connection ──
+  useDashboardRealtime();
 
   const [isEditing, setIsEditing] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);

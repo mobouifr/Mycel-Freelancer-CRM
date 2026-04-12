@@ -36,10 +36,20 @@ function RevenueKPI() {
 
   useEffect(() => {
     let cancelled = false;
-    api.get('/dashboard/revenue?timeframe=monthly')
-      .then(res => { if (!cancelled && res.data) setDashboardData(res.data); })
-      .catch(console.error);
-    return () => { cancelled = true; };
+
+    const fetchRevenue = () => {
+      api.get('/dashboard/revenue?timeframe=monthly')
+        .then(res => { if (!cancelled && res.data) setDashboardData(res.data); })
+        .catch(console.error);
+    };
+
+    fetchRevenue();
+    window.addEventListener('dashboardRefresh', fetchRevenue);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener('dashboardRefresh', fetchRevenue);
+    };
   }, []);
 
   const MONTHLY_REVENUE  = dashboardData.chartData;
