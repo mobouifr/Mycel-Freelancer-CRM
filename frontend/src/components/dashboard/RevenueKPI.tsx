@@ -55,8 +55,8 @@ function RevenueKPI() {
   const bestMonth = Math.max(...MONTHLY_REVENUE, 0);
 
   const secondaryKpis = [
-    { label: t('revenue.avg_month'),    value: `$${avgMonth}k` },
-    { label: t('revenue.best_month'),   value: `$${bestMonth}k` },
+    { label: t('revenue.avg_month'),    value: `$${(avgMonth / 1000).toFixed(1)}k` },
+    { label: t('revenue.best_month'),   value: `$${(bestMonth / 1000).toFixed(1)}k` },
     { label: t('revenue.projects_done'), value: dashboardData.projectsDone.toString() },
   ];
 
