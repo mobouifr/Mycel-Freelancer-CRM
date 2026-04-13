@@ -2,13 +2,17 @@
 import { useEffect, useRef, type CSSProperties } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-
 import { useProjects } from '../../hooks/useProjects';
 import { type Project, ProjectPriority, ProjectStatus } from '../../types/project.types';
 import { ProjectStatusBadge } from '../../components/projects/ProjectStatusBadge';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { SegmentedControl } from '../../components/SegmentedControl';
+
+const SortIcon = ({ field, sortBy, sortOrder }: { field: string; sortBy: string; sortOrder: 'asc' | 'desc' }) => {
+  if (field !== sortBy) return <span style={{ opacity: 0.3, marginLeft: 4, fontSize: 9 }}>↕</span>;
+  return <span style={{ marginLeft: 4, fontSize: 9, color: 'var(--accent)' }}>{sortOrder === 'asc' ? '↑' : '↓'}</span>;
+};
 
 function getPageNumbers(current: number, total: number): (number | '...')[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
@@ -55,6 +59,7 @@ export const ProjectsListPage = () => {
     page, totalPages, total,
     search, setSearch,
     statusFilter, setStatusFilter,
+    sortBy, sortOrder, handleSort,
     goToPage, deleteProject, refetch,
   } = useProjects();
 
@@ -489,12 +494,27 @@ export const ProjectsListPage = () => {
             >
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                <th style={PROJECTS_TABLE_TH}>{t('projects.table.project')}</th>
+                <th
+                  style={{ ...PROJECTS_TABLE_TH, cursor: 'pointer', userSelect: 'none', color: sortBy === 'title' ? 'var(--text-mid)' : 'var(--text-dim)' }}
+                  onClick={() => handleSort('title')}
+                >
+                  {t('projects.table.project')}<SortIcon field="title" sortBy={sortBy} sortOrder={sortOrder} />
+                </th>
                 <th style={PROJECTS_TABLE_TH}>{t('projects.table.client')}</th>
                 <th style={PROJECTS_TABLE_TH}>{t('projects.table.priority')}</th>
                 <th style={PROJECTS_TABLE_TH}>{t('projects.table.status')}</th>
-                <th style={PROJECTS_TABLE_TH}>{t('projects.table.budget')}</th>
-                <th style={PROJECTS_TABLE_TH}>{t('projects.table.deadline')}</th>
+                <th
+                  style={{ ...PROJECTS_TABLE_TH, cursor: 'pointer', userSelect: 'none', color: sortBy === 'budget' ? 'var(--text-mid)' : 'var(--text-dim)' }}
+                  onClick={() => handleSort('budget')}
+                >
+                  {t('projects.table.budget')}<SortIcon field="budget" sortBy={sortBy} sortOrder={sortOrder} />
+                </th>
+                <th
+                  style={{ ...PROJECTS_TABLE_TH, cursor: 'pointer', userSelect: 'none', color: sortBy === 'deadline' ? 'var(--text-mid)' : 'var(--text-dim)' }}
+                  onClick={() => handleSort('deadline')}
+                >
+                  {t('projects.table.deadline')}<SortIcon field="deadline" sortBy={sortBy} sortOrder={sortOrder} />
+                </th>
                 <th style={{ ...PROJECTS_TABLE_TH, textAlign: 'right' }}>{t('common.actions')}</th>
               </tr>
             </thead>

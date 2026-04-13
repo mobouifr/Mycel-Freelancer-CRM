@@ -3,7 +3,7 @@
 # Mycel CRM — ft_transcendence
 
 ## Description
-Mycel is a freelancer-focused CRM web application that helps users manage clients, projects, proposals, invoices, reminders, and growth analytics in one place. The platform combines a React frontend, NestJS backend, and PostgreSQL database, with JWT-secured authentication, notifications, i18n, monitoring, backup/restore flows, and an AI assistant integrated with live business context.
+Mycel is a freelancer-focused CRM web application that helps users manage clients, projects, reminders, and growth analytics in one place. The platform combines a React frontend, NestJS backend, and PostgreSQL database, with JWT-secured authentication, notifications, i18n, monitoring, backup/restore flows, and an AI assistant integrated with live business context.
 
 ## Team
 
@@ -46,14 +46,13 @@ The schema is defined in `backend/prisma/schema.prisma` and includes strongly-re
 
 | Model | Purpose | Key Relationships |
 |------|---------|-------------------|
-| User | Account, profile, auth, preferences | 1:N with Client, Project, Proposal, Invoice, Notification, Reminder |
+| User | Account, profile, auth, preferences | 1:N with Client, Project, Notification, Reminder |
 | Client | Customer records | N:1 User, 1:N Project |
-| Project | Work delivery lifecycle | N:1 User, N:1 Client, 1:N Proposal/Invoice |
-| Proposal | Commercial offers | N:1 User, N:1 Project |
-| Invoice | Billing records | N:1 User, N:1 Project, 1:N Payment |
-| Payment | Invoice payment entries | N:1 Invoice |
+| Project | Work delivery lifecycle | N:1 User, N:1 Client |
 | Notification | User activity notifications | N:1 User |
 | Reminder | Time-based tasks/reminders | N:1 User |
+| UserAchievement | Earned gamification achievements | N:1 User |
+| UserBadge | Earned gamification badges | N:1 User |
 
 ## Modules
 
@@ -78,7 +77,7 @@ Note: module validation is strict during defense; only fully demonstrated module
 | Feature | Description | Owner(s) |
 |--------|-------------|----------|
 | Secure auth | Signup/login, JWT guard, protected routes, 42 OAuth, 2FA | Othman |
-| CRM core | Clients/projects/proposals/invoices CRUD flows | Team |
+| CRM core | Clients/projects CRUD flows with search, filters, and pagination | Team |
 | Dashboard | Revenue/activity/project insights and widgets | Montassir + Team |
 | Notifications | Event notifications across create/update/delete actions | Team |
 | Chatbot AI | Live CRM context prompt injection, action parsing, SSE streaming | Solayman + Montassir |
