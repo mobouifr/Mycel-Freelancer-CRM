@@ -125,7 +125,7 @@ export class ChatbotService {
         limitedClients
           .map(
             (c) =>
-              `- ${c.name}${c.company ? ` @ ${c.company}` : ''} | ${c.email ?? 'no email'} | ${c.phone ?? 'no phone'}${c.notes ? ` | note: ${this.truncateText(c.notes, 80)}` : ''}`,
+              `- id: ${c.id} | ${c.name}${c.company ? ` @ ${c.company}` : ''} | ${c.email ?? 'no email'} | ${c.phone ?? 'no phone'}${c.notes ? ` | note: ${this.truncateText(c.notes, 80)}` : ''}`,
           )
           .join('\n') || 'No clients yet.';
 
@@ -133,7 +133,7 @@ export class ChatbotService {
         limitedProjects
           .map(
             (p) =>
-              `- [${p.status}] ${p.title} | client: ${p.client.name} | budget: ${currency} ${Number(p.budget).toFixed(2)}${p.deadline ? ` | deadline: ${new Date(p.deadline).toLocaleDateString()}` : ''}${p.description ? ` | desc: ${this.truncateText(p.description, 80)}` : ''}`,
+              `- id: ${p.id} | [${p.status}] ${p.title} | client: ${p.client.name} | budget: ${currency} ${Number(p.budget).toFixed(2)}${p.deadline ? ` | deadline: ${new Date(p.deadline).toLocaleDateString()}` : ''}${p.description ? ` | desc: ${this.truncateText(p.description, 80)}` : ''}`,
           )
           .join('\n') || 'No projects yet.';
 

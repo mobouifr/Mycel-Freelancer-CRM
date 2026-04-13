@@ -32,6 +32,19 @@ interface SuggestionsExtraction {
   suggestions: string[];
 }
 
+interface DeleteClientOption {
+  id: string;
+  name: string;
+  company?: string | null;
+}
+
+interface DeleteProjectOption {
+  id: string;
+  title: string;
+  status?: string;
+  clientName?: string;
+}
+
 const dedupeSuggestions = (items: string[]): string[] => {
   const seen = new Set<string>();
   const result: string[] = [];
@@ -119,6 +132,10 @@ export default function ChatbotAI() {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [formSubmitting, setFormSubmitting] = useState(false);
+  const [deleteOptionsLoading, setDeleteOptionsLoading] = useState(false);
+  const [deleteOptionsError, setDeleteOptionsError] = useState<string | null>(null);
+  const [deleteClientOptions, setDeleteClientOptions] = useState<DeleteClientOption[]>([]);
+  const [deleteProjectOptions, setDeleteProjectOptions] = useState<DeleteProjectOption[]>([]);
   const [hasSentFirstMessage, setHasSentFirstMessage] = useState(false);
 
   const [panelSize, setPanelSize] = useState<{ width: number; height: number } | null>(null);
@@ -347,6 +364,102 @@ export default function ChatbotAI() {
     return null;
   };
 
+  const findProjectByTitle = async (projectTitle: string): Promise<{ id: string; title?: string } | null> => {
+    const headers = getAuthHeaders();
+
+    try {
+      const response = await fetch('/api/projects?limit=100', { headers, credentials: 'include' });
+      if (!response.ok) {
+        return null;
+      }
+
+      const payload = await response.json();
+      const projects = Array.isArray(payload) ? payload : (payload.data ?? []);
+      const normalized = projectTitle.trim().toLowerCase();
+
+      const exact = projects.find((item: any) => (item?.title ?? '').toLowerCase() === normalized);
+      if (exact?.id) return { id: exact.id, title: exact.title };
+
+      const contains = projects.find((item: any) => (item?.title ?? '').toLowerCase().includes(normalized));
+      if (contains?.id) return { id: contains.id, title: contains.title };
+    } catch {
+      return null;
+    }
+
+    return null;
+  };
+
+  useEffect(() => {
+    if (pendingForm !== 'DELETE_CLIENT' && pendingForm !== 'DELETE_PROJECT') {
+      return;
+    }
+
+    let cancelled = false;
+    const headers = getAuthHeaders();
+
+    const loadDeleteOptions = async () => {
+      setDeleteOptionsLoading(true);
+      setDeleteOptionsError(null);
+
+      try {
+        const [clientsResponse, projectsResponse] = await Promise.all([
+          fetch('/api/clients?limit=100', { headers, credentials: 'include' }),
+          fetch('/api/projects?limit=100', { headers, credentials: 'include' }),
+        ]);
+
+        if (!clientsResponse.ok || !projectsResponse.ok) {
+          throw new Error('Could not load clients/projects list.');
+        }
+
+        const [clientsPayload, projectsPayload] = await Promise.all([
+          clientsResponse.json(),
+          projectsResponse.json(),
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        const clients = (Array.isArray(clientsPayload) ? clientsPayload : (clientsPayload.data ?? []))
+          .filter((item: any) => typeof item?.id === 'string' && typeof item?.name === 'string')
+          .map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            company: item.company ?? null,
+          })) as DeleteClientOption[];
+
+        const projects = (Array.isArray(projectsPayload) ? projectsPayload : (projectsPayload.data ?? []))
+          .filter((item: any) => typeof item?.id === 'string' && typeof item?.title === 'string')
+          .map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            status: typeof item.status === 'string' ? item.status : undefined,
+            clientName: typeof item.client?.name === 'string' ? item.client.name : undefined,
+          })) as DeleteProjectOption[];
+
+        setDeleteClientOptions(clients);
+        setDeleteProjectOptions(projects);
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
+        const message = error instanceof Error ? error.message : 'Could not load clients/projects list.';
+        setDeleteOptionsError(message);
+      } finally {
+        if (!cancelled) {
+          setDeleteOptionsLoading(false);
+        }
+      }
+    };
+
+    void loadDeleteOptions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pendingForm]);
+
   const isValidEmail = (value: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   const isValidDate = (value: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(value);
 
@@ -446,7 +559,25 @@ export default function ChatbotAI() {
       }
 
       if (pendingForm === 'DELETE_CLIENT') {
-        const clientId = (formData.clientId ?? '').trim();
+        let clientId = (formData.clientId ?? '').trim();
+        if (!clientId) {
+          const candidateName = (formData.clientName ?? formData.name ?? '').trim();
+          if (candidateName) {
+            const matchedClient = await findClientByName(candidateName);
+            if (matchedClient?.id) {
+              clientId = matchedClient.id;
+            }
+          }
+        }
+
+        if (!clientId) {
+          setFormErrors((prev: Record<string, string>) => ({
+            ...prev,
+            clientId: t('chatbot.validation_id_required'),
+          }));
+          setFormSubmitting(false);
+          return;
+        }
 
         await deleteWithFallback([`/api/clients/${clientId}`]);
         setMessages((prev: ChatMessage[]) => [
@@ -456,7 +587,25 @@ export default function ChatbotAI() {
       }
 
       if (pendingForm === 'DELETE_PROJECT') {
-        const projectId = (formData.projectId ?? '').trim();
+        let projectId = (formData.projectId ?? '').trim();
+        if (!projectId) {
+          const candidateTitle = (formData.projectTitle ?? formData.title ?? formData.name ?? '').trim();
+          if (candidateTitle) {
+            const matchedProject = await findProjectByTitle(candidateTitle);
+            if (matchedProject?.id) {
+              projectId = matchedProject.id;
+            }
+          }
+        }
+
+        if (!projectId) {
+          setFormErrors((prev: Record<string, string>) => ({
+            ...prev,
+            projectId: t('chatbot.validation_id_required'),
+          }));
+          setFormSubmitting(false);
+          return;
+        }
 
         await deleteWithFallback([`/api/projects/${projectId}`]);
         setMessages((prev: ChatMessage[]) => [
@@ -1571,6 +1720,43 @@ export default function ChatbotAI() {
           border-color: #f87171;
         }
 
+        .cb-select-list {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          max-height: 220px;
+          overflow-y: auto;
+          padding-right: 2px;
+        }
+
+        .cb-select-item {
+          display: flex;
+          gap: 8px;
+          align-items: flex-start;
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          background: var(--surface);
+          padding: 8px;
+          cursor: pointer;
+        }
+
+        .cb-select-item input {
+          margin-top: 2px;
+        }
+
+        .cb-select-item-main {
+          font-size: 12px;
+          color: var(--text);
+          line-height: 1.35;
+        }
+
+        .cb-select-item-sub {
+          display: block;
+          font-size: 11px;
+          color: var(--muted);
+          margin-top: 1px;
+        }
+
         .cb-form-actions {
           display: flex;
           gap: 8px;
@@ -1892,24 +2078,92 @@ export default function ChatbotAI() {
 
                   {pendingForm === 'DELETE_CLIENT' && (
                     <>
-                      <input
-                        className={formErrors.clientId ? 'has-error' : ''}
-                        placeholder="Client ID"
-                        value={formData.clientId ?? ''}
-                        onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, clientId: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { clientId: _, ...rest } = prev; return rest; }); }}
-                      />
+                      {deleteOptionsLoading && <p className="cb-field-error">Loading clients...</p>}
+                      {deleteOptionsError && <p className="cb-field-error">{deleteOptionsError}</p>}
+                      {!deleteOptionsLoading && deleteClientOptions.length > 0 && (
+                        <div className="cb-select-list">
+                          {deleteClientOptions.map((client) => {
+                            const checked = (formData.clientId ?? '') === client.id;
+                            return (
+                              <label key={client.id} className="cb-select-item">
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={() => {
+                                    setFormData((prev: Record<string, string>) => ({
+                                      ...prev,
+                                      clientId: checked ? '' : client.id,
+                                    }));
+                                    setFormErrors((prev: Record<string, string>) => {
+                                      const { clientId: _, ...rest } = prev;
+                                      return rest;
+                                    });
+                                  }}
+                                />
+                                <span className="cb-select-item-main">
+                                  {client.name}
+                                  {client.company ? <span className="cb-select-item-sub">{client.company}</span> : null}
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {!deleteOptionsLoading && deleteClientOptions.length === 0 && (
+                        <input
+                          className={formErrors.clientId ? 'has-error' : ''}
+                          placeholder="Client ID"
+                          value={formData.clientId ?? ''}
+                          onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, clientId: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { clientId: _, ...rest } = prev; return rest; }); }}
+                        />
+                      )}
                       {formErrors.clientId && <p className="cb-field-error">{formErrors.clientId}</p>}
                     </>
                   )}
 
                   {pendingForm === 'DELETE_PROJECT' && (
                     <>
-                      <input
-                        className={formErrors.projectId ? 'has-error' : ''}
-                        placeholder="Project ID"
-                        value={formData.projectId ?? ''}
-                        onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, projectId: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { projectId: _, ...rest } = prev; return rest; }); }}
-                      />
+                      {deleteOptionsLoading && <p className="cb-field-error">Loading projects...</p>}
+                      {deleteOptionsError && <p className="cb-field-error">{deleteOptionsError}</p>}
+                      {!deleteOptionsLoading && deleteProjectOptions.length > 0 && (
+                        <div className="cb-select-list">
+                          {deleteProjectOptions.map((project) => {
+                            const checked = (formData.projectId ?? '') === project.id;
+                            return (
+                              <label key={project.id} className="cb-select-item">
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={() => {
+                                    setFormData((prev: Record<string, string>) => ({
+                                      ...prev,
+                                      projectId: checked ? '' : project.id,
+                                    }));
+                                    setFormErrors((prev: Record<string, string>) => {
+                                      const { projectId: _, ...rest } = prev;
+                                      return rest;
+                                    });
+                                  }}
+                                />
+                                <span className="cb-select-item-main">
+                                  {project.title}
+                                  <span className="cb-select-item-sub">
+                                    {project.status ?? 'UNKNOWN'}{project.clientName ? ` - ${project.clientName}` : ''}
+                                  </span>
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {!deleteOptionsLoading && deleteProjectOptions.length === 0 && (
+                        <input
+                          className={formErrors.projectId ? 'has-error' : ''}
+                          placeholder="Project ID"
+                          value={formData.projectId ?? ''}
+                          onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, projectId: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { projectId: _, ...rest } = prev; return rest; }); }}
+                        />
+                      )}
                       {formErrors.projectId && <p className="cb-field-error">{formErrors.projectId}</p>}
                     </>
                   )}
