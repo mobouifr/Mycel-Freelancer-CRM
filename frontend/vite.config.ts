@@ -40,13 +40,6 @@ export default defineConfig(({ mode }) => ({
             return 'projects-pages'
           }
 
-          if (id.includes('/src/pages/proposals/') || id.includes('/src/pages/Proposals.tsx')) {
-            return 'proposals-pages'
-          }
-
-          if (id.includes('/src/pages/invoices/') || id.includes('/src/pages/Invoices.tsx')) {
-            return 'invoices-pages'
-          }
         },
       },
     },

@@ -41,7 +41,14 @@ export class ClientsService {
     return client;
   }
 
-  async findAll(userId: string, page = 1, limit = 10, search?: string) {
+  async findAll(
+    userId: string,
+    page = 1,
+    limit = 10,
+    search?: string,
+    sortBy = 'createdAt',
+    sortOrder: 'asc' | 'desc' = 'desc',
+  ) {
     const skip = (page - 1) * limit;
     const where: any = { userId };
     if (search?.trim()) {
@@ -51,8 +58,11 @@ export class ClientsService {
         { company: { contains: search.trim(), mode: 'insensitive' } },
       ];
     }
+    const allowedSortFields = ['name', 'company', 'createdAt'];
+    const safeSortBy  = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
+    const safeSortOrd = sortOrder === 'asc' ? 'asc' : 'desc';
     const [data, count] = await Promise.all([
-      this.prisma.client.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.client.findMany({ where, skip, take: limit, orderBy: { [safeSortBy]: safeSortOrd } }),
       this.prisma.client.count({ where }),
     ]);
     return { data, count, page, limit, totalPages: Math.ceil(count / limit) || 1 };
@@ -122,15 +132,4 @@ export class ClientsService {
     return this.prisma.project.findMany({ where: { clientId: id, userId } });
   }
 
-  async getProposals(userId: string, id: string) {
-    const projects = await this.getProjects(userId, id);
-    if (!projects.length) return [];
-    return this.prisma.proposal.findMany({ where: { projectId: { in: projects.map(p => p.id) }, userId } });
-  }
-
-  async getInvoices(userId: string, id: string) {
-    const projects = await this.getProjects(userId, id);
-    if (!projects.length) return [];
-    return this.prisma.invoice.findMany({ where: { projectId: { in: projects.map(p => p.id) }, userId } });
-  }
 }

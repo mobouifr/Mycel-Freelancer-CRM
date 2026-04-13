@@ -51,8 +51,8 @@ describe('ProjectsController', () => {
     const req = { user: { id: 'user-1' } };
     mockProjectsService.findAll.mockResolvedValue([]);
     const result = await controller.findAll(req);
-    expect(result).toEqual({ data: [] });
-    expect(service.findAll).toHaveBeenCalledWith('user-1');
+    expect(result).toEqual([]);
+    expect(service.findAll).toHaveBeenCalledWith('user-1', 1, 10, undefined, undefined, undefined, 'desc');
   });
 
   it('should get one project', async () => {

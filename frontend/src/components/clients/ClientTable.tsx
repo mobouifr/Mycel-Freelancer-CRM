@@ -10,6 +10,9 @@ interface ClientTableProps {
   onEdit?: (client: Client) => void;
   onDelete?: (client: Client) => void;
   onView?: (client: Client) => void;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  onSort?: (field: string) => void;
 }
 
 const CLIENT_TABLE_MIN_WIDTH = 860;
@@ -47,9 +50,22 @@ const CELL_MUTED: CSSProperties = {
   overflowWrap: 'break-word',
 };
 
-export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTableProps) => {
+const SortIcon = ({ field, sortBy, sortOrder }: { field: string; sortBy?: string; sortOrder?: 'asc' | 'desc' }) => {
+  if (field !== sortBy) return <span style={{ opacity: 0.3, marginLeft: 4, fontSize: 9 }}>↕</span>;
+  return <span style={{ marginLeft: 4, fontSize: 9, color: 'var(--accent)' }}>{sortOrder === 'asc' ? '↑' : '↓'}</span>;
+};
+
+export const ClientTable = ({ clients, onEdit, onDelete, onView, sortBy, sortOrder, onSort }: ClientTableProps) => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
+
+  const sortableHeader = (label: string, field: string): CSSProperties => ({
+    ...TABLE_TH,
+    cursor: onSort ? 'pointer' : 'default',
+    userSelect: 'none',
+    color: field === sortBy ? 'var(--text-mid)' : 'var(--text-dim)',
+    transition: 'color .15s',
+  });
 
   if (clients.length === 0) {
     return (
@@ -233,11 +249,17 @@ export const ClientTable = ({ clients, onEdit, onDelete, onView }: ClientTablePr
       >
         <thead>
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
-            <th style={TABLE_TH}>{t('clients.table.name')}</th>
+            <th style={sortableHeader(t('clients.table.name'), 'name')} onClick={() => onSort?.('name')}>
+              {t('clients.table.name')}<SortIcon field="name" sortBy={sortBy} sortOrder={sortOrder} />
+            </th>
             <th style={TABLE_TH}>{t('clients.table.email')}</th>
-            <th style={TABLE_TH}>{t('clients.table.company')}</th>
+            <th style={sortableHeader(t('clients.table.company'), 'company')} onClick={() => onSort?.('company')}>
+              {t('clients.table.company')}<SortIcon field="company" sortBy={sortBy} sortOrder={sortOrder} />
+            </th>
             <th style={TABLE_TH}>{t('clients.table.phone')}</th>
-            <th style={TABLE_TH}>{t('clients.table.created')}</th>
+            <th style={sortableHeader(t('clients.table.created'), 'createdAt')} onClick={() => onSort?.('createdAt')}>
+              {t('clients.table.created')}<SortIcon field="createdAt" sortBy={sortBy} sortOrder={sortOrder} />
+            </th>
             <th style={{ ...TABLE_TH, textAlign: 'right' }}>{t('clients.table.actions')}</th>
           </tr>
         </thead>
