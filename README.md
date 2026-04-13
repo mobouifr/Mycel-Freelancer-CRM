@@ -40,14 +40,26 @@ The platform is named **Mycel** — a reference to mycelium, the fungal network 
 | 42 Login | Name | Role(s) | Responsibilities |
 |---|---|---|---|
 | **mobouifr** | Montassir Bouifraden | Tech Lead · DevOps · Backend · Frontend | CI/CD, Docker Compose maintenance, backend architecture, testing infrastructure (74 tests), server-side sorting and pagination, notifications module, security fixes, dead code audit, bug triage; dashboard widget grid, Calendar and Reminders UI (4-mode calendar, event modal, sticky notes), chatbot UI/UX widget, frontend routing and layout |
-| **oer-refa** | Othmane Er-Refaly | Backend Lead | JWT/HttpOnly-cookie authentication, 42 OAuth integration, Two-Factor Authentication (TOTP + QR code), real-time SSE infrastructure (`globalMutation$` bus), dashboard analytics (revenue, heatmap, activity feed), Reminders/Calendar backend |
+
+| **oer-refa** | Othmane Er-Refaly | Backend Lead · Project Manager / Scrum Master | Project planning and coordination, meeting facilitation, deadline tracking, team communication workflow (Discord, WhatsApp, Linear), risk and blocker management; JWT/HttpOnly-cookie authentication, 42 OAuth integration, Two-Factor Authentication (TOTP + QR code), Prisma schema work flow and migrations, real-time SSE infrastructure (`globalMutation$` bus), dashboard analytics (revenue, heatmap, activity feed), Reminders/Calendar backend |
+
 | **soel-mou** | Solayman | DevOps · Backend | Docker Compose stack (Nginx, Postgres, monitoring, backup), Prisma schema ownership and migrations, AI Chatbot module (DeepSeek API, SSE streaming, context injection, rate limiting), Prometheus/Grafana provisioning, i18n pipeline (EN/FR/ES), Makefile automation |
+
 | **csouita** | Souita | Backend Developer | Gamification module (XP awards, level thresholds, achievements, badges), Notifications SSE architecture, integration of gamification events with notification streams |
+
 | **hichokri** | Hiba Chokri | Frontend Developer | Client and Project list/detail/create/edit pages, React Router background-location modal overlay pattern, form validation with Zod + React Hook Form |
 
 ---
 
 ## Project Management
+
+### Team Organization and Project Management
+
+**Project Manager / Scrum Master: oer-refa (Othmane Er-Refaly)**
+
+- Organized team meetings and planning sessions to align priorities and module ownership.
+- Tracked progress and deadlines across milestones and evaluation checkpoints.
+- Ensured continuous team communication through Discord, WhatsApp, and Linear.
 
 ### Work Organisation
 
@@ -62,8 +74,8 @@ The platform is named **Mycel** — a reference to mycelium, the fungal network 
 | Purpose | Tool |
 |---|---|
 | Version control & code hosting | Git + GitHub (`solacode-SC/freelancer-crm-final-project`) |
-| Issue / task tracking | GitHub branch-per-feature naming + team discussion threads |
-| Communication | Discord — daily async updates, voice calls for blockers, screen-sharing for reviews |
+| Issue / task tracking | Linear + GitHub branch-per-feature naming + team discussion threads |
+| Communication | Discord + WhatsApp + Linear comments — daily async updates, blocker escalation, and planning follow-up |
 | API testing | Postman, cURL |
 | Database inspection | Prisma Studio (`make studio`) |
 | Container management | Docker Desktop / CLI |
