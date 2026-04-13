@@ -74,8 +74,8 @@ export default function NotificationBell() {
       };
       const path = routes[n.targetType];
       if (path) navigate(path);
-      setOpen(false);
     }
+    setOpen(false);
   };
 
   // ── Close on outside click ───────────────────
