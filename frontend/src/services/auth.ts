@@ -34,9 +34,14 @@ export const authService = {
   },
 
   // ── Get current user (session check) ───────
-  async fetchCurrentUser(): Promise<User> {
-    const { data } = await api.get<User>('/auth/me');
-    return data;
+  // validateStatus accepts 401 so axios does not reject — prevents the
+  // browser from logging a red XHR error when no session exists yet.
+  async fetchCurrentUser(): Promise<User | null> {
+    const res = await api.get<User>('/auth/me', {
+      validateStatus: (s: number) => s < 500,
+    });
+    if (res.status === 401) return null;
+    return res.data;
   },
 
   // ── Update user profile ────────────────────
