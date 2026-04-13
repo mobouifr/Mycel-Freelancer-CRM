@@ -391,8 +391,9 @@ Modules follow the ft_transcendence Surprise evaluation grid. **Major = 2 pts, M
 | 12 | **Additional Browser Support** | Accessibility & i18n | Minor | 1 | Application tested and verified on Google Chrome (primary), Mozilla Firefox, and Microsoft Edge; no browser-specific layout breaks or console errors observed across all core flows | mobouifr, hichokri |
 | 13 | **Gamification System** | Gaming & UX | Minor | 1 | `GamificationService` awards XP on CRM actions; level thresholds follow `xpForLevel(L) = 500 × L²`; achievements (`FIRST_PROJECT`, `LOYAL_CLIENT_3`) and badges (`HIGH_ROLLER`, `EARLY_BIRD`) stored with a unique `(userId, type)` constraint preventing duplicates; XP progress bar and earned achievements displayed on the Growth page | csouita |
 | 14 | **Notification System** | Web | Minor | 1 | Full CRUD: create, list (cursor-paginated), count unread, mark as read, mark all as read, delete, delete all; SSE bell badge in the topbar updates in real time via `EventSource`; deep-link navigation routes the user to the related client or project; 28 dedicated tests | csouita |
+| 15 | **Customizable Dashboard (Module of Choice)** | Modules of Choice | Minor | 1 | `react-grid-layout` powers a fully drag-and-drop, resizable widget grid; users pick from 8 distinct widgets (Revenue KPI, Activity Heatmap, Activity Feed, Project Status Bar, Data Graph, Calendar, Notes, Next Deadline) via a Widget Picker modal; three preset layout templates (Compact / Standard / Analytics) provide a starting configuration; layout changes persist across sessions; mobile fallback replaces drag with up/down reorder buttons; all widgets consume live SSE data for real-time updates without polling | mobouifr, hichokri |
 
-**Total: 2 Major × 2 pts + 12 Minor × 1 pt = 4 + 12 = 16 pts**
+**Total: 2 Major × 2 pts + 13 Minor × 1 pt = 4 + 13 = 17 pts**
 
 ---
 
