@@ -32,7 +32,7 @@ ssl-dev-cert:
 			-keyout docker/ssl/dev/localhost.key \
 			-out docker/ssl/dev/localhost.crt \
 			-days 3650 \
-			-subj "/CN=localhost" \
+			-subj "/C=MA/ST=Casablanca-Settat/L=Casablanca/O=42 School/OU=ft_transcendence/CN=localhost" \
 			-addext "subjectAltName=DNS:localhost,DNS:*.localhost,IP:127.0.0.1" 2>/dev/null; \
 		printf "$(GREEN)Cert generated at docker/ssl/dev/$(RESET)\n"; \
 	else \
