@@ -57,7 +57,7 @@ function ActivityHeatmap() {
           setHeatmapData(response.data);
         }
       })
-      .catch(console.error);
+      .catch(() => {});
 
     return () => {
       cancelled = true;

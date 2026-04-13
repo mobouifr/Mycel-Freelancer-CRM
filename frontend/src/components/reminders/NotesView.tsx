@@ -42,7 +42,7 @@ export default function NotesView() {
   const fetchNotes = () => {
     api.get('/dashboard/notes')
       .then(res => setNotes(res.data))
-      .catch(console.error);
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -66,7 +66,7 @@ export default function NotesView() {
       setNewColor('default');
       setShowNew(false);
     } catch (e) {
-      console.error(e);
+      // silent
     }
   };
 
@@ -75,7 +75,7 @@ export default function NotesView() {
       await api.put(`/dashboard/notes/${id}`, updates);
       fetchNotes();
     } catch (e) {
-      console.error(e);
+      // silent
     }
   };
 
@@ -84,7 +84,7 @@ export default function NotesView() {
       await api.delete(`/dashboard/notes/${id}`);
       fetchNotes();
     } catch (e) {
-      console.error(e);
+      // silent
     }
   };
 

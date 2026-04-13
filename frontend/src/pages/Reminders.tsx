@@ -21,7 +21,7 @@ export default function Reminders() {
   const fetchEvents = useCallback(() => {
     api.get('/dashboard/events')
       .then(res => { if (res.data) setEvents(res.data); })
-      .catch(console.error);
+      .catch(() => {});
   }, []);
 
   useEffect(() => { fetchEvents(); }, [fetchEvents]);

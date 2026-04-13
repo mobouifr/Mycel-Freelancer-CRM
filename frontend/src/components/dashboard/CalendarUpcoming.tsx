@@ -38,7 +38,7 @@ function CalendarUpcoming() {
           setEvents(response.data);
         }
       })
-      .catch(console.error);
+      .catch(() => {});
 
     return () => {
       cancelled = true;

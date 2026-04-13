@@ -75,9 +75,8 @@ function DataGraph() {
             setData(res.data);
           }
         })
-        .catch((err: any) => {
+        .catch(() => {
           if (!cancelled) {
-            console.error('Failed to fetch projects-clients graph:', err);
             setData(DEFAULT_DATA);
           }
         });

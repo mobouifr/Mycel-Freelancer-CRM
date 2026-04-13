@@ -40,7 +40,7 @@ function RevenueKPI() {
     const fetchRevenue = () => {
       api.get('/dashboard/revenue?timeframe=monthly')
         .then(res => { if (!cancelled && res.data) setDashboardData(res.data); })
-        .catch(console.error);
+        .catch(() => {});
     };
 
     fetchRevenue();

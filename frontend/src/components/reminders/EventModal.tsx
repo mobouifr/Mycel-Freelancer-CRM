@@ -78,7 +78,9 @@ function EventModalInner({
       projectTag: projectTag || undefined,
       clientTag: clientTag || undefined,
     });
-    onClose();
+    // onClose() intentionally omitted — the parent's onSave (async) calls
+    // setModalOpen(false) after a successful API call. Removing this prevents
+    // the modal from closing silently when the save fails.
   };
 
   const isEditing = !!initialData?.id;

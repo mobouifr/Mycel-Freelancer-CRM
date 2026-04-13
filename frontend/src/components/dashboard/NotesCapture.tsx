@@ -39,7 +39,7 @@ function NotesCapture() {
       .then(res => {
         if (res.data) setNotes(res.data);
       })
-      .catch(console.error);
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -71,8 +71,8 @@ function NotesCapture() {
       setTag('');
       setEditingId(null);
       setComposerOpen(false);
-    } catch (err) {
-      console.error(err);
+    } catch {
+      // silent
     }
   };
 
@@ -89,8 +89,8 @@ function NotesCapture() {
     try {
       await api.delete(`/dashboard/notes/${id}`);
       fetchNotes();
-    } catch (err) {
-      console.error(err);
+    } catch {
+      // silent
     }
   };
 

@@ -37,7 +37,7 @@ function ActivityFeed() {
           setActivities(res.data);
         }
       })
-      .catch(console.error);
+      .catch(() => {});
 
     return () => {
       isTerminated = true;

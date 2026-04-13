@@ -103,7 +103,7 @@ export default function CalendarView({ events, onEventsChange, onDateChange }: C
       setModalOpen(false);
       setEditingEvent(null);
     } catch (error) {
-      console.error('Failed to save event', error);
+      // silent
     }
   };
 
@@ -113,7 +113,7 @@ export default function CalendarView({ events, onEventsChange, onDateChange }: C
         await api.delete(`/dashboard/events/${editingEvent.id}`);
         onEventsChange();
       } catch (error) {
-        console.error('Failed to delete event', error);
+        // silent
       }
     }
     setModalOpen(false);
