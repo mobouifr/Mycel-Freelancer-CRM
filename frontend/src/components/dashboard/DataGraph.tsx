@@ -227,7 +227,7 @@ function DataGraph() {
 
           {/* Grid lines */}
           {gridLines.map((g, i) => (
-            <g key={i}>
+            <g key={`grid-${g.y}`}>
               <line
                 x1={PAD.left} y1={g.y} x2={size.width - PAD.right} y2={g.y}
                 stroke="var(--border)" strokeWidth="0.5"

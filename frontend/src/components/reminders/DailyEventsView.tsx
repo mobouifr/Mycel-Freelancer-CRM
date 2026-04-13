@@ -62,11 +62,11 @@ export default function DailyEventsView({ date, events, onEventClick }: DailyEve
             {t('calendar.no_events', 'No events for today.')}
           </p>
         ) : (
-          dailyEvents.map((event, index) => {
+          dailyEvents.map((event) => {
             const theme = PRIORITY_THEMES[event.priority as keyof typeof PRIORITY_THEMES] || PRIORITY_THEMES.normal;
             return (
               <div
-                key={`${event.id}-${event.date}-${event.time}-${index}`}
+                key={event.id}
                 onClick={() => onEventClick(event)}
                 style={{
                   padding: 12,

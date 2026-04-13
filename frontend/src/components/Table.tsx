@@ -72,7 +72,7 @@ export default function Table<T extends Record<string, unknown>>({
       ) : (
         data.map((row, i) => (
           <div
-            key={i}
+            key={String(row.id ?? i)}
             onClick={() => onRowClick?.(row)}
             style={{
               display: 'grid',

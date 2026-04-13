@@ -138,10 +138,11 @@ export default function CalendarWeekView({
                         position: 'absolute', top, left: 2, right: 2,
                         height: Math.max(height, 18),
                         background: colors.bg,
+                        borderTop: 'none', borderRight: 'none', borderBottom: 'none',
                         borderLeft: `3px solid ${colors.fg}`,
                         borderRadius: 4, padding: '2px 5px',
                         cursor: 'pointer', overflow: 'hidden',
-                        border: 'none', textAlign: 'left', width: 'calc(100% - 4px)',
+                        textAlign: 'left', width: 'calc(100% - 4px)',
                         transition: 'opacity .12s',
                       }}
                     >

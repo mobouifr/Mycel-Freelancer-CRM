@@ -31,11 +31,13 @@ export default function EventChip({ event, compact, onClick }: EventChipProps) {
       title={`${event.title} · ${event.time}${event.endTime ? ` – ${event.endTime}` : ''}`}
       style={{
         display: 'flex', alignItems: 'center', gap: 4,
-        background: colors.bg, border: 'none', borderRadius: 4,
+        background: colors.bg,
+        borderTop: 'none', borderRight: 'none', borderBottom: 'none',
+        borderLeft: `2px solid ${colors.fg}`,
+        borderRadius: 4,
         padding: compact ? '1px 5px' : '3px 7px',
         cursor: 'pointer', width: '100%', textAlign: 'left',
         transition: 'opacity .12s',
-        borderLeft: `2px solid ${colors.fg}`,
       }}
     >
       {!compact && (

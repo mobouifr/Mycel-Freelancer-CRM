@@ -341,8 +341,8 @@ export default function CalendarWidget({ events: externalEvents, onDayClick }: C
                       left: '50%', transform: 'translateX(-50%)',
                       display: 'flex', gap: 1.5,
                     }}>
-                      {eventsByDate[key].slice(0, 5).map((_, idx) => (
-                        <div key={idx} style={{
+                      {eventsByDate[key].slice(0, 5).map((evt, idx) => (
+                        <div key={`${key}-dot-${evt?.id ?? idx}`} style={{
                           width: dotSize, height: dotSize, borderRadius: '50%',
                           background: 'var(--accent)',
                         }} />
