@@ -1,20 +1,34 @@
+import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+
 export class CreateProjectDto {
-  // Basic project info
+  @IsNotEmpty()
+  @IsString()
   title: string;
+
+  @IsOptional()
+  @IsString()
   description?: string;
 
-  // Status enum aligned with Prisma schema
+  @IsOptional()
+  @IsIn(['ACTIVE', 'COMPLETED', 'PAUSED', 'CANCELLED'])
   status?: 'ACTIVE' | 'COMPLETED' | 'PAUSED' | 'CANCELLED';
 
-  // Optional budget
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
   budget?: number;
 
-  // Optional deadline from frontend form
+  @IsOptional()
+  @IsString()
   deadline?: string;
 
-  // Frontend sends priority but it is not persisted in current Prisma Project model
+  @IsOptional()
+  @IsIn(['HIGH', 'MEDIUM', 'LOW'])
   priority?: 'HIGH' | 'MEDIUM' | 'LOW';
 
-  // (Optional) simple numeric client relation for now
+  @IsOptional()
+  @IsUUID()
   clientId?: string;
 }

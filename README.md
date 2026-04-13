@@ -373,23 +373,26 @@ The platform is named **Mycel** — a reference to mycelium, the fungal network 
 
 ## Modules
 
-Modules follow the ft_transcendence Surprise evaluation grid. **Major = 2 pts, Minor = 1 pt.**
+Modules follow the ft_transcendence Surprise evaluation grid. **Major = 2 pts, Minor = 1 pt. Minimum required: 14 pts.**
 
-| # | Module | Type | Pts | How it was implemented | Developer(s) |
-|---|---|---|---|---|---|
-| 1 | **Two-Factor Authentication & JWT** | Major | 2 | `otplib` generates a per-user TOTP secret stored (encrypted) in the DB; `qrcode` produces a scannable URI; server verifies the 6-digit code before signing and returning a JWT stored as an HttpOnly cookie | oer-refa |
-| 2 | **OAuth 2.0 — 42 Intranet** | Major | 2 | `passport-42` strategy intercepts the 42 callback, exchanges the code for a token, fetches the intra profile, and either finds an existing user by `intraId` or creates a new one; configurable callback URL via env var | oer-refa |
-| 3 | **AI Chatbot with LLM** | Major | 2 | NestJS `ChatbotModule` calls the DeepSeek API with a system prompt that includes the user's live CRM data; the response is streamed token-by-token via a NestJS SSE endpoint using `Observable`; `@nestjs/throttler` enforces per-user request limits | soel-mou |
-| 4 | **Server-Sent Events (Real-Time Updates)** | Major | 2 | `PrismaService` exposes a `globalMutation$` RxJS `Subject`; every service write calls `.next({ model, action })`; dashboard and notification controllers each subscribe with a `filter()` for their relevant models and `map()` to `MessageEvent`; clients use `EventSource` to receive updates | oer-refa, csouita |
-| 5 | **Gamification (XP, Levels, Achievements, Badges)** | Minor | 1 | `GamificationService` holds XP threshold tables; called from project/client services after successful writes; `UserAchievement` and `UserBadge` records have a unique constraint on `(userId, type)` preventing duplicates | csouita |
-| 6 | **Multiple Languages (i18n)** | Minor | 1 | `i18next` initialised in `frontend/src/i18n.ts` with `i18next-browser-languagedetector`; three locale JSON files (EN/FR/ES) loaded via dynamic import; `LanguageSwitcher` component calls `i18n.changeLanguage()` at runtime | soel-mou |
-| 7 | **Monitoring & Observability** | Minor | 1 | `@willsoto/nestjs-prometheus` registers a Prometheus registry and exposes `/api/metrics`; `GlobalMetricsMiddleware` records HTTP method, route, status code, and response time; Grafana dashboards and alert rules provisioned via Docker volume mounts | soel-mou |
-| 8 | **Server-Side Pagination & Sorting** | Minor | 1 | All list endpoints (`/clients`, `/projects`, `/notifications`) accept `take`, `cursor`, `sortBy`, and `sortOrder` query params; Prisma translates these to `orderBy` + cursor pagination; frontend passes params from table header click handlers | mobouifr |
-| 9 | **Automated Database Backups & Restore** | Minor | 1 | A dedicated Alpine container runs `crond`; `backup-db.sh` calls `pg_dump` and writes a gzip file to a named Docker volume; `make db-restore FILE=<path>` runs with an interactive confirmation prompt before overwriting data | soel-mou |
+| # | Module | Category | Type | Pts | How it was implemented | Developer(s) |
+|---|---|---|---|---|---|---|
+| 1 | **Backend Framework (NestJS)** | Web | Minor | 1 | NestJS 10.x with modular architecture (one module per domain), dependency injection, Guards, Pipes, and Interceptors; controllers and services are fully decoupled | oer-refa |
+| 2 | **ORM (Prisma)** | Web | Minor | 1 | Prisma 5.21.1 schema-first ORM; all queries go through a type-safe generated client; migration history tracked in `prisma/migrations`; Prisma Studio exposed via `make studio` | oer-refa |
+| 3 | **OAuth 2.0 — 42 Intranet** | User Management | Minor | 1 | `passport-42` strategy intercepts the 42 callback, exchanges the code for a token, fetches the intra profile, and either finds an existing user by `intraId` or creates a new one; configurable callback URL via env var | oer-refa |
+| 4 | **Two-Factor Authentication** | User Management | Minor | 1 | `otplib` generates a per-user RFC 6238 TOTP secret; `qrcode` produces a scannable URI; server verifies the 6-digit code before issuing a JWT stored as an HttpOnly cookie; routes: `/2fa/generate`, `/2fa/turn-on`, `/2fa/turn-off`, `/2fa/authenticate` | oer-refa |
+| 5 | **LLM System Interface** | Artificial Intelligence | Major | 2 | `ChatbotModule` calls the DeepSeek API with a system prompt that includes the user's live CRM data (10 most recent clients + active projects); responses stream token-by-token via an SSE endpoint using NestJS `Observable`; `@Throttle` enforces 10 req / 5 min per user; `react-markdown` + `rehype-highlight` renders responses with syntax-highlighted code | soel-mou |
+| 6 | **Monitoring System (Prometheus + Grafana)** | DevOps | Major | 2 | `@willsoto/nestjs-prometheus` exposes `/api/metrics`; `GlobalMetricsMiddleware` records HTTP method, route, status code, and response time; `postgres-exporter` collects DB metrics; custom Grafana dashboards and alert rules provisioned via Docker volume mounts; Grafana access secured with credentials | soel-mou |
+| 7 | **Health Check, Backups & Disaster Recovery** | DevOps | Minor | 1 | Dedicated Alpine cron container runs `pg_dump` nightly at 02:00 UTC; output is gzip-compressed into a named Docker volume; `make db-restore FILE=<path>` triggers an interactive confirmation prompt before restoring | soel-mou |
+| 8 | **Frontend Framework (React)** | Web | Minor | 1 | React 19.2 SPA built with Vite 7; lazy-loaded routes with `React.lazy` + `Suspense`; background-location modal overlay pattern keeps list pages mounted and blurred behind modal routes; React Router v7 handles all navigation client-side | mobouifr, hichokri |
+| 9 | **Custom Design System** | Web | Minor | 1 | 20+ shared reusable components exported from `frontend/src/components/index.ts` (Button, Input, Select, Modal, Table, FormWrapper, LoadingSpinner, ErrorMessage, StatCard, NotificationBell, LogoMark, WidgetCard, WidgetGrid, WidgetPicker, CalendarWidget, SegmentedControl, LanguageSwitcher, and more); unified Tailwind design tokens for colour palette, typography, and spacing | mobouifr, hichokri |
+| 10 | **Multiple Languages (i18n)** | Accessibility & i18n | Minor | 1 | `i18next` + `i18next-browser-languagedetector`; three complete locale JSON files (EN/FR/ES); all user-facing strings use translation keys; `LanguageSwitcher` component calls `i18n.changeLanguage()` at runtime with no page reload | mobouifr, hichokri |
+| 11 | **Advanced Search, Filtering, Sorting & Pagination** | Web | Minor | 1 | All list endpoints (`/clients`, `/projects`, `/notifications`) accept `take`, `cursor`, `sortBy`, and `sortOrder` query params; Prisma translates these to `orderBy` + cursor pagination; frontend table header clicks dispatch sort state; maximum page size capped at 100 | mobouifr, hichokri |
+| 12 | **Additional Browser Support** | Accessibility & i18n | Minor | 1 | Application tested and verified on Google Chrome (primary), Mozilla Firefox, and Microsoft Edge; no browser-specific layout breaks or console errors observed across all core flows | mobouifr, hichokri |
+| 13 | **Gamification System** | Gaming & UX | Minor | 1 | `GamificationService` awards XP on CRM actions; level thresholds follow `xpForLevel(L) = 500 × L²`; achievements (`FIRST_PROJECT`, `LOYAL_CLIENT_3`) and badges (`HIGH_ROLLER`, `EARLY_BIRD`) stored with a unique `(userId, type)` constraint preventing duplicates; XP progress bar and earned achievements displayed on the Growth page | csouita |
+| 14 | **Notification System** | Web | Minor | 1 | Full CRUD: create, list (cursor-paginated), count unread, mark as read, mark all as read, delete, delete all; SSE bell badge in the topbar updates in real time via `EventSource`; deep-link navigation routes the user to the related client or project; 28 dedicated tests | csouita |
 
-**Total: 4 Major × 2 pts + 5 Minor × 1 pt = 13 pts**
-
-> Module names and point thresholds should be verified against the official ft_transcendence Surprise subject PDF before the defense.
+**Total: 2 Major × 2 pts + 12 Minor × 1 pt = 4 + 12 = 16 pts**
 
 ---
 
