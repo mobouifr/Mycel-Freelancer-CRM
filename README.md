@@ -39,7 +39,7 @@ The platform is named **Mycel** — a reference to mycelium, the fungal network 
 
 | 42 Login | Name | Role(s) | Responsibilities |
 |---|---|---|---|
-| **mobouifr** | Montassir Bouifraden | Tech Lead · DevOps · Backend · Frontend | CI/CD, Docker Compose maintenance, backend architecture, testing infrastructure (74 tests), server-side sorting and pagination, notifications module, security fixes, dead code audit, bug triage; dashboard widget grid, Calendar and Reminders UI (4-mode calendar, event modal, sticky notes), chatbot UI/UX widget, frontend routing and layout |
+| **mobouifr** | Montassir Bouifraden | Project Owner · Tech Lead · DevOps · Backend · Frontend | Product vision and backlog ownership, feature scope decisions, acceptance criteria definition, evaluation readiness; CI/CD, Docker Compose maintenance, backend architecture, testing infrastructure (74 tests), server-side sorting and pagination, notifications module, security fixes, dead code audit, bug triage; dashboard widget grid, Calendar and Reminders UI (4-mode calendar, event modal, sticky notes), chatbot UI/UX widget, frontend routing and layout |
 
 | **oer-refa** | Othmane Er-Refaly | Backend Lead · Project Manager / Scrum Master | Project planning and coordination, meeting facilitation, deadline tracking, team communication workflow (Discord, WhatsApp, Linear), risk and blocker management; JWT/HttpOnly-cookie authentication, 42 OAuth integration, Two-Factor Authentication (TOTP + QR code), Prisma schema work flow and migrations, real-time SSE infrastructure (`globalMutation$` bus), dashboard analytics (revenue, heatmap, activity feed), Reminders/Calendar backend |
 
@@ -54,6 +54,13 @@ The platform is named **Mycel** — a reference to mycelium, the fungal network 
 ## Project Management
 
 ### Team Organization and Project Management
+
+**Project Owner: mobouifr (Montassir Bouifraden)**
+
+- Defined and maintained the product vision, ensuring the team built the right features in the right priority order.
+- Owned the product backlog: authored feature descriptions, set acceptance criteria, and made final scope decisions when trade-offs arose under deadline pressure.
+- Drove evaluation readiness: maintained the module checklist, coordinated defense rehearsals, and ensured all graded criteria were demonstrable end-to-end.
+- Accountable for the overall technical and functional quality of the final deliverable — final sign-off on what shipped to `main`.
 
 **Project Manager / Scrum Master: oer-refa (Othmane Er-Refaly)**
 
