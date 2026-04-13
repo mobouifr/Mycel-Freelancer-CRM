@@ -62,7 +62,7 @@ The platform is named **Mycel** — a reference to mycelium, the fungal network 
 - Drove evaluation readiness: maintained the module checklist, coordinated defense rehearsals, and ensured all graded criteria were demonstrable end-to-end.
 - Accountable for the overall technical and functional quality of the final deliverable — final sign-off on what shipped to `main`.
 
-**Project Manager / Scrum Master: oer-refa (Othmane Er-Refaly)**
+**Project Manager / Scrum Master: oer-refa (Othmane Er-Refaly) & hichokri (Hiba Chokri)**
 
 - Organized team meetings and planning sessions to align priorities and module ownership.
 - Tracked progress and deadlines across milestones and evaluation checkpoints.
