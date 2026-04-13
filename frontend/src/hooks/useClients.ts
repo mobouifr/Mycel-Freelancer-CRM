@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { clientsService } from '../services/data.service';
 import { type Client } from '../types/client.types';
 import { type ApiError } from '../types/common.types';
-import { useStore } from './useStore';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -17,7 +16,6 @@ export const useClients = (options?: { pageSize?: number }) => {
   const [search, setSearch]         = useState('');
   const [sortBy, setSortBy]         = useState('createdAt');
   const [sortOrder, setSortOrder]   = useState<'asc' | 'desc'>('desc');
-  const { addNotification } = useStore();
 
   // Stable refs so callbacks always read the latest values
   const pageRef      = useRef(page);
@@ -93,7 +91,6 @@ export const useClients = (options?: { pageSize?: number }) => {
   const createClient = useCallback(async (data: any) => {
     try {
       const newClient = await clientsService.create(data);
-      addNotification({ type: 'success', title: 'Client created', message: `"${newClient.name}" was added successfully.` });
       // New item lands on page 1 (ordered by createdAt desc)
       setPage(1);
       await doFetch(1, searchRef.current, sortByRef.current, sortOrderRef.current);
@@ -101,24 +98,23 @@ export const useClients = (options?: { pageSize?: number }) => {
     } catch (err) {
       throw err as ApiError;
     }
-  }, [doFetch, addNotification]);
+  }, [doFetch]);
 
   const updateClient = useCallback(async (id: string, data: any) => {
     try {
       const updatedClient = await clientsService.update(id, data);
-      addNotification({ type: 'info', title: 'Client updated', message: `"${updatedClient.name}" was updated.` });
       await doFetch(pageRef.current, searchRef.current, sortByRef.current, sortOrderRef.current);
       return updatedClient;
     } catch (err) {
       throw err as ApiError;
     }
-  }, [doFetch, addNotification]);
+  }, [doFetch]);
 
   const deleteClient = useCallback(async (id: string) => {
     try {
       const deletedClient = clients.find(c => c.id === id);
       await clientsService.delete(id);
-      addNotification({ type: 'warning', title: 'Client deleted', message: deletedClient ? `"${deletedClient.name}" was removed.` : 'A client was removed.' });
+      
       // If this was the only item on the page, go back one page
       const targetPage = clients.length === 1 && pageRef.current > 1 ? pageRef.current - 1 : pageRef.current;
       if (targetPage !== pageRef.current) setPage(targetPage);
@@ -126,7 +122,7 @@ export const useClients = (options?: { pageSize?: number }) => {
     } catch (err) {
       throw err as ApiError;
     }
-  }, [doFetch, clients, addNotification]);
+  }, [doFetch, clients]);
 
   return {
     clients,

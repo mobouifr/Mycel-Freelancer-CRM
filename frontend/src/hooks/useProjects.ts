@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { projectsService } from '../services/data.service';
 import { type Project } from '../types/project.types';
 import { type ApiError } from '../types/common.types';
-import { useStore } from './useStore';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -18,7 +17,6 @@ export const useProjects = (options?: { pageSize?: number }) => {
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [sortBy, setSortBy]         = useState('createdAt');
   const [sortOrder, setSortOrder]   = useState<'asc' | 'desc'>('desc');
-  const { addNotification } = useStore();
 
   const pageRef        = useRef(page);
   const searchRef      = useRef(search);
@@ -110,38 +108,36 @@ export const useProjects = (options?: { pageSize?: number }) => {
   const createProject = useCallback(async (data: any) => {
     try {
       const newProject = await projectsService.create(data);
-      addNotification({ type: 'success', title: 'Project created', message: `"${newProject.title}" was created successfully.` });
       setPage(1);
       await doFetch(1, searchRef.current, statusRef.current, sortByRef.current, sortOrderRef.current);
       return newProject;
     } catch (err) {
       throw err as ApiError;
     }
-  }, [doFetch, addNotification]);
+  }, [doFetch]);
 
   const updateProject = useCallback(async (id: string, data: any) => {
     try {
       const updatedProject = await projectsService.update(id, data);
-      addNotification({ type: 'info', title: 'Project updated', message: `"${updatedProject.title}" was updated.` });
       await doFetch(pageRef.current, searchRef.current, statusRef.current, sortByRef.current, sortOrderRef.current);
       return updatedProject;
     } catch (err) {
       throw err as ApiError;
     }
-  }, [doFetch, addNotification]);
+  }, [doFetch]);
 
   const deleteProject = useCallback(async (id: string) => {
     try {
       const deletedProject = projects.find(p => p.id === id);
       await projectsService.delete(id);
-      addNotification({ type: 'warning', title: 'Project deleted', message: deletedProject ? `"${deletedProject.title}" was removed.` : 'A project was removed.' });
+      
       const targetPage = projects.length === 1 && pageRef.current > 1 ? pageRef.current - 1 : pageRef.current;
       if (targetPage !== pageRef.current) setPage(targetPage);
       await doFetch(targetPage, searchRef.current, statusRef.current, sortByRef.current, sortOrderRef.current);
     } catch (err) {
       throw err as ApiError;
     }
-  }, [doFetch, projects, addNotification]);
+  }, [doFetch, projects]);
 
   return {
     projects,

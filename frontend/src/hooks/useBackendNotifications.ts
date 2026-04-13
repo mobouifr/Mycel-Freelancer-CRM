@@ -67,9 +67,37 @@ export function useBackendNotifications() {
   useEffect(() => {
     alive.current = true;
     poll();
+
+    let sse: EventSource | null = null;
+    
+    const startSSE = () => {
+      if (!alive.current) return;
+      const url = `${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/notifications/realtime`;
+      sse = new EventSource(url, { withCredentials: true });
+      
+      sse.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data.refresh) {
+            poll(); // instantly fetch new notifications
+          }
+        } catch(err) { /* ignore parse errors */ }
+      };
+      
+      sse.onerror = () => {
+        sse?.close();
+        if (alive.current) {
+          setTimeout(startSSE, 10000); // Auto-reconnect silently
+        }
+      };
+    };
+    
+    startSSE();
+
     return () => {
       alive.current = false;
       if (timerRef.current) clearTimeout(timerRef.current);
+      if (sse) sse.close();
     };
   }, [poll]);
 

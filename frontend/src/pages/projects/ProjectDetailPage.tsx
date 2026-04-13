@@ -15,7 +15,6 @@ export const ProjectDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
-  const { addNotification } = useStore();
 
   // Use data passed via router state (from list page) — instant, no API call needed.
   // Fall back to fetching only when accessing the URL directly.
@@ -46,11 +45,6 @@ export const ProjectDetailPage = () => {
     try {
       await projectsService.updateStatus(id, newStatus);
       setProject({ ...project, status: newStatus });
-      addNotification({
-        type: 'info',
-        title: t('projects.updated'),
-        message: `"${project.title}" status changed to ${newStatus}.`,
-      });
     } catch (err: any) {
       alert(err.message || t('projects.update_failed'));
     }
