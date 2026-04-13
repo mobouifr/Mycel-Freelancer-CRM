@@ -47,47 +47,47 @@ describe('GamificationService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should award base XP and level up from Level 1 to Level 2', async () => {
+  it('should award XP but NOT level up when total XP stays below next threshold', async () => {
     const userId = 'user-uuid-1';
-    // Arrange: Mock a brand new user with 0 XP
-    mockPrismaService.user.findUnique.mockResolvedValue({ id: userId, xp: 0, level: 1 });
+    // Level formula: xpForLevel(L) = 500 * L^2
+    // Level 1 = 500 XP, Level 2 = 2000 XP, Level 3 = 4500 XP
+    //
+    // Arrange: User is at Level 1 with 500 XP (exactly on the Level 1 threshold).
+    // Award a 'medium' project: 500 * 0.8 = 400 XP.
+    // New total: 900 XP — still below 2000, so they stay Level 1.
+    mockPrismaService.user.findUnique.mockResolvedValue({ id: userId, xp: 500, level: 1 });
     mockPrismaService.user.update.mockResolvedValue({});
 
-    // Act: Complete a 'medium' priority project
-    // 500 base XP * 0.8 multiplier = 400 XP total.
     const result = await service.awardProjectCompletionXp(userId, 0, 'medium');
 
-    // Assert: Check the math
     expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({ where: { id: userId } });
     expect(result.xpAwarded).toBe(400);
-    expect(result.newTotalXp).toBe(400);
-    expect(result.newLevel).toBe(1); // 400 XP means Level 1 (needs 500 for Level 2)
+    expect(result.newTotalXp).toBe(900);
+    expect(result.newLevel).toBe(1);    // 900 < 2000, stays Level 1
     expect(result.leveledUp).toBe(false);
-    
-    // Ensure it sent the right save command to the database
+
     expect(mockPrismaService.user.update).toHaveBeenCalledWith({
       where: { id: userId },
-      data: { xp: 400, level: 1 },
+      data: { xp: 900, level: 1 },
     });
   });
 
-  it('should award XP but NOT level up if the threshold is not met', async () => {
+  it('should award XP but NOT level up from Level 2 when threshold not met', async () => {
     const userId = 'user-uuid-3';
-    // Arrange: Mock a Level 2 user who currently has 1000 XP
-    // (They need 2000 XP to reach Level 3)
-    mockPrismaService.user.findUnique.mockResolvedValue({ id: userId, xp: 1000, level: 2 });
+    // Level formula: Level 2 = 2000 XP, Level 3 = 4500 XP.
+    //
+    // Arrange: User is at Level 2 with 2000 XP.
+    // Award a 'low' project: 500 * 0.5 = 250 XP.
+    // New total: 2250 XP — below 4500, so they stay Level 2.
+    mockPrismaService.user.findUnique.mockResolvedValue({ id: userId, xp: 2000, level: 2 });
     mockPrismaService.user.update.mockResolvedValue({});
 
-    // Act: Complete a 'low' priority project
-    // 500 base XP * 0.5 multiplier = 250 XP.
-    // 1000 + 250 = 1250 total XP.
     const result = await service.awardProjectCompletionXp(userId, 0, 'low');
 
-    // Assert: Check the math
     expect(result.xpAwarded).toBe(250);
-    expect(result.newTotalXp).toBe(1250);
-    expect(result.newLevel).toBe(2); // 1250 is less than 2000, so they stay Level 2
-    expect(result.leveledUp).toBe(false); 
+    expect(result.newTotalXp).toBe(2250);
+    expect(result.newLevel).toBe(2);    // 2250 < 4500, stays Level 2
+    expect(result.leveledUp).toBe(false);
   });
 
   describe('checkAchievementsAndBadges', () => {
@@ -119,7 +119,7 @@ describe('GamificationService', () => {
       });
       
       // Mock count to return something else for total projects, but 3 for client projects
-      mockPrismaService.project.count.mockImplementation((args) => {
+      mockPrismaService.project.count.mockImplementation((args: { where?: { clientId?: string } }) => {
         if (args?.where?.clientId) return 3; // 3 projects for this client
         return 5; // 5 total projects
       });

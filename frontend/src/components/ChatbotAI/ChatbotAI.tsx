@@ -247,6 +247,7 @@ export default function ChatbotAI() {
         const response = await fetch(path, {
           method: 'POST',
           headers: getAuthHeaders(true),
+          credentials: 'include',
           body: JSON.stringify(payload),
         });
 
@@ -272,6 +273,7 @@ export default function ChatbotAI() {
         const response = await fetch(path, {
           method: 'DELETE',
           headers: getAuthHeaders(),
+          credentials: 'include',
         });
 
         if (response.ok) {
@@ -326,7 +328,7 @@ export default function ChatbotAI() {
 
     for (const path of paths) {
       try {
-        const response = await fetch(path, { headers });
+        const response = await fetch(path, { headers, credentials: 'include' });
         if (!response.ok) continue;
         const payload = await response.json();
         const clients = Array.isArray(payload) ? payload : (payload.data ?? []);
@@ -658,20 +660,21 @@ export default function ChatbotAI() {
     let reply = '';
 
     try {
-      const token = localStorage.getItem('token');
       const streamResponse = await fetch('/api/chatbot/stream', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ message: trimmed }),
       });
 
       if (streamResponse.status === 429) {
-        const retryAfter = Number(streamResponse.headers.get('retry-after') ?? '0');
-        reply = buildRateLimitMessage(Number.isFinite(retryAfter) ? retryAfter : undefined);
+        const retryAfterHeader = streamResponse.headers.get('retry-after');
+        const retryAfterSeconds = retryAfterHeader !== null ? Number(retryAfterHeader) : undefined;
+        reply = buildRateLimitMessage(
+          retryAfterSeconds !== undefined && Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
+            ? retryAfterSeconds
+            : undefined,
+        );
         setMessages((prev: ChatMessage[]) => [...prev, { role: 'assistant', content: reply }]);
         setLoading(false);
         return;

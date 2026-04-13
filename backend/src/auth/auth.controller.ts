@@ -182,6 +182,7 @@ export class AuthController {
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
-    return { message: 'Logged in successfully', user };
+    const { passwordHash, twoFactorSecret, ...safeUser } = user;
+    return { message: 'Logged in successfully', user: safeUser };
   }
 }

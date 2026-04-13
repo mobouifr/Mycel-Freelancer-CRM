@@ -238,7 +238,7 @@ export default function Settings() {
             <div>
               <SectionTitle title={t('settings.twofa_title')} sub={t('settings.twofa_subtitle')} />
               <div style={{
-                background: 'var(--surface-1)',
+                background: 'var(--surface)',
                 border: '1px solid var(--border)',
                 borderRadius: 8,
                 padding: '24px',

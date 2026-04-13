@@ -13,15 +13,15 @@ export default function TwoFactorAuth() {
   const userId = searchParams.get('userId');
   const { t } = useTranslation();
   const { checkSession, isAuthenticated, isLoading } = useAuth();
-
-  // Already authenticated — bounce to dashboard
-  if (!isLoading && isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { mode: themeMode, cycleQuickTheme, theme } = useTheme();
+
+  // Already authenticated — bounce to dashboard (hooks must all be above this)
+  if (!isLoading && isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
