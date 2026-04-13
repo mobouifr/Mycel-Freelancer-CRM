@@ -44,7 +44,7 @@ up: ssl-dev-cert
 	@$(DOCKER_COMPOSE) up -d --build
 	@printf "$(GREEN)Services running$(RESET)\n"
 	@printf "  Frontend  -> $(CYAN)https://localhost$(RESET)  (accept self-signed cert on first visit)\n"
-	@printf "  Backend   -> http://localhost:3001\n"
+	@printf "  Backend   -> http://localhost:3001/api/health\n"
 	@printf "  Adminer   -> http://localhost:8080\n"
 	@printf "  Grafana   -> http://localhost:3002\n"
 

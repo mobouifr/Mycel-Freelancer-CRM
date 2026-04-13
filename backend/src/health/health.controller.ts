@@ -5,6 +5,16 @@ import { PrismaService } from '../prisma/prisma.service';
 export class HealthController {
   constructor(private readonly prisma: PrismaService) {}
 
+  @Get()
+  root() {
+    return {
+      status: 'ok',
+      message: 'API is running',
+      docsHint: 'Use /api/health for database health',
+      timestamp: new Date().toISOString(),
+    };
+  }
+
   @Get('/health')
   async check() {
     let dbStatus = 'down';
