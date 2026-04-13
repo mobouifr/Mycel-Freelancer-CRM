@@ -132,10 +132,11 @@ export default function CalendarDayView({
                     position: 'absolute', top, left: 4, right: 4,
                     height: Math.max(height, 22),
                     background: colors.bg,
+                    borderTop: 'none', borderRight: 'none', borderBottom: 'none',
                     borderLeft: `3px solid ${colors.fg}`,
                     borderRadius: 6, padding: '4px 8px',
                     cursor: 'pointer', overflow: 'hidden',
-                    border: 'none', textAlign: 'left',
+                    textAlign: 'left',
                     width: 'calc(100% - 8px)',
                   }}
                 >
