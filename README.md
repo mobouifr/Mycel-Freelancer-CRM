@@ -68,6 +68,12 @@ The platform is named **Mycel** — a reference to mycelium, the fungal network 
 - Tracked progress and deadlines across milestones and evaluation checkpoints.
 - Ensured continuous team communication through Discord, WhatsApp, and Linear.
 
+**Technical Lead / Architect: soel-mou (Solayman El Mouden)**
+- I define the system architecture, set clear module boundaries, and document the key design decisions.
+- I mentor developers daily, unblock technical issues quickly, and encourage ownership across the team.
+- I review critical pull requests myself, especially those touching security, performance, and core architecture.
+- I continuously refine our practices through retrospectives so code quality and team efficiency keep improving.
+
 ### Work Organisation
 
 - **Domain ownership:** Each developer owned one or more feature domains end-to-end (frontend + backend). Boundaries were kept explicit so parallel development avoided merge conflicts.
