@@ -1,5 +1,4 @@
 import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class CreateProjectDto {
   @IsNotEmpty()
@@ -14,10 +13,10 @@ export class CreateProjectDto {
   @IsIn(['ACTIVE', 'COMPLETED', 'PAUSED', 'CANCELLED'])
   status?: 'ACTIVE' | 'COMPLETED' | 'PAUSED' | 'CANCELLED';
 
+  // Frontend Zod schema ensures budget is always sent as a JS number.
   @IsOptional()
   @IsNumber()
   @Min(0)
-  @Type(() => Number)
   budget?: number;
 
   @IsOptional()
