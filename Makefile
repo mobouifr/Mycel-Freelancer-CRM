@@ -155,6 +155,25 @@ db-restore:
 	@printf "$(GREEN)Restored from $(FILE)$(RESET)\n"
 
 # =============================================================================
+# PRISMA / DATABASE MANAGEMENT
+# =============================================================================
+
+## migrate        : Apply pending Prisma migrations inside the backend container
+migrate:
+	@$(BACKEND_EXEC) npx prisma migrate deploy
+	@printf "$(GREEN)Migrations applied$(RESET)\n"
+
+## generate       : Regenerate Prisma client TypeScript types
+generate:
+	@$(BACKEND_EXEC) npx prisma generate
+	@printf "$(GREEN)Prisma client generated$(RESET)\n"
+
+## seed           : Load sample data into the database
+seed:
+	@$(BACKEND_EXEC) npx prisma db seed
+	@printf "$(GREEN)Database seeded$(RESET)\n"
+
+# =============================================================================
 # MONITORING
 # =============================================================================
 
@@ -199,5 +218,6 @@ help:
 		prod-up prod-down prod-restart prod-logs prod-status \
 		ssl-dev-cert ssl-init ssl-renew ssl-status \
 		db-shell db-backup db-restore \
+		migrate generate seed \
 		up-monitoring down-monitoring \
 		shell-backend help

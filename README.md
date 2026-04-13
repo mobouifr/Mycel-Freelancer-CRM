@@ -541,12 +541,10 @@ make down
 | `make down` | Stop all services |
 | `make restart` | Rebuild and restart everything |
 | `make logs` | Stream live logs from all containers |
-| `make ps` | Show container status |
-| `make studio` | Open Prisma Studio database GUI at http://localhost:5555 |
+| `make status` | Show container status |
 | `make migrate` | Apply pending Prisma migrations |
 | `make generate` | Regenerate Prisma client TypeScript types |
 | `make seed` | Load sample data into the database |
-| `make reset-db` | ⚠️ Wipe all data and re-apply migrations (dev only) |
 | `make db-shell` | Open a `psql` console inside the PostgreSQL container |
 | `make db-backup` | Trigger a manual database backup |
 | `make db-restore FILE=<path>` | Restore from a backup file (interactive confirmation) |

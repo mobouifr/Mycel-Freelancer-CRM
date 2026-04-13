@@ -31,12 +31,12 @@ async function main() {
 
     const user = await prisma.user.upsert({
         where: { id: IDS.user },
-        update: { email: 'demo@crm.com', name: 'Demo User', password: hashedPassword },
+        update: { email: 'demo@crm.com', name: 'Demo User', passwordHash: hashedPassword },
         create: {
             id: IDS.user,
             email: 'demo@crm.com',
             name: 'Demo User',
-            password: hashedPassword,
+            passwordHash: hashedPassword,
         },
     });
     console.log(`  ✔ User:     ${user.name} (${user.email})`);
