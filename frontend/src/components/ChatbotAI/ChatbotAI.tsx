@@ -137,7 +137,7 @@ export default function ChatbotAI() {
   ];
 
   const startResize = (clientX: number, clientY: number) => {
-    if (fullscreenActive || isMobile || !panelRef.current) return;
+    if (fullscreenActive || !panelRef.current) return;
 
     const rect = panelRef.current.getBoundingClientRect();
     const startWidth = rect.width;
@@ -175,6 +175,30 @@ export default function ChatbotAI() {
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     window.addEventListener('touchend', stopResize);
   };
+
+  useEffect(() => {
+    if (!panelSize || fullscreenActive) return;
+
+    const clampPanelSize = () => {
+      const viewportW = window.innerWidth;
+      const viewportH = window.innerHeight;
+      const maxWidth = Math.max(280, Math.floor(viewportW - 16));
+      const maxHeight = Math.max(320, Math.floor(viewportH - 90));
+      const minWidth = Math.min(320, maxWidth);
+      const minHeight = Math.min(380, maxHeight);
+
+      const nextWidth = Math.min(maxWidth, Math.max(minWidth, panelSize.width));
+      const nextHeight = Math.min(maxHeight, Math.max(minHeight, panelSize.height));
+
+      if (nextWidth !== panelSize.width || nextHeight !== panelSize.height) {
+        setPanelSize({ width: nextWidth, height: nextHeight });
+      }
+    };
+
+    clampPanelSize();
+    window.addEventListener('resize', clampPanelSize);
+    return () => window.removeEventListener('resize', clampPanelSize);
+  }, [panelSize, fullscreenActive]);
 
 
   const getAuthHeaders = (json = false): Record<string, string> => {
@@ -924,6 +948,8 @@ export default function ChatbotAI() {
           bottom: 72px;
           width: min(400px, calc(100vw - 24px));
           height: min(560px, calc(100vh - 140px));
+          max-width: calc(100vw - 12px);
+          max-height: calc(100dvh - 86px);
           border: 1px solid var(--border);
           border-radius: 10px;
           background: var(--surface);
@@ -1579,10 +1605,6 @@ export default function ChatbotAI() {
             width: min(360px, calc(100vw - 20px));
             height: min(520px, calc(100vh - 130px));
           }
-
-          .chatbot-ai-resize-handle {
-            display: none;
-          }
         }
 
         @media (max-width: 767px) {
@@ -1597,7 +1619,7 @@ export default function ChatbotAI() {
           }
 
           .chatbot-ai-panel {
-            right: -56px;
+            right: 0;
             bottom: 60px;
             width: calc(100vw - 16px);
             height: min(72vh, calc(100vh - 98px));
@@ -1620,20 +1642,17 @@ export default function ChatbotAI() {
 
         @media (max-width: 479px) {
           .chatbot-ai-root {
-            right: 0;
-            bottom: 0;
+            right: max(8px, env(safe-area-inset-right, 0px));
+            bottom: max(8px, env(safe-area-inset-bottom, 0px));
           }
 
           .chatbot-ai-panel {
-            position: fixed;
-            inset: 0;
-            width: 100vw;
-            height: 100dvh;
-            max-width: 100vw;
-            max-height: 100dvh;
-            border-radius: 0;
-            right: auto;
-            bottom: auto;
+            position: absolute;
+            right: 0;
+            bottom: 58px;
+            width: min(100vw - 16px, 380px);
+            height: min(74vh, calc(100dvh - 84px));
+            border-radius: 12px;
           }
         }
 
@@ -1681,7 +1700,7 @@ export default function ChatbotAI() {
             }}
             className={`chatbot-ai-panel ${fullscreenActive ? 'fullscreen' : ''} ${isResizing ? 'resizing' : ''}`}
             aria-label="AI Assistant chat panel"
-            style={panelSize && !fullscreenActive ? { width: `${panelSize.width}px`, height: `${panelSize.height}px` } : undefined}
+            style={panelSize && !fullscreenActive && !isMobile ? { width: `${panelSize.width}px`, height: `${panelSize.height}px` } : undefined}
           >
             <header className="chatbot-ai-header">
               <h3 className="chatbot-ai-title">{t('chatbot.title')}</h3>
@@ -1951,7 +1970,7 @@ export default function ChatbotAI() {
               </button>
             </form>
 
-            {!fullscreenActive && !isMobile && (
+            {!fullscreenActive && (
               <button
                 type="button"
                 className="chatbot-ai-resize-handle"
