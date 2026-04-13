@@ -1,5 +1,5 @@
 // API client configuration
-import axios, { type AxiosInstance, AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import axios, { type AxiosInstance, AxiosError } from 'axios';
 import { type ApiError } from '../types/common.types';
 
 // Create axios instance
@@ -11,20 +11,8 @@ const apiClient: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
-// Request interceptor - add auth token when available
-apiClient.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    // TODO: Add JWT token from localStorage when auth is implemented
-    const token = localStorage.getItem('token');
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+// Auth is handled via HttpOnly cookies — the browser attaches
+// the jwt cookie automatically because withCredentials is true.
 
 // Response interceptor - handle errors
 apiClient.interceptors.response.use(

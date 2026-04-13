@@ -10,11 +10,8 @@ export { default as ErrorMessage } from './ErrorMessage';
 export { default as LogoMark } from './LogoMark';
 export { default as Footer } from './Footer';
 export { default as StatCard } from './StatCard';
-export { default as AreaChart } from './AreaChart';
 export { default as MyceliumCanvas } from './MyceliumCanvas';
 export { default as CalendarWidget } from './CalendarWidget';
-export { default as NotesWidget } from './NotesWidget';
-export { default as RevenueChart } from './RevenueChart';
 export { default as NotificationBell } from './NotificationBell';
 
 /* ─── Dashboard Widget System ─── */

@@ -11,13 +11,11 @@ import ProtectedRoute from './routes/ProtectedRoute';
 
 // ── Pages ────────────────────────────────────
 const Login = lazy(() => import('./pages/Login'));
-const Signup = lazy(() => import('./pages/Signup'));
+const Signup = lazy(() => import('./pages/Login'));
 const OAuthCallback = lazy(() => import('./pages/OAuthCallback'));
 const TwoFactorAuth = lazy(() => import('./pages/TwoFactorAuth'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Settings = lazy(() => import('./pages/Settings'));
-const Clients = lazy(() => import('./pages/Clients'));
-const Projects = lazy(() => import('./pages/Projects'));
 const ClientsListPage = lazy(() =>
   import('./pages/clients/ClientsListPage').then((module) => ({ default: module.ClientsListPage })),
 );
@@ -78,8 +76,6 @@ function AppRoutes() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/clients/*" element={<Clients />} />
-            <Route path="/projects/*" element={<Projects />} />
             <Route path="/reminders/*" element={<Reminders />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/growth" element={<Growth />} />

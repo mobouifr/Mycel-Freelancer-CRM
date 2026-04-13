@@ -37,7 +37,6 @@ export class DashboardService {
     
     // Arrays for chart
     const monthlyRevenue = new Array(12).fill(0);
-    const weeklyRevenue = new Array(7).fill(0); // Optional for later
     
     let currentRevenue = 0;
     let previousRevenue = 0;
