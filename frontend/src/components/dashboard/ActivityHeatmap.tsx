@@ -9,7 +9,7 @@ import api from '../../services/api';
    Wider widget = more weeks of history.
 ───────────────────────────────────────────── */
 
-const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 function getIntensity(count: number): number {
   if (count === 0) return 0;
@@ -113,7 +113,8 @@ function ActivityHeatmap() {
     const todayKey = today.toISOString().slice(0, 10);
     const halfWeeks = Math.floor(weeks / 2);
     const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() - startDate.getDay() - halfWeeks * 7);
+    const mondayOffset = (startDate.getDay() + 6) % 7;
+    startDate.setDate(startDate.getDate() - mondayOffset - halfWeeks * 7);
 
     for (let w = 0; w < weeks; w++) {
       for (let d = 0; d < 7; d++) {
@@ -201,7 +202,7 @@ function ActivityHeatmap() {
 
           {/* Day-of-week labels (show M, W, F when cells are small; all when large) */}
           {DAY_LABELS.map((lbl, i) => {
-            const show = cellStep >= 14 || i === 1 || i === 3 || i === 5;
+            const show = cellStep >= 14 || i === 0 || i === 2 || i === 4;
             if (!show) return null;
             return (
               <text
