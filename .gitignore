@@ -20,5 +20,4 @@ docker/ssl/*.crt
 docker/ssl/
 
 # Ignore all markdown and text files
-*.md
 *.txt
