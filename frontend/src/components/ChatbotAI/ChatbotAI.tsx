@@ -798,7 +798,11 @@ export default function ChatbotAI() {
 
     // Detect intent locally first
     const localIntent = detectLocalIntent(trimmed);
-    const shouldForceFormInput = localIntent === 'CLIENT' || localIntent === 'PROJECT';
+    const shouldForceFormInput =
+      localIntent === 'CLIENT' ||
+      localIntent === 'PROJECT' ||
+      localIntent === 'DELETE_CLIENT' ||
+      localIntent === 'DELETE_PROJECT';
 
     if (shouldForceFormInput && !pendingForm) {
       setPendingForm(localIntent);
@@ -2110,12 +2114,7 @@ export default function ChatbotAI() {
                         </div>
                       )}
                       {!deleteOptionsLoading && deleteClientOptions.length === 0 && (
-                        <input
-                          className={formErrors.clientId ? 'has-error' : ''}
-                          placeholder="Client ID"
-                          value={formData.clientId ?? ''}
-                          onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, clientId: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { clientId: _, ...rest } = prev; return rest; }); }}
-                        />
+                        <p className="cb-field-error">No clients available to remove.</p>
                       )}
                       {formErrors.clientId && <p className="cb-field-error">{formErrors.clientId}</p>}
                     </>
@@ -2157,19 +2156,23 @@ export default function ChatbotAI() {
                         </div>
                       )}
                       {!deleteOptionsLoading && deleteProjectOptions.length === 0 && (
-                        <input
-                          className={formErrors.projectId ? 'has-error' : ''}
-                          placeholder="Project ID"
-                          value={formData.projectId ?? ''}
-                          onChange={(e: any) => { setFormData((prev: Record<string, string>) => ({ ...prev, projectId: e.target.value })); setFormErrors((prev: Record<string, string>) => { const { projectId: _, ...rest } = prev; return rest; }); }}
-                        />
+                        <p className="cb-field-error">No projects available to remove.</p>
                       )}
                       {formErrors.projectId && <p className="cb-field-error">{formErrors.projectId}</p>}
                     </>
                   )}
 
                   <div className="cb-form-actions">
-                    <button className="cb-form-btn primary" type="button" disabled={formSubmitting} onClick={() => { void submitForm(); }}>
+                    <button
+                      className="cb-form-btn primary"
+                      type="button"
+                      disabled={
+                        formSubmitting ||
+                        (pendingForm === 'DELETE_CLIENT' && (deleteOptionsLoading || deleteClientOptions.length === 0 || !(formData.clientId ?? '').trim())) ||
+                        (pendingForm === 'DELETE_PROJECT' && (deleteOptionsLoading || deleteProjectOptions.length === 0 || !(formData.projectId ?? '').trim()))
+                      }
+                      onClick={() => { void submitForm(); }}
+                    >
                       {formSubmitting ? t('chatbot.submitting') : t('chatbot.submit')}
                     </button>
                     <button
