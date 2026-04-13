@@ -36,13 +36,18 @@ describe('NotificationsService', () => {
     service = module.get<NotificationsService>(NotificationsService);
   });
 
+  afterEach(() => {
+    // Complete the Subject so no subscriptions leak between parallel workers
+    prisma.globalMutation$.complete();
+  });
+
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
   // ── streamRealTimeUpdates ────────────────────────────────────────────────
   describe('streamRealTimeUpdates', () => {
-    it('should emit only Notification model mutations', (done) => {
+    it('should emit only Notification model mutations', () => {
       const stream = service.streamRealTimeUpdates();
       const received: any[] = [];
 
@@ -55,13 +60,10 @@ describe('NotificationsService', () => {
       // Emit a Project mutation → should be filtered out
       prisma.globalMutation$.next({ model: 'Project', action: 'create' });
 
-      setTimeout(() => {
-        sub.unsubscribe();
-        expect(received).toHaveLength(1);
-        expect(received[0].refresh).toBeDefined();
-        expect(received[0].model).toBe('Notification');
-        done();
-      }, 10);
+      sub.unsubscribe();
+      expect(received).toHaveLength(1);
+      expect(received[0].refresh).toBeDefined();
+      expect(received[0].model).toBe('Notification');
     });
   });
 

@@ -148,7 +148,7 @@ describe('NotificationsController', () => {
 
   // ── SSE /notifications/realtime ──────────────────────────────────────────
   describe('streamRealTimeUpdates', () => {
-    it('should return an observable from the service', (done) => {
+    it('should return an observable from the service', () => {
       const subject = new Subject<{ model: string; action: string }>();
       const observable = subject.pipe(
         filter((m) => m.model === 'Notification'),
@@ -163,13 +163,10 @@ describe('NotificationsController', () => {
 
       subject.next({ model: 'Notification', action: 'create' });
 
-      setTimeout(() => {
-        sub.unsubscribe();
-        expect(received).toHaveLength(1);
-        const parsed = JSON.parse(received[0].data as string);
-        expect(parsed.refresh).toBeDefined();
-        done();
-      }, 10);
+      sub.unsubscribe();
+      expect(received).toHaveLength(1);
+      const parsed = JSON.parse(received[0].data as string);
+      expect(parsed.refresh).toBeDefined();
     });
   });
 });
