@@ -112,10 +112,10 @@ function DataGraph() {
     return Math.ceil(maxVal / step) * step;
   }, [maxVal]);
 
-  // Map data to coordinates
+  // Map data to coordinates — guard against single-point division by zero
   const toPoints = (data: number[]) =>
     data.map((v, i) => ({
-      x: PAD.left + (i / (data.length - 1)) * chartW,
+      x: PAD.left + (data.length > 1 ? i / (data.length - 1) : 0.5) * chartW,
       y: PAD.top + chartH - (v / gridMax) * chartH,
       val: v,
     }));
@@ -269,7 +269,7 @@ function DataGraph() {
 
           {/* Hover hit areas + vertical guide + data points */}
           {months.map((month, i) => {
-            const x = PAD.left + (i / (months.length - 1)) * chartW;
+            const x = PAD.left + (months.length > 1 ? i / (months.length - 1) : 0.5) * chartW;
             const isHovered = hoverIdx === i;
 
             return (
@@ -292,7 +292,7 @@ function DataGraph() {
                 )}
 
                 {/* Data dots + value labels */}
-                {showProjects && (
+                {showProjects && projPts[i] && (
                   <>
                     <circle cx={x} cy={projPts[i].y}
                       r={isHovered ? 4.5 : 2.5}
@@ -310,7 +310,7 @@ function DataGraph() {
                     )}
                   </>
                 )}
-                {showClients && (
+                {showClients && cliPts[i] && (
                   <>
                     <circle cx={x} cy={cliPts[i].y}
                       r={isHovered ? 4.5 : 2.5}

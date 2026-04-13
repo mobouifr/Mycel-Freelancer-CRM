@@ -18,11 +18,12 @@ interface ActivityItem {
 
 // Mock data removed — replaced with real API data
 
-const TYPE_ICON: Record<ActivityItem['type'], { path: string; color: string }> = {
+const TYPE_ICON: Record<string, { path: string; color: string }> = {
   client:   { path: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', color: 'var(--accent)' },
   project:  { path: 'M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z', color: 'var(--warning, #f59e0b)' },
   note:     { path: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8', color: 'var(--text-mid)' },
 };
+const FALLBACK_ICON = TYPE_ICON.note;
 
 function ActivityFeed() {
   const { t } = useTranslation();
@@ -53,7 +54,7 @@ function ActivityFeed() {
            </p>
         )}
         {activities.map((item, i) => {
-          const icon = TYPE_ICON[item.type];
+          const icon = TYPE_ICON[item.type] ?? FALLBACK_ICON;
           return (
             <div
               key={item.id}
