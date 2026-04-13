@@ -115,16 +115,18 @@ export class ClientsService {
 
   async remove(userId: string, id: string): Promise<Client> {
     const client = await this.findOne(userId, id); // Check existence
-    
+
+    const deleted = await this.prisma.client.delete({
+      where: { id },
+    });
+
     this.notificationsService.create(userId, {
       title: 'Client Deleted',
       message: `Client deleted: ${client.name}`,
       type: 'warning',
     }).catch(() => {});
 
-    return this.prisma.client.delete({
-      where: { id },
-    });
+    return deleted;
   }
 
   async getProjects(userId: string, id: string) {

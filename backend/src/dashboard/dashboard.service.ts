@@ -1,15 +1,17 @@
-import { Injectable, MessageEvent } from '@nestjs/common';
+import { Injectable, MessageEvent, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ProjectStatus } from '@prisma/client';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 
 @Injectable()
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
   streamRealTimeUpdates(): Observable<MessageEvent> {
+    const DASHBOARD_MODELS = new Set(['Project', 'Client', 'Note', 'Event', 'UserAchievement']);
     return this.prisma.globalMutation$.pipe(
+      filter((mutation) => DASHBOARD_MODELS.has(mutation.model)),
       map((mutation) => ({
         data: JSON.stringify({ refresh: Date.now(), ...mutation }),
       } as MessageEvent))
@@ -25,7 +27,7 @@ export class DashboardService {
       },
       select: {
         budget: true,
-        createdAt: true,
+        updatedAt: true,
       },
     });
 
@@ -42,7 +44,7 @@ export class DashboardService {
 
     // We will parse all returned budgets and categorize them by month
     projects.forEach(project => {
-      const pDate = new Date(project.createdAt);
+      const pDate = new Date(project.updatedAt);
       const pYear = pDate.getFullYear();
       const pMonth = pDate.getMonth();
       const val = project.budget ? Number(project.budget) : 0;
@@ -152,7 +154,7 @@ export class DashboardService {
       })),
       ...recentAchievements.map(a => ({
         id: `achieve-${a.id}`,
-        type: 'note', 
+        type: 'achievement',
         title: `Achievement: ${a.name}`,
         detail: `Unlocked!`,
         timestamp: a.earnedAt.getTime(),
@@ -207,7 +209,7 @@ export class DashboardService {
   }
 
   async updateNote(userId: string, noteId: string, title: string, content: string, tags: string[], color?: string, pinned?: boolean) {
-    return this.prisma.note.updateMany({
+    const result = await this.prisma.note.updateMany({
       where: {
         id: noteId,
         userId: userId,
@@ -220,6 +222,10 @@ export class DashboardService {
         ...(pinned !== undefined && { pinned }),
       }
     });
+    if (result.count === 0) {
+      throw new NotFoundException(`Note with ID ${noteId} not found`);
+    }
+    return result;
   }
 
   async deleteNote(userId: string,  noteId: string) {

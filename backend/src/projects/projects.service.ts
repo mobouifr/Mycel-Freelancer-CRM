@@ -173,13 +173,15 @@ export class ProjectsService {
 
   async remove(userId: string, id: string) {
     const existingProject = await this.findOne(userId, id);
-    
+
+    const deleted = await this.prisma.project.delete({ where: { id } });
+
     this.notificationsService.create(userId, {
       title: 'Project Deleted',
       message: `Project deleted: ${existingProject.title}`,
       type: 'warning',
     }).catch(() => {});
 
-    return await this.prisma.project.delete({ where: { id } });
+    return deleted;
   }
 }
