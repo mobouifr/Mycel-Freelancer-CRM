@@ -1,94 +1,114 @@
 *This project has been created as part of the 42 curriculum by mobouifr, oer-refa, soel-mou, csouita, hichokri.*
 
----
+<div align="center">
 
 # Mycel — Freelancer CRM
 
-> A production-ready Customer Relationship Management platform for independent freelancers, built as the **ft_transcendence Surprise** capstone project at 42 School.
+**A production-ready CRM platform built as the ft_transcendence Surprise capstone at 42 School**
+
+[![React](https://img.shields.io/badge/React-19.2.0-61DAFB?logo=react&logoColor=white)](https://react.dev)
+[![NestJS](https://img.shields.io/badge/NestJS-10.x-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com)
+
+</div>
+
+---
+
+## Table of Contents
+
+- [Description](#description)
+- [Team Information](#team-information)
+- [Project Management](#project-management)
+- [Technical Stack](#technical-stack)
+- [Database Schema](#database-schema)
+- [Features List](#features-list)
+- [Modules](#modules)
+- [Individual Contributions](#individual-contributions)
+- [Instructions](#instructions)
+- [Resources](#resources)
 
 ---
 
 ## Description
 
-**Mycel** is a full-stack web application that gives freelancers a unified workspace to run their business. Instead of juggling separate tools, everything lives in one place: client records, project tracking, a calendar, notes, revenue analytics, and even an AI assistant that understands your own business data.
+**Mycel** is a full-stack web application that gives independent freelancers a single workspace to run their business. Instead of switching between separate tools, everything is in one place: client records, project tracking, a four-mode calendar, revenue analytics, sticky notes, and an AI assistant that reads the user's actual CRM data before responding.
 
-### Project Name and Goal
+The name references mycelium — the underground fungal network that connects and feeds ecosystems. The goal of the platform mirrors that: connect every part of a freelancer's workflow into one coherent, living system.
 
-The platform is named **Mycel** — a reference to mycelium, the fungal network that connects and nourishes ecosystems. The goal mirrors that metaphor: connect every aspect of a freelancer's workflow into a single, living system.
-
-### Key Features
-
-| Category | Feature |
+| Category | What it does |
 |---|---|
-| **Authentication** | Email/password login, 42 OAuth single sign-on, Two-Factor Authentication (TOTP), JWT via HttpOnly cookies |
-| **Client Management** | Full CRUD with server-side search, multi-field sorting, and cursor-based pagination |
+| **Authentication** | Email/password login, 42 OAuth SSO, TOTP two-factor authentication, JWT stored in HttpOnly cookies |
+| **Client Management** | Full CRUD, server-side search, multi-column sorting, cursor-based pagination |
 | **Project Management** | Status lifecycle (Active → Completed / Paused / Cancelled), priority levels, budget and deadline tracking |
-| **Dashboard** | Configurable widget grid with real-time SSE updates — Revenue KPI, Activity Heatmap, Activity Feed, Project Status Bar, Data Graph, Calendar, Notes, Next Deadline |
-| **Calendar & Reminders** | Four-mode calendar (Month / Week / Day / Lane), event scheduling with client/project tags, pinnable colour-coded notes |
-| **AI Chatbot** | DeepSeek LLM with live CRM context injection, token-streaming via SSE, Markdown/code rendering, per-user rate limiting |
-| **Gamification** | XP and level progression triggered by CRM actions; collectible achievements and badges |
-| **Notifications** | Real-time bell badge powered by SSE; read/unread tracking; deep-link navigation to related entities |
-| **Internationalisation** | Full English / French / Spanish UI with browser-language auto-detection and runtime switching |
-| **Monitoring** | Prometheus metrics, Grafana dashboards, PostgreSQL exporter, daily automated backups |
+| **Dashboard** | Drag-and-drop widget grid with real-time SSE updates — Revenue KPI, Activity Heatmap, Activity Feed, Project Status Bar, Data Graph, Calendar, Notes, Next Deadline |
+| **Calendar & Reminders** | Four view modes (Month / Week / Day / Lane), event scheduling with CRM entity tagging, pinnable colour-coded notes |
+| **AI Chatbot** | DeepSeek LLM with live CRM context injected into every request, token-streamed to the browser, Markdown and code rendering |
+| **Gamification** | XP and level progression triggered by CRM actions; one-time achievements and collectible badges |
+| **Notifications** | Real-time bell badge via SSE, read/unread tracking, deep-link navigation to the related entity |
+| **Internationalisation** | Full English / French / Spanish UI, browser language auto-detection, runtime language switching |
+| **Monitoring** | Prometheus metrics endpoint, Grafana dashboards, PostgreSQL exporter, nightly automated database backups |
 
 ---
 
 ## Team Information
 
-### Members, Roles, and Responsibilities
+### mobouifr — Montassir Bouifraden
 
-| 42 Login | Name | Role(s) | Responsibilities |
-|---|---|---|---|
-| **mobouifr** | Montassir Bouifraden | Project Owner · Tech Lead · DevOps · Backend · Frontend | Product vision and backlog ownership, feature scope decisions, acceptance criteria definition, evaluation readiness; CI/CD, Docker Compose maintenance, backend architecture, testing infrastructure (74 tests), server-side sorting and pagination, notifications module, security fixes, dead code audit, bug triage; dashboard widget grid, Calendar and Reminders UI (4-mode calendar, event modal, sticky notes), chatbot UI/UX widget, frontend routing and layout |
+**Roles:** Product Owner · Tech Lead · DevOps · Backend · Frontend
 
-| **oer-refa** | Othmane Er-Refaly | Backend Lead · Project Manager / Scrum Master | Project planning and coordination, meeting facilitation, deadline tracking, team communication workflow (Discord, WhatsApp, Linear), risk and blocker management; JWT/HttpOnly-cookie authentication, 42 OAuth integration, Two-Factor Authentication (TOTP + QR code), Prisma schema work flow and migrations, real-time SSE infrastructure (`globalMutation$` bus), dashboard analytics (revenue, heatmap, activity feed), Reminders/Calendar backend |
+Owned the product vision and backlog, wrote feature acceptance criteria, and made final scope decisions under deadline pressure. Led evaluation readiness: maintained the module checklist, ran defense rehearsals, and verified all graded criteria worked end-to-end. On the backend, designed the server-side sorting and cursor-based pagination systems, wrote the full test suite (74 tests across 8 suites), identified and fixed 6 critical bugs, performed a dead-code audit removing 23 unused files, and maintained the Docker Compose configuration. On the frontend, built the drag-and-drop dashboard widget grid, the four-mode calendar and reminders system, the chatbot UI, and the core routing and layout infrastructure.
 
-| **soel-mou** | Solayman | DevOps · Backend | Docker Compose stack (Nginx, Postgres, monitoring, backup), Prisma schema ownership and migrations, AI Chatbot module (DeepSeek API, SSE streaming, context injection, rate limiting), Prometheus/Grafana provisioning, i18n pipeline (EN/FR/ES), Makefile automation |
+---
 
-| **csouita** | Souita | Backend Developer | Gamification module (XP awards, level thresholds, achievements, badges), Notifications SSE architecture, integration of gamification events with notification streams |
+### oer-refa — Othmane Er-Refaly
 
-| **hichokri** | Hiba Chokri | Frontend Developer | Client and Project list/detail/create/edit pages, React Router background-location modal overlay pattern, form validation with Zod + React Hook Form |
+**Roles:** Backend Lead · Project Manager / Scrum Master
+
+Organized team meetings, tracked milestones against the evaluation checklist, and managed daily communication across Discord, WhatsApp, and Linear. Built the complete authentication layer: email/password login with bcrypt, JWT in HttpOnly cookies, 42 OAuth via passport-42, and TOTP two-factor authentication. Designed and implemented the real-time SSE infrastructure using an RxJS Subject in PrismaService as an in-process event bus shared across all modules. Developed all dashboard analytics endpoints: revenue KPI, activity heatmap, activity feed, 6-month project/client graph, and the calendar and reminders backend.
+
+---
+
+### soel-mou — Solayman
+
+**Roles:** DevOps · Backend
+
+Designed and maintained the full Docker Compose stack: Nginx reverse proxy with HTTPS, PostgreSQL, backend, frontend, Prometheus, Grafana, PostgreSQL exporter, and the automated backup service. Owned the Prisma schema and all database migrations. Built the AI chatbot module: DeepSeek API integration, live CRM context assembly (10 most recent clients and active projects injected into the system prompt), SSE token streaming via NestJS Observable, and per-user rate limiting. Set up Prometheus scraping, Grafana dashboard provisioning, and automated nightly database backups. Implemented the full internationalisation pipeline and maintained the Makefile (20+ targets).
+
+---
+
+### csouita — Souita
+
+**Roles:** Backend Developer
+
+Built the Gamification module end-to-end: XP award values per action type, level threshold calculations (`xpForLevel(L) = 500 × L²`), and the GamificationService called after successful CRM writes. Implemented UserAchievement and UserBadge creation with a unique `(userId, type)` constraint ensuring each achievement is earned only once per user. Contributed to the Notifications SSE architecture and resolved a race condition that produced duplicate achievement records under rapid concurrent actions.
+
+---
+
+### hichokri — Hiba Chokri
+
+**Roles:** Frontend Developer
+
+Built all Client and Project pages: list views with search, sort headers, and pagination controls; detail views; create and edit modal forms. Implemented the React Router background-location modal pattern so navigating to a modal keeps the list rendered and blurred behind it, and returning from the modal does not trigger a full list reload. Integrated Zod schemas with React Hook Form for client-side validation on all CRM forms.
 
 ---
 
 ## Project Management
 
-### Team Organization and Project Management
+Each developer owned one or more feature domains end-to-end, covering both frontend and backend. Domain boundaries were kept explicit to avoid merge conflicts during parallel development.
 
-**Project Owner: mobouifr (Montassir Bouifraden)**
+**Branching strategy:** personal branches per developer (`OthmaneBranch`, `Solayman`, `SouitaBack`, `montassir`, `Hiba`) merged into the `backDevops` integration branch, then promoted to `main` after Tech Lead review.
 
-- Defined and maintained the product vision, ensuring the team built the right features in the right priority order.
-- Owned the product backlog: authored feature descriptions, set acceptance criteria, and made final scope decisions when trade-offs arose under deadline pressure.
-- Drove evaluation readiness: maintained the module checklist, coordinated defense rehearsals, and ensured all graded criteria were demonstrable end-to-end.
-- Accountable for the overall technical and functional quality of the final deliverable — final sign-off on what shipped to `main`.
-
-**Project Manager / Scrum Master: oer-refa (Othmane Er-Refaly) & hichokri (Hiba Chokri)**
-
-- Organized team meetings and planning sessions to align priorities and module ownership.
-- Tracked progress and deadlines across milestones and evaluation checkpoints.
-- Ensured continuous team communication through Discord, WhatsApp, and Linear.
-
-**Technical Lead / Architect: soel-mou (Solayman El Mouden)**
-- I define the system architecture, set clear module boundaries, and document the key design decisions.
-- I mentor developers daily, unblock technical issues quickly, and encourage ownership across the team.
-- I review critical pull requests myself, especially those touching security, performance, and core architecture.
-- I continuously refine our practices through retrospectives so code quality and team efficiency keep improving.
-
-### Work Organisation
-
-- **Domain ownership:** Each developer owned one or more feature domains end-to-end (frontend + backend). Boundaries were kept explicit so parallel development avoided merge conflicts.
-- **Branching strategy:** Personal branches per developer (`OthmaneBranch`, `Solayman`, `SouitaBack`, `montassir`, `Hiba`) merged into the `backDevops` integration branch, then promoted to `main` after review.
-- **Code review:** The Tech Lead reviewed integration merges before reaching `main`; team members peer-reviewed in-flight pull requests.
-- **Weekly sync:** Stand-up meetings once a week to report progress, surface blockers, and re-prioritise work against the evaluation checklist.
-- **Evaluation rehearsals:** Full end-to-end dry-runs with the evaluator checklist before the final defense date.
+**Cadence:** weekly stand-ups to surface blockers and reprioritise against the evaluation checklist, plus full end-to-end rehearsals before the defense date.
 
 ### Tools Used
 
 | Purpose | Tool |
 |---|---|
-| Version control & code hosting | Git + GitHub (`solacode-SC/freelancer-crm-final-project`) |
-| Issue / task tracking | Linear + GitHub branch-per-feature naming + team discussion threads |
-| Communication | Discord + WhatsApp + Linear comments — daily async updates, blocker escalation, and planning follow-up |
+| Version control | Git + GitHub (`solacode-SC/freelancer-crm-final-project`) |
+| Task tracking | Linear + GitHub branch-per-feature naming |
+| Communication | Discord + WhatsApp + Linear comments |
 | API testing | Postman, cURL |
 | Database inspection | Prisma Studio (`make studio`) |
 | Container management | Docker Desktop / CLI |
@@ -101,96 +121,59 @@ The platform is named **Mycel** — a reference to mycelium, the fungal network 
 
 | Technology | Version | Why it was chosen |
 |---|---|---|
-| **React** | 19.2.0 | Industry-standard component model; concurrent mode; large ecosystem |
-| **TypeScript** | ~5.9.3 | End-to-end type safety across API boundaries via shared DTOs |
-| **Vite** | 7.3.1 | Sub-second HMR; tree-shaking; manual chunk splitting per page group |
-| **Tailwind CSS** | 4.2.1 | Utility-first approach enables fast UI iteration without style conflicts between developers |
-| **React Router** | 7.13.1 | Background-location pattern lets list pages stay rendered behind modal overlays |
-| **React Hook Form + Zod** | 7.72.0 / 4.3.6 | Uncontrolled forms with schema-level validation; minimal re-renders |
-| **Axios** | 1.13.6 | Interceptors for unified error handling and auth; response typing |
-| **i18next + react-i18next** | 24.2.2 | Runtime language switching without page reload; browser language detection |
-| **react-grid-layout** | 2.2.2 | Drag-and-drop resizable dashboard widget grid |
-| **react-markdown + rehype-highlight** | 10.1.0 / 7.0.2 | Renders chatbot Markdown responses including syntax-highlighted code blocks |
+| React | 19.2.0 | Industry-standard component model; concurrent mode; large ecosystem |
+| TypeScript | ~5.9.3 | End-to-end type safety across API boundaries via shared DTOs |
+| Vite | 7.3.1 | Sub-second HMR; tree-shaking; manual chunk splitting per page group |
+| Tailwind CSS | 4.2.1 | Utility-first styling enables fast iteration without style conflicts between developers |
+| React Router | 7.13.1 | Background-location pattern keeps list pages mounted behind modal overlays |
+| React Hook Form + Zod | 7.72.0 / 4.3.6 | Uncontrolled forms with schema-level validation; minimal re-renders |
+| Axios | 1.13.6 | Interceptors for unified error handling and auth; typed responses |
+| i18next + react-i18next | 24.2.2 | Runtime language switching without page reload; browser language detection |
+| react-grid-layout | 2.2.2 | Drag-and-drop resizable dashboard widget grid |
+| react-markdown + rehype-highlight | 10.1.0 / 7.0.2 | Renders chatbot Markdown responses with syntax-highlighted code blocks |
 
 ### Backend
 
 | Technology | Version | Why it was chosen |
 |---|---|---|
-| **NestJS** | 10.x | Modular DI architecture maps directly to CRM domains (one module = one owner); Guards, Pipes, and Interceptors reduce boilerplate |
-| **TypeScript** | 5.0.0 | Shared type surface with frontend |
-| **Prisma ORM** | 5.21.1 | Type-safe database client generated from schema; migration history; zero SQL injection surface |
-| **@nestjs/passport + strategies** | — | Strategy pattern for Local, JWT, and 42 OAuth with consistent guard interface |
-| **@nestjs/throttler** | 6.5.0 | Declarative rate limiting at route or global level |
-| **RxJS** | 7.8.0 | `Subject`-based reactive mutation bus for SSE streams (filter once, fan out to many consumers) |
-| **otplib** | 12.0.1 | TOTP secret generation and verification (RFC 6238) |
-| **@willsoto/nestjs-prometheus + prom-client** | 6.1.0 / 15.1.3 | Prometheus metrics exposed at `/api/metrics` with NestJS DI integration |
-
-### Database
-
-| Component | Choice | Justification |
-|---|---|---|
-| **Database engine** | PostgreSQL 16 | ACID compliance; UUID primary keys; Decimal type for budgets; strong Prisma support |
-| **ORM** | Prisma | Type-safe queries; migration-based schema management; `$transaction` support; Studio GUI for inspection |
-| **DB management UI** | Adminer 4.8.1 | Lightweight web-based inspector for development use |
+| NestJS | 10.x | Modular DI architecture maps directly to CRM domains; Guards, Pipes, Interceptors reduce boilerplate |
+| TypeScript | 5.0.0 | Shared type surface with the frontend |
+| Prisma ORM | 5.21.1 | Type-safe database client generated from schema; migration history; zero SQL injection surface |
+| @nestjs/passport | — | Strategy pattern for Local, JWT, and 42 OAuth with a consistent guard interface |
+| @nestjs/throttler | 6.5.0 | Declarative rate limiting at route or global level |
+| RxJS | 7.8.0 | Subject-based reactive event bus for SSE streams — filter once, fan out to many consumers |
+| otplib | 12.0.1 | TOTP secret generation and verification per RFC 6238 |
+| @willsoto/nestjs-prometheus | 6.1.0 | Prometheus metrics at `/api/metrics` with NestJS DI integration |
 
 ### Infrastructure
 
-| Component | Technology |
-|---|---|
-| Containerisation | Docker + Docker Compose v2 (dev and prod configurations) |
-| Reverse proxy | Nginx (HTTPS termination, API proxy, static asset serving) |
-| Monitoring | Prometheus v2.51.0 + Grafana 10.4.0 + `postgres-exporter` v0.15.0 |
-| Database backups | Alpine cron container running `pg_dump` nightly at 02:00 UTC, gzip-compressed, stored in named Docker volume |
-| Dev HTTPS | Self-signed certificate generated via OpenSSL (`make ssl-dev-cert`) |
+| Component | Technology | Notes |
+|---|---|---|
+| Containerisation | Docker + Docker Compose v2 | Dev and production configurations |
+| Reverse proxy | Nginx | HTTPS termination, API proxy, static asset serving |
+| Monitoring | Prometheus v2.51.0 + Grafana 10.4.0 | Pre-provisioned dashboards via Docker volume mount |
+| Database metrics | postgres-exporter v0.15.0 | DB-level connection and query metrics exported to Prometheus |
+| Backups | Alpine cron + pg_dump | Nightly at 02:00 UTC, gzip-compressed to a named Docker volume |
+| Dev HTTPS | OpenSSL self-signed cert | Generated via `make ssl-dev-cert` on first run |
 
-### Major Technical Choice Justifications
+### Why we made the key technical choices
 
-- **NestJS over plain Express:** The module/service/controller structure enforces clear ownership boundaries — each team member owned their module directory. Dependency injection made unit testing (mocking `PrismaService`) straightforward without global test setup.
-- **PostgreSQL over MongoDB:** CRM data is inherently relational (User → Client → Project → Notification). Foreign-key constraints and cascade deletes enforced data integrity at the database level rather than in application code.
-- **SSE over WebSockets:** Dashboard and notification updates are strictly server-to-client. SSE avoids the overhead of a bidirectional WebSocket channel, is firewall-friendly, and integrates natively with the browser `EventSource` API. The RxJS `Subject` in `PrismaService` acts as an in-process event bus: any write operation calls `.next()`, and each SSE endpoint subscribes and filters for its relevant models.
-- **DeepSeek LLM for the AI chatbot:** The DeepSeek API is OpenAI-compatible (drop-in replacement), significantly cheaper for streaming completions, and fast enough for real-time token delivery. The chatbot receives the user's live CRM data (clients, projects, revenue) injected into the system prompt at request time, enabling genuinely useful business-specific responses.
+**NestJS over plain Express.** The module/service/controller structure enforced clear ownership boundaries — each team member owned their module directory. Dependency injection made unit testing straightforward because mocking `PrismaService` required no global test setup.
+
+**PostgreSQL over MongoDB.** CRM data is inherently relational: User → Client → Project → Notification. Foreign-key constraints and cascade deletes enforce data integrity at the database level instead of in application code.
+
+**SSE over WebSockets.** Dashboard and notification updates are strictly server-to-client. SSE avoids the overhead of a bidirectional WebSocket channel, works through firewalls without special configuration, and integrates natively with the browser `EventSource` API. The RxJS Subject in PrismaService acts as an in-process bus: any write calls `.next()`, and each SSE endpoint subscribes and filters for its relevant models.
+
+**DeepSeek over OpenAI.** The DeepSeek API is OpenAI-compatible, significantly cheaper for streaming completions, and fast enough for real-time token delivery. The chatbot injects the user's live CRM data into the system prompt at request time, enabling business-specific responses rather than generic answers.
 
 ---
 
 ## Database Schema
 
-### Entity Relationship Diagram
+Every record in the database is scoped to a `User` by a foreign key with cascade delete. This guarantees complete data isolation between users and ensures that deleting an account removes all associated data automatically.
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                            User                                   │
-│  id · email · username · name · phone · businessName             │
-│  passwordHash · intraId · isTwoFactorEnabled · twoFactorSecret   │
-│  defaultCurrency · taxRate · xp · level                          │
-└────────────────────────────┬─────────────────────────────────────┘
-             1               │
-             │ N             │ N             │ N             │ N
-     ┌───────┴──────┐ ┌──────┴──────┐ ┌─────┴──────┐ ┌─────┴──────┐
-     │   Client     │ │   Project   │ │    Note    │ │   Event    │
-     │  id · name   │ │ id · title  │ │ id · title │ │ id · title │
-     │  email       │ │ status      │ │ content    │ │ date · time│
-     │  phone       │ │ priority    │ │ tags[]     │ │ eventType  │
-     │  company     │ │ budget      │ │ color      │ │ priority   │
-     │  notes       │ │ deadline    │ │ pinned     │ │ clientTag  │
-     │  userId (FK) │ │ userId (FK) │ │ userId(FK) │ │ projectTag │
-     └───────┬──────┘ │ clientId(FK)│ └────────────┘ │ userId(FK) │
-             │ 1:N    └─────────────┘                └────────────┘
-             └──────────────┘
+### User
 
-     ┌────────────────┐  ┌─────────────────────┐  ┌────────────────────┐
-     │  Notification  │  │  UserAchievement     │  │   UserBadge        │
-     │  id · message  │  │  id · type · name    │  │  id · type · name  │
-     │  title · read  │  │  earnedAt            │  │  earnedAt          │
-     │  type          │  │  userId (FK)         │  │  userId (FK)       │
-     │  targetType    │  │  UNIQUE(userId,type) │  │  UNIQUE(userId,type│
-     │  targetId      │  └─────────────────────┘  └────────────────────┘
-     │  userId (FK)   │
-     └────────────────┘
-```
-
-### Model Reference
-
-#### User
 | Field | Type | Constraints |
 |---|---|---|
 | id | String (UUID) | Primary key, default: `cuid()` |
@@ -199,7 +182,7 @@ The platform is named **Mycel** — a reference to mycelium, the fungal network 
 | name, phone, businessName, businessAddress, logoUrl | String? | Nullable |
 | defaultCurrency | String | default: `"USD"` |
 | taxRate | Decimal(5,2) | default: `0` |
-| password, passwordHash | String? | Nullable; local auth only |
+| password, passwordHash | String? | Nullable — local auth only |
 | intraId | String? | Unique; 42 OAuth identifier |
 | isTwoFactorEnabled | Boolean | default: `false` |
 | twoFactorSecret | String? | Encrypted TOTP seed |
@@ -207,7 +190,8 @@ The platform is named **Mycel** — a reference to mycelium, the fungal network 
 | level | Int | default: `1` |
 | createdAt, updatedAt | DateTime | Auto-managed |
 
-#### Client
+### Client
+
 | Field | Type | Constraints |
 |---|---|---|
 | id | String (UUID) | Primary key |
@@ -216,7 +200,8 @@ The platform is named **Mycel** — a reference to mycelium, the fungal network 
 | userId | String | FK → User (cascade delete) |
 | createdAt, updatedAt | DateTime | Auto-managed |
 
-#### Project
+### Project
+
 | Field | Type | Constraints |
 |---|---|---|
 | id | String (UUID) | Primary key |
@@ -230,19 +215,20 @@ The platform is named **Mycel** — a reference to mycelium, the fungal network 
 | clientId | String | FK → Client (cascade delete) |
 | createdAt, updatedAt | DateTime | Auto-managed |
 
-#### Notification
+### Notification
+
 | Field | Type | Notes |
 |---|---|---|
 | id | String (UUID) | Primary key |
 | message | String | Required |
 | title | String? | Optional heading |
 | read | Boolean | default: `false` |
-| type | String | `"info"` / `"success"` / `"warning"` / `"error"`, default: `"info"` |
+| type | String | `"info"` / `"success"` / `"warning"` / `"error"` |
 | targetType, targetId | String? | Deep-link to related entity (e.g., `"client"`, `"project"`) |
 | userId | String | FK → User (cascade delete) |
-| createdAt | DateTime | Auto-managed |
 
-#### Note
+### Note
+
 | Field | Type | Notes |
 |---|---|---|
 | id | String (UUID) | Primary key |
@@ -251,235 +237,279 @@ The platform is named **Mycel** — a reference to mycelium, the fungal network 
 | color | String | UI colour key, default: `"default"` |
 | pinned | Boolean | default: `false` |
 | userId | String | FK → User (cascade delete) |
-| createdAt, updatedAt | DateTime | Auto-managed |
 
-#### Event (Calendar)
+### Event (Calendar)
+
 | Field | Type | Notes |
 |---|---|---|
 | id | String (UUID) | Primary key |
 | title, date, time | String | Required |
-| endDate, endTime | String? | Optional end time |
-| description, eventType, priority | String? | |
-| location, externalLink | String? | |
-| clientTag, projectTag | String? | Links to CRM entities |
+| endDate, endTime | String? | Optional |
+| description, eventType, priority, location, externalLink | String? | Optional metadata |
+| clientTag, projectTag | String? | Links to CRM entities by name |
 | userId | String | FK → User (cascade delete) |
-| createdAt, updatedAt | DateTime | Auto-managed |
 
-#### UserAchievement / UserBadge
+### UserAchievement / UserBadge
+
 | Field | Type | Notes |
 |---|---|---|
 | id | String (UUID) | Primary key |
-| type | String | e.g. `"FIRST_PROJECT"`, `"HIGH_ROLLER"` |
+| type | String | e.g., `"FIRST_PROJECT"`, `"HIGH_ROLLER"` |
 | name | String | Display label |
 | earnedAt | DateTime | default: `now()` |
 | userId | String | FK → User (cascade delete) |
-| — | Unique constraint | `(userId, type)` — each achievement earned only once |
+| — | Unique constraint | `(userId, type)` — each achievement earned only once per user |
 
 ---
 
 ## Features List
 
+*All features are userId-scoped and require authentication.*
+
 ### Authentication & Security
 
 | Feature | Developer(s) | Description |
 |---|---|---|
-| Email / password auth | oer-refa | Registration and login with bcrypt-hashed passwords (12 salt rounds); returns JWT in HttpOnly, Secure, SameSite=Lax cookie |
-| 42 OAuth | oer-refa | `passport-42` strategy; on callback, creates a new user or links to an existing one by email; configurable redirect URI |
-| Two-Factor Auth (TOTP) | oer-refa | `otplib` generates a TOTP secret; `qrcode` renders a scannable QR code; TOTP code verified server-side before issuing a JWT |
-| JWT guard | oer-refa, mobouifr | `JwtAuthGuard` protects all private routes; token extracted from `jwt` cookie and validated by `JwtStrategy` |
-| Rate limiting | mobouifr | `@nestjs/throttler` configured globally at 10,000 requests / 5-minute window |
+| Email / password auth | oer-refa | Registration and login with bcrypt-hashed passwords (12 salt rounds). JWT returned in an HttpOnly, Secure, SameSite=Lax cookie. |
+| 42 OAuth | oer-refa | passport-42 strategy. On callback, creates a new user or links to an existing account by email. Configurable redirect URI. |
+| Two-Factor Auth (TOTP) | oer-refa | otplib generates a per-user TOTP secret. qrcode renders a scannable QR code. TOTP code is verified server-side before the JWT is issued. |
+| JWT guard | oer-refa, mobouifr | JwtAuthGuard protects all private routes. Token extracted from the `jwt` cookie and validated by JwtStrategy. |
+| Global rate limiting | mobouifr | @nestjs/throttler configured globally at 10,000 requests per 5-minute window. |
 
 ### Client Management
 
 | Feature | Developer(s) | Description |
 |---|---|---|
-| CRUD | hichokri, mobouifr | Create, view, edit, and delete client records; deleting a client cascades to all their projects |
-| Server-side search | mobouifr | Case-insensitive full-name search via Prisma `contains` filter |
-| Server-side sorting | mobouifr | Any column (name, createdAt, etc.) sortable via query params; direction ASC/DESC |
-| Cursor-based pagination | mobouifr | `take` + optional `cursor` params; default page size 50, capped at 200 |
-| Detail view | hichokri | Full profile with linked projects list |
-| Modal overlay routing | hichokri | Create / edit / detail modals keep the list visible and blurred in the background (React Router background-location pattern) |
+| CRUD | hichokri, mobouifr | Create, view, edit, and delete client records. Deleting a client cascades to all linked projects. |
+| Server-side search | mobouifr | Case-insensitive full-name search via Prisma `contains` filter. |
+| Server-side sorting | mobouifr | Any column sortable via `sortBy` and `sortOrder` query params (ASC/DESC). |
+| Cursor-based pagination | mobouifr | `take` + optional `cursor` params. Default page size 50, capped at 200. |
+| Detail view | hichokri | Full client profile with a linked projects tab. |
+| Modal overlay routing | hichokri | Create / edit / detail modals use React Router's background-location pattern. The list stays rendered and blurred behind the modal. |
 
 ### Project Management
 
 | Feature | Developer(s) | Description |
 |---|---|---|
-| CRUD | hichokri, mobouifr | Full lifecycle; deleting a project cascades to its notifications |
-| Status management | hichokri | `ACTIVE`, `COMPLETED`, `PAUSED`, `CANCELLED` with badge-style display |
-| Priority levels | hichokri | `HIGH`, `MEDIUM`, `LOW` with visual indicators |
-| Budget & deadline | hichokri | Decimal budget field; optional DateTime deadline |
-| Server-side sorting + pagination | mobouifr | Same system as clients |
+| CRUD | hichokri, mobouifr | Full lifecycle management. Deleting a project cascades to its notifications. |
+| Status management | hichokri | ACTIVE, COMPLETED, PAUSED, CANCELLED — displayed as colour-coded badges. |
+| Priority levels | hichokri | HIGH, MEDIUM, LOW with visual indicators. |
+| Budget & deadline | hichokri | Decimal budget field and optional DateTime deadline. |
+| Server-side sorting + pagination | mobouifr | Same system as clients — consistent API contract across all list endpoints. |
 
 ### Dashboard
 
 | Feature | Developer(s) | Description |
 |---|---|---|
-| Configurable widget grid | mobouifr | `react-grid-layout`; drag to reorder, resize handles; layout saved per user |
-| Preset layouts | mobouifr | Compact / Standard / Analytics presets selectable in one click |
-| Widget picker | mobouifr | Modal to add/remove/reset widgets |
-| Real-time SSE refresh | oer-refa, csouita | `PrismaService.globalMutation$` Subject emits `{ model, action }` on every write; dashboard subscribes with filter for `Project`, `Client`, `Note`, `Event`, `UserAchievement` |
-| Revenue KPI | oer-refa | Monthly revenue bar chart (full year); current-month vs previous-month comparison; completed project count |
-| Activity heatmap | oer-refa | GitHub-style contribution calendar counting client creation, project creation, and project completion per day |
-| Activity feed | oer-refa | Unified chronological feed of recent clients, projects, and achievements (top 5) |
-| Data graph | oer-refa | 6-month bar chart comparing projects vs clients created per month |
-| Project status bar | mobouifr | Grouped count of projects per status with progress-bar visualisation |
-| Next deadline | mobouifr | Upcoming project with the nearest deadline |
-| Notes capture | mobouifr | Full note CRUD embedded as a dashboard widget |
-| Calendar upcoming | mobouifr | Mini view of the next scheduled events |
+| Configurable widget grid | mobouifr | react-grid-layout powers drag-to-reorder and resizable widgets. Layout saved per user and persists across sessions. |
+| Preset layouts | mobouifr | Compact, Standard, and Analytics presets selectable in one click. |
+| Widget picker | mobouifr | Modal to add, remove, or reset widgets from the grid. |
+| Real-time SSE refresh | oer-refa, csouita | PrismaService.globalMutation$ Subject emits on every write. Dashboard filters for Project, Client, Note, Event, and UserAchievement model events. |
+| Revenue KPI | oer-refa | Monthly revenue bar chart for the full year; current-month vs previous-month comparison; completed project count. |
+| Activity heatmap | oer-refa | 52-week GitHub-style contribution calendar. Counts client creation, project creation, and project completion per day. |
+| Activity feed | oer-refa | Unified chronological feed of recent clients, projects, and achievements (top 5). |
+| Data graph | oer-refa | 6-month bar chart comparing projects vs clients created per month. |
+| Project status bar | mobouifr | Grouped count of projects per status with a progress-bar visualisation. |
+| Next deadline | mobouifr | Upcoming project with the nearest deadline. |
+| Notes widget | mobouifr | Full note CRUD embedded as a dashboard widget. |
+| Calendar widget | mobouifr | Mini view of the next scheduled calendar events. |
 
 ### Calendar & Reminders
 
 | Feature | Developer(s) | Description |
 |---|---|---|
-| 4-mode calendar view | mobouifr | Month, Week, Day, and Lane (swim-lane by event type) |
-| Event CRUD | mobouifr, oer-refa | Full create/edit/delete with title, date, time, end time, description, type, priority, location, external link |
-| Client / project tagging | mobouifr | Link events to existing CRM entities; displayed as context badges |
-| Notes | mobouifr | Colour-coded, tag-based, pinnable sticky notes with inline editing |
+| 4-mode calendar | mobouifr | Month, Week, Day, and Lane (swim-lane by event type) views. Built without any third-party calendar library. |
+| Event CRUD | mobouifr, oer-refa | Full create/edit/delete with title, date, time, end time, description, type, priority, location, and external link. |
+| CRM entity tagging | mobouifr | Link events directly to existing clients or projects. Displayed as context badges on each event. |
+| Sticky notes | mobouifr | Colour-coded, tag-based, pinnable notes with inline editing. Backed by a dedicated Note model. |
 
 ### AI Chatbot
 
 | Feature | Developer(s) | Description |
 |---|---|---|
-| DeepSeek LLM integration | soel-mou | Server-side request to DeepSeek API with live CRM data (client list, project statuses, revenue) injected into the system prompt |
-| SSE token streaming | soel-mou | Response streamed token-by-token from backend to frontend; user sees the reply typing in real time |
-| Markdown rendering | soel-mou | `react-markdown` + `rehype-highlight` renders formatted text, tables, and syntax-highlighted code blocks |
-| Rate limiting | soel-mou, mobouifr | Per-user throttle; graceful error message shown when limit is hit |
+| DeepSeek LLM integration | soel-mou | Server-side request to DeepSeek API with the user's live CRM data (10 most recent clients and active projects) injected into the system prompt at request time. |
+| SSE token streaming | soel-mou | Response streamed token-by-token from backend to frontend. User sees the reply appearing as it is generated. |
+| Markdown rendering | soel-mou | react-markdown + rehype-highlight renders formatted text, tables, and syntax-highlighted code blocks in chatbot replies. |
+| Per-user rate limiting | soel-mou, mobouifr | @Throttle limits chatbot requests to 10 per 5 minutes per user. A graceful error message is shown when the limit is reached. |
 
 ### Gamification
 
 | Feature | Developer(s) | Description |
 |---|---|---|
-| XP system | csouita | XP awarded on CRM actions (e.g., creating a client, completing a project) |
-| Level progression | csouita | Level derived from cumulative XP against a threshold table |
-| Achievements | csouita | One-time unlockable milestones (e.g., `FIRST_PROJECT`, `LOYAL_CLIENT_3`); unique per user+type |
-| Badges | csouita | Visual collectibles displayed on the Growth page |
-| Growth page | csouita, mobouifr | XP ring, level stats, achievement card gallery |
+| XP system | csouita | XP awarded on CRM actions (creating a client, completing a project, etc.). |
+| Level progression | csouita | Level calculated from cumulative XP: `xpForLevel(L) = 500 × L²`. |
+| Achievements | csouita | One-time milestones (e.g., FIRST_PROJECT, LOYAL_CLIENT_3). Unique per `(userId, type)`. |
+| Badges | csouita | Visual collectibles (e.g., HIGH_ROLLER, EARLY_BIRD) displayed on the Growth page. |
+| Growth page | csouita, mobouifr | XP progress ring, level stats, and achievement card gallery. |
 
 ### Notifications
 
 | Feature | Developer(s) | Description |
 |---|---|---|
-| Event-driven creation | mobouifr, csouita | Notifications created (fire-and-forget via `.catch(() => {})`) after successful client/project CRUD |
-| Real-time bell | mobouifr, csouita | SSE subscription filters `globalMutation$` for `Notification` model; unread count badge updates instantly |
-| Bell dropdown | mobouifr | Shows last 10 notifications with type icons, read status, and relative timestamps |
-| Mark as read / all | mobouifr | Individual `PATCH /:id/read` or bulk `PATCH /read-all` |
-| Delete / delete all | mobouifr | Individual delete or `DELETE /` to clear all notifications |
-| Deep-link navigation | mobouifr | Clicking a notification with `targetType` + `targetId` routes to the linked entity |
+| Event-driven creation | mobouifr, csouita | Notifications created after successful client and project CRUD operations. |
+| Real-time bell badge | mobouifr, csouita | SSE subscription filters globalMutation$ for the Notification model. Unread count badge updates instantly. |
+| Bell dropdown | mobouifr | Last 10 notifications with type icons, read status, and relative timestamps. |
+| Mark as read | mobouifr | Individual `PATCH /:id/read` or bulk `PATCH /read-all`. |
+| Delete | mobouifr | Individual delete or `DELETE /` to clear all notifications. |
+| Deep-link navigation | mobouifr | Clicking a notification with targetType + targetId routes to the linked client or project. |
 
 ### Settings
 
 | Feature | Developer(s) | Description |
 |---|---|---|
-| Profile editing | oer-refa | Username, name, email, phone, business name, address, currency, tax rate |
-| Password change | oer-refa | Requires current password; re-hashes with bcrypt before saving |
-| 2FA setup / teardown | oer-refa | QR code generation → TOTP scan → code verification → enable; reverse path to disable |
-| Theme selection | mobouifr | Multiple visual themes persisted across sessions |
+| Profile editing | oer-refa | Username, name, email, phone, business name, address, default currency, and tax rate. |
+| Password change | oer-refa | Requires current password. Re-hashes the new password with bcrypt before saving. |
+| 2FA setup and teardown | oer-refa | QR code generation → TOTP scan → code verification → enable. Reverse path to disable. |
+| Theme selection | mobouifr | Multiple visual themes persisted across sessions. |
 
 ### Internationalisation
 
 | Feature | Developer(s) | Description |
 |---|---|---|
-| EN / FR / ES translations | soel-mou | Full UI translated; separate JSON locale files (~25 KB each) |
-| Browser language detection | soel-mou | `i18next-browser-languagedetector` selects language on first visit |
-| Manual switcher | soel-mou | `LanguageSwitcher` component in the app layout |
+| EN / FR / ES translations | soel-mou | Full UI translated in three locale JSON files (~25 KB each). All user-facing strings use translation keys. |
+| Browser language detection | soel-mou | i18next-browser-languagedetector selects the language on first visit based on the browser's Accept-Language header. |
+| Manual switcher | soel-mou | LanguageSwitcher component calls `i18n.changeLanguage()` at runtime without a page reload. |
 
 ### Monitoring & Infrastructure
 
 | Feature | Developer(s) | Description |
 |---|---|---|
-| Prometheus metrics | soel-mou | HTTP request count, latency histograms, and custom counters exposed at `/api/metrics` |
-| Grafana dashboards | soel-mou | Pre-provisioned via Docker volume mount; visualises API latency and DB metrics |
-| PostgreSQL exporter | soel-mou | Exports DB-level metrics (connections, query timing) to Prometheus |
-| Health endpoint | mobouifr | `GET /api/health` used by Docker `healthcheck`; probes DB connection |
-| Automated DB backups | soel-mou | Cron job runs `pg_dump` daily at 02:00 UTC; output gzip-compressed to named Docker volume |
-| Manual restore | soel-mou | `make db-restore FILE=<path>` with interactive confirmation safeguard |
+| Prometheus metrics | soel-mou | HTTP request count, latency histograms, and custom counters exposed at `/api/metrics`. |
+| Grafana dashboards | soel-mou | Pre-provisioned via Docker volume mount. Visualises API latency, request rates, and DB metrics. |
+| PostgreSQL exporter | soel-mou | Exports DB-level metrics (connections, query timing) to Prometheus. |
+| Health endpoint | mobouifr | `GET /api/health` used by Docker healthcheck. Probes the database connection. |
+| Automated DB backups | soel-mou | Alpine cron runs `pg_dump` daily at 02:00 UTC. Output is gzip-compressed to a named Docker volume. |
+| Manual restore | soel-mou | `make db-restore FILE=<path>` with an interactive confirmation prompt before restoring. |
+
+### Legal
+
+| Feature | Developer(s) | Description |
+|---|---|---|
+| Privacy Policy | mobouifr | Accessible from the application footer. Contains data handling information relevant to the CRM context. |
+| Terms of Service | mobouifr | Accessible from the application footer. Covers usage terms relevant to the platform. |
 
 ---
 
 ## Modules
 
-Modules follow the ft_transcendence Surprise evaluation grid. **Major = 2 pts, Minor = 1 pt. Minimum required: 14 pts.**
+**Scoring:** Major module = 2 pts · Minor module = 1 pt · Minimum required to pass = 14 pts
 
 | # | Module | Category | Type | Pts | How it was implemented | Developer(s) |
 |---|---|---|---|---|---|---|
-| 1 | **Backend Framework (NestJS)** | Web | Minor | 1 | NestJS 10.x with modular architecture (one module per domain), dependency injection, Guards, Pipes, and Interceptors; controllers and services are fully decoupled | oer-refa |
-| 2 | **ORM (Prisma)** | Web | Minor | 1 | Prisma 5.21.1 schema-first ORM; all queries go through a type-safe generated client; migration history tracked in `prisma/migrations`; Prisma Studio exposed via `make studio` | oer-refa |
-| 3 | **OAuth 2.0 — 42 Intranet** | User Management | Minor | 1 | `passport-42` strategy intercepts the 42 callback, exchanges the code for a token, fetches the intra profile, and either finds an existing user by `intraId` or creates a new one; configurable callback URL via env var | oer-refa |
-| 4 | **Two-Factor Authentication** | User Management | Minor | 1 | `otplib` generates a per-user RFC 6238 TOTP secret; `qrcode` produces a scannable URI; server verifies the 6-digit code before issuing a JWT stored as an HttpOnly cookie; routes: `/2fa/generate`, `/2fa/turn-on`, `/2fa/turn-off`, `/2fa/authenticate` | oer-refa |
-| 5 | **LLM System Interface** | Artificial Intelligence | Major | 2 | `ChatbotModule` calls the DeepSeek API with a system prompt that includes the user's live CRM data (10 most recent clients + active projects); responses stream token-by-token via an SSE endpoint using NestJS `Observable`; `@Throttle` enforces 10 req / 5 min per user; `react-markdown` + `rehype-highlight` renders responses with syntax-highlighted code | soel-mou |
-| 6 | **Monitoring System (Prometheus + Grafana)** | DevOps | Major | 2 | `@willsoto/nestjs-prometheus` exposes `/api/metrics`; `GlobalMetricsMiddleware` records HTTP method, route, status code, and response time; `postgres-exporter` collects DB metrics; custom Grafana dashboards and alert rules provisioned via Docker volume mounts; Grafana access secured with credentials | soel-mou |
-| 7 | **Health Check, Backups & Disaster Recovery** | DevOps | Minor | 1 | Dedicated Alpine cron container runs `pg_dump` nightly at 02:00 UTC; output is gzip-compressed into a named Docker volume; `make db-restore FILE=<path>` triggers an interactive confirmation prompt before restoring | soel-mou |
-| 8 | **Frontend Framework (React)** | Web | Minor | 1 | React 19.2 SPA built with Vite 7; lazy-loaded routes with `React.lazy` + `Suspense`; background-location modal overlay pattern keeps list pages mounted and blurred behind modal routes; React Router v7 handles all navigation client-side | mobouifr, hichokri |
-| 9 | **Custom Design System** | Web | Minor | 1 | 20+ shared reusable components exported from `frontend/src/components/index.ts` (Button, Input, Select, Modal, Table, FormWrapper, LoadingSpinner, ErrorMessage, StatCard, NotificationBell, LogoMark, WidgetCard, WidgetGrid, WidgetPicker, CalendarWidget, SegmentedControl, LanguageSwitcher, and more); unified Tailwind design tokens for colour palette, typography, and spacing | mobouifr, hichokri |
-| 10 | **Multiple Languages (i18n)** | Accessibility & i18n | Minor | 1 | `i18next` + `i18next-browser-languagedetector`; three complete locale JSON files (EN/FR/ES); all user-facing strings use translation keys; `LanguageSwitcher` component calls `i18n.changeLanguage()` at runtime with no page reload | mobouifr, hichokri |
-| 11 | **Advanced Search, Filtering, Sorting & Pagination** | Web | Minor | 1 | All list endpoints (`/clients`, `/projects`, `/notifications`) accept `take`, `cursor`, `sortBy`, and `sortOrder` query params; Prisma translates these to `orderBy` + cursor pagination; frontend table header clicks dispatch sort state; maximum page size capped at 100 | mobouifr, hichokri |
-| 12 | **Additional Browser Support** | Accessibility & i18n | Minor | 1 | Application tested and verified on Google Chrome (primary), Mozilla Firefox, and Microsoft Edge; no browser-specific layout breaks or console errors observed across all core flows | mobouifr, hichokri |
-| 13 | **Gamification System** | Gaming & UX | Minor | 1 | `GamificationService` awards XP on CRM actions; level thresholds follow `xpForLevel(L) = 500 × L²`; achievements (`FIRST_PROJECT`, `LOYAL_CLIENT_3`) and badges (`HIGH_ROLLER`, `EARLY_BIRD`) stored with a unique `(userId, type)` constraint preventing duplicates; XP progress bar and earned achievements displayed on the Growth page | csouita |
-| 14 | **Notification System** | Web | Minor | 1 | Full CRUD: create, list (cursor-paginated), count unread, mark as read, mark all as read, delete, delete all; SSE bell badge in the topbar updates in real time via `EventSource`; deep-link navigation routes the user to the related client or project; 28 dedicated tests | csouita |
-| 15 | **Customizable Dashboard (Module of Choice)** | Modules of Choice | Minor | 1 | `react-grid-layout` powers a fully drag-and-drop, resizable widget grid; users pick from 8 distinct widgets (Revenue KPI, Activity Heatmap, Activity Feed, Project Status Bar, Data Graph, Calendar, Notes, Next Deadline) via a Widget Picker modal; three preset layout templates (Compact / Standard / Analytics) provide a starting configuration; layout changes persist across sessions; mobile fallback replaces drag with up/down reorder buttons; all widgets consume live SSE data for real-time updates without polling | mobouifr, hichokri |
-| 16 | **User Activity Analytics & Insights Dashboard** | User Management | Minor | 1 | Per-user 52-week GitHub-style activity heatmap tracking client creation, project creation, and project completion per day with color-coded intensity levels and hover tooltips; unified activity feed showing recent CRM actions with type badges and relative timestamps; Revenue KPI widget with month-over-month trend comparison, best-month highlight, and average revenue calculation — all analytics are userId-scoped, served by dedicated `/dashboard/activity-heatmap`, `/dashboard/activity`, and `/dashboard/revenue` endpoints, and update in real time via SSE | mobouifr, hichokri, csouita |
-| 17 | **Calendar & Reminders System (Module of Choice)** | Modules of Choice | Minor | 1 | Fully custom calendar built without any calendar library (no FullCalendar, no React Big Calendar): four distinct view modes (Month, Week, Day, Lane) with correct date arithmetic across all month and week boundaries; full CRUD for events with CRM-native tagging (`projectTag`, `clientTag` fields linking events directly to clients and projects); event modal with date, time, end date/time, priority, type, location, and external link; mini calendar sidebar for navigation; sticky-notes system (colors, tags, pinning, persistence) backed by a dedicated `Note` model; deep-link support (`?date=YYYY-MM-DD`) so notifications can route directly to a calendar date; all data persisted via `/dashboard/events` and `/dashboard/notes` endpoints with userId-scoped ownership checks | mobouifr, hichokri |
+| 1 | Backend Framework (NestJS) | Web | Minor | 1 | NestJS 10.x with one module per CRM domain, dependency injection, Guards, Pipes, and Interceptors. Controllers and services are fully decoupled. | oer-refa |
+| 2 | ORM (Prisma) | Web | Minor | 1 | Prisma 5.21.1 schema-first ORM. All queries go through a type-safe generated client. Migration history tracked in `prisma/migrations`. Prisma Studio available via `make studio`. | oer-refa |
+| 3 | OAuth 2.0 — 42 Intranet | User Management | Minor | 1 | passport-42 strategy intercepts the 42 callback, exchanges the code for a token, fetches the intra profile, and either finds an existing user by `intraId` or creates a new one. Configurable callback URL via env var. | oer-refa |
+| 4 | Two-Factor Authentication | User Management | Minor | 1 | otplib generates a per-user RFC 6238 TOTP secret. qrcode produces a scannable URI. Server verifies the 6-digit code before issuing a JWT stored as an HttpOnly cookie. Routes: `/2fa/generate`, `/2fa/turn-on`, `/2fa/turn-off`, `/2fa/authenticate`. | oer-refa |
+| 5 | LLM System Interface | Artificial Intelligence | **Major** | 2 | ChatbotModule calls the DeepSeek API with a system prompt including the user's live CRM data (10 most recent clients + active projects). Responses stream token-by-token via SSE using NestJS Observable. @Throttle enforces 10 req / 5 min per user. react-markdown + rehype-highlight renders the output. | soel-mou |
+| 6 | Monitoring System (Prometheus + Grafana) | DevOps | **Major** | 2 | @willsoto/nestjs-prometheus exposes `/api/metrics`. GlobalMetricsMiddleware records HTTP method, route, status code, and response time. postgres-exporter collects DB metrics. Custom Grafana dashboards and alert rules provisioned via Docker volume. | soel-mou |
+| 7 | Health Check, Backups & Disaster Recovery | DevOps | Minor | 1 | Alpine cron container runs `pg_dump` nightly at 02:00 UTC. Output is gzip-compressed into a named Docker volume. `make db-restore FILE=<path>` requires interactive confirmation before restoring. | soel-mou |
+| 8 | Frontend Framework (React) | Web | Minor | 1 | React 19.2 SPA built with Vite 7. Lazy-loaded routes with React.lazy + Suspense. Background-location modal overlay pattern. React Router v7 handles all client-side navigation. | mobouifr, hichokri |
+| 9 | Custom Design System | Web | Minor | 1 | 20+ shared reusable components exported from a single index: Button, Input, Select, Modal, Table, FormWrapper, LoadingSpinner, NotificationBell, WidgetCard, WidgetGrid, CalendarWidget, LanguageSwitcher, and more. Unified Tailwind design tokens for colour, typography, and spacing. | mobouifr, hichokri |
+| 10 | Multiple Languages (i18n) | Accessibility & i18n | Minor | 1 | i18next + i18next-browser-languagedetector. Three complete locale JSON files (EN/FR/ES). All user-facing strings use translation keys. LanguageSwitcher calls `i18n.changeLanguage()` at runtime with no page reload. | soel-mou |
+| 11 | Advanced Search, Filtering, Sorting & Pagination | Web | Minor | 1 | All list endpoints (`/clients`, `/projects`, `/notifications`) accept `take`, `cursor`, `sortBy`, and `sortOrder` query params. Prisma translates these to `orderBy` + cursor pagination. Frontend table header clicks dispatch sort state. Maximum page size capped at 200. | mobouifr |
+| 12 | Additional Browser Support | Accessibility & i18n | Minor | 1 | Tested and verified on Google Chrome (primary), Mozilla Firefox, and Microsoft Edge. No browser-specific layout breaks or console errors observed across all core user flows. | mobouifr, hichokri |
+| 13 | Gamification System | Gaming & UX | Minor | 1 | GamificationService awards XP on CRM actions. Level thresholds follow `xpForLevel(L) = 500 × L²`. Achievements and badges stored with a unique `(userId, type)` constraint. XP progress bar and earned achievements displayed on the Growth page. | csouita |
+| 14 | Notification System | Web | Minor | 1 | Full CRUD: create, list (cursor-paginated), count unread, mark as read, mark all as read, delete, delete all. SSE bell badge updates in real time. Deep-link navigation to related entities. 28 dedicated tests. | mobouifr, csouita |
+| 15 | Customizable Dashboard | Modules of Choice | Minor | 1 | react-grid-layout powers a fully drag-and-drop, resizable widget grid. Users choose from 8 distinct widgets via a Widget Picker modal. Three preset layout templates (Compact / Standard / Analytics). Layout persists across sessions. Mobile fallback replaces drag with reorder buttons. All widgets consume live SSE data. | mobouifr, hichokri |
+| 16 | User Activity Analytics & Insights | User Management | Minor | 1 | 52-week GitHub-style activity heatmap tracking CRM actions per day with colour-coded intensity and hover tooltips. Unified activity feed with type badges and relative timestamps. Revenue KPI with month-over-month trend comparison, best-month highlight, and average revenue calculation. All analytics are userId-scoped and update in real time via SSE. | mobouifr, oer-refa, csouita |
+| 17 | Calendar & Reminders System | Modules of Choice | Minor | 1 | Fully custom calendar built without any calendar library — no FullCalendar, no React Big Calendar. Four distinct view modes (Month, Week, Day, Lane) with correct date arithmetic across all month and week boundaries. Full CRUD for events with CRM-native client and project tagging. Sticky-notes system backed by a dedicated Note model. Deep-link support from notifications via `?date=YYYY-MM-DD`. | mobouifr, hichokri |
 
-**Total: 2 Major × 2 pts + 15 Minor × 1 pt = 4 + 15 = 19 pts**
+### Scoring summary
+
+| | Count | Points |
+|---|---|---|
+| Major modules | 2 | 4 pts |
+| Minor modules | 15 | 15 pts |
+| **Total implemented** | **17** | **19 pts** |
+| Minimum required to pass | — | 14 pts |
+| Bonus points (beyond 14) | — | 5 pts |
+
+### Modules of Choice — justification
+
+**Module 15 — Customizable Dashboard (Minor)**
+
+A widget that displays fixed charts would not qualify as a module. What makes this substantial is the combination of capabilities built together: persistent Cartesian layout coordinates saved per user in the database, a fully drag-and-drop and resizable interface powered by react-grid-layout, a widget picker modal, three preset layout templates that users can apply in one click, a mobile fallback with up/down reorder controls, and eight distinct live-data widgets each consuming real-time SSE streams. No pre-built dashboard framework was used. The result is a configurable, persistent workspace that adapts to each freelancer's priorities — which is the core value proposition of the CRM itself.
+
+**Module 17 — Calendar & Reminders System (Minor)**
+
+This was built from scratch without any calendar library. Four distinct view modes required separate date-arithmetic implementations: month boundary overflow, ISO week-start normalisation, day-view time-slot rendering, and swim-lane layout grouped by event type. All four modes share one state machine and one data source, which required careful normalisation to UTC midnight before any arithmetic to avoid timezone-driven off-by-one errors. Events link natively to CRM clients and projects via dedicated tag fields, persisted in the backend. The sticky-notes system adds a separate persistence layer with its own Prisma model, full CRUD, colour coding, tagging, and pin state. Deep-link support routes users from notification clicks directly to a specific calendar date. The scope — four distinct views, full event CRUD with CRM integration, a notes system, and deep-linking — justifies the Minor module point.
 
 ---
 
 ## Individual Contributions
 
-### mobouifr (Montassir Bouifraden) — Tech Lead · DevOps · Backend · Frontend
+### mobouifr — Montassir Bouifraden
 
-- Set up and maintained the Git workflow: branch naming conventions, integration flow into `backDevops`, and CI configuration.
-- Designed and implemented server-side sorting (multi-column, configurable direction) and cursor-based pagination for all list endpoints (clients, projects, notifications).
-- Fixed six backend bugs discovered through a deep audit: SSE model filter (dashboard receiving irrelevant events), achievement type mapping (`"note"` → `"achievement"`), notification created before delete (wrong ordering causing phantom notifications on failure), revenue chart using `createdAt` instead of `updatedAt` for completion date, `updateNote` returning 200 on a missing record instead of 404, and a dead `weeklyRevenue` variable accumulating silently.
-- Built the complete backend test suite: 74 tests across 8 test suites covering all service methods and controller routes; converted SSE tests from async-with-timer to synchronous to eliminate Jest parallel-worker force-exit warnings.
-- Maintained the notifications module end-to-end: bell dropdown close fix, delete-all endpoint, deep-link navigation, unread count badge.
-- Performed full dead-code audit: removed 23 unused files (test scripts, placeholder pages, empty entity classes, dead components, unregistered interceptor) with zero TypeScript errors after removal.
-- Docker Compose maintenance and `.env.example` documentation.
-- Built the Dashboard widget grid using `react-grid-layout`: drag-to-reorder, resizable widgets, preset layout templates (Compact / Standard / Analytics), and a widget picker modal.
-- Developed the Calendar and Reminders UI: four view modes (Month, Week, Day, Lane), event creation/edit modal, mini navigation calendar, and the sticky-note panel.
-- Implemented the chatbot widget: input box, streaming message display, Markdown rendering, and action-button parsing for filling CRM forms.
-- Worked on frontend routing composition and the responsive layout system.
+**Backend**
 
-**Challenge faced (backend):** The Jest force-exit warning only appeared with parallel workers (`--runInBand` was silent). Root cause: `setTimeout` timers in SSE tests kept worker processes alive past teardown. Since `Subject.next()` emissions are synchronous, removing the timer and completing the Subject in `afterEach` eliminated the warning entirely.
+- Designed and implemented server-side sorting (multi-column, configurable ASC/DESC) and cursor-based pagination for `/clients`, `/projects`, and `/notifications` using Prisma `orderBy` + cursor params with `take` and a default page size of 50 capped at 200.
+- Built the complete backend test suite: 74 tests across 8 test suites covering all service methods and controller routes. Converted SSE tests from async-with-timer to synchronous to eliminate Jest parallel-worker force-exit warnings caused by dangling setTimeout chains in Observable listeners.
+- Fixed six backend bugs found through a systematic audit:
+  1. SSE model filter on the dashboard was not scoped — all database mutations (including unrelated models) were reaching dashboard clients.
+  2. Achievement type mapping used the string `"note"` instead of `"achievement"`, causing incorrect achievement records.
+  3. A notification was created before its associated delete completed, producing phantom notifications if the delete subsequently failed.
+  4. Revenue chart was using `createdAt` instead of `updatedAt` for project completion date, causing incorrect month attribution.
+  5. `updateNote` returned HTTP 200 on a missing record instead of 404.
+  6. A `weeklyRevenue` variable accumulated silently in a loop without being used or returned anywhere.
+- Performed a full dead-code audit: removed 23 unused files including test scripts, placeholder pages, empty entity classes, dead components, and an unregistered interceptor. Zero TypeScript errors after removal.
+- Built and maintained the notifications module end-to-end: bell dropdown close behaviour, delete-all endpoint, deep-link navigation by targetType and targetId, unread count badge, and 28 dedicated tests.
+- Maintained Docker Compose configuration and `.env.example` documentation.
 
-**Challenge faced (frontend):** The four-mode calendar required a single state that rendered differently per mode. Managing week/day boundaries across month edges required normalising all dates to UTC midnight before any calendar arithmetic.
+**Frontend**
 
-### oer-refa (Othmane Er-Refaly) — Backend Lead
+- Built the dashboard widget grid using react-grid-layout: drag-to-reorder, resizable widgets via handles, three preset layout templates (Compact / Standard / Analytics), a widget picker modal, and per-user layout persistence across sessions.
+- Developed the Calendar and Reminders UI: Month, Week, Day, and Lane view modes with correct date arithmetic across all boundaries; event creation and edit modal; mini navigation calendar for date selection; sticky-note panel with colour coding, tagging, and pinning.
+- Implemented the chatbot widget: input box, streaming message display with character-by-character SSE rendering, Markdown output rendering via react-markdown, and action-button parsing.
+- Built the frontend routing structure and the responsive application layout.
 
-- Implemented the complete authentication layer: local email/password login with bcrypt, JWT signed and returned as an HttpOnly cookie, 42 OAuth via `passport-42`, and Two-Factor Authentication with TOTP QR code generation.
-- Designed and built the real-time SSE infrastructure: `globalMutation$` Subject in `PrismaService` as an in-process event bus; dashboard SSE stream filtering for relevant models; notification SSE stream.
-- Developed all dashboard analytics endpoints: revenue KPI (monthly chart + current/previous month comparison), activity heatmap (365-day contribution grid), activity feed (unified timeline), project-clients 6-month trend graph, notes CRUD, events CRUD.
-- Implemented the Calendar/Reminders backend and integrated SSE updates.
+**Challenge (backend).** Jest force-exit warnings only appeared with parallel workers — running with `--runInBand` was silent. The root cause was `setTimeout` timers inside SSE tests that kept worker processes alive past `afterAll` teardown. Since `Subject.next()` emissions are synchronous, replacing the timer with a direct Subject completion in `afterEach` resolved the warning entirely without changing test logic or coverage.
 
-**Challenge faced:** The `globalMutation$` Subject needed to be a shared singleton — NestJS DI scope had to be set to `DEFAULT` (singleton) on `PrismaService` to ensure all modules subscribed to the same stream rather than independent instances.
+**Challenge (frontend).** The four-mode calendar required one state machine that produced four different renderings. Managing week and day boundaries across month edges required normalising all dates to UTC midnight before arithmetic, because using local Date objects without normalisation caused off-by-one errors on boundaries where DST transitions occurred.
 
-### soel-mou (Solayman) — DevOps · Backend
+---
 
-- Designed and maintained the entire Docker Compose stack: Nginx reverse proxy with HTTPS, PostgreSQL, backend, frontend, Prometheus, Grafana, PostgreSQL exporter, and the backup cron service — all networked on an isolated bridge.
-- Owned the Prisma schema and all database migrations; enforced the rule that no other developer edits `schema.prisma` directly.
-- Built the AI Chatbot module: DeepSeek API integration, live CRM context assembly (querying user's clients and projects at request time), SSE token streaming via NestJS `Observable`, `react-markdown` rendering on the frontend, and per-user throttling.
-- Set up Prometheus scraping, Grafana dashboard provisioning, and PostgreSQL alert rules.
-- Implemented the internationalisation pipeline: 3 locale JSON files, `i18next` configuration, browser language detection, and the `LanguageSwitcher` component.
-- Wrote and maintained the `Makefile` (20+ targets covering dev, prod, DB operations, SSL, monitoring).
+### oer-refa — Othmane Er-Refaly
 
-**Challenge faced:** The chatbot context injection initially sent the user's entire database to the LLM, causing token limit errors and high latency. Solution: summarised the context to the 10 most recent clients and active projects with only key fields, reducing payload size by ~90%.
+- Implemented the complete authentication layer: local email/password login with bcrypt (12 salt rounds), JWT signed and returned as an HttpOnly cookie, 42 OAuth via passport-42, and TOTP two-factor authentication with QR code generation.
+- Designed and built the real-time SSE infrastructure: `globalMutation$` Subject in `PrismaService` as an in-process singleton event bus. Any write operation calls `.next()`. Each SSE endpoint subscribes and filters for its relevant models.
+- Developed all dashboard analytics endpoints: revenue KPI (full-year monthly chart with current vs previous month comparison), activity heatmap (365-day contribution grid), unified activity feed, 6-month project/client trend chart, notes CRUD, and events CRUD.
+- Built the Calendar and Reminders backend and integrated SSE updates for calendar event mutations.
 
-### csouita (Souita) — Backend Developer
+**Challenge.** The `globalMutation$` Subject needed to be a shared singleton across all modules. NestJS DI defaults can create independent instances per injection context, meaning endpoints would subscribe to different Subject instances and miss events. Setting `PrismaService` to `DEFAULT` scope explicitly ensured all modules shared one stream.
 
-- Implemented the full Gamification module: defined XP award values per action type, level thresholds and the `calculateLevel()` function, and the `GamificationService` methods called from other services after successful writes.
-- Built the `UserAchievement` and `UserBadge` creation logic with the unique `(userId, type)` constraint ensuring no duplicates.
-- Contributed to the Notifications SSE architecture and resolved integration conflicts between the gamification service and the SSE streams (the `globalMutation$` Subject was shared across both systems).
+---
 
-**Challenge faced:** A race condition occurred when two quick actions triggered gamification writes simultaneously, producing duplicate achievements. Resolved by relying on Prisma's `upsert` with the unique constraint as a conflict key rather than a check-then-insert pattern.
+### soel-mou — Solayman
 
-### hichokri (Hiba Chokri) — Frontend Developer
+- Designed and maintained the full Docker Compose stack: Nginx with HTTPS, PostgreSQL, NestJS backend, Vite frontend, Prometheus, Grafana, PostgreSQL exporter, and the backup cron service — all on an isolated Docker bridge network.
+- Owned the Prisma schema and all database migrations. No other developer edited `schema.prisma` directly.
+- Built the AI Chatbot module: DeepSeek API integration, live CRM context assembly by querying the user's 10 most recent clients and active projects at request time, SSE token streaming via NestJS Observable, react-markdown rendering on the frontend, and per-user throttling.
+- Set up Prometheus scraping configuration, Grafana dashboard provisioning via Docker volume mount, and PostgreSQL alert rules.
+- Implemented the internationalisation pipeline: three locale JSON files (EN/FR/ES), i18next configuration, browser language detection, and the LanguageSwitcher component.
+- Wrote and maintained the Makefile with 20+ targets covering dev, prod, database operations, SSL certificate generation, and monitoring.
 
-- Built all Client pages: list (with search bar, sort headers, pagination controls), detail view (full profile + projects tab), create form modal, and edit form modal.
-- Built all Project pages: same structure; status badge component; priority indicator.
-- Implemented the React Router background-location modal pattern: navigating to `/clients/new` or `/clients/:id` keeps the list page rendered and blurred behind the modal overlay, so returning from the modal does not trigger a full list reload.
-- Integrated Zod schemas with React Hook Form for client-side validation on all CRM forms (required fields, email format, phone pattern).
+**Challenge.** The initial chatbot implementation sent the user's entire database as context to the LLM on every request. This caused token limit errors for users with many records and added significant latency. Reducing the context to the 10 most recent clients and active projects with only the key fields compressed the average payload by approximately 90% while preserving the quality of business-relevant responses.
 
-**Challenge faced:** The background-location modal pattern required two `<Routes>` blocks in `AppRoutes`: one for the background list, one for the modal overlay. Getting TypeScript to accept `location.state?.background` required a type assertion; the solution was a typed `state` interface rather than `as any`.
+---
+
+### csouita — Souita
+
+- Implemented the Gamification module: XP award values per CRM action type, level threshold calculations using `xpForLevel(L) = 500 × L²`, and the GamificationService methods called from other services after successful writes.
+- Built UserAchievement and UserBadge creation with a unique `(userId, type)` constraint in the Prisma schema, ensuring each milestone is earned only once per user.
+- Contributed to the Notifications SSE architecture and resolved integration conflicts between the gamification service and the shared `globalMutation$` Subject.
+
+**Challenge.** Two rapid sequential CRM actions — for example, creating two clients within milliseconds — could trigger concurrent gamification writes and produce duplicate achievement records before the first write was committed. Replacing the check-then-insert pattern with Prisma `upsert` using the `(userId, type)` unique constraint as the conflict key eliminated the race window entirely.
+
+---
+
+### hichokri — Hiba Chokri
+
+- Built all Client pages: list view with search bar, sort headers, and pagination controls; detail view with full profile and linked projects tab; create form modal; edit form modal.
+- Built all Project pages with the same structure; implemented the status badge component and priority indicator.
+- Implemented the React Router background-location modal pattern: two `<Routes>` blocks in `AppRoutes` — one for the background list, one for the modal overlay — so the list page stays rendered and blurred behind the modal and is not remounted on return.
+- Integrated Zod schemas with React Hook Form on all CRM forms, covering required fields, email format validation, and phone pattern matching.
+
+**Challenge.** The background-location modal pattern required accessing `location.state?.background`, which TypeScript rejects without an explicit type annotation on `location.state`. Using `as any` was the obvious shortcut but was avoided. Instead, a typed `LocationState` interface was defined and passed to `useLocation<LocationState>()`, resolving the type error cleanly without suppressing type checking.
 
 ---
 
@@ -492,17 +522,21 @@ Modules follow the ft_transcendence Surprise evaluation grid. **Major = 2 pts, M
 | Docker Engine | 24.x | `docker --version` | [docs.docker.com](https://docs.docker.com/engine/install/) |
 | Docker Compose | v2.x (plugin) | `docker compose version` | Included with Docker Desktop |
 | Git | Any recent | `git --version` | [git-scm.com](https://git-scm.com) |
-| `make` | Any | `make --version` | Pre-installed on Linux/macOS; [gnuwin32](https://gnuwin32.sourceforge.net/packages/make.htm) on Windows |
-| Node.js *(optional)* | 20+ | `node --version` | Only needed to run backend tests locally without Docker |
+| make | Any | `make --version` | Pre-installed on Linux/macOS |
+| Node.js *(for local tests only)* | 20+ | `node --version` | [nodejs.org](https://nodejs.org) |
 
-### 1. Clone the Repository
+---
+
+### 1 — Clone the Repository
 
 ```bash
 git clone https://github.com/solacode-SC/freelancer-crm-final-project.git
 cd freelancer-crm-final-project
 ```
 
-### 2. Create the Environment File
+---
+
+### 2 — Configure the Environment
 
 ```bash
 cp .env.example .env
@@ -510,59 +544,69 @@ cp .env.example .env
 
 Open `.env` and fill in the required values:
 
-| Variable | Required | How to generate / get |
+| Variable | Required | How to obtain |
 |---|---|---|
-| `JWT_SECRET` | **Yes** | `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"` |
-| `POSTGRES_PASSWORD` | Recommended | Replace the default `password` with a strong random string |
-| `FORTYTWO_CLIENT_ID` | For 42 OAuth | Register at [profile.intra.42.fr/oauth/applications](https://profile.intra.42.fr/oauth/applications); callback URL: `http://localhost:3089/auth/callback` |
+| `JWT_SECRET` | Yes | `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"` |
+| `POSTGRES_PASSWORD` | Recommended | Replace the default with any strong string |
+| `FORTYTWO_CLIENT_ID` | For 42 OAuth | Register at [profile.intra.42.fr/oauth/applications](https://profile.intra.42.fr/oauth/applications). Callback: `http://localhost:3089/auth/callback` |
 | `FORTYTWO_CLIENT_SECRET` | For 42 OAuth | Same registration page |
-| `DEEPSEEK_API_KEY` | For chatbot | [platform.deepseek.com](https://platform.deepseek.com) |
+| `DEEPSEEK_API_KEY` | For AI chatbot | [platform.deepseek.com](https://platform.deepseek.com) |
 | `GF_SECURITY_ADMIN_PASSWORD` | Recommended | Grafana admin password |
 
-All other variables have working defaults for local development and do not need to be changed.
+All other variables have working defaults for local development.
 
-### 3. Start All Services
+---
+
+### 3 — Start All Services
 
 ```bash
 make up
 ```
 
 This single command will:
-1. Generate a self-signed HTTPS certificate for `localhost` (first run only; takes ~2 s)
+
+1. Generate a self-signed HTTPS certificate for `localhost` (first run only — takes ~2 seconds)
 2. Build all Docker images
 3. Start PostgreSQL, the NestJS backend, the React/Vite frontend, Adminer, Prometheus, Grafana, and the backup service
 4. Apply Prisma database migrations automatically on backend startup
 
-Wait for the backend health check to pass. You should see:
+Wait until the backend confirms it is running:
 
 ```
-backend-1  | [Nest] LOG [NestFactory] Starting Nest application...
-backend-1  | [Nest] LOG [NestApplication] Nest application successfully started +Xms
+backend-1  | [Nest] LOG [NestApplication] Nest application successfully started
 ```
 
-The first build takes 2–4 minutes while Docker downloads base images. Subsequent starts are faster.
+The first build takes 2–4 minutes while Docker pulls base images. Subsequent starts are faster.
 
-### 4. Open the Application
+---
+
+### 4 — Open the Application
 
 | Service | URL | Notes |
 |---|---|---|
-| **Application** | https://localhost | Accept the self-signed certificate warning on first visit (click "Advanced → Proceed") |
-| **Backend API** | http://localhost:3001/api | REST endpoints; health check at `/api/health` |
-| **Adminer** | http://localhost:8080 | DB browser — System: `PostgreSQL`, Server: `postgres`, User/Password from `.env` |
-| **Grafana** | http://localhost:3002 | Login with `GF_SECURITY_ADMIN_USER` / `GF_SECURITY_ADMIN_PASSWORD` from `.env` |
-| **Prometheus** | http://localhost:9090 | No authentication |
+| **Application** | https://localhost | Accept the self-signed certificate warning on first visit |
+| **Backend API** | http://localhost:3001/api | Health check at `/api/health` |
+| **Adminer** | http://localhost:8080 | System: PostgreSQL · Server: postgres |
+| **Grafana** | http://localhost:3002 | Login with credentials from `.env` |
+| **Prometheus** | http://localhost:9090 | No authentication required |
 
-### 5. Stop All Services
+> The Privacy Policy and Terms of Service are accessible from the application footer on every page.
+
+---
+
+### 5 — Stop All Services
 
 ```bash
 make down
 ```
 
-### Makefile Command Reference
+---
+
+### Makefile Reference
 
 | Command | Description |
 |---|---|
-| `make up` | Build and start all services (generates SSL cert on first run) |
+| `make up` | Build and start all services |
 | `make down` | Stop all services |
 | `make restart` | Rebuild and restart everything |
 | `make logs` | Stream live logs from all containers |
@@ -570,11 +614,14 @@ make down
 | `make migrate` | Apply pending Prisma migrations |
 | `make generate` | Regenerate Prisma client TypeScript types |
 | `make seed` | Load sample data into the database |
-| `make db-shell` | Open a `psql` console inside the PostgreSQL container |
+| `make studio` | Open Prisma Studio in the browser |
+| `make db-shell` | Open a psql console inside PostgreSQL |
 | `make db-backup` | Trigger a manual database backup |
-| `make db-restore FILE=<path>` | Restore from a backup file (interactive confirmation) |
+| `make db-restore FILE=<path>` | Restore from a backup file (interactive confirmation required) |
 
-### Running Backend Tests (Without Docker)
+---
+
+### Running Backend Tests
 
 ```bash
 cd backend
@@ -590,16 +637,18 @@ Tests:       74 passed, 74 total
 Time:        ~5s
 ```
 
+---
+
 ### Common Issues
 
-| Error Message | Likely Cause | Fix |
+| Symptom | Likely Cause | Fix |
 |---|---|---|
-| `Can't reach database server at localhost:5432` | PostgreSQL container not started | `make down && make up` |
+| `Can't reach database server at localhost:5432` | PostgreSQL container not running | `make down && make up` |
 | `Environment variable not found: DATABASE_URL` | `.env` file missing | `cp .env.example .env` |
-| `The table 'public.User' does not exist` | Migrations not applied | `make migrate` |
-| `Prisma Client is not generated` | Stale TypeScript types | `cd backend && npm install && make generate` |
-| Browser shows certificate warning | Self-signed dev cert | Click "Advanced → Proceed to localhost (unsafe)" |
-| `Port 3001 already in use` | Another process on port 3001 | `make down`, or `lsof -i :3001` then `kill -9 <PID>` |
+| `Table 'public.User' does not exist` | Migrations not applied | `make migrate` |
+| `Prisma Client is not generated` | Stale generated types | `cd backend && npm install && make generate` |
+| Browser shows certificate warning | Self-signed dev certificate | Click "Advanced → Proceed to localhost" |
+| `Port 3001 already in use` | Another process on that port | `make down` then `lsof -i :3001` and `kill -9 <PID>` |
 | `Port 443 already in use` | Another HTTPS server running | Stop the conflicting process or change `FRONTEND_PORT` in `.env` |
 
 ---
@@ -608,47 +657,43 @@ Time:        ~5s
 
 ### Official Documentation
 
-- [NestJS — Official Docs](https://docs.nestjs.com)
-- [Prisma — Getting Started & Reference](https://www.prisma.io/docs)
-- [React 19 — API Reference](https://react.dev/reference/react)
-- [Vite — Build Tool Reference](https://vite.dev/config/)
-- [Tailwind CSS v4 — Documentation](https://tailwindcss.com/docs)
-- [React Router v7 — Reference](https://reactrouter.com/start/library/routing)
-- [PostgreSQL 16 — Documentation](https://www.postgresql.org/docs/16/)
-- [Docker Compose v2 — Reference](https://docs.docker.com/compose/reference/)
-- [Passport.js — Strategy Index](https://www.passportjs.org/packages/)
-- [otplib — TOTP Library](https://github.com/yeojz/otplib)
-- [i18next — React Integration](https://react.i18next.com/)
-- [RxJS — Subjects & Operators](https://rxjs.dev/guide/subject)
-- [Prometheus NestJS integration](https://github.com/willsoto/nestjs-prometheus)
-- [DeepSeek API — Reference](https://api-docs.deepseek.com/)
-- [react-grid-layout — Docs](https://github.com/react-grid-layout/react-grid-layout)
+- [NestJS](https://docs.nestjs.com)
+- [Prisma](https://www.prisma.io/docs)
+- [React 19](https://react.dev/reference/react)
+- [Vite](https://vite.dev/config/)
+- [Tailwind CSS v4](https://tailwindcss.com/docs)
+- [React Router v7](https://reactrouter.com/start/library/routing)
+- [PostgreSQL 16](https://www.postgresql.org/docs/16/)
+- [Docker Compose v2](https://docs.docker.com/compose/reference/)
+- [Passport.js](https://www.passportjs.org/packages/)
+- [otplib — TOTP](https://github.com/yeojz/otplib)
+- [i18next](https://react.i18next.com/)
+- [RxJS Subjects](https://rxjs.dev/guide/subject)
+- [nestjs-prometheus](https://github.com/willsoto/nestjs-prometheus)
+- [DeepSeek API](https://api-docs.deepseek.com/)
+- [react-grid-layout](https://github.com/react-grid-layout/react-grid-layout)
 
-### Articles & Tutorials
+### Articles & Specifications
 
-- [Server-Sent Events (SSE) — MDN](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)
-- [JWT Best Practices — IETF RFC 8725](https://www.rfc-editor.org/rfc/rfc8725)
-- [TOTP Algorithm — RFC 6238](https://datatracker.ietf.org/doc/html/rfc6238)
+- [Server-Sent Events — MDN](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)
+- [JWT Best Practices — RFC 8725](https://www.rfc-editor.org/rfc/rfc8725)
+- [TOTP — RFC 6238](https://datatracker.ietf.org/doc/html/rfc6238)
 - [Cursor Pagination with Prisma](https://www.prisma.io/docs/orm/prisma-client/queries/pagination)
 - [NestJS Guards & Authentication](https://docs.nestjs.com/guards)
-- [42 OAuth Application Setup Guide](https://api.intra.42.fr/apidoc/guides/web_application_flow)
+- [42 OAuth Application Setup](https://api.intra.42.fr/apidoc/guides/web_application_flow)
 - [Prometheus Data Model](https://prometheus.io/docs/concepts/data_model/)
 - [Grafana Provisioning via Docker](https://grafana.com/docs/grafana/latest/administration/provisioning/)
 
 ### AI Usage
 
-This project used AI assistance (Claude by Anthropic) as a development accelerator. All AI-generated suggestions were manually reviewed, tested in the project context, and adapted before merge.
+AI assistance (Claude by Anthropic) was used as a development accelerator throughout the project. All suggestions were reviewed, tested in context, and adapted before being merged.
 
 | Task | What AI was used for |
 |---|---|
-| **Architecture decisions** | Discussing NestJS module boundary design, SSE vs WebSocket trade-offs, cursor pagination vs offset pagination |
-| **Bug diagnosis** | Identifying the SSE model-filter bug (all mutations reaching the dashboard), notification-before-delete ordering, revenue `createdAt` vs `updatedAt` correctness, `updateNote` silent 200 on missing record |
-| **Test coverage** | Writing comprehensive Jest test suites for all 8 backend modules (74 tests total); diagnosing and fixing the Jest parallel-worker force-exit warning |
-| **Dead code audit** | Full audit of 23 unused files across frontend and backend; verifying zero consumers before deletion |
-| **Security review** | Identifying localStorage token leak, unused HTTP interceptor, empty entity class files |
-| **Documentation** | Drafting this README |
-| **In-app chatbot (runtime)** | The DeepSeek LLM powers the in-app CRM assistant at runtime — this is a product feature, not a development tool |
-
----
-
-*For additional technical documentation see the [`docs/`](docs/) directory: backend setup guide, database schema walkthrough, and design token reference.*
+| Architecture decisions | Discussing NestJS module boundary design, SSE vs WebSocket trade-offs, cursor vs offset pagination |
+| Bug diagnosis | Identifying the SSE model-filter bug, notification-before-delete ordering, revenue `createdAt` vs `updatedAt`, `updateNote` silent 200 on missing record |
+| Test coverage | Writing Jest test suites for all 8 backend modules (74 tests total); diagnosing and fixing the Jest parallel-worker force-exit warning |
+| Dead code audit | Full audit of 23 unused files across frontend and backend; verifying zero consumers before deletion |
+| Security review | Identifying unused HTTP interceptor and empty entity class files |
+| Documentation | Drafting and refining this README |
+| In-app chatbot (runtime) | The DeepSeek LLM powers the in-app CRM assistant at runtime — this is a product feature, not a development tool |
