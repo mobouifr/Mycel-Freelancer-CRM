@@ -684,16 +684,3 @@ Time:        ~5s
 - [Prometheus Data Model](https://prometheus.io/docs/concepts/data_model/)
 - [Grafana Provisioning via Docker](https://grafana.com/docs/grafana/latest/administration/provisioning/)
 
-### AI Usage
-
-AI assistance (Claude by Anthropic) was used as a development accelerator throughout the project. All suggestions were reviewed, tested in context, and adapted before being merged.
-
-| Task | What AI was used for |
-|---|---|
-| Architecture decisions | Discussing NestJS module boundary design, SSE vs WebSocket trade-offs, cursor vs offset pagination |
-| Bug diagnosis | Identifying the SSE model-filter bug, notification-before-delete ordering, revenue `createdAt` vs `updatedAt`, `updateNote` silent 200 on missing record |
-| Test coverage | Writing Jest test suites for all 8 backend modules (74 tests total); diagnosing and fixing the Jest parallel-worker force-exit warning |
-| Dead code audit | Full audit of 23 unused files across frontend and backend; verifying zero consumers before deletion |
-| Security review | Identifying unused HTTP interceptor and empty entity class files |
-| Documentation | Drafting and refining this README |
-| In-app chatbot (runtime) | The DeepSeek LLM powers the in-app CRM assistant at runtime — this is a product feature, not a development tool |
