@@ -14,6 +14,12 @@
 
 </div>
 
+<div align="center">
+  <img src="screenshots/preview.gif" alt="Dashboard preview animation" width="90%"/>
+  
+  <sub>Dashboard preview — animated overview of the interface</sub>
+</div>
+
 ---
 
 ## Table of Contents
